@@ -1,5 +1,6 @@
 'use client';
 import BrandScreen from '../components/brand-screen.tsx';
+import AcademicCredits from '../components/academic-credits.tsx';
 
 /** Falha inesperada ao montar a tela: mensagem da voz SBI, sem codigo tecnico, com nova tentativa. */
 export default function ErrorPage({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
@@ -12,6 +13,7 @@ export default function ErrorPage({ reset }: { error: Error & { digest?: string 
           <button type="button" className="btn btn-primary" onClick={reset}>Tentar de novo</button>
           <a className="btn" href="/">Voltar ao início</a>
         </div>
+        <AcademicCredits centered />
       </BrandScreen>
     </main>
   );

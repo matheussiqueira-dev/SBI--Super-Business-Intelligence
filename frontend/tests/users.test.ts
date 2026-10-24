@@ -4,7 +4,8 @@ import { landingPath, menuFor, PASSWORD_PATH } from '../lib/areas.ts';
 import { ERROR_MESSAGES } from '../lib/api/messages.ts';
 import { readFileSync } from 'node:fs';
 import { passwordProblems } from '../lib/password.ts';
-import { actionsFor, situation } from '../lib/users.ts';
+import { actionsFor, assignableRoles, situation } from '../lib/users.ts';
+import { roleLabel } from '../lib/areas.ts';
 
 const NOW = new Date('2026-10-14T13:00:00Z');
 
@@ -44,7 +45,21 @@ test('troca de senha: confere tamanho, bytes, e-mail, igualdade e confirmacao an
 });
 
 test('todo ErrorCode do contrato tem mensagem em pt-BR', () => {
-  const contract = JSON.parse(readFileSync(new URL('../../config/openapi/target-loja-gestao-openapi-2026-10-14-v5.json', import.meta.url), 'utf8')) as
+  const contract = JSON.parse(readFileSync(new URL('../../config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json', import.meta.url), 'utf8')) as
     { components: { schemas: { ErrorCode: { enum: string[] } } } };
   for (const code of contract.components.schemas.ErrorCode.enum) assert.ok(ERROR_MESSAGES[code], code);
+});
+
+test('[CT-USR-108] conta de CEO so recebe acao de outro CEO; so o CEO atribui o papel CEO', () => {
+  const ceo = { id: 9, active: true, lockedUntil: null, role: 'CEO' };
+  assert.deepEqual(actionsFor(ceo, 1, NOW, 'GERENTE'), []);
+  assert.deepEqual(actionsFor(ceo, 3, NOW, 'CEO'), ['edit', 'role', 'status', 'reset']);
+  assert.deepEqual(assignableRoles('GERENTE'), ['VENDEDOR', 'GERENTE']);
+  assert.deepEqual(assignableRoles('CEO'), ['VENDEDOR', 'GERENTE', 'CEO']);
+  assert.deepEqual(['CEO', 'GERENTE', 'VENDEDOR'].map(roleLabel), ['CEO', 'Gerente', 'Vendedor']);
+});
+
+test('[CT-USR-109] so a linha de VENDEDOR oferece a troca de equipe', () => {
+  assert.deepEqual(actionsFor({ id: 4, active: true, lockedUntil: null, role: 'VENDEDOR' }, 1, NOW), ['edit', 'role', 'status', 'team', 'reset']);
+  assert.ok(!actionsFor({ id: 2, active: true, lockedUntil: null, role: 'GERENTE' }, 1, NOW).includes('team'));
 });

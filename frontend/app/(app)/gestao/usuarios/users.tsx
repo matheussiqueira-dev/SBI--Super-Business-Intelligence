@@ -1,17 +1,19 @@
 'use client';
 // Usuarios (WP-EVO-2): cadastro com senha provisoria, edicao com versao, papel e situacao com motivo,
 // desbloqueio e redefinicao de senha. Papel, situacao, desbloqueio e senha encerram as sessoes do usuario.
+// D-EVO-43/44: so o CEO cria, promove ou altera conta de CEO; o vendedor tem um gerente responsavel (equipe).
 import { useState, type FormEvent } from 'react';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { core, z } from 'zod';
 import {
-  ChangeUserRoleBody, ChangeUserRoleResponse, ChangeUserStatusBody, ChangeUserStatusResponse, CreateUserBody, CreateUserResponse,
+  ChangeUserManagerResponse, ChangeUserRoleBody, ChangeUserRoleResponse, ChangeUserStatusBody, ChangeUserStatusResponse, CreateUserBody, CreateUserResponse,
   GetUserResponse, ListUsersResponse, ResetUserPasswordBody, UpdateUserBody, UpdateUserResponse,
 } from '../../../../lib/api/generated/sbi.zod.ts';
 import { api } from '../../../../lib/api/http.ts';
 import { formatDateTime } from '../../../../lib/format.ts';
 import { labeledProblems } from '../../../../lib/forms.ts';
-import { actionsFor, situation, type UserAction } from '../../../../lib/users.ts';
+import { actionsFor, assignableRoles, situation, type UserAction } from '../../../../lib/users.ts';
+import { roleLabel } from '../../../../lib/areas.ts';
 import { ErrorNotice, Loading } from '../../../../components/feedback.tsx';
 import { Field } from '../../../../components/customer-form.tsx';
 import Drawer from '../../../../components/drawer.tsx';
@@ -22,9 +24,8 @@ import { StatusMessage, useStatusMessage } from '../../../../components/status-m
 type User = z.infer<typeof ListUsersResponse>['content'][number];
 type Panel = { kind: 'new' } | { kind: UserAction; user: User } | null;
 
-const ROLE_LABEL: Record<string, string> = { GERENTE: 'Gerente', VENDEDOR: 'Vendedor' };
 const ACTION_LABEL: Record<UserAction, string> = {
-  edit: 'Editar', role: 'Papel', status: 'Situação', unlock: 'Desbloquear', reset: 'Redefinir senha',
+  edit: 'Editar', role: 'Papel', status: 'Situação', unlock: 'Desbloquear', reset: 'Redefinir senha', team: 'Equipe',
 };
 const PASSWORD_HINT = 'De 12 a 72 caracteres; sem senhas comuns nem o próprio e-mail. A pessoa troca no primeiro acesso.';
 
@@ -41,7 +42,7 @@ function Problems({ items }: { items: string[] }) {
   return <div className="notice notice-error" role="alert">{items.map(p => <p key={p}>{p}</p>)}</div>;
 }
 
-export default function Users({ currentUserId }: { currentUserId: number }) {
+export default function Users({ currentUserId, currentRole }: { currentUserId: number; currentRole: string }) {
   const client = useQueryClient();
   const [q, setQ] = useState('');
   const [role, setRole] = useState('');
@@ -76,7 +77,7 @@ export default function Users({ currentUserId }: { currentUserId: number }) {
             <input id="busca-usuarios" className="input" type="search" value={q} onChange={event => { setQ(event.target.value); setPage(0); }} /></div>
           <div className="field"><label htmlFor="filtro-papel">Papel</label>
             <select id="filtro-papel" className="select" value={role} onChange={event => { setRole(event.target.value); setPage(0); }}>
-              <option value="">Todos</option><option value="GERENTE">Gerente</option><option value="VENDEDOR">Vendedor</option></select></div>
+              <option value="">Todos</option><option value="CEO">CEO</option><option value="GERENTE">Gerente</option><option value="VENDEDOR">Vendedor</option></select></div>
           <div className="field"><label htmlFor="filtro-situacao">Situação</label>
             <select id="filtro-situacao" className="select" value={active} onChange={event => { setActive(event.target.value); setPage(0); }}>
               <option value="">Todas</option><option value="true">Ativos</option><option value="false">Inativos</option></select></div>
@@ -86,7 +87,7 @@ export default function Users({ currentUserId }: { currentUserId: number }) {
           ? <p className="empty">Nenhum usuário encontrado.</p>
           : data && <div className="table-wrap"><table>
               <caption className="sr-only">Usuários</caption>
-              <thead><tr><th scope="col">Nome</th><th scope="col">E-mail</th><th scope="col">Papel</th><th scope="col">Situação</th>
+              <thead><tr><th scope="col">Nome</th><th scope="col">E-mail</th><th scope="col">Papel</th><th scope="col">Equipe</th><th scope="col">Situação</th>
                 <th scope="col">Último acesso</th><th scope="col"><span className="sr-only">Ações</span></th></tr></thead>
               <tbody>{data.content.map(u => {
                 const state = situation(u);
@@ -94,11 +95,12 @@ export default function Users({ currentUserId }: { currentUserId: number }) {
                   <tr key={u.id}>
                     <td>{u.name}{u.id === currentUserId && <span className="muted"> (você)</span>}</td>
                     <td className="mono">{u.email}</td>
-                    <td>{ROLE_LABEL[u.role] ?? u.role}</td>
+                    <td>{roleLabel(u.role)}</td>
+                    <td>{u.role === 'VENDEDOR' ? (u.manager ? u.manager.name : <span className="muted">Sem equipe</span>) : '—'}</td>
                     <td><span className={`pill ${state.tone === 'ok' ? 'pill-ok' : state.tone === 'warn' ? 'pill-warn' : ''}`}>{state.label}</span></td>
                     <td>{u.lastLoginAt ? formatDateTime(u.lastLoginAt) : '—'}</td>
                     <td><div className="actions">
-                      {actionsFor(u, currentUserId).map(action => {
+                      {actionsFor(u, currentUserId, new Date(), currentRole).map(action => {
                         const label = action === 'status' ? (u.active ? 'Desativar' : 'Ativar') : ACTION_LABEL[action];
                         return (
                           <button key={action} type="button" className={action === 'edit' ? 'btn' : 'btn btn-ghost'}
@@ -113,9 +115,10 @@ export default function Users({ currentUserId }: { currentUserId: number }) {
         {data && <Pager page={data.page} size={data.size} total={data.totalElements} onPage={setPage} />}
       </section>
       <Drawer open={panel !== null} title={title} onClose={() => setPanel(null)}>
-        {panel?.kind === 'new' && <CreateForm onDone={done('Usuário cadastrado. Entregue a senha provisória pessoalmente; a troca é pedida no primeiro acesso.')} />}
+        {panel?.kind === 'new' && <CreateForm roles={assignableRoles(currentRole)} onDone={done('Usuário cadastrado. Entregue a senha provisória pessoalmente; a troca é pedida no primeiro acesso.')} />}
         {panel?.kind === 'edit' && <EditForm user={panel.user} onDone={done(`Dados de ${panel.user.name} salvos.`)} />}
-        {panel?.kind === 'role' && <RoleForm user={panel.user} onDone={done(`Papel de ${panel.user.name} alterado. As sessões abertas dessa pessoa terminam no próximo acesso.`)} />}
+        {panel?.kind === 'role' && <RoleForm user={panel.user} roles={assignableRoles(currentRole)} onDone={done(`Papel de ${panel.user.name} alterado. As sessões abertas dessa pessoa terminam no próximo acesso.`)} />}
+        {panel?.kind === 'team' && <TeamForm user={panel.user} onDone={done(`Equipe de ${panel.user.name} atualizada.`)} />}
         {panel?.kind === 'status' && <StatusForm user={panel.user}
           onDone={done(panel.user.active ? `Acesso de ${panel.user.name} desativado. O histórico de vendas continua.` : `Acesso de ${panel.user.name} reativado.`)} />}
         {panel?.kind === 'unlock' && <UnlockForm user={panel.user} onDone={done(`Acesso de ${panel.user.name} desbloqueado: já é possível entrar.`)} />}
@@ -129,7 +132,7 @@ function SubmitButton({ busy, label }: { busy: boolean; label: string }) {
   return <div className="actions"><button type="submit" className="btn btn-primary" disabled={busy}>{busy ? 'Salvando…' : label}</button></div>;
 }
 
-function CreateForm({ onDone }: { onDone: () => void }) {
+function CreateForm({ roles, onDone }: { roles: readonly string[]; onDone: () => void }) {
   const [problems, setProblems] = useState<string[]>([]);
   const [visible, setVisible] = useState(false);
   const save = useMutation({
@@ -151,7 +154,7 @@ function CreateForm({ onDone }: { onDone: () => void }) {
         <Field id="usuario-nome" label="Nome"><input id="usuario-nome" name="name" className="input" required minLength={3} maxLength={120} /></Field>
         <Field id="usuario-email" label="E-mail"><input id="usuario-email" name="email" className="input" type="email" required maxLength={254} autoComplete="off" /></Field>
         <Field id="usuario-papel" label="Papel"><select id="usuario-papel" name="role" className="select" defaultValue="VENDEDOR">
-          <option value="VENDEDOR">Vendedor</option><option value="GERENTE">Gerente</option></select></Field>
+          {roles.map(role => <option key={role} value={role}>{roleLabel(role)}</option>)}</select></Field>
         <Field id="usuario-senha" label="Senha provisória" hint={PASSWORD_HINT}>
           <input id="usuario-senha" name="temporaryPassword" className="input" type={visible ? 'text' : 'password'} required minLength={12} maxLength={72} autoComplete="new-password" />
           <ShowPassword checked={visible} onChange={setVisible} /></Field>
@@ -205,7 +208,7 @@ function ReasonField({ id }: { id: string }) {
 
 const REVOKES = 'As sessões abertas desta pessoa serão encerradas no próximo acesso.';
 
-function RoleForm({ user, onDone }: { user: User; onDone: () => void }) {
+function RoleForm({ user, roles, onDone }: { user: User; roles: readonly string[]; onDone: () => void }) {
   const [problems, setProblems] = useState<string[]>([]);
   const save = useMutation({
     mutationFn: (body: unknown) => api.request(`/users/${user.id}/role`, { method: 'PATCH', body, schema: ChangeUserRoleResponse }),
@@ -221,15 +224,44 @@ function RoleForm({ user, onDone }: { user: User; onDone: () => void }) {
   }
   return (
     <form className="stack" onSubmit={submit} aria-busy={save.isPending}>
-      <p className="muted">Papel atual: {ROLE_LABEL[user.role]}. {REVOKES}</p>
+      <p className="muted">Papel atual: {roleLabel(user.role)}. {REVOKES}</p>
       <div className="form-grid">
-        <Field id="papel-novo" label="Novo papel"><select id="papel-novo" name="role" className="select" defaultValue={user.role === 'GERENTE' ? 'VENDEDOR' : 'GERENTE'}>
-          <option value="VENDEDOR">Vendedor</option><option value="GERENTE">Gerente</option></select></Field>
+        <Field id="papel-novo" label="Novo papel"><select id="papel-novo" name="role" className="select" defaultValue={user.role === 'VENDEDOR' ? 'GERENTE' : 'VENDEDOR'}>
+          {roles.map(role => <option key={role} value={role}>{roleLabel(role)}</option>)}</select></Field>
         <ReasonField id="papel-motivo" />
       </div>
       <Problems items={problems} />
       <ErrorNotice error={save.error} />
       <SubmitButton busy={save.isPending} label="Alterar papel" />
+    </form>
+  );
+}
+
+/** Equipe do vendedor (D-EVO-44): gerente ativo responsavel; a meta do gerente soma a da equipe. */
+function TeamForm({ user, onDone }: { user: User; onDone: () => void }) {
+  const managers = useQuery({
+    queryKey: ['users', 'managers'],
+    queryFn: ({ signal }) => api.request('/users?role=GERENTE&active=true&size=100', { signal, schema: ListUsersResponse }),
+  });
+  const save = useMutation({
+    mutationFn: (managerId: number | null) => api.request(`/users/${user.id}/manager`, { method: 'PATCH', body: { managerId }, schema: ChangeUserManagerResponse }),
+    onSuccess: onDone,
+  });
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const value = String(new FormData(event.currentTarget).get('managerId') ?? '');
+    save.mutate(value === '' ? null : Number(value));
+  }
+  if (managers.isLoading) return <Loading label="Carregando gerentes…" />;
+  return (
+    <form className="stack" onSubmit={submit} aria-busy={save.isPending}>
+      <p className="muted">As vendas de {user.name} passam a contar na meta do gerente escolhido. A troca não encerra a sessão.</p>
+      <ErrorNotice error={managers.error} />
+      <Field id="equipe-gerente" label="Gerente responsável"><select id="equipe-gerente" name="managerId" className="select" defaultValue={user.manager?.id ?? ''}>
+        <option value="">Sem equipe</option>
+        {(managers.data?.content ?? []).map(m => <option key={m.id} value={m.id}>{m.name}</option>)}</select></Field>
+      <ErrorNotice error={save.error} />
+      <SubmitButton busy={save.isPending} label="Salvar equipe" />
     </form>
   );
 }

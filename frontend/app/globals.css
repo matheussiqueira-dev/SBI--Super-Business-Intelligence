@@ -105,6 +105,7 @@ dl.facts dd { margin: 2px 0 0; overflow-wrap: anywhere; }
 .avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-family: var(--font-display); font-weight: 600; font-size: 14px; }
 .avatar-gerente { background: var(--ink); }
 .avatar-vendedor { background: var(--indigo); }
+.avatar-ceo { background: var(--indigo-deep); box-shadow: 0 0 0 2px var(--mint); }
 .account-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; }
 .main { padding: var(--space-4) var(--space-6) var(--space-6) var(--space-4); min-width: 0; background: var(--mist); }
 .main > .stack { max-width: 1200px; }
@@ -203,6 +204,94 @@ dl.facts dd { margin: 2px 0 0; overflow-wrap: anywhere; }
 .share-bar { display: block; height: 16px; background: var(--data-1); border-radius: 0 4px 4px 0; min-width: 2px; }
 .share-value { grid-column: 2; font-size: 14px; }
 .toolbar { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: end; justify-content: space-between; }
+
+/* ---------- painel executivo (RF-28): colunas, rankings, metas, filtros e destaques ---------- */
+.swatch-goal { background: repeating-linear-gradient(90deg, var(--data-3) 0 6px, transparent 6px 9px); height: 3px; width: 16px; border-radius: 0; }
+.swatch-compare { background: var(--data-4); }
+.swatch-pace { background: var(--ink); width: 3px; }
+.colchart { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 8px; }
+.colchart-axis { position: relative; height: 220px; }
+.colchart-axis span { position: absolute; right: 0; transform: translateY(50%); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.colchart-plot { position: relative; height: 220px; min-width: 0; }
+.colchart-grid { position: absolute; left: 0; right: 0; border-top: 1px solid var(--line); }
+.colchart-bars { position: absolute; inset: 0; display: flex; align-items: stretch; gap: 2px; }
+.colchart-col { flex: 1 1 0; min-width: 0; display: grid; grid-template-rows: minmax(0, 1fr) 0; }
+.colchart-bar { position: relative; display: block; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; border-radius: 4px 4px 0 0; }
+span.colchart-bar { cursor: default; }
+.colchart-bar:hover { background: var(--mist); }
+.colchart-fill { position: absolute; left: 12%; right: 12%; bottom: 0; background: var(--data-1); border-radius: 3px 3px 0 0; min-height: 1px; }
+.colchart[data-selected="true"] .colchart-bar:not([aria-pressed="true"]) .colchart-fill { background: #7783E2; }
+.colchart-bar[aria-pressed="true"] .colchart-fill { outline: 2px solid var(--ink); outline-offset: 1px; }
+.colchart-goal { position: absolute; left: 4%; right: 4%; border-top: 2px dashed var(--data-3); }
+.colchart-compare { position: absolute; left: 50%; width: 9px; height: 9px; background: var(--data-4); border: 2px solid var(--card); border-radius: 50%; transform: translate(-50%, 50%); }
+.colchart-label { position: relative; top: 4px; text-align: center; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.colchart-plot { margin-bottom: 26px; }
+.colchart-tip { top: -8px; transform: translate(-50%, -100%); z-index: 2; }
+/* subgrid: as colunas (nome, barra, valor) ficam alinhadas entre as linhas do ranking. */
+.rankbars { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(80px, 1fr) auto; gap: 4px 0; }
+.rankbars > li { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; }
+.rankbars-row { grid-column: 1 / -1; width: 100%; display: grid; grid-template-columns: subgrid; gap: 4px var(--space-2); align-items: center;
+  text-align: left; padding: 8px 10px; min-height: 44px; border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent; font: inherit; color: inherit; }
+button.rankbars-row { cursor: pointer; }
+button.rankbars-row:hover { background: var(--mist); }
+.rankbars-row[aria-pressed="true"] { background: var(--indigo-soft); border-color: #C9CFF4; }
+.rankbars-name { display: flex; align-items: center; gap: 10px; min-width: 0; overflow-wrap: anywhere; }
+.rankbars-pos { color: var(--muted); font-variant-numeric: tabular-nums; }
+.rankbars-detail { font-size: 13px; }
+.rankbars-track { position: relative; height: 14px; display: block; }
+.rankbars-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--data-1); border-radius: 0 4px 4px 0; min-width: 2px; }
+.rankbars[data-selected="true"] .rankbars-row:not([aria-pressed="true"]) .rankbars-fill { background: #7783E2; }
+.rankbars-goal { position: absolute; top: -4px; bottom: -4px; border-left: 2px dashed var(--data-3); }
+.rankbars-value { font-size: 14px; text-align: right; white-space: nowrap; }
+.gauge { position: relative; height: 22px; border-radius: 6px; background: var(--line); margin: 14px 0 6px; }
+.gauge-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--data-1); border-radius: 6px; min-width: 3px; }
+.gauge-goal { position: absolute; top: -8px; bottom: -8px; border-left: 3px dashed var(--data-3); }
+.gauge-pace { position: absolute; top: -6px; bottom: -6px; border-left: 2px solid var(--ink); }
+.gauge-projection { position: absolute; top: 50%; width: 12px; height: 12px; background: var(--data-4); border: 2px solid var(--card); border-radius: 50%; transform: translate(-50%, -50%); }
+.gauge-legend { font-size: 13px; }
+.delta { font-size: 13px; color: var(--muted); }
+.delta-up { color: var(--ok-ink); }
+.delta-down { color: var(--err-ink); }
+.filters { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); align-items: end; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; list-style: none; margin: 0; padding: 0; }
+.chip { display: inline-flex; align-items: center; gap: 4px; min-height: 36px; padding: 2px 4px 2px 12px; border-radius: 999px; background: var(--indigo-soft); color: var(--indigo-deep); font-size: 14px; font-weight: 600; }
+.chip button { min-width: 32px; min-height: 32px; border: 0; border-radius: 999px; background: transparent; color: inherit; cursor: pointer; font-size: 16px; line-height: 1; }
+.chip button:hover { background: #d9ddfb; }
+.breadcrumb { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; list-style: none; margin: 0; padding: 0; font-size: 14px; }
+.breadcrumb li + li::before { content: '›'; color: var(--muted); margin-right: 6px; }
+.insights { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.insights li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; font-size: 15px; }
+.insight-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 7px; background: var(--slate); }
+.insight-good .insight-dot { background: var(--ok-ink); }
+.insight-bad .insight-dot { background: var(--err-ink); }
+.insight-warn .insight-dot { background: var(--warn-ink); }
+.grid-3 { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.stacked { display: flex; height: 26px; border-radius: 6px; overflow: hidden; }
+.stacked-part { display: grid; place-items: center; color: #fff; font-size: 13px; font-weight: 600; min-width: 2px; }
+.abc-a { background: var(--data-1); }
+.abc-b { background: var(--data-4); }
+.abc-c { background: var(--slate); }
+.margin-low { color: var(--err-ink); font-weight: 600; }
+.plain-fieldset > legend { margin-bottom: var(--space-1); }
+td.cell-product { min-width: 14rem; }
+@media (max-width: 900px) {
+  .colchart-label-minor { visibility: hidden; }
+}
+@media (max-width: 560px) {
+  .colchart { grid-template-columns: 48px minmax(0, 1fr); }
+  .rankbars { grid-template-columns: minmax(0, 1fr) auto; }
+  .rankbars-track { grid-column: 1 / -1; grid-row: 2; }
+}
+.th-button { border: 0; background: transparent; font: inherit; color: inherit; font-weight: 600; cursor: pointer; padding: 0; min-height: 32px; text-align: inherit; }
+.th-button:hover { color: var(--ink); text-decoration: underline; }
+
+/* ---------- creditos academicos (todas as telas, todos os perfis) ---------- */
+.credits { margin-top: var(--space-6); padding-top: var(--space-2); border-top: 1px solid var(--line); font-size: 13px; line-height: 19px; color: var(--slate); }
+.credits p { margin: 0; }
+.credits ul { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 2px 18px; }
+.credits strong { color: var(--ink); font-weight: 600; }
+.credits-onboard { margin-top: var(--space-2); text-align: center; }
+.credits-onboard ul { justify-content: center; }
 
 /* ---------- painel lateral ---------- */
 .drawer { position: fixed; inset: 0 0 0 auto; width: min(480px, 100%); max-width: 100%; height: 100%; max-height: 100%; margin: 0 0 0 auto; padding: var(--space-3);

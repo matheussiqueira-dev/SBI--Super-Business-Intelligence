@@ -3,17 +3,20 @@
 import type { IconName } from '../components/brand/icons-data.ts';
 
 export type Area = 'VENDER' | 'VENDAS' | 'CLIENTES' | 'MEU_DESEMPENHO' | 'GESTAO' | 'PRODUTOS' | 'ESTOQUE' | 'PROMOCOES' | 'ANALISES'
-  | 'USUARIOS' | 'TROCAR_SENHA';
+  | 'USUARIOS' | 'EXECUTIVO' | 'METAS' | 'TROCAR_SENHA';
 
 /** Tela da propria senha: unica liberada enquanto a senha provisoria nao for trocada (area TROCAR_SENHA). */
 export const PASSWORD_PATH = '/conta/senha';
 
-export type MenuSection = 'GESTAO' | 'ATENDIMENTO' | 'MEU_ESPACO';
+export type MenuSection = 'DIRETORIA' | 'GESTAO' | 'ATENDIMENTO' | 'MEU_ESPACO';
 
 export interface MenuItem { area: Area; href: string; label: string; section: MenuSection; icon: IconName }
 
 // A ordem do array decide a tela inicial (landingPath); a exibicao segue MENU_SECTIONS (manual de marca v1.0).
+// O CEO entra no Painel executivo (D-EVO-42); gerente e vendedor continuam entrando em Vender (D-EVO-34).
 export const MENU: readonly MenuItem[] = [
+  { area: 'EXECUTIVO', href: '/executivo', label: 'Painel executivo', section: 'DIRETORIA', icon: 'executivo' },
+  { area: 'METAS', href: '/executivo/metas', label: 'Metas', section: 'DIRETORIA', icon: 'metas' },
   { area: 'VENDER', href: '/vender', label: 'Vender', section: 'ATENDIMENTO', icon: 'vender' },
   { area: 'VENDAS', href: '/vendas', label: 'Vendas', section: 'ATENDIMENTO', icon: 'vendas' },
   { area: 'CLIENTES', href: '/clientes', label: 'Clientes', section: 'ATENDIMENTO', icon: 'clientes' },
@@ -27,6 +30,7 @@ export const MENU: readonly MenuItem[] = [
 ];
 
 export const MENU_SECTIONS: readonly { section: MenuSection; label: string }[] = [
+  { section: 'DIRETORIA', label: 'Diretoria' },
   { section: 'GESTAO', label: 'Gestão' },
   { section: 'ATENDIMENTO', label: 'Atendimento' },
   { section: 'MEU_ESPACO', label: 'Meu espaço' },
@@ -58,4 +62,11 @@ export function landingPath(areas: readonly string[], next?: string | null): str
   if (areas.includes('TROCAR_SENHA')) return PASSWORD_PATH;
   if (next && next.startsWith('/') && !next.startsWith('//') && !next.startsWith('/api/') && !next.startsWith('/entrar')) return next;
   return menuFor(areas)[0]?.href ?? '/entrar';
+}
+
+const ROLE_LABELS: Readonly<Record<string, string>> = { CEO: 'CEO', GERENTE: 'Gerente', VENDEDOR: 'Vendedor' };
+
+/** Papel por extenso na tela (hierarquia CEO > Gerente > Vendedor). */
+export function roleLabel(role: string): string {
+  return ROLE_LABELS[role] ?? role;
 }

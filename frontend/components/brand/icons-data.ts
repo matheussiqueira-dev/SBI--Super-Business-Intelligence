@@ -1,12 +1,12 @@
 // Icones de traco do SBI: grade de 24, traco de 1,75 com pontas arredondadas, cor do texto (currentColor).
-// Os seis do manual v1.0 e sete derivados na mesma construcao. Fica em .ts para os testes unitarios.
+// Os seis do manual v1.0 e nove derivados na mesma construcao. Fica em .ts para os testes unitarios.
 
 export type IconName =
   | 'visao-geral' | 'vender' | 'estoque' | 'preco' | 'promocao' | 'analises'
-  | 'clientes' | 'vendas' | 'desempenho' | 'usuarios' | 'senha' | 'sair' | 'check';
+  | 'clientes' | 'vendas' | 'desempenho' | 'usuarios' | 'senha' | 'sair' | 'check' | 'executivo' | 'metas';
 
 export const MANUAL_ICONS: readonly IconName[] = ['visao-geral', 'vender', 'estoque', 'preco', 'promocao', 'analises'];
-export const DERIVED_ICONS: readonly IconName[] = ['clientes', 'vendas', 'desempenho', 'usuarios', 'senha', 'sair', 'check'];
+export const DERIVED_ICONS: readonly IconName[] = ['clientes', 'vendas', 'desempenho', 'usuarios', 'senha', 'sair', 'check', 'executivo', 'metas'];
 
 export const ICON_VIEWBOX = '0 0 24 24';
 export const ICON_STROKE = 1.75;
@@ -25,6 +25,9 @@ export const ICON_PATHS: Readonly<Record<IconName, readonly string[]>> = {
   senha: ['M6 11h12v9H6z', 'M8.5 11V8a3.5 3.5 0 0 1 7 0v3', 'M12 15v2'],
   sair: ['M14 4h5v16h-5', 'M10 8l-4 4 4 4', 'M6 12h10'],
   check: ['M5 12.5l4.5 4.5L19 7.5'],
+  // Diretoria (D-EVO-42): pasta executiva e alvo da meta.
+  executivo: ['M4 8h16v11H4z', 'M9 8V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2', 'M4 13h16', 'M12 12v2'],
+  metas: ['M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z', 'M12 16.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9z', 'M12 12.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z'],
 };
 
 /** Icone decorativo por padrao (o texto ao lado ja nomeia a acao); com rotulo, vira imagem nomeada. */

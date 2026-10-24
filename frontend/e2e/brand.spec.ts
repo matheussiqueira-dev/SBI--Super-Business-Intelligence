@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { overflowing, PASSWORD } from './support.ts';
+import { STUDENTS, WORK_TITLE } from '../lib/credits.ts';
 
 const BRAND = 'SBI — Super Business Intelligence';
 
@@ -12,17 +13,27 @@ async function login(page: Page, email: string) {
   await expect(page).not.toHaveURL(/\/entrar/);
 }
 
+const MANAGER_ROUTES = [
+  ['/gestao', 'Visão geral'], ['/gestao/produtos', 'Produtos e preços'], ['/gestao/promocoes', 'Promoções'],
+  ['/gestao/estoque', 'Estoque'], ['/gestao/analises', 'Análises'], ['/gestao/usuarios', 'Usuários'],
+  ['/vender', 'Vender'], ['/vendas', 'Vendas'], ['/clientes', 'Clientes'], ['/meu-desempenho', 'Meu desempenho'],
+] as const;
 const ROUTES = {
-  'manager@example.test': [
-    ['/gestao', 'Visão geral'], ['/gestao/produtos', 'Produtos e preços'], ['/gestao/promocoes', 'Promoções'],
-    ['/gestao/estoque', 'Estoque'], ['/gestao/analises', 'Análises'], ['/gestao/usuarios', 'Usuários'],
-    ['/vender', 'Vender'], ['/vendas', 'Vendas'], ['/clientes', 'Clientes'], ['/meu-desempenho', 'Meu desempenho'],
-  ],
+  'manager@example.test': MANAGER_ROUTES,
   'seller@example.test': [['/vender', 'Vender'], ['/vendas', 'Vendas'], ['/clientes', 'Clientes'], ['/meu-desempenho', 'Meu desempenho']],
+  'ceo@example.test': [['/executivo', 'Painel executivo'], ['/executivo/metas', 'Metas'], ...MANAGER_ROUTES],
 } as const;
 
+/** [CT-WEB-130] Credito do trabalho A3 com os quatro alunos e RAs. */
+async function expectCredits(page: Page) {
+  // O rodape fica dentro do <main> (nao e landmark contentinfo); o nome acessivel vem do aria-label.
+  const credits = page.locator('footer.credits[aria-label="Créditos do trabalho"]');
+  await expect(credits).toContainText(WORK_TITLE);
+  for (const student of STUDENTS) await expect(credits).toContainText(`${student.name} · RA ${student.ra}`);
+}
+
 for (const [email, routes] of Object.entries(ROUTES)) {
-  test(`[CT-WEB-120] logo SBI visivel e item ativo com aria-current em todas as rotas (${email.split('@')[0]})`, async ({ page }) => {
+  test(`[CT-WEB-120] [CT-WEB-130] logo, item ativo e credito do trabalho em todas as rotas (${email.split('@')[0]})`, async ({ page }) => {
     await login(page, email);
     const nav = page.getByRole('navigation', { name: 'Áreas' });
     for (const [path, item] of routes) {
@@ -31,6 +42,7 @@ for (const [email, routes] of Object.entries(ROUTES)) {
       await expect(page.getByRole('complementary', { name: 'Navegação principal' }).getByRole('img', { name: BRAND })).toBeVisible();
       await expect(nav.locator('a[aria-current="page"]')).toHaveCount(1);
       await expect(nav.getByRole('link', { name: item, exact: true })).toHaveAttribute('aria-current', 'page');
+      await expectCredits(page);
     }
     await expect(page.getByRole('button', { name: 'Sair' })).toBeVisible();
   });
@@ -44,6 +56,7 @@ test('[CT-WEB-121] favicon SVG e icone Apple servidos; tela de login com a assin
   expect((await request.get('/apple-icon.png')).status()).toBe(200);
 
   await page.goto('/entrar');
+  await expectCredits(page);
   await expect(page).toHaveTitle(/SBI/);
   await expect(page.getByRole('img', { name: BRAND })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Entrar no SBI', level: 1 })).toBeVisible();
@@ -74,6 +87,7 @@ test('[CT-WEB-121] rota inexistente mostra a pagina de nao encontrada da marca',
   const response = await page.goto('/rota-que-nao-existe');
   expect(response?.status()).toBe(404);
   await expect(page.getByRole('heading', { name: 'Página não encontrada.' })).toBeVisible();
+  await expectCredits(page);
 });
 
 test('[CT-WEB-127] rodape do login em duas linhas inteiras em 1280 px e 390 px', async ({ page }) => {

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import LoginForm from './login-form.tsx';
 import { SbiLogo } from '../../components/brand/logo.tsx';
+import AcademicCredits from '../../components/academic-credits.tsx';
 
 export const metadata: Metadata = { title: 'Entrar' };
 
@@ -25,6 +26,7 @@ export default function LoginPage() {
             <LoginForm />
           </Suspense>
         </section>
+        <AcademicCredits centered />
       </div>
     </main>
   );
