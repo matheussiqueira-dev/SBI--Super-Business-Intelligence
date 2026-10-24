@@ -237,7 +237,8 @@ jobs:
           node scripts/audit-contract.mjs
           npm run contract
           node scripts/audit-contract.mjs config/openapi/target-loja-gestao-openapi-2026-10-14-v5.json
-          node scripts/validate-contract.mjs config/openapi/target-loja-gestao-openapi-2026-10-14-v5.json
+          node scripts/audit-contract.mjs config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json
+          node scripts/validate-contract.mjs config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json
 
       - name: Build API
         run: |
@@ -267,7 +268,7 @@ jobs:
             reports/contrato/spike-2026-10-04/
             reports/contrato/validacao/
             reports/contrato/session-2026-10-04/
-            reports/contrato/live-v5/
+            reports/contrato/live-v6/
 
   frontend:
     # Build, testes de logica, schemas gerados sem diff e E2E com axe contra a API isolada.

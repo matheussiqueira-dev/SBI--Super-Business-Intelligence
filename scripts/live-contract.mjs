@@ -1,4 +1,5 @@
-// CT-CONTRACT-102: o OpenAPI ao vivo e as respostas reais conferem com o contrato alvo (v5 = v4 + evolucao).
+// CT-CONTRACT-102: o OpenAPI ao vivo e as respostas reais conferem com o contrato alvo (v6 = v5 + papel CEO,
+// equipe do vendedor e painel executivo; v5 = v4 + evolucao).
 // 1) Estrutura: toda operacao implemented existe em /v3/api-docs com os mesmos parametros, corpo e codigos de sucesso.
 //    Operacao planned ainda nao existe na API (C-02) e fica fora da comparacao.
 // 2) Comportamento: cada operacao e chamada na API isolada e a resposta (sucesso e erro) e validada com Ajv.
@@ -11,7 +12,7 @@ if (process.env.A3_CONTRACT_ISOLATED !== '1' || !process.env.A3_TEST_PASSWORD) {
   throw new Error('Run scripts/test-contract.ps1: live checks require the disposable database runner.');
 }
 const origin = 'http://127.0.0.1:18080';
-const v4 = JSON.parse(readFileSync(new URL('../config/openapi/target-loja-gestao-openapi-2026-10-14-v5.json', import.meta.url), 'utf8'));
+const v4 = JSON.parse(readFileSync(new URL('../config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json', import.meta.url), 'utf8'));
 const METHODS = ['get', 'post', 'put', 'patch', 'delete'];
 const findings = [];
 const exercised = new Map();
@@ -69,6 +70,7 @@ const brl = amount => ({ amount, currency: 'BRL' });
 const password = process.env.A3_TEST_PASSWORD;
 const manager = sessionClient(origin);
 const seller = sessionClient(origin);
+const ceo = sessionClient(origin);
 
 record('/auth/me', 'get', await anonymous.request('/auth/me'), 401);
 record('/auth/csrf', 'get', await manager.refreshCsrf(), 200);
@@ -78,6 +80,9 @@ record('/auth/login', 'post', await seller.login('seller@example.test', 'deliber
 record('/auth/login', 'post', await seller.login('seller@example.test', password), 200);
 const sellerId = record('/auth/me', 'get', await seller.request('/auth/me'), 200).body.id;
 record('/auth/me', 'get', await manager.request('/auth/me'), 200);
+record('/auth/login', 'post', await ceo.login('ceo@example.test', password), 200);
+const ceoAreas = record('/auth/me', 'get', await ceo.request('/auth/me'), 200).body.areas;
+if (!ceoAreas?.includes('EXECUTIVO') || !ceoAreas.includes('GESTAO')) findings.push(`CEO areas: ${JSON.stringify(ceoAreas)}`);
 
 // Catalogo e estoque (GERENTE)
 const stamp = Date.now();
@@ -184,6 +189,17 @@ record('/analytics/sales', 'get', await manager.request(`/analytics/sales?month=
 record('/analytics/stock', 'get', await manager.request('/analytics/stock'), 200);
 record('/promotions/{id}/close', 'post', await manager.request(`/promotions/${promotion.id}/close`, 'POST'), 200);
 
+// Painel executivo e meta anual (contrato v6, D-EVO-45): somente CEO; o GERENTE recebe 403.
+const year = Number(month.slice(0, 4));
+const overview = record('/executive/overview', 'get', await ceo.request(`/executive/overview?year=${year}`), 200).body;
+if (!overview.sales?.some(fact => fact.orderId === order.id)) findings.push('GET /executive/overview: paid order missing from the facts');
+if (!overview.refunds?.some(fact => fact.orderId === order.id)) findings.push('GET /executive/overview: refund missing from the facts');
+record('/executive/overview', 'get', await ceo.request('/executive/overview?year=1999'), 400);
+record('/executive/overview', 'get', await manager.request(`/executive/overview?year=${year}`), 403);
+record('/executive/goals/annual', 'put', await ceo.request('/executive/goals/annual', 'PUT', { year, amount: brl(120000) }), 200);
+record('/executive/goals/annual', 'put', await ceo.request('/executive/goals/annual', 'PUT', { year, amount: brl(-1) }), 400);
+record('/executive/goals/annual', 'put', await manager.request('/executive/goals/annual', 'PUT', { year, amount: brl(1) }), 403);
+
 // Usuarios (GERENTE) e troca da propria senha (contrato v5, G-01/G-03)
 const managerId = (await manager.request('/auth/me')).body.id;
 const email = `usuario${stamp}@contrato.test`;
@@ -198,7 +214,13 @@ record('/users/{id}', 'get', await manager.request('/users/999999'), 404);
 const edit = { name: 'Usuario do contrato B', email, version: created.version };
 record('/users/{id}', 'put', await manager.request(`/users/${created.id}`, 'PUT', edit), 200);
 record('/users/{id}', 'put', await manager.request(`/users/${created.id}`, 'PUT', edit), 409);
+// Equipe do vendedor (contrato v6): responsavel GERENTE ativo; promovido, o usuario sai do alcance da equipe (409).
+record('/users/{id}/manager', 'patch', await manager.request(`/users/${created.id}/manager`, 'PATCH', { managerId }), 200);
+record('/users/{id}/manager', 'patch', await manager.request(`/users/${created.id}/manager`, 'PATCH', { managerId: sellerId }), 400);
+record('/users/{id}/manager', 'patch', await manager.request('/users/999999/manager', 'PATCH', { managerId }), 404);
+record('/users', 'post', await manager.request('/users', 'POST', { ...user, email: `ceo${stamp}@contrato.test`, role: 'CEO' }), 403);
 record('/users/{id}/role', 'patch', await manager.request(`/users/${created.id}/role`, 'PATCH', { role: 'GERENTE', reason: 'Promocao no contrato' }), 200);
+record('/users/{id}/manager', 'patch', await manager.request(`/users/${created.id}/manager`, 'PATCH', { managerId: null }), 409);
 record('/users/{id}/role', 'patch', await manager.request(`/users/${managerId}/role`, 'PATCH', { role: 'VENDEDOR', reason: 'Proprio papel' }), 409);
 record('/users/{id}/status', 'patch', await manager.request(`/users/${created.id}/status`, 'PATCH', { active: false, reason: 'Pausa no contrato' }), 200);
 record('/users/{id}/status', 'patch', await manager.request(`/users/${created.id}/status`, 'PATCH', { active: true, reason: 'Retorno no contrato' }), 200);
@@ -218,10 +240,10 @@ for (const { path, method, operation } of operations(v4)) {
   if (operation['x-status'] === 'implemented' && !exercised.has(name)) findings.push(`${name}: implemented but not exercised`);
 }
 
-const directory = new URL('../reports/contrato/live-v5/', import.meta.url);
+const directory = new URL('../reports/contrato/live-v6/', import.meta.url);
 mkdirSync(directory, { recursive: true });
-const report = { scope: 'live OpenAPI and responses versus target v5', timestamp: new Date().toISOString(),
-  contract: 'target-loja-gestao-openapi-2026-10-14-v5.json', operations: operations(v4).length,
+const report = { scope: 'live OpenAPI and responses versus target v6', timestamp: new Date().toISOString(),
+  contract: 'target-loja-gestao-openapi-2026-10-24-v6.json', operations: operations(v4).length,
   exercised: Object.fromEntries([...exercised].sort()), divergences: findings,
   limits: ['Structural check covers path, method, parameters, request body presence and success status codes; schema bodies are checked on real responses.'] };
 writeFileSync(new URL('live-contract.json', directory), JSON.stringify(report, null, 2) + '\n');
