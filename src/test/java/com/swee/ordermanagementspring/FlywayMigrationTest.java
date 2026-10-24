@@ -51,7 +51,7 @@ class FlywayMigrationTest {
             statement.execute("CREATE SCHEMA " + schema);
             try {
                 Flyway flyway = flyway(schema, null);
-                assertThat(flyway.migrate().migrationsExecuted).isEqualTo(11);
+                assertThat(flyway.migrate().migrationsExecuted).isEqualTo(12);
                 flyway.validate();
                 try (Connection database = connect(schema); Statement sql = database.createStatement()) {
                     sql.executeUpdate("INSERT INTO orders (status, seller_id) VALUES ('PENDING_PAYMENT', NULL)");
@@ -60,7 +60,7 @@ class FlywayMigrationTest {
                             .hasMessageContaining("fk_orders_seller");
                     try (ResultSet rows = sql.executeQuery("SELECT count(*) FROM flyway_schema_history WHERE success")) {
                         rows.next();
-                        assertThat(rows.getInt(1)).isEqualTo(11);
+                        assertThat(rows.getInt(1)).isEqualTo(12);
                     }
                 }
             } finally {
@@ -84,7 +84,7 @@ class FlywayMigrationTest {
                 // A real legacy database has no Flyway history. Baseline is a deliberate operator step.
                 Flyway upgrade = flyway(schema, null);
                 upgrade.baseline();
-                assertThat(upgrade.migrate().migrationsExecuted).isEqualTo(10);
+                assertThat(upgrade.migrate().migrationsExecuted).isEqualTo(11);
                 upgrade.validate();
                 try (Connection database = connect(schema); Statement sql = database.createStatement();
                      ResultSet rows = sql.executeQuery("SELECT id, seller_id FROM orders WHERE id = 42")) {
@@ -389,6 +389,77 @@ class FlywayMigrationTest {
                         .hasMessageContaining("relation \"stock_balance\" violates check constraint");
                 assertThatThrownBy(() -> sql.executeUpdate("UPDATE stock_balance SET on_hand = 1 WHERE product_id = 10"))
                         .hasMessageContaining("ck_stock_reserved_le_on_hand");
+            }
+        });
+    }
+
+    private static Long scalar(Statement sql, String query) throws Exception {
+        try (ResultSet rows = sql.executeQuery(query)) {
+            rows.next();
+            Object value = rows.getObject(1);
+            return value == null ? null : ((Number) value).longValue();
+        }
+    }
+
+    /**
+     * [CT-BD-33] V12: CEO acima do GERENTE; equipe so de VENDEDOR com GERENTE ativo, liberada quando o gerente sai;
+     * meta anual so do CEO; o CEO libera promocao e estorna pela funcao da V5; as views de fato fecham com o realizado.
+     */
+    @Test
+    void v12AddsCeoTeamsAnnualGoalAndFactViews() throws Exception {
+        inFreshSchema(schema -> {
+            flyway(schema, null).migrate();
+            try (Connection database = connect(schema); Statement sql = database.createStatement()) {
+                sql.executeUpdate("INSERT INTO app_users (id, name, email, password_hash, role) VALUES "
+                        + "(1, 'Gerente', 'g@example.test', 'x', 'GERENTE'), (2, 'Vendedora', 'v@example.test', 'x', 'VENDEDOR'), "
+                        + "(3, 'Diretora', 'c@example.test', 'x', 'CEO'), (4, 'Gerente B', 'g2@example.test', 'x', 'GERENTE')");
+                try (ResultSet rows = sql.executeQuery("SELECT string_agg(code, '>' ORDER BY rank DESC) FROM role")) {
+                    rows.next();
+                    assertThat(rows.getString(1)).isEqualTo("CEO>GERENTE>VENDEDOR");
+                }
+                sql.executeUpdate("UPDATE app_users SET manager_id = 1 WHERE id = 2");
+                assertThatThrownBy(() -> sql.executeUpdate("UPDATE app_users SET manager_id = 3 WHERE id = 2"))
+                        .hasMessageContaining("TEAM_MANAGER");
+                assertThatThrownBy(() -> sql.executeUpdate("UPDATE app_users SET manager_id = 1 WHERE id = 4"))
+                        .hasMessageContaining("TEAM_MEMBER");
+                // Gerente desativado libera a equipe; vendedor promovido sai da equipe.
+                sql.executeUpdate("UPDATE app_users SET active = false WHERE id = 1");
+                assertThat(scalar(sql, "SELECT manager_id FROM app_users WHERE id = 2")).isNull();
+                sql.executeUpdate("UPDATE app_users SET manager_id = 4 WHERE id = 2");
+                assertThat(scalar(sql, "SELECT manager_id FROM app_users WHERE id = 2")).isEqualTo(4L);
+
+                assertThatThrownBy(() -> sql.executeUpdate("INSERT INTO annual_goal (year, amount, updated_by) VALUES (2026, 1000, 4)"))
+                        .hasMessageContaining("somente CEO");
+                sql.executeUpdate("INSERT INTO annual_goal (year, amount, updated_by) VALUES (2026, 1000, 3)");
+                sql.executeUpdate("INSERT INTO promotion (name, kind, value, starts_at, ends_at, created_by) "
+                        + "VALUES ('Do CEO', 'PERCENT', 5, now() - interval '1 day', now() + interval '1 day', 3)");
+
+                // Venda paga com custo e estorno feito pelo CEO: fatos = realizado do V6.
+                sql.executeUpdate("INSERT INTO customer (id, customer_type, name, cpf) VALUES (1, 'INDIVIDUAL', 'Cliente', '52998224725')");
+                sql.execute("SELECT set_config('app.user_id', '4', false)");
+                sql.executeUpdate("INSERT INTO product (id, product_type, name, price, sku) VALUES (10, 'PHYSICAL', 'Mouse', 100.00, 'MS-1')");
+                sql.executeUpdate("INSERT INTO stock_entry (product_id, quantity, unit_cost) VALUES (10, 5, 40.00)");
+                sql.execute("SELECT set_config('app.user_id', '2', false)");
+                long order = scalar(sql, "SELECT fn_criar_pedido(1, '[{\"product_id\": 10, \"quantity\": 2}]'::jsonb, 'PIX')");
+                sql.execute("SELECT fn_confirmar_pagamento(" + order + ")");
+                sql.execute("SELECT set_config('app.user_id', '3', false)");
+                sql.execute("SELECT fn_estornar((SELECT id FROM payment WHERE order_id = " + order + "), 30, 'Ajuste do CEO')");
+                sql.execute("SELECT set_config('app.user_id', '2', false)");
+                assertThatThrownBy(() -> sql.execute("SELECT fn_estornar((SELECT id FROM payment WHERE order_id = " + order
+                        + "), 10, 'Vendedora nao estorna')")).hasMessageContaining("somente gerente");
+                try (ResultSet rows = sql.executeQuery("""
+                        SELECT (SELECT sum(receita_liquida) FROM v_fato_venda_item) AS vendas,
+                               (SELECT sum(custo) FROM v_fato_venda_item) AS custo,
+                               (SELECT sum(valor) FROM v_fato_estorno) AS estornos,
+                               (SELECT sum(valor) FROM v_lancamento_realizado) AS realizado,
+                               (SELECT seller_id FROM v_fato_venda_item) AS vendedor""")) {
+                    rows.next();
+                    assertThat(rows.getBigDecimal("vendas")).isEqualByComparingTo("200.00");
+                    assertThat(rows.getBigDecimal("custo")).isEqualByComparingTo("80.00");
+                    assertThat(rows.getBigDecimal("estornos")).isEqualByComparingTo("30.00");
+                    assertThat(rows.getBigDecimal("realizado")).isEqualByComparingTo("170.00");
+                    assertThat(rows.getLong("vendedor")).isEqualTo(2);
+                }
             }
         });
     }

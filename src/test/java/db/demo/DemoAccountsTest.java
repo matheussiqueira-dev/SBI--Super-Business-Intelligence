@@ -40,4 +40,19 @@ class DemoAccountsTest {
         assertThatThrownBy(() -> V6_1__DemoAccounts.passwordFor(allan, Map.<String, String>of()::get))
                 .hasMessageContaining("SBI_DEMO_PASSWORD");
     }
+
+    @Test
+    void executiveAccountsAreCeosWithTheirOwnPasswordVariables() {
+        assertThat(V12_1__ExecutiveAccounts.ACCOUNTS).extracting(V6_1__DemoAccounts.Account::role).containsOnly("CEO");
+        assertThat(V12_1__ExecutiveAccounts.ACCOUNTS).extracting(V6_1__DemoAccounts.Account::email)
+                .containsExactly("paulo@sbi.tech", "christian@sbi.tech", "bruno@sbi.tech");
+        assertThat(V12_1__ExecutiveAccounts.ACCOUNTS).extracting(V6_1__DemoAccounts.Account::passwordVariable)
+                .containsExactly("SBI_DEMO_PASSWORD_PAULO", "SBI_DEMO_PASSWORD_CHRISTIAN", "SBI_DEMO_PASSWORD_BRUNO");
+        var paulo = V12_1__ExecutiveAccounts.ACCOUNTS.get(0);
+        Map<String, String> env = Map.of("SBI_DEMO_PASSWORD", "senha-comum-local", "SBI_DEMO_PASSWORD_PAULO", "senha-do-paulo");
+        assertThat(V6_1__DemoAccounts.passwordFor(paulo, env::get)).isEqualTo("senha-do-paulo");
+        assertThat(V6_1__DemoAccounts.passwordFor(V12_1__ExecutiveAccounts.ACCOUNTS.get(2), env::get)).isEqualTo("senha-comum-local");
+        assertThat(V12_1__ExecutiveAccounts.TEAMS).extracting(pair -> pair[0] + ">" + pair[1])
+                .containsExactly("vendedor_allan>gerente_matheus", "vendedor_francisco>gerente_gabriel");
+    }
 }

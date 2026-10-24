@@ -20,7 +20,10 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/** [CT-SEC-103] O GERENTE passa nas regras de metodo do VENDEDOR; o VENDEDOR nao alcanca as do GERENTE. */
+/**
+ * [CT-SEC-103] O GERENTE passa nas regras de metodo do VENDEDOR; o VENDEDOR nao alcanca as do GERENTE.
+ * [CT-SEC-123] O CEO passa nas do GERENTE e do VENDEDOR; nenhum dos dois alcanca as do CEO.
+ */
 @SpringJUnitConfig(MethodSecurityHierarchyTest.Config.class)
 class MethodSecurityHierarchyTest {
 
@@ -38,6 +41,7 @@ class MethodSecurityHierarchyTest {
     static class UseCases {
         @PreAuthorize("hasRole('VENDEDOR')") public String sell() { return "venda"; }
         @PreAuthorize("hasRole('GERENTE')") public String manage() { return "gestao"; }
+        @PreAuthorize("hasRole('CEO')") public String lead() { return "diretoria"; }
     }
 
     @Autowired UseCases useCases;
@@ -61,6 +65,22 @@ class MethodSecurityHierarchyTest {
     }
 
     @Test
+    @DisplayName("[CT-SEC-123] CEO executa os casos de uso do GERENTE e do VENDEDOR pela hierarquia")
+    void ceoReachesManagerAndSellerUseCases() {
+        as("CEO");
+        assertThat(useCases.sell()).isEqualTo("venda");
+        assertThat(useCases.manage()).isEqualTo("gestao");
+        assertThat(useCases.lead()).isEqualTo("diretoria");
+    }
+
+    @Test
+    @DisplayName("[CT-SEC-123] GERENTE nao alcanca caso de uso do CEO")
+    void managerDoesNotReachCeoUseCase() {
+        as("GERENTE");
+        assertThatThrownBy(useCases::lead).isInstanceOf(AccessDeniedException.class);
+    }
+
+    @Test
     @DisplayName("[RF-17] VENDEDOR nao alcanca caso de uso do GERENTE")
     void sellerDoesNotReachManagerUseCase() {
         as("VENDEDOR");
@@ -76,5 +96,8 @@ class MethodSecurityHierarchyTest {
         assertThat(areas.areas(AuthorityUtils.createAuthorityList("ROLE_GERENTE")))
                 .containsExactly("VENDER", "VENDAS", "CLIENTES", "MEU_DESEMPENHO", "GESTAO", "PRODUTOS", "ESTOQUE",
                         "PROMOCOES", "ANALISES", "USUARIOS");
+        assertThat(areas.areas(AuthorityUtils.createAuthorityList("ROLE_CEO")))
+                .containsExactly("VENDER", "VENDAS", "CLIENTES", "MEU_DESEMPENHO", "GESTAO", "PRODUTOS", "ESTOQUE",
+                        "PROMOCOES", "ANALISES", "USUARIOS", "EXECUTIVO", "METAS");
     }
 }

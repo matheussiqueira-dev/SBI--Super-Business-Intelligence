@@ -1,5 +1,6 @@
 package com.swee.ordermanagementspring.api.users;
 
+import com.swee.ordermanagementspring.api.common.Refs.UserRef;
 import com.swee.ordermanagementspring.api.users.UsersDtos.UserDetail;
 import com.swee.ordermanagementspring.api.users.UsersDtos.UserSummary;
 import com.swee.ordermanagementspring.entities.StoreTime;
@@ -21,15 +22,16 @@ import java.util.Optional;
 @Repository
 public class UsersRepository {
     private static final String FILTER = """
-             WHERE (:q = '' OR lower(name) LIKE :prefix ESCAPE '\\' OR lower(email) LIKE :prefix ESCAPE '\\')
-               AND (CAST(:role AS varchar) IS NULL OR role = CAST(:role AS varchar))
-               AND (CAST(:active AS boolean) IS NULL OR active = CAST(:active AS boolean))
+             WHERE (:q = '' OR lower(u.name) LIKE :prefix ESCAPE '\\' OR lower(u.email) LIKE :prefix ESCAPE '\\')
+               AND (CAST(:role AS varchar) IS NULL OR u.role = CAST(:role AS varchar))
+               AND (CAST(:active AS boolean) IS NULL OR u.active = CAST(:active AS boolean))
             """;
+    /** Gerente da equipe (V12) junto com o usuario. */
+    private static final String FROM = " FROM app_users u LEFT JOIN app_users m ON m.id = u.manager_id";
     private static final String DETAIL = """
-            SELECT id, name, email, role, active, locked_until, last_login_at, failed_login_attempts,
-                   must_change_password, version, created_at, updated_at
-              FROM app_users
-            """;
+            SELECT u.id, u.name, u.email, u.role, u.active, u.locked_until, u.last_login_at, u.failed_login_attempts,
+                   u.must_change_password, u.version, u.created_at, u.updated_at, u.manager_id, m.name AS manager_name
+            """ + FROM;
 
     private final JdbcClient jdbc;
 
@@ -51,20 +53,20 @@ public class UsersRepository {
     }
 
     public List<UserSummary> search(Filter filter, int page, int size) {
-        return jdbc.sql("SELECT id, name, email, role, active, locked_until, last_login_at FROM app_users" + FILTER
-                        + " ORDER BY lower(name), id LIMIT :size OFFSET :offset")
+        return jdbc.sql("SELECT u.id, u.name, u.email, u.role, u.active, u.locked_until, u.last_login_at, u.manager_id,"
+                        + " m.name AS manager_name" + FROM + FILTER + " ORDER BY lower(u.name), u.id LIMIT :size OFFSET :offset")
                 .param("q", filter.q()).param("prefix", filter.prefix())
                 .param("role", filter.role() == null ? null : filter.role().name())
                 .param("active", filter.active())
                 .param("size", size).param("offset", (long) page * size)
                 .query((rs, n) -> new UserSummary(rs.getLong("id"), rs.getString("name"), rs.getString("email"),
                         UserRole.valueOf(rs.getString("role")), rs.getBoolean("active"),
-                        local(rs, "locked_until"), local(rs, "last_login_at")))
+                        local(rs, "locked_until"), local(rs, "last_login_at"), manager(rs)))
                 .list();
     }
 
     public long count(Filter filter) {
-        return jdbc.sql("SELECT count(*) FROM app_users" + FILTER)
+        return jdbc.sql("SELECT count(*) FROM app_users u" + FILTER)
                 .param("q", filter.q()).param("prefix", filter.prefix())
                 .param("role", filter.role() == null ? null : filter.role().name())
                 .param("active", filter.active())
@@ -72,7 +74,7 @@ public class UsersRepository {
     }
 
     public Optional<UserDetail> detail(long id) {
-        return jdbc.sql(DETAIL + " WHERE id = :id").param("id", id).query(UsersRepository::detail).optional();
+        return jdbc.sql(DETAIL + " WHERE u.id = :id").param("id", id).query(UsersRepository::detail).optional();
     }
 
     public Optional<Head> head(long id) {
@@ -95,7 +97,12 @@ public class UsersRepository {
         return new UserDetail(rs.getLong("id"), rs.getString("name"), rs.getString("email"),
                 UserRole.valueOf(rs.getString("role")), rs.getBoolean("active"), local(rs, "locked_until"),
                 local(rs, "last_login_at"), rs.getInt("failed_login_attempts"), rs.getBoolean("must_change_password"),
-                rs.getInt("version"), local(rs, "created_at"), local(rs, "updated_at"));
+                rs.getInt("version"), local(rs, "created_at"), local(rs, "updated_at"), manager(rs));
+    }
+
+    private static UserRef manager(ResultSet rs) throws SQLException {
+        Long id = rs.getObject("manager_id", Long.class);
+        return id == null ? null : new UserRef(id, rs.getString("manager_name"));
     }
 
     private static OffsetDateTime local(ResultSet rs, String column) throws SQLException {
