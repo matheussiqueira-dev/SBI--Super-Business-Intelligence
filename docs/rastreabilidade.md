@@ -41,6 +41,9 @@ Situação em 14/10/2026, depois da evolução (WP-EVO-1 a WP-EVO-9, PRs #23 a #
 | RF-24 | CA-24-01 a CA-24-06 | CT-USR-101 a CT-USR-107, CT-SEC-121, CT-SEC-122, CT-BD-30, CT-CONTRACT-104, CT-WEB-110, CT-WEB-112 | `UsersApiTest`, `SessionRevocationTest`, `StrongPasswordValidatorTest`, `FlywayMigrationTest.v8KeepsOneActiveManager`, `06d_testes_evolucao.sql`; E2E `users.spec.ts` | Verde |
 | RF-25 | CA-25-01 a CA-25-03 | CT-CUS-121 a CT-CUS-123, CT-WEB-111 | `CustomersApiTest` (resumo da loja, escopo do vendedor, cliente sem compras), BD-31 no job `bd`; E2E `customers.spec.ts` | Verde |
 | RF-26 | CA-26-01 a CA-26-05 | CT-DISC-101 a CT-DISC-107, CT-WEB-114, BD-32 | `ManualDiscountApiTest`, `ManualDiscountPricingTest`, `06d_testes_evolucao.sql`; E2E `discount.spec.ts` | Verde |
+| RF-27 | CA-27-01 a CA-27-03 | CT-SEC-123, CT-USR-108, CT-EXEC-104, CT-WEB-129, CT-WEB-134, CT-WEB-135 | `AccessMatrixTest` (quatro atores, CEO herda o GERENTE e `/executive` so do CEO), `MethodSecurityHierarchyTest`, `UsersApiTest.onlyCeoManagesCeoAccounts`, `DemoAccountsTest`; E2E `executive.spec.ts`, `brand.spec.ts` | Verde |
+| RF-28 | CA-28-01 a CA-28-04 | CT-EXEC-101, CT-EXEC-104, CT-EXEC-111 a CT-EXEC-119, CT-WEB-131, CT-WEB-132, CT-CONTRACT-102 | `ExecutiveApiTest` (fatos = faturamento do gerente), `frontend/tests/executive.test.ts` (modelo do painel), `scripts/live-contract.mjs` (contrato v6); E2E `executive.spec.ts` com axe | Verde |
+| RF-29 | CA-29-01 a CA-29-03 | CT-EXEC-102, CT-EXEC-103, CT-EXEC-117, CT-EXEC-120, CT-USR-109, CT-BD-33, CT-WEB-133 | `ExecutiveApiTest`, `UsersApiTest.sellerTeamFollowsActiveManagers`, `FlywayMigrationTest.v12AddsCeoTeamsAnnualGoalAndFactViews`, `frontend/tests/goals.test.ts`; E2E `executive.spec.ts` | Verde |
 
 ## Requisitos não funcionais com evidência executável
 
@@ -48,12 +51,13 @@ Situação em 14/10/2026, depois da evolução (WP-EVO-1 a WP-EVO-9, PRs #23 a #
 | --- | --- |
 | Formato único de erro (`ErrorResponse` com `code`) | `ErrorContractTest`, `ErrorResponseTest`, `live-contract.mjs` (erros validados com Ajv) |
 | Dinheiro NUMERIC(12,2) com HALF_UP | `MoneyValidationTest`, `PricingTest`, `FlywayMigrationTest` (V4) |
-| Flyway como única fonte do esquema | `FlywayMigrationTest` (V1 a V11), passo "Verify Flyway schema with Hibernate validation" do job `test (backend)` |
+| Flyway como única fonte do esquema | `FlywayMigrationTest` (V1 a V12), passo "Verify Flyway schema with Hibernate validation" do job `test (backend)` |
 | Número completo de cartão nunca gravado (D022) | `CardNumberStorageTest`, `FlywayMigrationTest.v7MasksLegacyCardNumbers` |
 | WCAG 2.2 AA e 320 px | E2E `sale.spec.ts` e `manager.spec.ts` (CT-WEB-109, axe nas telas dos dois perfis) |
 | Schemas do frontend iguais ao contrato | `npm run api:check` (CT-CONTRACT-103) no job `frontend` |
 | Sessão revogada na requisição seguinte à mudança de papel, situação ou senha | `SessionRevocationTest`, `UsersApiTest.deactivationRevokesTheSession`; E2E `users.spec.ts` (CT-WEB-112) |
 | Marca SBI v1.0 aplicada em todas as telas | E2E `brand.spec.ts` (CT-WEB-120, CT-WEB-121), `frontend/tests/brand.test.ts` (CT-WEB-122 a CT-WEB-125); capturas em `reports/marca/` com axe sem violação |
+| Identificação acadêmica em todas as telas (RNF-08) | E2E `brand.spec.ts` (CT-WEB-130: todas as rotas dos três perfis, login e página não encontrada), `frontend/tests/brand.test.ts` |
 | Massa de demonstração Olist íntegra e idempotente | `09_testes_olist.sql`, `scripts/demo-olist-api.mjs` e `run_olist_bd.sh` (CT-DEMO-01 a CT-DEMO-06) no job `bd` |
 
 ## Lacunas conhecidas

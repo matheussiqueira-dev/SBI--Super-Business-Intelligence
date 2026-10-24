@@ -473,3 +473,21 @@ O ensaio não exercitou as adaptações P1, P7 e P9 nem o seed com CPFs válidos
 - `POST /orders` legado: a entidade `Order` precisa gravar `fulfillment = DELIVERY` quando houver endereço; sem isso, o default `PICKUP` vale também para pedidos com entrega.
 - `POST /customers` legado: normalizar o documento para dígitos antes de salvar; sem isso, CPF com máscara viola `ck_customer_cpf` e cai no handler genérico de `DataIntegrityViolationException`, que hoje responde "This order already has a payment.".
 - `Order.moment` é `timestamp` sem fuso e as views assumem America/Fortaleza; a hora deve vir de um `Clock` com essa zona (decisão B-10), porque a CI roda em UTC.
+
+## 10. Visão do CEO (V12, 24/10/2026)
+
+Pedido do responsável em 24/10/2026; decisões D-EVO-42 a D-EVO-46 em [evolucao.md](../decisoes/evolucao.md).
+
+| Objeto | O que muda | Quem garante |
+| --- | --- | --- |
+| `role` | Linha `CEO` com nível 30, acima de `GERENTE` (20) e `VENDEDOR` (10). | FK `fk_app_users_role` (V5). |
+| `app_role_at_least(usuario, papel)` | Função `STABLE SECURITY DEFINER` que compara o nível do papel do usuário. `trg_promotion_only_manager` e `fn_estornar` passam a aceitar GERENTE ou CEO. | V12; `FlywayMigrationTest.v12AddsCeoTeamsAnnualGoalAndFactViews` (CT-BD-33). |
+| `app_users.manager_id` | Equipe de venda: o VENDEDOR aponta para o GERENTE responsável (FK, `ON DELETE SET NULL`, CHECK `manager_id <> id`, índice). | Gatilho `app_users_team` (só VENDEDOR tem equipe, responsável GERENTE ativo; vendedor promovido sai da equipe) e `app_users_release_team` (gerente rebaixado ou desativado libera a equipe). |
+| `annual_goal` | Meta anual da loja: `year` (PK, 2000 a 2100), `amount numeric(12,2) >= 0`, autor e data. | Gatilho `annual_goal_only_ceo` (autor tem de ser CEO). |
+| `v_fato_venda_item` | Fato do painel executivo no grão item de pedido pago: dia do pagamento, pedido, vendedor, cliente, forma de pagamento, produto, categoria atual, unidades, receita líquida (`preço × quantidade − desconto`), desconto e custo (nulo sem custo). | Mesmas regras de `v_lancamento_realizado` (V6). |
+| `v_fato_estorno` | Fato do estorno: dia do estorno, pedido, vendedor, forma de pagamento e valor. | Soma das vendas menos a soma dos estornos = `sum(valor)` de `v_lancamento_realizado` (CT-BD-33). |
+| `ck_audit_event_action` | Ações `USER_TEAM_CHANGED` e `ANNUAL_GOAL_SAVED`. | CHECK (V12). |
+
+Modelo dimensional do painel: os dois fatos acima, com as dimensões `app_users` (vendedor e equipe pelo `manager_id`), `product` e `category`, forma de pagamento e data. A meta da equipe é derivada (soma das `seller_goal` dos vendedores da equipe), sem tabela própria: a soma da distribuição continua igual à `monthly_goal` da loja, garantida pelos gatilhos adiados da V5.
+
+Ficam como estavam: `keep_one_active_manager` (V8) exige um GERENTE ativo (o CEO não conta como gerente) e `seller_goal_is_seller` (V5) aceita só VENDEDOR na meta individual. O pacote SQL da disciplina (`docs/bd/pacote-sql/`) não muda: a V12 é aplicada pelo Flyway, e o job `bd` roda o pacote sobre o esquema já migrado, com as contas de CEO criadas pela V12_1 no perfil `demo`.

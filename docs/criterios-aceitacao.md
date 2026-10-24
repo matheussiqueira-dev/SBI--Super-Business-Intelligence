@@ -108,6 +108,16 @@ Codigos de erro citados abaixo sao o campo `code` do `ErrorResponse` do contrato
 | CA-26-03 | Dado item que ficaria abaixo do custo medio conhecido, quando a politica nao permitir, entao a API retorna 409 `BELOW_COST` sem revelar o custo. |
 | CA-26-04 | Dado pedido pendente, quando o gerente aprovar um desconto ate 20%, entao total, itens e pagamento sao recalculados, o aprovador fica registrado e a auditoria grava `DISCOUNT_APPROVED`; pedido pago retorna 409. |
 | CA-26-05 | Dado relatorio de vendas do mes, quando houver descontos manuais em pedidos pagos, entao `manualDiscounts` mostra por vendedor pedidos, valor concedido e aprovados pelo gerente, e o uso de promocoes nao inclui a parte manual. |
+| CA-27-01 | Dado conta CEO, quando entrar, entao `/auth/me` traz as areas do vendedor, do gerente e `EXECUTIVO`/`METAS`, a tela inicial e o Painel executivo e o CEO passa em toda rota liberada ao GERENTE (matriz executavel). |
+| CA-27-02 | Dado GERENTE, quando tentar criar conta CEO, promover alguem a CEO ou alterar, desativar, desbloquear ou redefinir a senha de um CEO, entao a API retorna 403 `FORBIDDEN` sem alterar a conta; outro CEO consegue. |
+| CA-27-03 | Dado perfil demo, quando o Flyway aplicar a V12_1, entao existem as contas CEO `paulo@`, `christian@` e `bruno@sbi.tech` com BCrypt da senha da variavel propria (ou da comum), sem senha no repositorio. |
+| CA-28-01 | Dado vendas pagas e estornos no ano, quando o CEO abrir o painel, entao faturamento liquido = vendas - estornos e fecha com `/management/revenue` no mesmo periodo; item sem custo deixa o lucro "Nao informado". |
+| CA-28-02 | Dado clique numa barra (mes, dia, vendedor, equipe, categoria, produto ou forma de pagamento), entao o painel inteiro e recortado, o item fica destacado, um chip mostra o filtro e clicar de novo (ou no chip) desfaz; clicar no mes abre os dias do mes. |
+| CA-28-03 | Dado filtro de produto ou categoria, entao os estornos ficam fora do recorte (sao do pedido) e a tela avisa. |
+| CA-28-04 | Dado GERENTE ou VENDEDOR, quando chamar `/executive/*`, entao recebe 403; na tela, a secao Diretoria nao aparece e `/executivo` mostra "Sem acesso". |
+| CA-29-01 | Dado CEO, quando gravar a meta anual, entao ela substitui a do ano e fica auditada (`ANNUAL_GOAL_SAVED`); o gatilho da V12 recusa autor que nao seja CEO. |
+| CA-29-02 | Dado vendedor com gerente responsavel, entao a meta do gerente e a soma das metas dos vendedores da equipe e o realizado inclui as vendas do proprio gerente; a equipe aponta so para GERENTE ativo e e liberada quando o gerente sai. |
+| CA-29-03 | Dado o acumulado do ano, entao meta e realizado por vendedor e por equipe consideram so os meses com meta. |
 | CA-19-01 | Dado vendedor no PDV, quando buscar por SKU ou prefixo do nome, entao o SKU exato vem primeiro e a resposta nao contem custo, saldo fisico nem margem. |
 | CA-19-02 | Dado carrinho, quando cotar, entao preco, desconto e total vem do servidor sem efeito colateral; corpo de venda com vendedor, preco, desconto ou total retorna 400 sem criar pedido. |
 | CA-19-03 | Dada a mesma `Idempotency-Key` e o mesmo corpo, quando a venda for reenviada, entao a API retorna 200 com o mesmo pedido; com corpo diferente, 409 `IDEMPOTENCY_CONFLICT`. |
@@ -161,6 +171,9 @@ Codigos de erro citados abaixo sao o campo `code` do `ErrorResponse` do contrato
 | RF-22 | CA-22-01 a CA-22-07 | CT-STOCK-108, CT-STOCK-109, CT-SALE-104, CT-WEB-105, CT-WEB-106 | Pendente | - |
 | RF-23 | CA-23-01 a CA-23-03 | CT-CONTRACT-102, CT-WEB-102 | Pendente | - |
 | RF-26 | CA-26-01 a CA-26-05 | CT-DISC-101 a CT-DISC-107, CT-WEB-114, BD-32 | Verde (14/10/2026) | `ManualDiscountApiTest`, `ManualDiscountPricingTest`, `e2e/discount.spec.ts`, job `bd` |
+| RF-27 | CA-27-01 a CA-27-03 | CT-SEC-123, CT-USR-108, CT-EXEC-104, CT-WEB-129, CT-WEB-134, CT-WEB-135 | Verde (24/10/2026) | `AccessMatrixTest`, `MethodSecurityHierarchyTest`, `UsersApiTest`, `DemoAccountsTest`, `e2e/executive.spec.ts` |
+| RF-28 | CA-28-01 a CA-28-04 | CT-EXEC-101, CT-EXEC-104, CT-EXEC-111 a CT-EXEC-119, CT-WEB-131, CT-WEB-132 | Verde (24/10/2026) | `ExecutiveApiTest`, `frontend/tests/executive.test.ts`, `scripts/live-contract.mjs`, `e2e/executive.spec.ts` |
+| RF-29 | CA-29-01 a CA-29-03 | CT-EXEC-102, CT-EXEC-103, CT-EXEC-117, CT-EXEC-120, CT-USR-109, CT-BD-33, CT-WEB-133 | Verde (24/10/2026) | `ExecutiveApiTest`, `UsersApiTest`, `FlywayMigrationTest`, `frontend/tests/goals.test.ts`, `e2e/executive.spec.ts` |
 | RF-25 | CA-25-01 a CA-25-03 | CT-CUS-121 a CT-CUS-123, CT-WEB-111 | Verde (14/10/2026) | `CustomersApiTest` (resumo), BD-31 no job `bd`, `e2e/customers.spec.ts` |
 | RF-24 | CA-24-01 a CA-24-06 | CT-USR-101 a CT-USR-107, CT-SEC-121, CT-SEC-122, CT-BD-30, CT-WEB-112 | Verde (14/10/2026) | `UsersApiTest`, `SessionRevocationTest`, `FlywayMigrationTest.v8KeepsOneActiveManager`, `06d_testes_evolucao.sql`, `e2e/users.spec.ts` |
 

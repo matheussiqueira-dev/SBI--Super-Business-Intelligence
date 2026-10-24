@@ -16,46 +16,50 @@ Regras de leitura:
 - `{id}` é substituído por um objeto existente da massa do teste; `**` por `index.html`; método `*` significa todos os métodos HTTP.
 - Mutações são enviadas com token CSRF válido; a ausência do token é coberta à parte (CT-SEC-104).
 - GERENTE herda tudo do VENDEDOR (RF-17): em toda linha com `PERMIT`/`OWN` para o VENDEDOR, o GERENTE tem `PERMIT`.
-- O contrato v4 é auditado contra este CSV: `x-roles` de cada operação tem de bater com as colunas `vendedor`/`gerente` (`scripts/audit-contract.mjs`).
+- CEO herda tudo do GERENTE (RF-27, D-EVO-42, 24/10/2026): em toda linha com `PERMIT` para o GERENTE, o CEO tem `PERMIT`; `/executive/**` é só do CEO. A coluna `ceo` do CSV é conferida pelo CT-SEC-123.
+- Os contratos v4 e v5 são auditados contra este CSV pelas colunas `vendedor`/`gerente`, e o v6 também pela coluna `ceo`: `x-roles` de cada operação tem de bater com os papéis liberados (`scripts/audit-contract.mjs`).
 
 ## Matriz
 
-| Método | Caminho | Anônimo | VENDEDOR | GERENTE |
-| --- | --- | --- | --- | --- |
-| POST | `/auth/login` | PERMIT | PERMIT | PERMIT |
-| GET | `/auth/csrf` | PERMIT | PERMIT | PERMIT |
-| POST | `/auth/logout` | PERMIT | PERMIT | PERMIT |
-| GET | `/v3/api-docs`, `/v3/api-docs.yaml`, `/v3/api-docs/swagger-config` | PERMIT | PERMIT | PERMIT |
-| GET | `/swagger-ui.html`, `/swagger-ui/**` | PERMIT | PERMIT | PERMIT |
-| * | `/error` | PERMIT | PERMIT | PERMIT |
-| GET | `/auth/me` | 401 | PERMIT | PERMIT |
-| PUT | `/auth/password` (troca da propria senha, contrato v5) | 401 | PERMIT | PERMIT |
-| GET | `/sales/catalog` | 401 | PERMIT | PERMIT |
-| POST | `/sales/quote` | 401 | PERMIT | PERMIT |
-| POST | `/sales/orders` | 401 | PERMIT | PERMIT |
-| GET | `/sales/orders`, `/sales/orders/{id}` | 401 | OWN | PERMIT |
-| POST | `/sales/orders/{id}/payment` | 401 | OWN | PERMIT |
-| POST | `/sales/orders/{id}/discount-approval` (contrato v5) | 401 | 403 | PERMIT |
-| POST | `/orders/{id}/cancel` | 401 | OWN | PERMIT |
-| GET, POST | `/customers` | 401 | PERMIT | PERMIT |
-| GET, PUT | `/customers/{id}` | 401 | PERMIT | PERMIT |
-| DELETE | `/customers/{id}` | 401 | 403 | PERMIT |
-| GET | `/customers/{id}/orders` | 401 | PERMIT | PERMIT |
-| GET | `/customers/{id}/summary` (contrato v5; valores do VENDEDOR so dos pedidos dele) | 401 | PERMIT | PERMIT |
-| POST | `/customers/{id}/address` (legado) | 401 | 403 | PERMIT |
-| GET | `/performance/me`, `/promotions/active` | 401 | PERMIT | PERMIT |
-| GET, POST | `/promotions`; POST `/promotions/{id}/close` | 401 | 403 | PERMIT |
-| GET, POST | `/products`; GET, PUT, DELETE `/products/{id}`; PATCH `/products/{id}/price`, `/products/{id}/status`; GET `/products/{id}/price-history` | 401 | 403 | PERMIT |
-| GET, POST | `/categories`; PUT `/categories/{id}` | 401 | 403 | PERMIT |
-| GET | `/stock/products`, `/stock/movements`; POST `/stock/products/{id}/entries`, `/stock/products/{id}/adjustments`; PATCH `/stock/products/{id}/min-level` | 401 | 403 | PERMIT |
-| GET, PUT | `/goals/monthly` | 401 | 403 | PERMIT |
-| GET | `/management/summary`, `/management/revenue`, `/analytics/sales`, `/analytics/stock` | 401 | 403 | PERMIT |
-| POST | `/payment/{id}/refund` | 401 | 403 | PERMIT |
-| GET | `/discount-policy`; PUT `/discount-policy/{role}` (contrato v5) | 401 | 403 | PERMIT |
-| GET, POST | `/users`; GET, PUT `/users/{id}`; PATCH `/users/{id}/role`, `/users/{id}/status`; POST `/users/{id}/unlock`, `/users/{id}/password-reset` (contrato v5) | 401 | 403 | PERMIT |
-| todos | `/orders/**` legado (exceto `cancel`), `/payment/**` legado (exceto `refund`), `/address/**` | 401 | 403 | PERMIT |
+| Método | Caminho | Anônimo | VENDEDOR | GERENTE | CEO |
+| --- | --- | --- | --- | --- | --- |
+| POST | `/auth/login` | PERMIT | PERMIT | PERMIT | PERMIT |
+| GET | `/auth/csrf` | PERMIT | PERMIT | PERMIT | PERMIT |
+| POST | `/auth/logout` | PERMIT | PERMIT | PERMIT | PERMIT |
+| GET | `/v3/api-docs`, `/v3/api-docs.yaml`, `/v3/api-docs/swagger-config` | PERMIT | PERMIT | PERMIT | PERMIT |
+| GET | `/swagger-ui.html`, `/swagger-ui/**` | PERMIT | PERMIT | PERMIT | PERMIT |
+| * | `/error` | PERMIT | PERMIT | PERMIT | PERMIT |
+| GET | `/auth/me` | 401 | PERMIT | PERMIT | PERMIT |
+| PUT | `/auth/password` (troca da propria senha, contrato v5) | 401 | PERMIT | PERMIT | PERMIT |
+| GET | `/sales/catalog` | 401 | PERMIT | PERMIT | PERMIT |
+| POST | `/sales/quote` | 401 | PERMIT | PERMIT | PERMIT |
+| POST | `/sales/orders` | 401 | PERMIT | PERMIT | PERMIT |
+| GET | `/sales/orders`, `/sales/orders/{id}` | 401 | OWN | PERMIT | PERMIT |
+| POST | `/sales/orders/{id}/payment` | 401 | OWN | PERMIT | PERMIT |
+| POST | `/sales/orders/{id}/discount-approval` (contrato v5) | 401 | 403 | PERMIT | PERMIT |
+| POST | `/orders/{id}/cancel` | 401 | OWN | PERMIT | PERMIT |
+| GET, POST | `/customers` | 401 | PERMIT | PERMIT | PERMIT |
+| GET, PUT | `/customers/{id}` | 401 | PERMIT | PERMIT | PERMIT |
+| DELETE | `/customers/{id}` | 401 | 403 | PERMIT | PERMIT |
+| GET | `/customers/{id}/orders` | 401 | PERMIT | PERMIT | PERMIT |
+| GET | `/customers/{id}/summary` (contrato v5; valores do VENDEDOR so dos pedidos dele) | 401 | PERMIT | PERMIT | PERMIT |
+| POST | `/customers/{id}/address` (legado) | 401 | 403 | PERMIT | PERMIT |
+| GET | `/performance/me`, `/promotions/active` | 401 | PERMIT | PERMIT | PERMIT |
+| GET, POST | `/promotions`; POST `/promotions/{id}/close` | 401 | 403 | PERMIT | PERMIT |
+| GET, POST | `/products`; GET, PUT, DELETE `/products/{id}`; PATCH `/products/{id}/price`, `/products/{id}/status`; GET `/products/{id}/price-history` | 401 | 403 | PERMIT | PERMIT |
+| GET, POST | `/categories`; PUT `/categories/{id}` | 401 | 403 | PERMIT | PERMIT |
+| GET | `/stock/products`, `/stock/movements`; POST `/stock/products/{id}/entries`, `/stock/products/{id}/adjustments`; PATCH `/stock/products/{id}/min-level` | 401 | 403 | PERMIT | PERMIT |
+| GET, PUT | `/goals/monthly` | 401 | 403 | PERMIT | PERMIT |
+| GET | `/management/summary`, `/management/revenue`, `/analytics/sales`, `/analytics/stock` | 401 | 403 | PERMIT | PERMIT |
+| POST | `/payment/{id}/refund` | 401 | 403 | PERMIT | PERMIT |
+| GET | `/discount-policy`; PUT `/discount-policy/{role}` (contrato v5) | 401 | 403 | PERMIT | PERMIT |
+| GET, POST | `/users`; GET, PUT `/users/{id}`; PATCH `/users/{id}/role`, `/users/{id}/status`; POST `/users/{id}/unlock`, `/users/{id}/password-reset` (contrato v5) | 401 | 403 | PERMIT | PERMIT |
+| PATCH | `/users/{id}/manager` (equipe do vendedor, contrato v6) | 401 | 403 | PERMIT | PERMIT |
+| todos | `/orders/**` legado (exceto `cancel`), `/payment/**` legado (exceto `refund`), `/address/**` | 401 | 403 | PERMIT | PERMIT |
+| GET | `/executive/overview` (painel executivo, contrato v6) | 401 | 403 | 403 | PERMIT |
+| PUT | `/executive/goals/annual` (meta anual, contrato v6) | 401 | 403 | 403 | PERMIT |
 
-O CSV lista cada método e caminho em uma linha (69 linhas além do cabeçalho), inclusive cada rota legada mapeada hoje no Spring.
+O CSV lista cada método e caminho em uma linha (85 linhas além do cabeçalho em 24/10/2026), inclusive cada rota legada mapeada hoje no Spring.
 
 ## Exceção temporária (ETAPA 2B)
 
@@ -73,9 +77,10 @@ Na ETAPA 2C, `GET`/`POST /customers` e `GET`/`PUT /customers/{id}` passaram para
 
 ## Testes que usam a matriz
 
-- **CT-SEC-101**: cada linha × {anônimo, VENDEDOR, GERENTE} → asserção da legenda, com corpo de erro validado contra `ErrorResponse`.
+- **CT-SEC-101**: cada linha × {anônimo, VENDEDOR, GERENTE, CEO} → asserção da legenda, com corpo de erro validado contra `ErrorResponse`.
 - **CT-SEC-102**: lê todos os mapeamentos do `RequestMappingHandlerMapping` e falha se algum par método/caminho não tiver linha. Em 14/10 o Spring registrava, além dos controladores, `GET /v3/api-docs`, `GET /v3/api-docs.yaml`, `GET /v3/api-docs/swagger-config`, `GET /swagger-ui.html` e `/error` (todos os métodos), conferidos com o log `TRACE` do `RequestMappingHandlerMapping` ao subir o jar da `main`. `POST /auth/logout` é tratado pelo filtro de logout e não aparece nesse mapeamento; tem linha mesmo assim.
 - **CT-SEC-103**: toda linha com `PERMIT`/`OWN` para o VENDEDOR é exercida pelo GERENTE nas duas camadas (URL e `@PreAuthorize`).
+- **CT-SEC-123**: toda linha com `PERMIT` para o GERENTE é liberada ao CEO, `/executive/**` responde 403 ao VENDEDOR e ao GERENTE, e o CEO passa nos casos de uso de método do GERENTE e do VENDEDOR (`MethodSecurityHierarchyTest`).
 
 ## Documentação pública
 

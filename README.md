@@ -1,8 +1,8 @@
 # SBI — Super Business Intelligence
 
-Sistema de loja com **venda no balcão** (vendedor) e **gestão** (gerente), feito no projeto A3 de Garantia da Qualidade de Software e Banco de Dados (UNIFG). O tema é a conformidade de contrato da API REST: o que o OpenAPI promete é o que a API entrega. A conformidade é verificada ao vivo, com Bean Validation, um formato único de erro e testes em todas as camadas.
+Sistema de loja com **venda no balcão** (vendedor), **gestão** (gerente) e **visão executiva** (CEO), feito no projeto A3 de Garantia da Qualidade de Software e Banco de Dados (UNIFG). O tema é a conformidade de contrato da API REST: o que o OpenAPI promete é o que a API entrega. A conformidade é verificada ao vivo, com Bean Validation, um formato único de erro e testes em todas as camadas.
 
-Equipe: Matheus Siqueira, Gabriel Sousa, Allan Barros e Francisco Ferreira.
+Trabalho A3 · SBI — Super Business Intelligence, feito pelos alunos Allan Gabriel Almeida Barros (RA 1352524052), Gabriel Sousa Vasconcelos (RA 13526110176), Francisco Miguel de Lemos Sena Ferreira (RA 1352523939) e Matheus Henrique Dias Siqueira (RA 1352623492). O mesmo crédito aparece em todas as telas do sistema.
 
 ## O que tem
 
@@ -10,15 +10,16 @@ Equipe: Matheus Siqueira, Gabriel Sousa, Allan Barros e Francisco Ferreira.
 - **Clientes**: pessoa física e jurídica com dígito verificador (CNPJ numérico ou alfanumérico), documento mascarado para o vendedor, histórico de pedidos e perfil com indicadores de compra.
 - **Backoffice do gerente**: produtos e insumos, categorias, preço com motivo e histórico, entradas com custo médio, ajustes com motivo, estoque mínimo e extrato.
 - **Gestão**: faturamento, lucro e margem ("Não informado" quando falta custo), metas da loja e da equipe, Meu desempenho, estornos, promoções, desconto manual com alçada (vendedor 5%, gerente 20%) e análises.
-- **Usuários**: cadastro pelo gerente com senha provisória, papel, situação, desbloqueio e redefinição de senha; a sessão do usuário cai na requisição seguinte a qualquer dessas mudanças, e sempre existe um gerente ativo.
-- **Segurança**: sessão HttpOnly + CSRF, hierarquia GERENTE > VENDEDOR em três barreiras (URL, método e dono do dado), bloqueio após 5 falhas de login (contador atômico) e matriz de acesso executável.
+- **Usuários**: cadastro pelo gerente com senha provisória, papel, situação, equipe do vendedor, desbloqueio e redefinição de senha; a sessão do usuário cai na requisição seguinte a qualquer mudança de papel, situação ou senha, e sempre existe um gerente ativo. Conta de CEO só é criada ou alterada por outro CEO.
+- **Visão do CEO**: painel executivo com filtros cruzados e drill-down (ano > mês > dia) — faturamento, lucro e preço de compra, mês atual × mês anterior, ano × ano anterior, ranking de vendedores e de produtos, categorias, formas de pagamento, curva ABC, destaques automáticos e exportação CSV — e metas em quatro níveis: anual da loja, mensal, por gerente (soma da equipe) e por vendedor.
+- **Segurança**: sessão HttpOnly + CSRF, hierarquia CEO > GERENTE > VENDEDOR em três barreiras (URL, método e dono do dado), bloqueio após 5 falhas de login (contador atômico) e matriz de acesso executável.
 
 ## Stack
 
 | Camada | Tecnologia |
 | --- | --- |
 | API | Java 25, Spring Boot 4.1, Spring Security 7, `JdbcClient` nos módulos novos e JPA no legado, Springdoc |
-| Banco | PostgreSQL 18, Flyway V1–V11 (única fonte do esquema, Hibernate em `validate`), views do V6 e do V9 para os painéis e o resumo do cliente |
+| Banco | PostgreSQL 18, Flyway V1–V12 (única fonte do esquema, Hibernate em `validate`), views do V6, do V9 e do V12 para os painéis, o resumo do cliente e o painel executivo |
 | Frontend | Next.js 16, React 19, TypeScript estrito, Zod 4 gerado do contrato (orval), TanStack Query, marca SBI v1.0 |
 | Testes | JUnit 5, MockMvc, PostgreSQL 18 descartável via Docker Compose (`docker-compose.test.yml`, porta 15432), Playwright + axe, Ajv para o contrato, pacote SQL por `psql` |
 
@@ -26,7 +27,7 @@ Detalhes em [docs/arquitetura.md](docs/arquitetura.md) e versões em [docs/decis
 
 ## Ambiente publicado
 
-A demonstração publicada roda em <https://sbi-app-alpha.vercel.app> (frontend na Vercel, API no Render, banco no Neon) e abre de qualquer navegador, sem instalar nada. **Os dados são de demonstração:** seed sintético e a massa Olist, com pedidos públicos anonimizados e nomes e documentos sintéticos; nenhuma pessoa real. Lá as contas são as dos integrantes da equipe (um gerente e três vendedores), com e-mail e senha combinados com a equipe, fora do repositório; a tabela da seção seguinte vale para a stack local. O plano gratuito do Render dorme o serviço sem acesso: a primeira requisição pode levar de 1 a 3 minutos. Publicação, variáveis e manutenção: [docs/deploy.md](docs/deploy.md).
+A demonstração publicada roda em <https://sbi-app-alpha.vercel.app> (frontend na Vercel, API no Render, banco no Neon) e abre de qualquer navegador, sem instalar nada. **Os dados são de demonstração:** seed sintético e a massa Olist, com pedidos públicos anonimizados e nomes e documentos sintéticos; nenhuma pessoa real. Lá as contas são as dos integrantes da equipe (dois gerentes e dois vendedores) e as de CEO dos professores avaliadores, com e-mail e senha combinados com a equipe, fora do repositório; a tabela da seção seguinte vale para a stack local. O plano gratuito do Render dorme o serviço sem acesso: a primeira requisição pode levar de 1 a 3 minutos. Publicação, variáveis e manutenção: [docs/deploy.md](docs/deploy.md).
 
 Cada push na `main` publica sozinho a API (Render) e o frontend (Vercel). Cada pull request ganha uma branch própria do banco no Neon, migrada pelo Flyway, que some quando o PR fecha.
 
@@ -48,12 +49,13 @@ export SBI_DB_PASSWORD="$(openssl rand -hex 16)"
 docker compose -f docker-compose.demo.yml -p sbi-demo up --build
 ```
 
-Abra <http://localhost:3000> e entre com uma das contas da equipe abaixo. Cada conta usa a senha da sua variável (`SBI_DEMO_PASSWORD_MATHEUS`, `SBI_DEMO_PASSWORD_GABRIEL`, `SBI_DEMO_PASSWORD_ALLAN`, `SBI_DEMO_PASSWORD_FRANCISCO`) ou, sem ela, a de `SBI_DEMO_PASSWORD`. As senhas não ficam no repositório: defina-as no terminal ou num `.env` ao lado do `docker-compose.demo.yml` (ignorado pelo git).
+Abra <http://localhost:3000> e entre com uma das contas abaixo. Cada conta usa a senha da sua variável (`SBI_DEMO_PASSWORD_MATHEUS`, `_GABRIEL`, `_ALLAN`, `_FRANCISCO`, `_PAULO`, `_CHRISTIAN` e `_BRUNO`) ou, sem ela, a de `SBI_DEMO_PASSWORD`. As senhas não ficam no repositório: defina-as no terminal ou num `.env` ao lado do `docker-compose.demo.yml` (ignorado pelo git).
 
 | Conta | Perfil |
 | --- | --- |
+| `paulo@sbi.tech`, `christian@sbi.tech`, `bruno@sbi.tech` (professores avaliadores) | CEO |
 | `matheussiqueira@sbi.tech`, `gabrielsousa@sbi.tech` | Gerente |
-| `allanbarros@sbi.tech`, `franciscoferreira@sbi.tech` | Vendedor |
+| `allanbarros@sbi.tech` (equipe de Matheus), `franciscoferreira@sbi.tech` (equipe de Gabriel) | Vendedor |
 
 Para encerrar e apagar tudo: `docker compose -f docker-compose.demo.yml -p sbi-demo down`.
 
@@ -78,7 +80,7 @@ As senhas ficam em `.env.local` (fora do git), gerado na primeira execução: `S
 | Perfil | Uso |
 | --- | --- |
 | padrão | Desenvolvimento com o banco `postgres-order` (`docker compose up -d postgres`) e a senha em `SPRING_DATASOURCE_PASSWORD`. |
-| `demo` | Aplica também `db/demo` (V6_1, contas da equipe com BCrypt de `SBI_DEMO_PASSWORD_<NOME>` ou `SBI_DEMO_PASSWORD`; V6_2, massa sintética; V11_1, promoção de Acessórios até dezembro; V11_2, custo da carga inicial de iPhone e AirPods). Precisa estar ativo desde a primeira migração do banco. |
+| `demo` | Aplica também `db/demo` (V6_1, contas da equipe com BCrypt de `SBI_DEMO_PASSWORD_<NOME>` ou `SBI_DEMO_PASSWORD`; V6_2, massa sintética; V11_1, promoção de Acessórios até dezembro; V11_2, custo da carga inicial de iPhone e AirPods; V12_1, contas de CEO dos professores e equipes de venda). Precisa estar ativo desde a primeira migração do banco. |
 | `integration` (testes) | PostgreSQL descartável da porta 15432 (`docker-compose.test.yml`), com as tabelas de negócio esvaziadas por `TRUNCATE`. |
 | `contract` | API isolada dos testes HTTP de contrato, com contas sintéticas e senha gerada por execução. |
 
@@ -100,7 +102,7 @@ node scripts\quality-metrics.mjs reports\metricas\r1 "R1"                       
 A CI (`.github/workflows/ci.yml`) roda quatro jobs, cada um com seus relatórios como artefato:
 - `test (backend)`;
 - `bd`: Flyway, seed demo e pacote SQL com 61 PASS, mais 11 PASS da massa Olist;
-- `contract`: auditoria estática e verificação ao vivo das 58 operações do contrato v5;
+- `contract`: auditoria estática e verificação ao vivo das 61 operações do contrato v6;
 - `frontend`: typecheck, schemas sem diff, testes unitários, build, E2E e axe.
 
 ## Documentação
@@ -115,5 +117,5 @@ A CI (`.github/workflows/ci.yml`) roda quatro jobs, cada um com seus relatórios
 | Modelo de dados e pacote SQL | [docs/bd/modelo-erp-pdv.md](docs/bd/modelo-erp-pdv.md), [docs/bd/pacote-sql/](docs/bd/pacote-sql/) |
 | Decisões | [docs/decisoes/](docs/decisoes/) (ERP/PDV, evolução D-EVO, matriz de acesso, autenticação, dinheiro, stack) |
 | Marca SBI v1.0 aplicada | [reports/marca/](reports/marca/) (capturas de todas as telas nos dois papéis) |
-| Contrato | [config/openapi/target-loja-gestao-openapi-2026-10-14-v5.json](config/openapi/target-loja-gestao-openapi-2026-10-14-v5.json) e Swagger em `/swagger-ui/index.html` |
+| Contrato | [config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json](config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json) e Swagger em `/swagger-ui/index.html` |
 | Rotas legadas (`/orders`, `/payment`, `/address`) | [docs/api-legada.md](docs/api-legada.md) |
