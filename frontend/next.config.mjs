@@ -6,7 +6,8 @@ if (!['http:', 'https:'].includes(backend.protocol) || backend.username || backe
 export default {
   poweredByHeader: false,
   // A raiz do repositorio tambem tem package-lock.json (scripts do contrato): a raiz do Next e esta pasta.
-  turbopack: { root: fileURLToPath(new URL('.', import.meta.url)) },
+  // Sem a barra final: com "/app/" o Turbopack nao resolve o next/font no build do Docker (Linux).
+  turbopack: { root: fileURLToPath(new URL('.', import.meta.url)).replace(/[\\/]+$/, '') },
   async rewrites() {
     return [{ source: '/api/backend/:path*', destination: `${backend.origin}/:path*` }];
   },
