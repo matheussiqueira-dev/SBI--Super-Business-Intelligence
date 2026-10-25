@@ -41,9 +41,9 @@ Os cinco commits com prefixo fora do Conventional Commits não serão integrados
 | --- | --- | --- |
 | `dbea3c0` derive order seller from authenticated session | `Order.seller` derivado da sessão em `OrderController`/`OrderService`; testes de serviço e persistência; card SEC-01 | `18c536c` feat: derive order seller from authenticated session |
 | `ae74829` map stale order session to forbidden | Handler de sessão obsoleta → 403 em `GlobalExceptionHandler`; teste em `ErrorResponseTest` | `e2cf4e8` fix: map stale order session to forbidden |
-| `97737c8` record verified order authorship CI evidence | Evidência de CI em `reports/execucoes/run-2026-10-04-autoria-pedido.md` e cards | `92ad522` docs: record order authorship ci evidence |
+| `97737c8` record verified order authorship CI evidence | Evidência de CI em `docs/historico/reports/execucoes/run-2026-10-04-autoria-pedido.md` e cards | `92ad522` docs: record order authorship ci evidence |
 | `dd3e511` introduce opt-in Flyway baseline and seller migration | `V1__legacy_schema.sql`, `V2__users_and_order_authorship.sql`, perfil `migration`, passo de CI e `FlywayMigrationTest` | `853de17` feat: add opt-in flyway baseline and seller migration |
-| `ce7de24` record verified Flyway CI evidence | Evidência em `reports/execucoes/run-2026-10-04-bd-02.md` e cards | `6cb7ecc` docs: record flyway ci evidence |
+| `ce7de24` record verified Flyway CI evidence | Evidência em `docs/historico/reports/execucoes/run-2026-10-04-bd-02.md` e cards | `6cb7ecc` docs: record flyway ci evidence |
 
 Proposta: não reaplicar nada (já reaplicado). A branch `a3-contract-validation` só é apagada com aprovação da equipe. O commit `7fe1779`, com o mesmo prefixo, já está publicado na `main` e permanece, porque corrigir a mensagem exigiria reescrever histórico.
 
@@ -54,11 +54,11 @@ A varredura de nomes de ferramenta nos arquivos versionados deixa de fora, de pr
 | Arquivo | Trecho | Motivo |
 | --- | --- | --- |
 | `docs/referencias/Manual-Projeto-A3.md` (e o `.pdf`) | Orientação sobre código auxiliado | Cópia fiel do manual da disciplina |
-| `docs/gestao/plano-restante-2026-10-07.md` | Tema da aula 19 (segurança e ética) | Título do conteúdo da disciplina |
-| `reports/execucoes/run-2026-10-04-bd-02.md` | Mensagem original do `dd3e511` | Cita o prefixo antigo do commit da tabela acima |
-| `reports/gestao/sincronizacao-2026-10-04.md` | Prefixo dos commits daquela sincronização | Mesmo prefixo antigo, registrado como fato histórico |
+| `docs/historico/gestao/plano-restante-2026-10-07.md` | Tema da aula 19 (segurança e ética) | Título do conteúdo da disciplina |
+| `docs/historico/reports/execucoes/run-2026-10-04-bd-02.md` | Mensagem original do `dd3e511` | Cita o prefixo antigo do commit da tabela acima |
+| `docs/historico/reports/gestao/sincronizacao-2026-10-04.md` | Prefixo dos commits daquela sincronização | Mesmo prefixo antigo, registrado como fato histórico |
 
-Nas exportações do quadro em `reports/gestao/` (`trello-2026-10-04-*.json` e `historico/revisao-2026-10-01/*.json`), os nomes de produto foram trocados por "ferramenta externa" e o JSON continua válido.
+Nas exportações do quadro em `docs/historico/reports/gestao/` (`trello-2026-10-04-*.json` e `historico/revisao-2026-10-01/*.json`), os nomes de produto foram trocados por "ferramenta externa" e o JSON continua válido.
 
 ## Pendente
 

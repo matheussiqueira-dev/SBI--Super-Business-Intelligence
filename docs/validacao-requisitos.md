@@ -2,7 +2,7 @@
 
 Data: 04/10/2026. Atualização: Matheus Siqueira.
 
-Rodada atual: sessão e acesso executados em Java/HTTP/Chromium no CI 37177644692, com 52 verificações aprovadas e build Next. Detalhes em `docs/execucao-sessao.md` e `reports/execucoes/run-2026-10-04-sessao-nextjs.md`. Referências a leitura sem execução abaixo descrevem a etapa documental inicial, não o estado técnico atual. Revisão humana do conjunto permanece pendente; autoria/metas/estoque e quatro telas não foram implementados.
+Rodada atual: sessão e acesso executados em Java/HTTP/Chromium no CI 37177644692, com 52 verificações aprovadas e build Next. Detalhes em `docs/historico/execucao-sessao.md` e `docs/historico/reports/execucoes/run-2026-10-04-sessao-nextjs.md`. Referências a leitura sem execução abaixo descrevem a etapa documental inicial, não o estado técnico atual. Revisão humana do conjunto permanece pendente; autoria/metas/estoque e quatro telas não foram implementados.
 
 Objetivo: eliminar ambiguidades antes de transformar requisitos em contrato, testes e implementacao. Esta validacao foi feita por leitura do backend local, README, direcao criativa, guia visual e revisao do Trello. Nao houve execucao HTTP ou validacao de banco em runtime nesta etapa.
 

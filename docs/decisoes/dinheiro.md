@@ -1,6 +1,6 @@
 # Dinheiro: BigDecimal e NUMERIC(12,2) (DOM-02)
 
-Data: 09/10/2026. Card: [DOM-02](../gestao/cards/DOM-02.md). Regra de origem: PEND-DOM-06 em [regras-loja.md](regras-loja.md) — dinheiro com 2 casas decimais e HALF_UP, confirmado por Matheus em 04/10/2026.
+Data: 09/10/2026. Card: [DOM-02](../historico/gestao/cards/DOM-02.md). Regra de origem: PEND-DOM-06 em [regras-loja.md](regras-loja.md) — dinheiro com 2 casas decimais e HALF_UP, confirmado por Matheus em 04/10/2026.
 
 Este documento registra a tarefa T1 do card (inventário e estratégia) e o que foi entregue nas tarefas T2–T4 na branch `feat/DOM-02-bigdecimal` (commit `ce3f222`, PR #9). A revisão nominal do card continua pendente.
 

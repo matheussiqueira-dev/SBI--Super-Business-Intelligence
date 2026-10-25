@@ -36,7 +36,7 @@ Executar API:
 
 ## CI minimo
 
-O workflow `.github/workflows/ci.yml` usa JDK 25, PostgreSQL 18 descartável na porta 15432 e `./mvnw -Pintegration verify`. Executa 23 testes de contrato, tres testes do cliente web, seis casos HTTP legados autenticados, seis casos HTTP de sessao, build Next e dois E2E Chromium. Relatorios, log e screenshots ficam como artefatos. A evidencia da rodada atual e registrada em `docs/execucao-sessao.md`.
+O workflow `.github/workflows/ci.yml` usa JDK 25, PostgreSQL 18 descartável na porta 15432 e `./mvnw -Pintegration verify`. Executa 23 testes de contrato, tres testes do cliente web, seis casos HTTP legados autenticados, seis casos HTTP de sessao, build Next e dois E2E Chromium. Relatorios, log e screenshots ficam como artefatos. A evidencia da rodada atual e registrada em `docs/historico/execucao-sessao.md`.
 
 ## Frontend na ETAPA 3 (14/10/2026)
 
@@ -57,6 +57,6 @@ O `postinstall` do `esbuild` (dependência do `orval`) não foi aprovado no `npm
 
 ## Decisoes pendentes
 
-- Frontend Next.js e sessao HttpOnly confirmados por Matheus em 04/10/2026. Codigo de acesso adicionado; as quatro areas de dominio e detalhes de hospedagem seguem pendentes. Ver `execucao-sessao.md`.
+- Frontend Next.js e sessao HttpOnly confirmados por Matheus em 04/10/2026. Codigo de acesso adicionado; as quatro areas de dominio e detalhes de hospedagem seguem pendentes. Ver `docs/historico/execucao-sessao.md`.
 - Unitários padrão e integração com perfil/banco isolados foram executados: seis testes Java aprovados em duas rodadas. Seis casos HTTP da documentação/erros também passaram após a correção de details null.
 - Perfil de teste isolado foi adotado, com o PostgreSQL 18 descartável via Docker Compose (`docker-compose.test.yml`, porta 15432); Testcontainers não é usado (decisão da equipe, D-EVO-38).

@@ -62,7 +62,7 @@ await run('Logout requires CSRF and invalidates the previous cookie', async () =
   await seller.refreshCsrf();
   assert.equal((await seller.request('/auth/logout', 'POST')).status, 204);
 });
-const directory = new URL('../reports/contrato/session-2026-10-04/', import.meta.url);
+const directory = new URL('../target/contrato/', import.meta.url);
 mkdirSync(directory, { recursive: true });
 const report = { scope: 'real-session-http-disposable-database', timestamp: new Date().toISOString(), results };
 writeFileSync(new URL('http-session.json', directory), JSON.stringify(report, null, 2) + '\n');

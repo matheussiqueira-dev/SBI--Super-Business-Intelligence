@@ -2,7 +2,7 @@
 
 Versão 0.1 (rascunho), 09/10/2026. Preparado por Matheus Siqueira para o card 16. **Responsável: Allan. Revisor: Matheus.** Formato: [templates/defeito.md](templates/defeito.md), com os 13 campos da seção 15 do enunciado.
 
-Fontes: card 16 do Trello (D003–D016, registrados em 08/10), revisão dos PRs #6, #8 e #9 (D017–D021), relatórios em `reports/execucoes/`. Severidade = impacto; prioridade = urgência (escalas no template).
+Fontes: card 16 do Trello (D003–D016, registrados em 08/10), revisão dos PRs #6, #8 e #9 (D017–D021), relatórios em `docs/historico/reports/execucoes/`. Severidade = impacto; prioridade = urgência (escalas no template).
 
 ## Resumo
 
@@ -61,7 +61,7 @@ Interpretação: a densidade alta é esperada num sistema legado que nunca teve 
 | Resultado obtido | Preço do item R$ 200,00; total R$ 400,00 (`expected: 100.0 but was: 200.0`). |
 | Severidade | Crítica |
 | Prioridade | Alta |
-| Evidência | `reports/execucoes/run-2026-10-03-ct-money-002.md`; teste `CT-MONEY-002` (`ProductAndOrderCalculationTest.itemSubtotalMultipliesQuantityOnce`, `OrderServiceTest`) |
+| Evidência | `docs/historico/reports/execucoes/run-2026-10-03-ct-money-002.md`; teste `CT-MONEY-002` (`ProductAndOrderCalculationTest.itemSubtotalMultipliesQuantityOnce`, `OrderServiceTest`) |
 | Responsável | Correção e reteste em 03/10: Matheus. Reteste independente: Allan. |
 | Status | Corrigido e retestado; encerramento aguarda reteste independente |
 | Correção | `OrderService.buildItems` passa o preço unitário; a multiplicação fica só em `OrderItem.subTotal()` |
@@ -79,7 +79,7 @@ Interpretação: a densidade alta é esperada num sistema legado que nunca teve 
 | Resultado obtido | HTTP 500 e `status: 400`. |
 | Severidade | Média |
 | Prioridade | Média |
-| Evidência | `docs/execucao-sessao.md`; `reports/execucoes/run-2026-10-04-sessao-nextjs.md`; teste `ErrorResponseTest.genericErrorBodyMatchesHttpStatusAndDoesNotLeakException` |
+| Evidência | `docs/historico/execucao-sessao.md`; `docs/historico/reports/execucoes/run-2026-10-04-sessao-nextjs.md`; teste `ErrorResponseTest.genericErrorBodyMatchesHttpStatusAndDoesNotLeakException` |
 | Responsável | Correção: Matheus (04/10). Reteste independente: Allan. |
 | Status | Corrigido e retestado; encerramento aguarda reteste independente |
 | Correção | `GlobalExceptionHandler`: corpo do erro genérico com status 500 |
@@ -245,7 +245,7 @@ Interpretação: a densidade alta é esperada num sistema legado que nunca teve 
 | Responsável | Card FIX-03: Gabriel (implementação: Matheus). Reteste: Allan. |
 | Status | Corrigido em branch local, não publicado |
 | Correção | `c007dff`: `@DecimalMin(Money.MIN = "0.005")` nos três DTOs de dinheiro |
-| Reteste | `c178204`, 09/10: 176 testes, 0 falhas; OpenAPI ao vivo publica `minimum: 0.005` (`reports/execucoes/run-2026-10-09-fix-03.md`) |
+| Reteste | `c178204`, 09/10: 176 testes, 0 falhas; OpenAPI ao vivo publica `minimum: 0.005` (`docs/historico/reports/execucoes/run-2026-10-09-fix-03.md`) |
 
 ### D018 — Pagamento tardio regride pedido para PAID
 

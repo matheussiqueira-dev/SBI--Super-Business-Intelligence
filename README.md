@@ -96,7 +96,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\test.ps1 -Mode Integ
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\test-contract.ps1 -HttpOnly -Frontend  # contrato ao vivo + E2E e axe
 npm test; node scripts\audit-contract.mjs config\openapi\target-loja-gestao-openapi-2026-10-24-v6.json  # auditoria estática do contrato v6
 cd frontend; npm run typecheck; npm run api:check; npm test; npm run build
-node scripts\quality-metrics.mjs reports\metricas\r1 "R1"                                  # métricas a partir de target/
+node scripts\quality-metrics.mjs                                                           # métricas de target/ em reports\metricas\ultima (fora do Git)
 ```
 
 A CI (`.github/workflows/ci.yml`) roda quatro jobs de teste, cada um com seus relatórios como artefato, e, nos pull requests, o job `hygiene`, que barra rodapé de coautoria, crédito a ferramenta e endereço antigo do site nas mensagens de commit e nos arquivos versionados:
@@ -116,6 +116,7 @@ A CI (`.github/workflows/ci.yml`) roda quatro jobs de teste, cada um com seus re
 | Plano de testes, defeitos e métricas | [docs/plano-testes.md](docs/plano-testes.md), [docs/defeitos.md](docs/defeitos.md), [reports/metricas/comparativo-r0-r1.md](reports/metricas/comparativo-r0-r1.md) |
 | Modelo de dados e pacote SQL | [docs/bd/modelo-erp-pdv.md](docs/bd/modelo-erp-pdv.md), [docs/bd/pacote-sql/](docs/bd/pacote-sql/) |
 | Decisões | [docs/decisoes/](docs/decisoes/) (ERP/PDV, evolução D-EVO, matriz de acesso, autenticação, dinheiro, stack) |
+| Histórico | [docs/historico/](docs/historico/) (Trello e planejamento, sessão de 04/10, rodadas de 03 a 09/10, contratos ao vivo v4 e v5) |
 | Identidade visual | Manual SBI v2.0 aplicado ([docs/arquitetura.md](docs/arquitetura.md), decisões D-MAR-01 a D-MAR-15); [reports/marca/](reports/marca/) guarda as capturas da marca v1.0, nos dois papéis anteriores ao perfil CEO |
 | Contrato | [config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json](config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json) e Swagger em `/swagger-ui/index.html` |
 | Rotas legadas (`/orders`, `/payment`, `/address`) | [docs/api-legada.md](docs/api-legada.md) |

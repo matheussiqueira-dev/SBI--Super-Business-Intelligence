@@ -240,7 +240,7 @@ for (const { path, method, operation } of operations(v4)) {
   if (operation['x-status'] === 'implemented' && !exercised.has(name)) findings.push(`${name}: implemented but not exercised`);
 }
 
-const directory = new URL('../reports/contrato/live-v6/', import.meta.url);
+const directory = new URL('../target/contrato/', import.meta.url);
 mkdirSync(directory, { recursive: true });
 const report = { scope: 'live OpenAPI and responses versus target v6', timestamp: new Date().toISOString(),
   contract: 'target-loja-gestao-openapi-2026-10-24-v6.json', operations: operations(v4).length,
