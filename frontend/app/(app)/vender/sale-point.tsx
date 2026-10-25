@@ -18,10 +18,12 @@ import {
   addProduct, availableFromDetails, clearCart, emptyCart, loadCart, manualDiscountBody, refreshAvailability, removeProduct, saleItems, saveCart,
   setManualDiscount, setQuantity, withIdempotencyKey, type Cart,
 } from '../../../lib/cart.ts';
-import { label, money, ORDER_STATUS, statusPill, PAYMENT_TYPE } from '../../../lib/format.ts';
+import { discountMoney, initials, label, money, ORDER_STATUS, plural, statusPill, PAYMENT_TYPE } from '../../../lib/format.ts';
 import { ErrorNotice, Loading, errorMessage } from '../../../components/feedback.tsx';
 import CustomerForm, { Field } from '../../../components/customer-form.tsx';
 import { Icon } from '../../../components/brand/icons.tsx';
+import EmptyState from '../../../components/empty-state.tsx';
+import PageHeader from '../../../components/page-header.tsx';
 
 type CatalogItem = z.infer<typeof ListSalesCatalogResponse>['content'][number];
 type CustomerSummary = z.infer<typeof ListCustomersResponse>['content'][number];
@@ -105,20 +107,18 @@ export default function SalePoint({ userId, userName, initialCustomerId = null }
 
   return (
     <div className="stack">
-      <header className="page-head">
-        <div className="stack-sm">
-          <h1>Nova venda</h1>
-          <p className="muted">Responsável: {userName} · definido pela sua conta</p>
-          <ol className="stepper" aria-label="Etapas da venda">
-            {STEPS.map((name, index) => (
-              <li key={name} className={index < step ? 'done' : undefined} aria-current={index === step ? 'step' : undefined}>
-                {index < step ? <Icon name="check" size={16} label="Concluída" /> : `${index + 1}.`} {name}
-              </li>
-            ))}
-          </ol>
-        </div>
-        {step > 0 && step < 2 && <button type="button" className="btn" onClick={() => setStep(step - 1)}>Voltar aos itens</button>}
-      </header>
+      <div className="stack-md">
+        <PageHeader section="Atendimento" title="Nova venda" description={`Responsável: ${userName} · definido pela sua conta`}
+          actions={step > 0 && step < 2 ? <button type="button" className="btn" onClick={() => setStep(step - 1)}>
+            <Icon name="chevron-esquerda" />Voltar aos itens</button> : undefined} />
+        <ol className="stepper" aria-label="Etapas da venda">
+          {STEPS.map((name, index) => (
+            <li key={name} className={index < step ? 'done' : undefined} aria-current={index === step ? 'step' : undefined}>
+              <span className="step-n">{index < step ? <Icon name="check" size={14} label="Concluída" /> : index + 1}</span>{name}
+            </li>
+          ))}
+        </ol>
+      </div>
       {notice && <p className="notice notice-warn" role="status">{notice}</p>}
       {step === 0 && <ItemsStep cart={cart} setCart={setCart} onNext={() => { setNotice(''); setCheckoutOpened(true); setStep(1); }} />}
       {checkoutOpened && <div hidden={step !== 1}>
@@ -194,10 +194,10 @@ function ItemsStep({ cart, setCart, onNext }: { cart: Cart; setCart: (cart: Cart
 
   return (
     <div className="pdv">
-      <section className="card stack" aria-labelledby="busca-titulo">
+      <section className="card stack-md" aria-labelledby="busca-titulo">
         <h2 id="busca-titulo">Buscar produto</h2>
         <div className="field">
-          <label htmlFor="busca">Nome ou SKU <span className="muted">(atalho: /)</span></label>
+          <label htmlFor="busca">Nome ou SKU <span className="opt">(atalho: /)</span></label>
           <input id="busca" ref={search} className="input" type="search" autoComplete="off" value={term}
                  role="combobox" aria-expanded={results.length > 0} aria-controls="resultados" aria-autocomplete="list"
                  aria-activedescendant={results[selected] ? `resultado-${results[selected]?.id}` : undefined} aria-describedby="busca-dica"
@@ -213,46 +213,51 @@ function ItemsStep({ cart, setCart, onNext }: { cart: Cart; setCart: (cart: Cart
                   <button type="button" role="option" id={`resultado-${item.id}`} aria-selected={index === selected}
                           onClick={() => add(item)} disabled={item.available < 1}>
                     <span className="product-cell"><ProductThumb sku={item.sku} name={item.name} />
-                      <span><strong>{item.name}</strong><br /><span className="mono muted">{item.sku}</span>
-                        {item.activePromotion && <> · <span className="pill pill-ok">{item.activePromotion.name}</span></>}</span></span>
-                    <span className="num right">{money(item.price)}<br /><span className="muted">{item.available < 1 ? 'Sem estoque' : `${item.available} disp.`}</span></span>
+                      <span><strong>{item.name}</strong>
+                        <span className="cell-sub"><span className="id">{item.sku}</span>
+                          {item.activePromotion && <> · <span className="pill pill-promo">{item.activePromotion.name}</span></>}</span></span></span>
+                    <span className="num right"><strong>{money(item.price)}</strong>
+                      <span className="cell-sub">{item.available < 1 ? 'Sem estoque' : `${item.available} disp.`}</span></span>
                   </button>
                 </li>
               ))}
             </ul>}
       </section>
 
-      <section className="card stack" aria-labelledby="carrinho-titulo">
-        <h2 id="carrinho-titulo">Carrinho <span className="muted num">({totalUnits} {totalUnits === 1 ? 'item' : 'itens'})</span></h2>
-        {lines.length === 0 ? <p className="empty">Adicione produtos para começar a venda.</p> : <div>
+      <section className="card stack-md" aria-labelledby="carrinho-titulo">
+        <div className="card-head">
+          <h2 id="carrinho-titulo">Carrinho</h2>
+          <span className="caption num">{plural(totalUnits, 'item', 'itens')}</span>
+        </div>
+        {lines.length === 0
+          ? <EmptyState icon="vender" title="Carrinho vazio">Busque o produto pelo nome ou pelo SKU. O total aparece antes de criar o pedido.</EmptyState>
+          : <ul className="cart-lines">
           {lines.map(line => {
             const price = quoted.get(line.productId);
             const short = price && price.available < line.quantity;
             return (
-              <div className="cart-line" key={line.productId}>
+              <li className="cart-line" key={line.productId}>
                 <div className="product-cell">
                   <ProductThumb sku={line.sku} name={line.name} />
-                  <div>
-                    <strong>{line.name}</strong><br /><span className="mono muted">{line.sku}</span>
-                    {short && <p className="pill pill-warn">Restam {price.available}</p>}
-                  </div>
+                  <span>
+                    <strong>{line.name}</strong><span className="cell-sub id">{line.sku}</span>
+                    {short && <span className="pill pill-warn">Restam {price.available}</span>}
+                  </span>
                 </div>
-                <div className="stack-sm end">
-                  <span className="num">{price ? money(price.subtotal) : '—'}</span>
-                  <div className="qty" role="group" aria-label={`Quantidade de ${line.name}`}>
-                    <button type="button" className="btn" aria-label={`Diminuir ${line.name}`}
-                            onClick={() => setCart(setQuantity(cart, line.productId, line.quantity - 1))}>−</button>
-                    <output aria-live="polite" className="num">{line.quantity}</output>
-                    <button type="button" className="btn" aria-label={`Aumentar ${line.name}`} disabled={line.quantity >= line.available}
-                            onClick={() => setCart(setQuantity(cart, line.productId, line.quantity + 1))}>+</button>
-                    <button type="button" className="btn btn-ghost" aria-label={`Remover ${line.name}`}
-                            onClick={() => setCart(removeProduct(cart, line.productId))}>Remover</button>
-                  </div>
+                <span className="cart-price num">{price ? money(price.subtotal) : '—'}</span>
+                <div className="qty" role="group" aria-label={`Quantidade de ${line.name}`}>
+                  <button type="button" className="btn btn-sm btn-icon" aria-label={`Diminuir ${line.name}`}
+                          onClick={() => setCart(setQuantity(cart, line.productId, line.quantity - 1))}>−</button>
+                  <output aria-live="polite" className="num">{line.quantity}</output>
+                  <button type="button" className="btn btn-sm btn-icon" aria-label={`Aumentar ${line.name}`} disabled={line.quantity >= line.available}
+                          onClick={() => setCart(setQuantity(cart, line.productId, line.quantity + 1))}>+</button>
+                  <button type="button" className="btn btn-sm btn-quiet" aria-label={`Remover ${line.name}`}
+                          onClick={() => setCart(removeProduct(cart, line.productId))}>Remover</button>
                 </div>
-              </div>
+              </li>
             );
           })}
-        </div>}
+        </ul>}
         {lines.length > 0 && <fieldset className="stack-sm plain-fieldset">
           <legend className="label">Desconto manual (opcional)</legend>
           <div className="form-grid">
@@ -271,13 +276,15 @@ function ItemsStep({ cart, setCart, onNext }: { cart: Cart; setCart: (cart: Cart
               ? `Desconto acima do seu limite${limit ? ` de ${limit.replace('.', ',')}%` : ''}. Venda dentro do limite e peça ao gerente para aprovar o restante no pedido.`
               : errorMessage(quote.error)}</p>
           : <ErrorNotice error={quote.error} />}
-        {lines.length > 0 && <dl className="totals" aria-live="polite">
-          <div><dt>Subtotal</dt><dd className="num">{money(quote.data?.subtotal)}</dd></div>
-          <div><dt>Descontos</dt><dd className="num">{money(quote.data?.discountTotal)}</dd></div>
-          {quote.data?.manualDiscount && <div><dt>Desconto manual</dt><dd className="num">{money(quote.data.manualDiscount)}</dd></div>}
-          <div className="total"><dt>Total</dt><dd className="num">{money(quote.data?.total)}</dd></div>
-        </dl>}
-        <button type="button" className="btn btn-primary btn-block" disabled={lines.length === 0 || discountProblem} onClick={onNext}>Continuar para cliente e pagamento</button>
+        <div className="stack-md">
+          {lines.length > 0 && <dl className="totals" aria-live="polite">
+            <div><dt>Subtotal</dt><dd className="num">{money(quote.data?.subtotal)}</dd></div>
+            <div className="discount"><dt>Descontos</dt><dd className="num">{discountMoney(quote.data?.discountTotal)}</dd></div>
+            {quote.data?.manualDiscount && <div><dt>Desconto manual incluído</dt><dd className="num">{discountMoney(quote.data.manualDiscount)}</dd></div>}
+            <div className="total"><dt>Total</dt><dd className="num">{money(quote.data?.total)}</dd></div>
+          </dl>}
+          <button type="button" className="btn btn-primary btn-block" disabled={lines.length === 0 || discountProblem} onClick={onNext}>Continuar para cliente e pagamento</button>
+        </div>
       </section>
     </div>
   );
@@ -392,13 +399,16 @@ function CheckoutStep({ active, cart, setCart, userId, initialCustomerId, onCrea
 
   const setAddressField = (key: keyof AddressForm) => (value: string) => setAddress(current => ({ ...current, [key]: value }));
 
+  const units = cart.lines.reduce((sum, line) => sum + line.quantity, 0);
+
   return (
     <div className="pdv">
-      <section className="card stack" aria-labelledby="cliente-titulo">
+      <section className="card stack-md" aria-labelledby="cliente-titulo">
         <h2 id="cliente-titulo" tabIndex={-1}>Cliente</h2>
-        {customer ? <div className="stack-sm">
-          <p><strong>{customer.name}</strong> · <span className="mono">{customer.document}</span></p>
-          <div><button type="button" className="btn" onClick={() => setCustomer(null)}>Trocar cliente</button></div>
+        {customer ? <div className="customer-chip">
+          <span className="avatar avatar-vendedor" aria-hidden="true">{initials(customer.name)}</span>
+          <div><strong>{customer.name}</strong><span className="cell-sub id">{customer.document}</span></div>
+          <button type="button" className="btn btn-ghost" onClick={() => setCustomer(null)}>Trocar cliente</button>
         </div> : <>
           <div className="field">
             <label htmlFor="busca-cliente">CPF, CNPJ ou nome</label>
@@ -408,20 +418,24 @@ function CheckoutStep({ active, cart, setCart, userId, initialCustomerId, onCrea
           </div>
           <ErrorNotice error={customers.error} />
           {q.length >= 2 && customers.data && (customers.data.content.length === 0
-            ? <p className="empty">Nenhum cliente encontrado.</p>
+            ? <p className="empty">Nenhum cliente encontrado. Confira o documento ou cadastre o cliente.</p>
             : <ul className="results" aria-label="Clientes encontrados">
                 {customers.data.content.map(found => (
                   <li key={found.id}><button type="button" onClick={() => setCustomer(found)}>
-                    <span><strong>{found.name}</strong><br /><span className="mono muted">{found.document}</span></span>
-                    <span className="muted">Escolher</span>
+                    <span className="person"><span className="avatar avatar-sm" aria-hidden="true">{initials(found.name)}</span>
+                      <span><strong>{found.name}</strong><span className="cell-sub id">{found.document}</span></span></span>
+                    <span className="caption">Escolher</span>
                   </button></li>
                 ))}
               </ul>)}
-          <div><button type="button" className="btn" onClick={() => setDrawer(true)}>Cadastrar cliente</button></div>
+          <div><button type="button" className="btn" onClick={() => setDrawer(true)}><Icon name="mais" />Cadastrar cliente</button></div>
         </>}
         <dialog ref={dialog} className="drawer" aria-labelledby="novo-cliente" onClose={() => setDrawer(false)}>
           <div className="stack">
-            <h2 id="novo-cliente">Cadastrar cliente</h2>
+            <div className="drawer-head">
+              <h2 id="novo-cliente">Cadastrar cliente</h2>
+              <button type="button" className="btn btn-quiet" onClick={() => setDrawer(false)}><Icon name="fechar" />Fechar</button>
+            </div>
             {drawer && <CustomerForm idPrefix="pdv-cliente" onCancel={() => setDrawer(false)}
                                      onCreated={created => { setCustomer(created); setDrawer(false); }}
                                      onExisting={id => { void chooseExisting(id); }} />}
@@ -429,15 +443,18 @@ function CheckoutStep({ active, cart, setCart, userId, initialCustomerId, onCrea
         </dialog>
       </section>
 
-      <section className="card stack" aria-labelledby="pagamento-titulo">
+      <section className="card stack-md" aria-labelledby="pagamento-titulo">
         <h2 id="pagamento-titulo">Pagamento e entrega</h2>
-        <fieldset className="segmented">
-          <legend className="sr-only">Forma de pagamento</legend>
-          {(['PIX', 'CARD', 'BOLETO'] as const).map(type => (
-            <label key={type}><input type="radio" name="pagamento" value={type} checked={payment === type} onChange={() => setPayment(type)} />
-              <span>{label(PAYMENT_TYPE, type)}</span></label>
-          ))}
-        </fieldset>
+        <div className="stack-sm">
+          <fieldset className="segmented segmented-block">
+            <legend className="sr-only">Forma de pagamento</legend>
+            {(['PIX', 'CARD', 'BOLETO'] as const).map(type => (
+              <label key={type}><input type="radio" name="pagamento" value={type} checked={payment === type} onChange={() => setPayment(type)} />
+                <span>{label(PAYMENT_TYPE, type)}</span></label>
+            ))}
+          </fieldset>
+          <p className="caption">O pedido fica aguardando pagamento até a confirmação.</p>
+        </div>
         {payment === 'CARD' && <div className="form-grid">
           <Field id="final-cartao" label="4 últimos dígitos">
             <input id="final-cartao" className="input" inputMode="numeric" maxLength={4} autoComplete="off" value={cardLast4}
@@ -456,10 +473,10 @@ function CheckoutStep({ active, cart, setCart, userId, initialCustomerId, onCrea
         {payment === 'BOLETO' && <Field id="vencimento" label="Vencimento">
           <input id="vencimento" className="input" type="date" min={inDays(0)} value={dueDate} onChange={event => setDueDate(event.target.value)} />
         </Field>}
-        <fieldset className="segmented">
+        <fieldset className="segmented segmented-block">
           <legend className="sr-only">Retirada ou entrega</legend>
           <label><input type="radio" name="entrega" checked={!delivery} onChange={() => setDelivery(false)} /><span>Retirada na loja</span></label>
-          <label><input type="radio" name="entrega" checked={delivery} onChange={() => setDelivery(true)} /><span>Entrega</span></label>
+          <label><input type="radio" name="entrega" checked={delivery} onChange={() => setDelivery(true)} /><span>Entrega no endereço</span></label>
         </fieldset>
         {delivery && <div className="form-grid">
           {([['street', 'Rua'], ['number', 'Número'], ['complement', 'Complemento (opcional)'], ['neighborhood', 'Bairro'],
@@ -470,28 +487,43 @@ function CheckoutStep({ active, cart, setCart, userId, initialCustomerId, onCrea
             </Field>
           ))}
         </div>}
-        <section className="summary stack-sm" aria-labelledby="resumo-titulo">
-          <h3 id="resumo-titulo">Resumo da venda</h3>
+        <section className="summary" aria-labelledby="resumo-titulo">
+          <div className="card-head">
+            <h3 id="resumo-titulo">Resumo</h3>
+            <span className="caption num">{plural(units, 'item', 'itens')}</span>
+          </div>
+          {/* Linha pelo preco cheio e o desconto da promocao embaixo: subtotal menos descontos fecha o total (manual v2.0, figura 42). */}
           <ul className="summary-lines">
-            {cart.lines.map(line => (
-              <li key={line.productId}><span>{line.quantity}× {line.name}</span>
-                <span className="num">{quoted.has(line.productId) ? money(quoted.get(line.productId)?.subtotal) : ''}</span></li>
-            ))}
+            {cart.lines.map(line => {
+              const item = quoted.get(line.productId);
+              const gross = item ? item.subtotal.amount + item.discount.amount : null;
+              return (
+                <li key={line.productId}>
+                  <span>{line.quantity}× {line.name}</span>
+                  <span className="num">{gross === null ? '' : money(gross)}</span>
+                  <span className="cell-sub"><span className="id">{line.sku}</span></span>
+                  {item && item.discount.amount > 0 && <span className="cell-sub num discount-line">{discountMoney(item.discount)}</span>}
+                </li>
+              );
+            })}
           </ul>
           <ErrorNotice error={quote.error} />
-          {/* Os valores das linhas ja vem com desconto (cotacao do servidor): o total e a soma deles, e o desconto vira nota. */}
           {quote.data
-            ? <div className="stack-sm" aria-live="polite">
-                <dl className="totals"><div className="total"><dt>Total</dt><dd className="num">{money(quote.data.total)}</dd></div></dl>
-                {quote.data.discountTotal.amount > 0 && <p className="muted">Inclui {money(quote.data.discountTotal)} de desconto.</p>}
-              </div>
+            ? <dl className="totals">
+                <div><dt>Subtotal</dt><dd className="num">{money(quote.data.subtotal)}</dd></div>
+                <div className="discount"><dt>Descontos</dt><dd className="num">{discountMoney(quote.data.discountTotal)}</dd></div>
+              </dl>
             : !quote.error && <Loading label="Calculando o total…" />}
         </section>
         {problems.length > 0 && <div className="notice notice-error" role="alert">{problems.map(p => <p key={p}>{p}</p>)}</div>}
         {submit.error && !(submit.error instanceof ApiError && submit.error.code === 'STOCK_INSUFFICIENT') &&
           <p className="notice notice-error" role="alert">{errorMessage(submit.error)}</p>}
-        <button type="button" className="btn btn-primary btn-block" onClick={finish} disabled={submit.isPending}>
-          {submit.isPending ? 'Criando pedido…' : 'Criar pedido'}</button>
+        <p className="caption">Ao criar, as unidades ficam reservadas. Quando o pagamento for confirmado, o valor entra no realizado de quem vendeu.</p>
+        <div className="action-area">
+          {quote.data && <dl className="totals" aria-live="polite"><div className="total"><dt>Total</dt><dd className="num">{money(quote.data.total)}</dd></div></dl>}
+          <button type="button" className="btn btn-primary btn-block" onClick={finish} disabled={submit.isPending}>
+            {submit.isPending ? 'Criando pedido…' : 'Criar pedido'}</button>
+        </div>
       </section>
     </div>
   );
@@ -516,15 +548,15 @@ function ConfirmStep({ order, onOrder, onRestart }: { order: SalesOrder; onOrder
   const pending = order.status === 'PENDING_PAYMENT';
   const busy = confirm.isPending || cancel.isPending;
   return (
-    <section className="card stack" aria-labelledby="confirmacao-titulo">
-      <div className="page-head">
-        <h2 id="confirmacao-titulo" tabIndex={-1}>Venda <span className="mono">#{order.id}</span></h2>
+    <section className="card stack-md" aria-labelledby="confirmacao-titulo">
+      <div className="card-head">
+        <h2 id="confirmacao-titulo" tabIndex={-1}>Venda <span className="id">#{order.id}</span></h2>
         <span className={statusPill(order.status)}>{label(ORDER_STATUS, order.status)}</span>
       </div>
       <dl className="facts">
         <div><dt>Cliente</dt><dd>{order.customer.name}</dd></div>
         <div><dt>Pagamento</dt><dd>{label(PAYMENT_TYPE, order.payment.type)}</dd></div>
-        <div><dt>Total</dt><dd className="num"><strong>{money(order.total)}</strong></dd></div>
+        <div><dt>Total</dt><dd className="kpi-sm">{money(order.total)}</dd></div>
         <div><dt>Entrega</dt><dd>{order.fulfillment === 'DELIVERY' ? 'Entrega' : 'Retirada na loja'}</dd></div>
       </dl>
       {order.status === 'PAID' && <p className="notice notice-ok" role="status">Pagamento confirmado. Estoque baixado.</p>}
@@ -537,7 +569,7 @@ function ConfirmStep({ order, onOrder, onRestart }: { order: SalesOrder; onOrder
             {confirm.isPending ? 'Confirmando…' : 'Confirmar pagamento recebido'}</button>}
         {pending && <button type="button" className="btn btn-danger" disabled={busy} onClick={() => setAskCancel(true)}>
           {cancel.isPending ? 'Cancelando…' : 'Cancelar pedido'}</button>}
-        <button type="button" className="btn" onClick={onRestart} disabled={busy}>Nova venda</button>
+        <button type="button" className="btn" onClick={onRestart} disabled={busy}><Icon name="mais" />Nova venda</button>
       </div>
       {pending && order.payment.type !== 'BOLETO' &&
         <p className="muted">Ao iniciar uma nova venda, este pedido continua em Vendas como Aguardando pagamento, com o estoque reservado.</p>}

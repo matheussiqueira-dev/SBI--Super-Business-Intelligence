@@ -64,7 +64,7 @@ test('[CT-PUB-02] gerente: menu completo, 4 indicadores, meta do mes e axe em /g
   }
   await page.goto('/gestao');
   const kpis = page.getByRole('region', { name: 'Indicadores do período' });
-  for (const kpi of ['Faturamento líquido', 'Lucro bruto', 'Margem bruta', 'Pedidos pagos']) {
+  for (const kpi of ['Faturamento confirmado', 'Lucro bruto', 'Margem bruta', 'Pedidos pagos']) {
     await expect(kpis.locator('.kpi').filter({ hasText: kpi })).toBeVisible({ timeout: 60_000 });
   }
   await expect(page.locator('#meta-titulo')).toBeVisible();
