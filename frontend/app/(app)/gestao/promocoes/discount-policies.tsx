@@ -9,6 +9,7 @@ import { formatDateTime } from '../../../../lib/format.ts';
 import { ErrorNotice, Loading } from '../../../../components/feedback.tsx';
 import { Field } from '../../../../components/customer-form.tsx';
 import Drawer from '../../../../components/drawer.tsx';
+import TableWrap from '../../../../components/table-wrap.tsx';
 
 type Policy = z.infer<typeof ListDiscountPoliciesResponse>[number];
 const ROLE_LABEL: Record<string, string> = { GERENTE: 'Gerente', VENDEDOR: 'Vendedor' };
@@ -19,13 +20,13 @@ export default function DiscountPolicies({ onSaved }: { onSaved: (message: strin
   const [editing, setEditing] = useState<Policy | null>(null);
   const list = useQuery({ queryKey: ['discount-policy'], queryFn: ({ signal }) => api.request('/discount-policy', { signal, schema: ListDiscountPoliciesResponse }) });
   return (
-    <section className="card stack" aria-labelledby="alcada-titulo">
-      <div className="stack-sm">
+    <section className="card stack-md" aria-labelledby="alcada-titulo">
+      <div>
         <h2 id="alcada-titulo">Alçada de desconto manual</h2>
-        <p className="muted">Percentual máximo que cada papel concede no balcão. Acima disso, o gerente aprova no pedido pendente.</p>
+        <p className="card-sub">Percentual máximo que cada papel concede no balcão. Acima disso, o gerente aprova no pedido pendente.</p>
       </div>
       <ErrorNotice error={list.error} />
-      {list.isLoading ? <Loading /> : list.data && <div className="table-wrap"><table>
+      {list.isLoading ? <Loading /> : list.data && <TableWrap label="Alçadas por papel"><table>
         <caption className="sr-only">Alçadas por papel</caption>
         <thead><tr><th scope="col">Papel</th><th scope="col" className="right">Máximo</th><th scope="col">Abaixo do custo</th>
           <th scope="col">Alterado</th><th scope="col"><span className="sr-only">Ações</span></th></tr></thead>
@@ -35,10 +36,10 @@ export default function DiscountPolicies({ onSaved }: { onSaved: (message: strin
             <td className="num right">{percent(p.maxPercent)}</td>
             <td>{p.allowBelowCost ? 'Permitido' : 'Bloqueado'}</td>
             <td className="num">{formatDateTime(p.updatedAt)}{p.updatedBy ? ` por ${p.updatedBy.name}` : ''}</td>
-            <td><button type="button" className="btn" aria-label={`Alterar alçada: ${ROLE_LABEL[p.role] ?? p.role}`} onClick={() => setEditing(p)}>Alterar</button></td>
+            <td><button type="button" className="btn btn-sm" aria-label={`Alterar alçada: ${ROLE_LABEL[p.role] ?? p.role}`} onClick={() => setEditing(p)}>Alterar</button></td>
           </tr>
         ))}</tbody>
-      </table></div>}
+      </table></TableWrap>}
       <Drawer open={editing !== null} title={editing ? `Alçada · ${ROLE_LABEL[editing.role] ?? editing.role}` : ''} onClose={() => setEditing(null)}>
         {editing && <PolicyForm policy={editing} onDone={saved => {
           setEditing(null);
@@ -71,7 +72,7 @@ function PolicyForm({ policy, onDone }: { policy: Policy; onDone: (saved: z.infe
         <Field id="alcada-maximo" label="Máximo (%)"><input id="alcada-maximo" name="maxPercent" className="input" inputMode="decimal" defaultValue={String(policy.maxPercent).replace('.', ',')} required /></Field>
         <Field id="alcada-motivo" label="Motivo" hint="De 5 a 200 caracteres; fica na auditoria."><input id="alcada-motivo" name="reason" className="input" required minLength={5} maxLength={200} /></Field>
       </div>
-      <label className="actions"><input type="checkbox" name="allowBelowCost" defaultChecked={policy.allowBelowCost} /> Permitir vender abaixo do custo médio</label>
+      <label className="check"><input type="checkbox" name="allowBelowCost" defaultChecked={policy.allowBelowCost} />Permitir vender abaixo do custo médio</label>
       {problem && <p className="notice notice-error" role="alert">{problem}</p>}
       <ErrorNotice error={save.error} />
       <div className="actions"><button type="submit" className="btn btn-primary" disabled={save.isPending}>{save.isPending ? 'Salvando…' : 'Salvar alçada'}</button></div>

@@ -26,7 +26,7 @@ flowchart LR
   SSR --> SEC
 ```
 
-- O frontend segue o manual de marca SBI v1.0: tokens em `frontend/app/brand-tokens.css`, símbolo, logo e ícones em `frontend/components/brand/`, menu em seções GESTÃO, ATENDIMENTO e MEU ESPAÇO (D-EVO-32 a D-EVO-37).
+- O frontend segue o manual de identidade visual SBI v2.0: tokens com nome do papel (`--sbi-*`, temas claro e escuro) em `frontend/app/tokens.css`, componentes em `frontend/app/globals.css`, símbolo, logotipo e ícones em `frontend/components/brand/`, menu em seções GESTÃO, ATENDIMENTO e MEU ESPAÇO (D-EVO-32 a D-EVO-37, D-MAR-01 a D-MAR-15).
 - O frontend fala com a API sempre pela mesma origem (`/api/backend/*`, rewrite do Next). O cookie de sessão é HttpOnly e o token CSRF vai num cabeçalho em toda mutação (`frontend/lib/api/http.ts`).
 - Os schemas Zod do frontend são gerados do contrato v5 (`config/openapi/target-loja-gestao-openapi-2026-10-14-v5.json`) pelo orval (`frontend/lib/api/generated/`). A CI falha se a geração produzir diff.
 - A API valida a entrada com Bean Validation, responde todo erro como `ErrorResponse` com `code` e documenta as operações no Springdoc. O `scripts/live-contract.mjs` compara o OpenAPI ao vivo com o v5 (58 operações, relatório em `reports/contrato/live-v5/`).

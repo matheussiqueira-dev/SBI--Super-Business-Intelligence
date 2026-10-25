@@ -8,19 +8,22 @@ import {
 } from '../../../../lib/api/generated/sbi.zod.ts';
 import { ApiError, api } from '../../../../lib/api/http.ts';
 import { invalidateAfterSale } from '../../../../lib/api/invalidate.ts';
-import { formatDateTime, label, money, ORDER_STATUS, statusPill, PAYMENT_TYPE } from '../../../../lib/format.ts';
+import { discountMoney, formatDateTime, label, money, ORDER_STATUS, statusPill, PAYMENT_TYPE } from '../../../../lib/format.ts';
 import { ErrorNotice, Loading } from '../../../../components/feedback.tsx';
 import { Field } from '../../../../components/customer-form.tsx';
 import ConfirmDialog from '../../../../components/confirm-dialog.tsx';
+import EmptyState from '../../../../components/empty-state.tsx';
+import PageHeader from '../../../../components/page-header.tsx';
 import ProductThumb from '../../../../components/product-thumb.tsx';
 import { StatusMessage, useStatusMessage } from '../../../../components/status-message.tsx';
+import TableWrap from '../../../../components/table-wrap.tsx';
 
 function NotFound() {
   return (
-    <section className="card stack-sm">
-      <h1>Pedido não encontrado</h1>
-      <p className="muted">Ele não existe ou pertence a outro vendedor.</p>
-      <p><Link href="/vendas">Voltar para vendas</Link></p>
+    <section className="card">
+      <EmptyState icon="vendas" title="Pedido não encontrado" action={<Link className="btn" href="/vendas">Voltar para vendas</Link>}>
+        Ele não existe ou pertence a outro vendedor.
+      </EmptyState>
     </section>
   );
 }
@@ -58,17 +61,22 @@ export default function SaleDetail({ orderId, manager = false }: { orderId: numb
   const busy = confirm.isPending || cancel.isPending;
   return (
     <div className="stack">
-      <header className="page-head">
-        <div className="stack-sm">
-          <p><Link href="/vendas">Vendas</Link> / <span className="mono">#{order.id}</span></p>
-          <h1>Venda <span className="mono">#{order.id}</span></h1>
-        </div>
-        <span className={statusPill(order.status)}>{label(ORDER_STATUS, order.status)}</span>
-      </header>
+      <PageHeader section={<><Link href="/vendas">Vendas</Link> / <span className="id">#{order.id}</span></>}
+        title={<>Venda <span className="id">#{order.id}</span></>}
+        badge={<span className={statusPill(order.status)}>{label(ORDER_STATUS, order.status)}</span>}
+        description={`${formatDateTime(order.createdAt)} · ${order.customer.name} · vendida por ${order.seller.name}`}
+        actions={pending ? <>
+          <button type="button" className="btn btn-danger" disabled={busy} onClick={() => setAskCancel(true)}>
+            {cancel.isPending ? 'Cancelando…' : 'Cancelar pedido'}</button>
+          <button type="button" className="btn btn-primary" disabled={busy} onClick={() => confirm.mutate()}>
+            {confirm.isPending ? 'Confirmando…' : 'Confirmar pagamento recebido'}</button>
+        </> : undefined} />
       <StatusMessage message={status.message} onClose={status.clear} />
-      <section className="card stack">
+      <ErrorNotice error={confirm.error ?? cancel.error} />
+      {pending && <p className="notice">O pedido reserva o estoque e ainda não conta para o realizado. Confirme quando o pagamento entrar.</p>}
+      <section className="card stack-md" aria-labelledby="itens-titulo">
+        <h2 id="itens-titulo">Itens e pagamento</h2>
         <dl className="facts">
-          <div><dt>Data</dt><dd className="num">{formatDateTime(order.createdAt)}</dd></div>
           <div><dt>Cliente</dt><dd>{order.customer.name}</dd></div>
           <div><dt>Vendedor</dt><dd>{order.seller.name}</dd></div>
           <div><dt>Pagamento</dt><dd>{label(PAYMENT_TYPE, order.payment.type)}</dd></div>
@@ -76,35 +84,28 @@ export default function SaleDetail({ orderId, manager = false }: { orderId: numb
             ? `${order.shippingAddress.street}, ${order.shippingAddress.number} · ${order.shippingAddress.city}/${order.shippingAddress.state}`
             : 'Retirada na loja'}</dd></div>
         </dl>
-        <div className="table-wrap"><table>
+        <TableWrap label="Itens da venda"><table>
           <caption className="sr-only">Itens da venda</caption>
           <thead><tr><th scope="col">Produto</th><th scope="col" className="right">Qtd.</th><th scope="col" className="right">Unitário</th>
             <th scope="col" className="right">Desconto</th><th scope="col" className="right">Subtotal</th></tr></thead>
           <tbody>{order.items.map(item => (
             <tr key={item.productId}>
-              <td><div className="product-cell"><ProductThumb sku={item.sku} name={item.name} /><span>{item.name}<br /><span className="mono muted">{item.sku}</span></span></div></td>
+              <td><div className="product-cell"><ProductThumb sku={item.sku} name={item.name} /><span>{item.name}<span className="cell-sub id">{item.sku}</span></span></div></td>
               <td className="num right">{item.quantity}</td>
               <td className="num right">{money(item.unitPrice)}</td>
-              <td className="num right">{money(item.discount)}</td>
+              <td className="num right">{discountMoney(item.discount)}</td>
               <td className="num right">{money(item.subtotal)}</td>
             </tr>
           ))}</tbody>
-        </table></div>
+        </table></TableWrap>
         <dl className="totals">
           <div><dt>Subtotal</dt><dd className="num">{money(order.subtotal)}</dd></div>
-          <div><dt>Descontos</dt><dd className="num">{money(order.discountTotal)}</dd></div>
+          <div className="discount"><dt>Descontos</dt><dd className="num">{discountMoney(order.discountTotal)}</dd></div>
           <div className="total"><dt>Total</dt><dd className="num">{money(order.total)}</dd></div>
         </dl>
         {order.manualDiscount && <p className="muted">
           Desconto manual de {order.manualDiscount.percent.toString().replace('.', ',')}% ({money(order.manualDiscount.amount)}), já incluído nos itens.
           Motivo: {order.manualDiscount.reason}.{order.manualDiscount.approvedBy ? ` Aprovado por ${order.manualDiscount.approvedBy.name}.` : ''}</p>}
-        <ErrorNotice error={confirm.error ?? cancel.error} />
-        {pending && <div className="actions">
-          <button type="button" className="btn btn-primary" disabled={busy} onClick={() => confirm.mutate()}>
-            {confirm.isPending ? 'Confirmando…' : 'Confirmar pagamento recebido'}</button>
-          <button type="button" className="btn btn-danger" disabled={busy} onClick={() => setAskCancel(true)}>
-            {cancel.isPending ? 'Cancelando…' : 'Cancelar pedido'}</button>
-        </div>}
       </section>
       {manager && pending && <DiscountApproval orderId={order.id} onDone={updated('Desconto aplicado. Total e valor do pagamento recalculados.')} />}
       <ConfirmDialog open={askCancel} title={`Cancelar o pedido #${order.id}?`} confirmLabel="Cancelar pedido" cancelLabel="Manter pedido"
@@ -131,10 +132,12 @@ function DiscountApproval({ orderId, onDone }: { orderId: number; onDone: (order
     if (check.success) approve.mutate(body);
   }
   return (
-    <section className="card stack-sm" aria-labelledby="aprovar-desconto">
-      <h2 id="aprovar-desconto">Aprovar desconto (gerente)</h2>
-      <p className="muted">Substitui o desconto manual do pedido; o total e o valor do pagamento são recalculados.</p>
-      <form className="stack-sm" onSubmit={submit} aria-busy={approve.isPending}>
+    <section className="card stack-md" aria-labelledby="aprovar-desconto">
+      <div>
+        <h2 id="aprovar-desconto">Aprovar desconto (gerente)</h2>
+        <p className="card-sub">Substitui o desconto manual do pedido; o total e o valor do pagamento são recalculados.</p>
+      </div>
+      <form className="stack-md" onSubmit={submit} aria-busy={approve.isPending}>
         <div className="form-grid">
           <Field id="aprovar-percentual" label="Percentual (%)"><input id="aprovar-percentual" name="percent" className="input" inputMode="decimal" required /></Field>
           <Field id="aprovar-motivo" label="Motivo" hint="De 5 a 200 caracteres"><input id="aprovar-motivo" name="reason" className="input" required minLength={5} maxLength={200} /></Field>
