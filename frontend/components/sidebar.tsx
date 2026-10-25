@@ -8,7 +8,7 @@ import { Icon } from './brand/icons.tsx';
  * Barra lateral de 248 px com o logotipo horizontal; abaixo de 1.024 px vira a barra superior de 56 px com o simbolo e
  * "Menu" (manual v2.0, secao 31), e o menu recolhivel fecha ao trocar de tela.
  */
-export default function Sidebar({ home, children }: { home: string; children: ReactNode }) {
+export default function Sidebar({ home, children, avatar }: { home: string; children: ReactNode; avatar?: ReactNode }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   useEffect(() => { setOpen(false); }, [pathname]);
@@ -19,6 +19,7 @@ export default function Sidebar({ home, children }: { home: string; children: Re
           <span className="brand-full"><SbiLogo size={28} /></span>
           <span className="brand-compact"><SbiSymbol size={28} /></span>
         </a>
+        {avatar && <div className="sidebar-avatar">{avatar}</div>}
         <button type="button" className="btn btn-quiet nav-toggle" aria-expanded={open} aria-controls="menu-principal"
                 onClick={() => setOpen(value => !value)}>
           <Icon name={open ? 'fechar' : 'menu'} />{open ? 'Fechar menu' : 'Menu'}
