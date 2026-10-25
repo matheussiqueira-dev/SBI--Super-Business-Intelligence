@@ -15,8 +15,12 @@ import { Field } from '../../../../components/customer-form.tsx';
 import ConfirmDialog from '../../../../components/confirm-dialog.tsx';
 import Drawer from '../../../../components/drawer.tsx';
 import DiscountPolicies from './discount-policies.tsx';
+import EmptyState from '../../../../components/empty-state.tsx';
+import PageHeader from '../../../../components/page-header.tsx';
 import Pager from '../../../../components/pager.tsx';
+import { Icon } from '../../../../components/brand/icons.tsx';
 import { StatusMessage, useStatusMessage } from '../../../../components/status-message.tsx';
+import TableWrap from '../../../../components/table-wrap.tsx';
 
 type Promotion = z.infer<typeof ListPromotionsResponse>['content'][number];
 
@@ -55,12 +59,11 @@ export default function Promotions() {
   const data = list.data;
   return (
     <div className="stack">
-      <header className="toolbar">
-        <div className="stack-sm"><p className="muted">Gestão / Promoções</p><h1>Promoções</h1></div>
-        <button type="button" className="btn btn-primary" onClick={() => setOpen(true)}>Liberar promoção</button>
-      </header>
+      <PageHeader section="Gestão" title="Promoções"
+        description="A promoção aparece no PDV durante a vigência; o vendedor escolhe aplicá-la no pedido."
+        actions={<button type="button" className="btn btn-primary" onClick={() => setOpen(true)}><Icon name="mais" />Liberar promoção</button>} />
       <StatusMessage message={message.message} onClose={message.clear} />
-      <section className="card stack" aria-label="Lista de promoções">
+      <section className="card stack-md" aria-label="Lista de promoções">
         <fieldset className="segmented"><legend className="sr-only">Situação</legend>
           {([['true', 'Ativas'], ['false', 'Encerradas'], ['', 'Todas']] as const).map(([value, text]) => (
             <label key={text}><input type="radio" name="situacao" checked={active === value} onChange={() => { setActive(value); setPage(0); }} /><span>{text}</span></label>
@@ -68,24 +71,26 @@ export default function Promotions() {
         </fieldset>
         <ErrorNotice error={list.error ?? close.error} />
         {list.isLoading ? <Loading /> : data && data.content.length === 0
-          ? <p className="empty">{active === 'true' ? 'Nenhuma promoção ativa. Use “Liberar promoção” para criar uma.' : 'Nenhuma promoção nesta lista.'}</p>
-          : data && <div className="table-wrap"><table>
+          ? <EmptyState icon="promocao" title={active === 'true' ? 'Nenhuma promoção ativa' : 'Nenhuma promoção nesta lista'}>
+              {active === 'true' ? 'Use “Liberar promoção” para oferecer um desconto no PDV.' : 'Troque o filtro para ver as outras promoções.'}
+            </EmptyState>
+          : data && <TableWrap label="Promoções"><table>
               <caption className="sr-only">Promoções</caption>
               <thead><tr><th scope="col">Promoção</th><th scope="col">Desconto</th><th scope="col">Vale para</th><th scope="col">Vigência</th>
                 <th scope="col"><span className="sr-only">Ações</span></th></tr></thead>
               <tbody>{data.content.map(p => (
                 <tr key={p.id}>
-                  <td>{p.name}<br /><span className="muted">por {p.createdBy.name}</span></td>
+                  <td>{p.name}<span className="cell-sub">por {p.createdBy.name}</span></td>
                   <td className="num">{p.kind === 'PERCENT' ? `${p.value.toLocaleString('pt-BR')}%` : money(p.value)}</td>
                   <td>{p.product ? p.product.name : p.category ? `Categoria ${p.category.name}` : 'Loja toda'}</td>
                   <td className="num">{formatDateTime(p.startsAt)} a {formatDateTime(p.endsAt)}</td>
-                  <td>{p.active ? <button type="button" className="btn btn-danger" disabled={close.isPending} aria-label={`Encerrar ${p.name}`}
+                  <td>{p.active ? <button type="button" className="btn btn-sm btn-danger" disabled={close.isPending} aria-label={`Encerrar ${p.name}`}
                                           onClick={() => setClosing(p)}>Encerrar</button>
                     : <span className="pill">Encerrada</span>}</td>
                 </tr>
               ))}</tbody>
-            </table></div>}
-        {data && <Pager page={data.page} size={data.size} total={data.totalElements} onPage={setPage} />}
+            </table></TableWrap>}
+        {data && <Pager page={data.page} size={data.size} total={data.totalElements} onPage={setPage} noun="promoções" />}
       </section>
       <DiscountPolicies onSaved={message.show} />
       <Drawer open={open} title="Liberar promoção" onClose={() => setOpen(false)}>

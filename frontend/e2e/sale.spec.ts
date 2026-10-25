@@ -67,7 +67,7 @@ test('[CT-WEB-103, CT-UI-002] vendedor nao ve Gestao nem Estoque no menu e nao a
   await expect(nav.getByRole('link', { name: 'Estoque' })).toHaveCount(0);
   await page.goto('/gestao');
   await expect(page.getByRole('heading', { name: 'Sem acesso a esta área' })).toBeVisible();
-  await expect(page.getByText('Faturamento líquido')).toHaveCount(0);
+  await expect(page.getByText('Faturamento confirmado')).toHaveCount(0);
 });
 
 test('[CT-WEB-109] telas do vendedor sem violacao WCAG 2.2 AA e sem rolagem horizontal em 320 px', async ({ page }) => {

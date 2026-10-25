@@ -14,7 +14,7 @@ export function StatusMessage({ message, onClose }: { message: string; onClose: 
     <div role="status" className="status-slot">
       {message && <p className="notice notice-ok status-message">
         <span>{message}</span>
-        <button type="button" className="btn btn-ghost btn-compact" onClick={onClose}>Fechar aviso</button>
+        <button type="button" className="btn btn-quiet btn-sm" onClick={onClose}>Fechar aviso</button>
       </p>}
     </div>
   );
