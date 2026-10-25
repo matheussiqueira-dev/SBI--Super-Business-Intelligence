@@ -8,7 +8,8 @@ const dayMonth = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-di
 
 /** Manual de marca v1.0: dado ausente e escrito por extenso, nunca zero inventado. */
 export const MISSING = 'Não informado';
-const brlCompact = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', notation: 'compact', maximumFractionDigits: 1 });
+const oneDecimal = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
+const COMPACT_SCALES: readonly (readonly [number, string])[] = [[1, ''], [1e3, ' mil'], [1e6, ' mi'], [1e9, ' bi']];
 const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric', timeZone: 'America/Fortaleza' });
 const percent = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
@@ -22,9 +23,18 @@ export function money(value: Money | number | null | undefined): string {
   return plain(brl.format(typeof value === 'number' ? value : value.amount));
 }
 
-/** Valor curto para rotulo de grafico: "R$ 47 mil", "R$ 1,2 mi". */
+/**
+ * Valor curto para rotulo de grafico: "R$ 47 mil", "R$ 1,2 mi". Escala e sufixo sao calculados aqui, e nao pela
+ * notacao compacta do Intl, cujo resultado muda com a versao dos dados de localidade do Node ("R$ 47,0 mil").
+ */
 export function compactMoney(value: Money | number): string {
-  return plain(brlCompact.format(typeof value === 'number' ? value : value.amount));
+  const amount = typeof value === 'number' ? value : value.amount;
+  const abs = Math.abs(amount);
+  let index = 0;
+  while (index < COMPACT_SCALES.length - 1 && Math.round((abs / COMPACT_SCALES[index]![0]) * 10) / 10 >= 1000) index++;
+  const [size, suffix] = COMPACT_SCALES[index]!;
+  const scaled = Math.round((abs / size) * 10) / 10;
+  return `${amount < 0 && scaled > 0 ? '-' : ''}R$ ${plain(oneDecimal.format(scaled))}${suffix}`;
 }
 
 /** Mes de referencia (YYYY-MM) por extenso: "outubro de 2026". */
