@@ -101,10 +101,48 @@ dl.facts dd { margin: 2px 0 0; overflow-wrap: anywhere; }
 .nav a[aria-current="page"] { background: var(--indigo-soft); color: var(--indigo-deep); font-weight: 600; }
 .nav a[aria-current="page"] .icon { color: var(--indigo-deep); }
 .nav-toggle { display: none; }
+.sidebar-avatar { display: none; }
 .account-box { margin-top: auto; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; align-items: center; padding: 12px; border-top: 1px solid var(--line); font-size: 14px; }
-.avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-family: var(--font-display); font-weight: 600; font-size: 14px; }
+.avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-family: var(--font-display); font-weight: 600; font-size: 14px; position: relative; overflow: hidden; flex: none; }
+.avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .avatar-gerente { background: var(--ink); }
 .avatar-vendedor { background: var(--indigo); }
+.avatar-face, .avatar-feedback { position: absolute; inset: 0; display: grid; place-items: center; }
+.avatar-control[data-visible="true"] .avatar-face { animation: avatar-alive 4.8s ease-in-out infinite; }
+.avatar-feedback[data-beat="0"] { animation: avatar-click-even 380ms ease both; }
+.avatar-feedback[data-beat="1"] { animation: avatar-click-odd 380ms ease both; }
+.avatar-control { display: grid; place-items: center; width: 44px; height: 44px; padding: 4px; border: 0; border-radius: 50%; background: transparent; cursor: pointer; flex: none;
+  transform: perspective(240px) rotateX(var(--avatar-rotate-x, 0deg)) rotateY(var(--avatar-rotate-y, 0deg)); transition: transform 220ms ease; touch-action: manipulation; }
+.avatar-expression { position: absolute; inset: 0; overflow: hidden; opacity: 0; transition: opacity 150ms ease; pointer-events: none; }
+.avatar-expression[data-visible="true"] { opacity: 1; }
+.avatar .avatar-expression img { width: 200%; height: 200%; max-width: none; object-fit: fill; transform: translate(0, 0); }
+.avatar[data-expression="surprised"] .avatar-expression img { transform: translateX(-50%); }
+.avatar[data-expression="focused"] .avatar-expression img { transform: translateY(-50%); }
+.avatar[data-expression="wink"] .avatar-expression img { transform: translate(-50%, -50%); }
+.avatar-control[data-expression="happy"] .avatar { animation: avatar-nod 650ms ease both; }
+.avatar-control[data-expression="surprised"] .avatar { animation: avatar-surprise 450ms ease both; }
+.avatar-control[data-paused="true"] { transform: none; }
+.avatar-control[data-paused="true"] .avatar { animation-play-state: paused; }
+.avatar-control[data-paused="true"] .avatar-face, .avatar-control[data-paused="true"] .avatar-feedback { animation-play-state: paused; }
+.avatar-control[data-paused="true"] .avatar-expression { transition: none; }
+.avatar-control:focus-visible { outline-offset: 2px; border-radius: 50%; }
+.avatar-control:active { transform: scale(0.96); }
+@media (hover: hover) and (pointer: fine) {
+  .avatar-control:hover:not([data-paused="true"]) { transform: perspective(240px) rotateX(var(--avatar-rotate-x, 0deg)) rotateY(var(--avatar-rotate-y, 0deg)) scale(1.08); }
+}
+@keyframes avatar-nod { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-5deg) translateY(1px); } 65% { transform: rotate(3deg); } }
+@keyframes avatar-surprise { 0%, 100% { transform: scale(1); } 45% { transform: scale(1.08); } }
+@keyframes avatar-alive { 0%, 100% { transform: translateY(0) rotate(-1.5deg) scale(1); } 35% { transform: translateY(-0.8px) rotate(1.5deg) scale(1.025); } 70% { transform: translateY(0.5px) rotate(0) scale(1.01); } }
+@keyframes avatar-click-even { 0%, 100% { transform: scale(1) rotate(0); } 40% { transform: scale(1.06) rotate(-4deg); } }
+@keyframes avatar-click-odd { 0%, 100% { transform: scale(1) rotate(0); } 40% { transform: scale(1.06) rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .avatar-control[data-paused], .avatar-control[data-paused]:hover, .avatar-control[data-paused]:active { transform: none; transition: none; }
+  .avatar-control[data-expression] .avatar { animation: none; }
+  .avatar-control[data-visible] .avatar-face, .avatar-control[data-pulse] .avatar-feedback { animation: none; }
+  .avatar-expression { transition: none; }
+}
+.account-box strong { overflow-wrap: anywhere; }
+.user-identity { display: flex; align-items: center; gap: var(--space-1); min-width: 160px; }
 .account-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; }
 .main { padding: var(--space-4) var(--space-6) var(--space-6) var(--space-4); min-width: 0; background: var(--mist); }
 .main > .stack { max-width: 1200px; }
@@ -233,6 +271,7 @@ dl.facts dd { margin: 2px 0 0; overflow-wrap: anywhere; }
   .sidebar .sbi-symbol { width: 30px; height: 30px; }
   .sidebar .sbi-logo-name { font-size: 22px !important; }
   .nav-toggle { display: inline-flex; }
+  .sidebar-avatar { display: block; margin-left: auto; }
   .sidebar-body { display: none; }
   .sidebar[data-open="true"] .sidebar-body { display: grid; gap: var(--space-2); }
   .account-box { margin-top: 0; }

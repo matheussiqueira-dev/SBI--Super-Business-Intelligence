@@ -345,6 +345,7 @@ function CheckoutStep({ active, cart, setCart, userId, initialCustomerId, onCrea
   }
 
   const submit = useMutation({
+    meta: { avatarAction: 'sale-created' },
     mutationFn: async () => {
       const payload = body();
       const json = JSON.stringify(payload);
@@ -503,10 +504,12 @@ function ConfirmStep({ order, onOrder, onRestart }: { order: SalesOrder; onOrder
   const [askCancel, setAskCancel] = useState(false);
   const done = (updated: SalesOrder) => { onOrder(updated); void invalidateAfterSale(client); };
   const confirm = useMutation({
+    meta: { avatarAction: 'payment-confirmed' },
     mutationFn: () => api.request(`/sales/orders/${order.id}/payment`, { method: 'POST', schema: ConfirmSalePaymentResponse }),
     onSuccess: done,
   });
   const cancel = useMutation({
+    meta: { avatarAction: 'order-canceled' },
     mutationFn: () => api.request(`/orders/${order.id}/cancel`, { method: 'POST', schema: CancelOrderResponse }),
     onSuccess: done,
   });

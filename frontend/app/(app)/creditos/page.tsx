@@ -3,7 +3,7 @@ import { PRODUCT_PHOTOS } from '../../../lib/product-photos.ts';
 
 export const metadata: Metadata = { title: 'Créditos das imagens' };
 
-/** Atribuicao das fotos de produto (Wikimedia Commons), exigida pelas licencas CC BY e CC BY-SA. */
+/** Fontes das imagens de produto e dos avatares da equipe. */
 export default function CreditosPage() {
   return (
     <div className="stack">
@@ -13,6 +13,11 @@ export default function CreditosPage() {
           <p>Fotos de produto do Wikimedia Commons, reduzidas e recortadas para miniatura. Produto sem foto livre mostra o ícone da linha.</p>
         </div>
       </header>
+      <section className="card stack-sm" aria-label="Avatares da equipe">
+        <h2>Avatares da equipe</h2>
+        <p>Avatares do arquivo <a href="https://www.figma.com/design/khzxuhK7C7U7UnlzkKufqT/Memoji-Avatars--Community-?node-id=0-1" rel="noreferrer">Memoji Avatars (Community), no Figma</a>, selecionados para os perfis da equipe.</p>
+        <p>As expressões faciais são versões derivadas, criadas com auxílio de IA a partir desses avatares.</p>
+      </section>
       <section className="card">
         <div className="table-wrap">
           <table>

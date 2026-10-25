@@ -17,6 +17,7 @@ import { Field } from '../../../../components/customer-form.tsx';
 import Drawer from '../../../../components/drawer.tsx';
 import Pager from '../../../../components/pager.tsx';
 import ShowPassword from '../../../../components/show-password.tsx';
+import UserAvatar from '../../../../components/user-avatar.tsx';
 import { StatusMessage, useStatusMessage } from '../../../../components/status-message.tsx';
 
 type User = z.infer<typeof ListUsersResponse>['content'][number];
@@ -92,7 +93,7 @@ export default function Users({ currentUserId }: { currentUserId: number }) {
                 const state = situation(u);
                 return (
                   <tr key={u.id}>
-                    <td>{u.name}{u.id === currentUserId && <span className="muted"> (você)</span>}</td>
+                    <td><div className="user-identity"><UserAvatar user={u} /><span>{u.name}{u.id === currentUserId && <span className="muted"> (você)</span>}</span></div></td>
                     <td className="mono">{u.email}</td>
                     <td>{ROLE_LABEL[u.role] ?? u.role}</td>
                     <td><span className={`pill ${state.tone === 'ok' ? 'pill-ok' : state.tone === 'warn' ? 'pill-warn' : ''}`}>{state.label}</span></td>
