@@ -1,5 +1,5 @@
-/* SBI v1.0 (manual de marca, outubro de 2026): tokens em brand-tokens.css, importado antes deste arquivo pelo layout.
-   Proporcao: 70% branco/nevoa, 20% tinta, 8% indigo, 2% menta. Menta nunca como texto sobre branco. Nada abaixo de 13 px. */
+/* SBI v2.0 (manual de identidade visual v2.1, outubro de 2026): tokens em brand-tokens.css, importado antes deste arquivo pelo
+   layout. Cores só por token, para os temas claro e escuro; Petróleo só em ação e seleção. Nada abaixo de 13 px. */
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -9,11 +9,12 @@ img, svg { max-width: 100%; }
 h1, h2, h3 { margin: 0; overflow-wrap: anywhere; }
 h3 { font-size: 16px; line-height: 24px; }
 p { margin: 0; }
-a { color: var(--primary); }
-:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
+a { color: var(--link); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
 .num { font-variant-numeric: tabular-nums; }
-/* Valores, SKU, numero de pedido e IDs: Plex Mono 500 com algarismos tabulares. */
-.mono, .money { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums; }
+/* Valores em Inter 600 com algarismos tabulares; SKU, numero de pedido e IDs em Plex Mono 500. */
+.mono { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums; }
+.money { font-weight: 600; font-variant-numeric: tabular-nums; }
 .mono { font-size: 0.92em; }
 .muted { color: var(--muted); }
 .right { text-align: right; }
@@ -26,10 +27,10 @@ a { color: var(--primary); }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; min-width: 44px; padding: 10px 18px;
   border-radius: var(--radius-control); border: 1px solid var(--field); background: var(--card); color: var(--ink); font-weight: 600; cursor: pointer; text-decoration: none; }
 .btn:hover:not(:disabled) { background: var(--mist); }
-.btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.btn-primary { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
 .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
 .btn-danger { color: var(--err-ink); border-color: var(--err-ink); }
-.btn-danger-solid { background: var(--err-ink); border-color: var(--err-ink); color: #fff; }
+.btn-danger-solid { background: var(--danger-solid); border-color: var(--danger-solid); color: var(--on-primary); }
 .btn-ghost { border-color: transparent; background: transparent; }
 .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .btn-block { width: 100%; }
@@ -37,7 +38,7 @@ a { color: var(--primary); }
 .field label, .label { font-size: 14px; font-weight: 600; }
 .field .hint { font-size: 13px; color: var(--muted); }
 .field .field-error { font-size: 13px; color: var(--err-ink); }
-.input, .select { width: 100%; min-width: 0; min-height: 44px; padding: 10px 12px; border: 1px solid var(--field); border-radius: var(--radius-sm); background: #fff; }
+.input, .select { width: 100%; min-width: 0; min-height: 44px; padding: 10px 12px; border: 1px solid var(--field); border-radius: var(--radius-sm); background: var(--card); }
 .input[aria-invalid="true"] { border-color: var(--err-ink); }
 .form-grid { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
 .plain-fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
@@ -54,7 +55,7 @@ a { color: var(--primary); }
 .btn-compact { min-height: 36px; padding: 4px 10px; font-size: 14px; color: inherit; }
 .check { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; cursor: pointer; }
 .check input { width: 18px; height: 18px; accent-color: var(--primary); }
-.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; background: #eceef3; color: var(--ink); white-space: nowrap; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; background: var(--hover); color: var(--ink); white-space: nowrap; }
 .pill-ok { background: var(--ok-bg); color: var(--ok-ink); }
 .pill-warn { background: var(--warn-bg); color: var(--warn-ink); }
 .pill-err { background: var(--err-bg); color: var(--err-ink); }
@@ -86,11 +87,11 @@ dl.facts dd { margin: 2px 0 0; overflow-wrap: anywhere; }
 .shell { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100svh; }
 .sidebar { padding: var(--space-3) var(--space-2); display: flex; flex-direction: column; gap: var(--space-3); background: var(--white); border-right: 1px solid var(--line); }
 .brand-link { display: inline-flex; padding: 0 12px; text-decoration: none; }
-.sbi-logo { display: inline-flex; align-items: center; gap: 10px; }
-.sbi-logo-vertical { flex-direction: column; text-align: center; }
-.sbi-logo-text { display: grid; line-height: 1; }
-.sbi-logo-name { font-family: var(--font-display); font-weight: 700; letter-spacing: 0.01em; }
-.sbi-logo-descriptor { font-family: var(--font-sans); font-size: 13px; font-weight: 500; margin-top: 4px; }
+.sbi-logo { display: inline-flex; align-items: center; }
+.sbi-logo-mark { display: block; flex: none; }
+/* Assinatura com descritor: fio de 1 px e "Super Business Intelligence" em duas linhas, a 4 modulos do nome. */
+.sbi-logo-descriptor { display: grid; align-self: stretch; align-content: center; margin-left: 0.9em; padding-left: 0.9em; border-left: 1px solid;
+  font-family: var(--font-display); font-weight: 500; line-height: 1.15; letter-spacing: -0.005em; }
 .sbi-symbol { flex: none; }
 .nav { display: grid; gap: var(--space-2); min-width: 0; }
 .nav-group { display: grid; gap: 2px; }
@@ -115,10 +116,10 @@ dl.facts dd { margin: 2px 0 0; overflow-wrap: anywhere; }
 
 /* ---------- login: painel Tinta + cartao do formulario (abaixo de 1024 px, faixa compacta) ---------- */
 .login { min-height: 100svh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); background: var(--mist); }
-.login-panel { background: var(--ink); color: #fff; padding: var(--space-6); display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-4); }
+.login-panel { background: var(--brand-ink); color: #fff; padding: var(--space-6); display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-4); }
 .login-panel .login-headline { color: #fff; font-size: clamp(26px, 3vw, 36px); line-height: 1.2; font-weight: 600; max-width: 18ch; margin: 0; }
-.login-panel p { color: #C9CEDA; max-width: 44ch; }
-.login-panel .login-footer { font-size: 13px; line-height: 18px; color: #C9CEDA; display: grid; gap: 2px; }
+.login-panel p { color: var(--on-brand-muted); max-width: 44ch; }
+.login-panel .login-footer { font-size: 13px; line-height: 18px; color: var(--on-brand-muted); display: grid; gap: 2px; }
 .login-panel .login-footer span { white-space: nowrap; }
 .login-form { display: grid; place-items: center; padding: var(--space-3); }
 .login .card { width: 100%; max-width: 420px; padding: var(--space-4); display: grid; gap: var(--space-2); }
@@ -145,7 +146,7 @@ dl.facts dd { margin: 2px 0 0; overflow-wrap: anywhere; }
 .results { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .results button { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px var(--space-2); text-align: left; padding: 10px 12px;
   min-height: 44px; border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent; cursor: pointer; }
-.results button:hover, .results button[aria-selected="true"] { background: var(--indigo-soft); border-color: #c9cff4; }
+.results button:hover, .results button[aria-selected="true"] { background: var(--indigo-soft); border-color: var(--selected-border); }
 .cart-line { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px var(--space-2); padding: 12px 0; border-bottom: 1px solid var(--line); }
 .qty { display: inline-flex; align-items: center; gap: 4px; }
 .qty output { min-width: 3ch; text-align: center; }
@@ -156,18 +157,18 @@ dl.facts dd { margin: 2px 0 0; overflow-wrap: anywhere; }
 .summary { padding-top: var(--space-2); border-top: 1px solid var(--line); }
 .summary-lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 14px; }
 .summary-lines li { display: flex; justify-content: space-between; gap: var(--space-2); }
-.totals dd { font-family: var(--font-mono); font-weight: 500; }
+.totals dd { font-weight: 600; font-variant-numeric: tabular-nums; }
 .segmented { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: var(--radius-control); background: var(--mist); border: 1px solid var(--line); margin: 0; }
 .segmented label { display: inline-flex; align-items: center; min-height: 40px; padding: 6px 14px; border-radius: 9px; cursor: pointer; font-weight: 600; }
 .segmented input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-.segmented input:checked + span { color: #fff; }
-.segmented label:has(input:checked) { background: var(--primary); color: #fff; }
-.segmented label:has(input:focus-visible) { outline: 3px solid var(--primary); outline-offset: 2px; }
+.segmented input:checked + span { color: var(--on-primary); }
+.segmented label:has(input:checked) { background: var(--primary); color: var(--on-primary); }
+.segmented label:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
 
 /* ---------- painel de gestao e graficos ---------- */
 .kpis { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
 .kpi { display: grid; gap: 4px; align-content: start; }
-.kpi .value { font-family: var(--font-mono); font-size: clamp(22px, 2vw, 28px); font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kpi .value { font-family: var(--font-display); font-size: clamp(22px, 2vw, 28px); font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .kpi .value.text { font-family: var(--font-display); font-size: 22px; font-weight: 600; white-space: normal; }
 .kpi .note { font-size: 13px; color: var(--muted); }
 
@@ -185,18 +186,18 @@ dl.facts dd { margin: 2px 0 0; overflow-wrap: anywhere; }
 .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
 .chart-box { position: relative; }
 .chart-box svg { width: 100%; height: auto; display: block; overflow: visible; }
-.chart-box svg:focus-visible { outline: 3px solid var(--primary); outline-offset: 4px; }
+.chart-box svg:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
 .chart .grid { stroke: var(--line); stroke-width: 1; }
 .chart .tick { fill: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
-.chart .goal { stroke: var(--data-3); stroke-width: 2; stroke-dasharray: 6 4; }
-.chart .goal-label { fill: var(--warn-ink); font-size: 13px; font-weight: 600; }
+.chart .goal { stroke: var(--chart-goal); stroke-width: 2; stroke-dasharray: 6 4; }
+.chart .goal-label { fill: var(--ink); font-size: 13px; font-weight: 600; }
 .chart .series { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .chart .end-label { fill: var(--ink); font-size: 13px; font-weight: 600; }
 .chart .crosshair { stroke: var(--field); stroke-width: 1; }
 .chart .dot { stroke: var(--card); stroke-width: 2; }
-.tooltip { position: absolute; top: 0; transform: translateX(-50%); background: var(--ink); color: #fff; border-radius: var(--radius-sm);
+.tooltip { position: absolute; top: 0; transform: translateX(-50%); background: var(--inverse-bg); color: var(--inverse-text); border-radius: var(--radius-sm);
   padding: 8px 12px; font-size: 13px; display: grid; gap: 2px; pointer-events: none; white-space: nowrap; }
-.chart-table summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--primary); font-weight: 600; }
+.chart-table summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--link); font-weight: 600; }
 .share { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
 .share li { display: grid; grid-template-columns: minmax(70px, 120px) minmax(0, 1fr); gap: 4px var(--space-2); align-items: center; }
 .share-track { height: 16px; display: block; }
@@ -207,12 +208,12 @@ dl.facts dd { margin: 2px 0 0; overflow-wrap: anywhere; }
 /* ---------- painel lateral ---------- */
 .drawer { position: fixed; inset: 0 0 0 auto; width: min(480px, 100%); max-width: 100%; height: 100%; max-height: 100%; margin: 0 0 0 auto; padding: var(--space-3);
   border: 0; border-left: 1px solid var(--line); border-radius: var(--radius-card) 0 0 var(--radius-card); background: var(--card); overflow-y: auto; }
-.drawer::backdrop { background: rgba(20, 27, 38, 0.4); }
+.drawer::backdrop { background: var(--overlay); }
 /* Confirmacao de acao sem volta: centralizada, curta, botao de perigo solido a direita. */
 .confirm { width: min(440px, calc(100% - 32px)); padding: var(--space-3); border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--card); color: var(--ink); }
-.confirm::backdrop { background: rgba(20, 27, 38, 0.4); }
+.confirm::backdrop { background: var(--overlay); }
 .confirm-actions { justify-content: flex-end; margin-top: var(--space-1); }
-.btn-danger-solid:hover:not(:disabled) { background: #8f1c13; }
+.btn-danger-solid:hover:not(:disabled) { background: var(--danger-solid-hover); }
 
 @media (max-width: 1024px) {
   .login { grid-template-columns: minmax(0, 1fr); }
@@ -230,8 +231,7 @@ dl.facts dd { margin: 2px 0 0; overflow-wrap: anywhere; }
   .sidebar { padding: 8px var(--space-2); gap: var(--space-1); border-right: 0; border-bottom: 1px solid var(--line); }
   .sidebar-top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-1); }
   .brand-link { padding: 0; }
-  .sidebar .sbi-symbol { width: 30px; height: 30px; }
-  .sidebar .sbi-logo-name { font-size: 22px !important; }
+  .sidebar .sbi-logo-mark { width: auto; height: 30px; }
   .nav-toggle { display: inline-flex; }
   .sidebar-body { display: none; }
   .sidebar[data-open="true"] .sidebar-body { display: grid; gap: var(--space-2); }

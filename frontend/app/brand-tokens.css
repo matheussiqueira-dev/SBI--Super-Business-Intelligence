@@ -1,44 +1,104 @@
-/* SBI · tokens do manual de marca v1.0 (outubro de 2026). Substituem os tokens "v1.1" de globals.css. */
+/* SBI · identidade visual v2.0 (manual de identidade visual v2.1, outubro de 2026): Petróleo, Tinta e Névoa, Inter e temas
+   claro e escuro. Os nomes da v1.0 continuam como apelidos dos valores v2, para as telas existentes não renomearem variáveis.
+   O tema escuro segue a preferência do sistema; os pares de texto e fundo dos dois temas passam no mínimo de 4,5:1. */
 :root {
-  /* principais */
-  --indigo: #3D4ED6;        /* ação: botão principal, link, item ativo (8% da tela) */
-  --indigo-deep: #2B39A8;   /* hover, texto de link, texto do item ativo */
-  --indigo-soft: #EBEDFC;   /* fundo do item ativo, selo informativo */
-  --ink: #141B26;           /* texto principal, painel do login, capas (20%) */
-  --mint: #5BD6B8;          /* só detalhe (2%) ou sobre Tinta; nunca texto sobre branco (1,8:1) */
-  --white: #FFFFFF;
-  /* apoio */
-  --slate: #556070;         /* texto secundário, legendas (6,4:1) */
-  --field: #8A93A3;         /* contorno de campos (3,1:1) */
-  --line: #DDE1E8;          /* divisórias e borda de cartões */
-  --mist: #F5F6F9;          /* fundo da aplicação (70% com branco) */
+  color-scheme: light;
+  /* marca: iguais nos dois temas */
+  --brand-ink: #0D1A2B;        /* Tinta: painel de entrada e avatar de gestão */
+  --brand-petroleo: #04729B;   /* Petróleo: cor de assinatura */
+  --on-brand-muted: #CCD2DB;   /* texto de apoio sobre Tinta (12,1:1) */
+  --brand-block: #0D1A2B;      /* bloco do símbolo; branco no tema escuro */
+  --brand-dot: #04729B;        /* círculo do símbolo; Petróleo 400 no tema escuro */
+  /* superfícies */
+  --mist: #F4F6F9;             /* Névoa: fundo da aplicação */
+  --white: #FFFFFF;            /* superfície: cartões, campos, barra lateral e diálogos */
+  --hover: #ECEFF4;            /* hover neutro e selo sem estado */
+  --line: #DEE3E9;             /* divisórias e borda de cartões */
+  --field: #7B8693;            /* contorno de campos (3,7:1 sobre a superfície) */
+  /* texto */
+  --ink: #0D1A2B;              /* texto principal */
+  --slate: #444F5F;            /* texto secundário e legendas */
+  --link: #04729B;
+  --link-hover: #025C7D;
+  /* ação e seleção */
+  --indigo: #04729B;           /* ação principal (nome da v1.0) */
+  --primary-hover: #025C7D;
+  --on-primary: #FFFFFF;
+  --indigo-soft: #EFF8FE;      /* fundo do item atual e da seleção */
+  --indigo-deep: #054761;      /* texto do item atual */
+  --selected-border: #96CFED;
+  --focus: #04729B;
+  --inverse-bg: #0D1A2B;
+  --inverse-text: #FFFFFF;
+  --overlay: rgba(14, 26, 43, 0.48);
+  --mint: #64B1D7;             /* apelido da v1.0, sem uso como texto: Petróleo 400 */
   /* estados: sempre com texto */
-  --ok-ink: #14684F;   --ok-bg: #E3F6EF;
-  --warn-ink: #8A4C00; --warn-bg: #FFF6E5;
-  --err-ink: #B42318;  --err-bg: #FDECEA;
-  --info-ink: #2B39A8; --info-bg: #EBEDFC;
-  /* dados, nesta ordem; meta = --data-3 tracejado */
-  --data-1: #3D4ED6; --data-2: #138A8A; --data-3: #B26400; --data-4: #8A4FB0;
+  --ok-ink: #0B6834;   --ok-bg: #E5FAEA;
+  --warn-ink: #92500B; --warn-bg: #FFF4E3;
+  --err-ink: #B02523;  --err-bg: #FFEFEE;
+  --info-ink: #025C7D; --info-bg: #EFF8FE;
+  --danger-solid: #C52C2A; --danger-solid-hover: #B02523;
+  /* dados, sempre nesta ordem; a meta é uma linha tracejada em Tinta */
+  --data-1: #04729B; --data-2: #E26B1B; --data-3: #7454D6; --data-4: #269143;
+  --data-5: #CA488F; --data-6: #DDA317; --data-7: #0B9CC0; --data-8: #D03833;
+  --chart-goal: #0D1A2B;
+  --meter-track: #DDF1FD;
   /* forma */
-  --radius-control: 10px; --radius-card: 14px; --radius-symbol: 12px;
+  --radius-control: 8px; --radius-card: 12px;
   --space-1: 8px; --space-2: 16px; --space-3: 24px; --space-4: 32px; --space-6: 48px;
   --touch: 44px;
-  /* tipografia */
-  --font-display: var(--font-space-grotesk), 'Segoe UI', sans-serif;   /* títulos e logo: 500/600/700 */
-  --font-sans: var(--font-plex-sans), 'Segoe UI', system-ui, sans-serif; /* texto e interface: 400/500/600 */
-  --font-mono: var(--font-plex-mono), Consolas, ui-monospace, monospace; /* valores, SKU, IDs: 500 */
+  /* tipografia: Inter variável com eixo de tamanho óptico (o desenho Display entra sozinho nos títulos) */
+  --font-display: var(--font-inter), 'Segoe UI', system-ui, sans-serif;
+  --font-sans: var(--font-inter), 'Segoe UI', system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), Consolas, ui-monospace, monospace;   /* só SKU, número de pedido e IDs */
 
-  /* aliases para o CSS existente (remover depois da migração) */
+  /* apelidos anteriores */
   --bg: var(--mist); --card: var(--white); --muted: var(--slate);
-  --primary: var(--indigo); --primary-hover: var(--indigo-deep);
+  --primary: var(--indigo);
   --radius: var(--radius-card); --radius-sm: var(--radius-control);
 }
 
-h1, h2, h3, .display { font-family: var(--font-display); font-weight: 600; letter-spacing: 0; }
-h1 { font-size: clamp(26px, 3vw, 32px); line-height: 38px; }   /* título de tela 32/38 */
-h2 { font-size: 20px; line-height: 28px; }                     /* título de seção 20/28 */
-.kpi-value, .money { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums; }
-.kpi-value { font-size: clamp(28px, 3vw, 36px); }
-.caption { font-size: 13px; line-height: 19px; color: var(--slate); }
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --brand-block: #FFFFFF;
+    --brand-dot: #64B1D7;
+    --mist: #090F16;
+    --white: #101821;
+    --hover: #1F2834;
+    --line: #262E39;
+    --field: #727B88;
+    --ink: #F2F4F6;
+    --slate: #C3CAD2;
+    --link: #96CFED;
+    --link-hover: #BFE4F9;
+    --primary-hover: #167AA2;
+    --indigo-soft: #133240;
+    --indigo-deep: #BFE4F9;
+    --selected-border: #205670;
+    --focus: #64B1D7;
+    --inverse-bg: #F4F6F9;
+    --inverse-text: #0D1A2B;
+    --overlay: rgba(4, 8, 14, 0.64);
+    --ok-ink: #78D694;   --ok-bg: #142D1B;
+    --warn-ink: #FFC669; --warn-bg: #37250E;
+    --err-ink: #FDA19B;  --err-bg: #3B1C1A;
+    --info-ink: #96CFED; --info-bg: #122C39;
+    --data-1: #1C8CB4; --data-2: #DE6E29; --data-3: #927EEC; --data-4: #369E4E;
+    --data-5: #D4599B; --data-6: #BF8B00; --data-7: #2DA1C2; --data-8: #DE4F46;
+    --chart-goal: #F2F4F6;
+    --meter-track: #063447;
+  }
+}
+
+h1, h2, h3, .display { font-family: var(--font-display); font-weight: 600; }
+h1 { font-size: clamp(26px, 3vw, 30px); line-height: 38px; letter-spacing: -0.02em; }   /* título de tela 30/38 */
+h2 { font-size: 20px; line-height: 28px; letter-spacing: -0.015em; }                    /* título de seção 20/28 */
+h3, .display { letter-spacing: -0.01em; }
+.kpi-value, .money { font-weight: 600; font-variant-numeric: tabular-nums; }
+.kpi-value { font-family: var(--font-display); font-size: clamp(24px, 2.4vw, 28px); letter-spacing: -0.02em; }
+.caption { font-size: 13px; line-height: 18px; color: var(--slate); }
 .card { border: 1px solid var(--line); border-radius: var(--radius-card); }
-a { color: var(--indigo); } a:hover { color: var(--indigo-deep); }
+a { color: var(--link); } a:hover { color: var(--link-hover); }
+/* Avatar de gestão: Tinta nos dois temas, para as iniciais brancas manterem 17,5:1. */
+.avatar-gerente { --ink: var(--brand-ink); }
