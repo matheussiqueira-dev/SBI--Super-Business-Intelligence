@@ -21,7 +21,11 @@ ENV SBI_JVM_FLAGS="-XX:TieredStopAtLevel=1 -XX:+UseSerialGC -XX:MaxRAMPercentage
 # Treino do cache AOT (JEP 483/514/515): sobe o contexto Spring e sai no refresh, sem tocar em banco.
 # A senha e ficticia e existe so neste RUN (DatasourcePasswordGuard exige o valor); Flyway e validacao ficam
 # desligados aqui e voltam ao normal na execucao. Se JVM ou classpath mudarem, a JVM ignora o cache e sobe sem ele.
-RUN SPRING_DATASOURCE_PASSWORD=aot-training java $SBI_JVM_FLAGS -XX:AOTCacheOutput=app.aot \
+# -Xmx8g so no treino (D-EVO-52): com 70% da maquina de build do Render (mais de 46 GB) o heap passava de 32 GB, a JVM
+# desligava os ponteiros comprimidos e o cache era recusado na execucao em 512 MB ("The saved state of UseCompressedOops
+# ... CDS will be disabled"). Heap fixo entre 4 e 32 GB grava o cache no modo de base zero, que a execucao reloca para
+# heap menor ou maior; treinar com 512 MB tambem falha (modo sem deslocamento, "archived heap objects cannot be loaded").
+RUN SPRING_DATASOURCE_PASSWORD=aot-training java $SBI_JVM_FLAGS -Xmx8g -XX:AOTCacheOutput=app.aot \
     -Dspring.context.exit=onRefresh \
     -Dspring.flyway.enabled=false \
     -Dspring.jpa.hibernate.ddl-auto=none \

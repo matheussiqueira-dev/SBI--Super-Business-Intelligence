@@ -1,11 +1,11 @@
 'use client';
 // Gestao (WP-3.8) na anatomia do manual v2.0 (secao 28): o que e, quanto e, como evoluiu, o que exige acao e o detalhe.
 // Indicadores e graficos seguem o periodo escolhido; metas seguem o mes corrente. Atualiza a cada 15 s com a aba visivel e
-// erro nunca vira zero: a ultima leitura continua na tela e a hora dela vira aviso.
+// em uso (10 min parada pausa, D-EVO-51) e erro nunca vira zero: a ultima leitura continua na tela e a hora dela vira aviso.
 import { useMemo, useState } from 'react';
 import type { z } from 'zod';
 import Link from 'next/link';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { GetManagementSummaryResponse, GetRevenueReportResponse, ListStockProductsResponse } from '../../../lib/api/generated/sbi.zod.ts';
 import { api } from '../../../lib/api/http.ts';
 import { formatMonth, formatPercent, formatPeriod, formatTime, initials, label, money, PAYMENT_TYPE, plural, sentence } from '../../../lib/format.ts';
@@ -18,6 +18,7 @@ import { Icon } from '../../../components/brand/icons.tsx';
 import PageHeader from '../../../components/page-header.tsx';
 import ProductThumb from '../../../components/product-thumb.tsx';
 import TableWrap from '../../../components/table-wrap.tsx';
+import { useInUse } from '../../../components/use-in-use.ts';
 
 const PERIODS = [['TODAY', 'Hoje'], ['D7', '7 dias'], ['D30', '30 dias'], ['D90', '90 dias']] as const;
 const PERIOD_TEXT: Readonly<Record<Period, string>> = { TODAY: 'Hoje', D7: 'Últimos 7 dias', D30: 'Últimos 30 dias', D90: 'Últimos 90 dias' };
@@ -26,6 +27,8 @@ const PAYMENT_COLORS: Readonly<Record<string, string>> = { PIX: 'var(--sbi-data-
 const PAYMENT_ORDER = ['PIX', 'CARD', 'BOLETO'];
 /** Linhas da tabela "Produtos mais vendidos"; a lista completa fica em Analises. */
 const TOP_PRODUCTS = 10;
+/** Consultas que atualizam ao vivo; voltam a ser buscadas na hora quando a tela volta a ser usada. */
+const LIVE_QUERIES = new Set(['revenue', 'summary', 'low-stock']);
 type Period = (typeof PERIODS)[number][0];
 type Summary = z.infer<typeof GetManagementSummaryResponse>;
 
@@ -37,7 +40,9 @@ export default function Dashboard() {
   const [period, setPeriod] = useState<Period>('D30');
   const [productFilter, setProductFilter] = useState('');
   const month = currentMonth();
-  const live = { refetchInterval: 15_000, refetchIntervalInBackground: false } as const;
+  const queryClient = useQueryClient();
+  const inUse = useInUse(() => void queryClient.invalidateQueries({ predicate: q => LIVE_QUERIES.has(String(q.queryKey[0])) }));
+  const live = { refetchInterval: inUse ? 15_000 : false, refetchIntervalInBackground: false } as const;
 
   const revenue = useQuery({
     queryKey: ['revenue', period],
@@ -72,7 +77,8 @@ export default function Dashboard() {
     <div className="stack">
       <PageHeader section="Gestão" title="Visão geral da loja"
         description={<>{PERIOD_TEXT[period]}{range} · somente pagamentos confirmados, descontados os estornos
-          {updated && <> · <span aria-live="polite" className={stale ? 'pill pill-warn' : undefined}>Atualizado às {updated}</span></>}</>}
+          {updated && <> · <span aria-live="polite" className={stale ? 'pill pill-warn' : undefined}>Atualizado às {updated}</span></>}
+          {!inUse && <> · <span className="pill">Atualização pausada até a tela voltar a ser usada</span></>}</>}
         actions={<>
           <fieldset className="segmented">
             <legend className="sr-only">Período</legend>

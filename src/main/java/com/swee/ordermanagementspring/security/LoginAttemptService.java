@@ -61,4 +61,9 @@ public class LoginAttemptService {
         counter.registerSuccess(user.getId(), clock.instant());
         audit.record(AuditAction.LOGIN_SUCCEEDED, user.getId(), "app_users", user.getId(), null);
     }
+
+    /** Mesma senha regravada com o custo atual do BCrypt (D-EVO-50); nao e troca de credencial nem gera auditoria. */
+    public void rehashed(AppUser user, String newHash) {
+        counter.replacePasswordHash(user.getId(), user.getPasswordHash(), newHash);
+    }
 }

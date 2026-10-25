@@ -1,8 +1,8 @@
 package db.demo;
 
+import com.swee.ordermanagementspring.security.PasswordHashing;
 import org.flywaydb.core.api.migration.BaseJavaMigration;
 import org.flywaydb.core.api.migration.Context;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -10,7 +10,8 @@ import java.util.List;
 /**
  * Perfil demo (D-EVO-46): contas de CEO dos professores avaliadores e as equipes de venda da V12. Mesma regra de
  * senha da V6_1: a variavel propria da conta (SBI_DEMO_PASSWORD_PAULO etc.) ou, sem ela, a comum SBI_DEMO_PASSWORD;
- * sem nenhuma das duas, a migracao falha. Grava so o BCrypt(12); nenhuma senha fica no repositorio.
+ * sem nenhuma das duas, a migracao falha. Grava so o BCrypt, com o custo de {@link PasswordHashing} (D-EVO-50);
+ * nenhuma senha fica no repositorio.
  * As equipes sao achadas pelo db_role, que nao muda quando o ambiente publicado renomeia nome e e-mail.
  */
 public class V12_1__ExecutiveAccounts extends BaseJavaMigration {
@@ -30,7 +31,7 @@ public class V12_1__ExecutiveAccounts extends BaseJavaMigration {
 
     @Override
     public void migrate(Context context) throws Exception {
-        var encoder = new BCryptPasswordEncoder(12);
+        var encoder = PasswordHashing.encoder();
         String sql = "INSERT INTO app_users(name, email, password_hash, role, db_role) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement insert = context.getConnection().prepareStatement(sql)) {
             for (var account : ACCOUNTS) {

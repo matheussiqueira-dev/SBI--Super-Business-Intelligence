@@ -32,12 +32,12 @@ Situação em 14/10/2026, depois da evolução (WP-EVO-1 a WP-EVO-9, PRs #23 a #
 | RF-15 | CA-15-01, CA-15-02 | CT-E2E-001, CT-E2E-002 | E2E `sale.spec.ts` (CT-WEB-101, CT-E2E-002) | Verde |
 | RF-16 | CA-16-01 a CA-16-03 | CT-UI-001 a CT-UI-003 | E2E `manager.spec.ts` (CT-UI-001), `sale.spec.ts` (CT-WEB-103/CT-UI-002), `session.spec.ts`; `frontend/tests/http.test.ts` | Verde |
 | RF-17 | CA-17-01 a CA-17-03 | CT-SEC-101, CT-SEC-103, CT-SEC-114, CT-WEB-103 | `AccessMatrixTest` (260 casos), `MethodSecurityHierarchyTest`, `BackofficeApiTest`; E2E `sale.spec.ts` | Verde |
-| RF-18 | CA-18-01 a CA-18-05 | CT-AUTH-101, CT-AUTH-102, CT-SEC-120 | `LoginLockoutPolicyTest`, `LoginLockoutIntegrationTest`, `LoginAttemptConcurrencyTest` (10 falhas em paralelo, bloqueio uma vez) | Verde |
+| RF-18 | CA-18-01 a CA-18-05 | CT-AUTH-101, CT-AUTH-102, CT-AUTH-103, CT-SEC-120 | `LoginLockoutPolicyTest`, `LoginLockoutIntegrationTest`, `LoginAttemptConcurrencyTest` (10 falhas em paralelo, bloqueio uma vez) | Verde |
 | RF-19 | CA-19-01 a CA-19-07 | CT-SALE-101 a 104, CT-STOCK-101 a 107, CT-SEC-110 a 113, CT-SEC-116, CT-WEB-101, CT-WEB-104 | `PricingTest`, `RequestHashTest`, `SalesApiTest`, `SalesConcurrencyTest`; E2E `sale.spec.ts`, `flows.spec.ts` (CT-WEB-107, 108) | Verde |
 | RF-20 | CA-20-01 a CA-20-06 | CT-CRM-101, 102, 104, 105, 106, CT-CONTRACT-101, CT-WEB-113, CT-WEB-128 | `DocumentFormatTest`, `CustomersApiTest`, `AlphanumericCnpjTest`, `FlywayMigrationTest.v10AcceptsAlphanumericCnpj`; E2E `customers.spec.ts` | Verde |
 | RF-21 | CA-21-01, CA-21-02 | CT-CRM-103, CT-SEC-113 | `CustomersApiTest.historyHidesOtherSellersTotals`; E2E `sale.spec.ts` (histórico do cliente) | Verde |
 | RF-22 | CA-22-01 a CA-22-07 | CT-STOCK-108, CT-STOCK-109, CT-SALE-104, CT-WEB-105, CT-WEB-106 | `BackofficeApiTest`; E2E `flows.spec.ts` (CT-WEB-105, 106) | Verde |
-| RF-23 | CA-23-01 a CA-23-03 | CT-CONTRACT-102, CT-WEB-102 | `scripts/live-contract.mjs`; E2E `manager.spec.ts` | Verde |
+| RF-23 | CA-23-01 a CA-23-03 | CT-CONTRACT-102, CT-WEB-102, CT-WEB-143 | `scripts/live-contract.mjs`; E2E `manager.spec.ts`; `tests/idle.test.ts` | Verde |
 | RF-24 | CA-24-01 a CA-24-06 | CT-USR-101 a CT-USR-107, CT-SEC-121, CT-SEC-122, CT-BD-30, CT-CONTRACT-104, CT-WEB-110, CT-WEB-112 | `UsersApiTest`, `SessionRevocationTest`, `StrongPasswordValidatorTest`, `FlywayMigrationTest.v8KeepsOneActiveManager`, `06d_testes_evolucao.sql`; E2E `users.spec.ts` | Verde |
 | RF-25 | CA-25-01 a CA-25-03 | CT-CUS-121 a CT-CUS-123, CT-WEB-111 | `CustomersApiTest` (resumo da loja, escopo do vendedor, cliente sem compras), BD-31 no job `bd`; E2E `customers.spec.ts` | Verde |
 | RF-26 | CA-26-01 a CA-26-05 | CT-DISC-101 a CT-DISC-107, CT-WEB-114, BD-32 | `ManualDiscountApiTest`, `ManualDiscountPricingTest`, `06d_testes_evolucao.sql`; E2E `discount.spec.ts` | Verde |

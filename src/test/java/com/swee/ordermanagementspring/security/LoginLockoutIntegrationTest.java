@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -131,6 +132,28 @@ class LoginLockoutIntegrationTest {
         MvcResult inactive = login("bia@example.test", PASSWORD);
         assertThat(inactive.getResponse().getStatus()).isEqualTo(401);
         assertThat(bodyWithoutTimestamp(inactive)).isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("[CT-AUTH-103] hash de outro custo vira custo 10 no login correto, sem revogar a sessao")
+    void correctLoginMovesTheHashToTheCurrentCost() throws Exception {
+        String oldHash = new BCryptPasswordEncoder(4).encode(PASSWORD);
+        AppUser carla = users.save(new AppUser("Carla", "carla@example.test", oldHash, UserRole.VENDEDOR));
+        Integer versionBefore = jdbc.queryForObject("SELECT session_version FROM app_users WHERE id = ?", Integer.class, carla.getId());
+
+        assertThat(login("carla@example.test", "senha-errada").getResponse().getStatus()).isEqualTo(401);
+        assertThat(users.findById(carla.getId()).orElseThrow().getPasswordHash()).isEqualTo(oldHash);
+
+        assertThat(login("carla@example.test", PASSWORD).getResponse().getStatus()).isEqualTo(200);
+        String newHash = jdbc.queryForObject("SELECT password_hash FROM app_users WHERE id = ?", String.class, carla.getId());
+        assertThat(newHash).startsWith("$2a$" + PasswordHashing.BCRYPT_STRENGTH + "$").isNotEqualTo(oldHash);
+        assertThat(encoder.matches(PASSWORD, newHash)).isTrue();
+        assertThat(jdbc.queryForObject("SELECT session_version FROM app_users WHERE id = ?", Integer.class, carla.getId()))
+                .isEqualTo(versionBefore);
+
+        assertThat(login("carla@example.test", PASSWORD).getResponse().getStatus()).isEqualTo(200);
+        assertThat(jdbc.queryForObject("SELECT password_hash FROM app_users WHERE id = ?", String.class, carla.getId()))
+                .isEqualTo(newHash);
     }
 
     @Test
