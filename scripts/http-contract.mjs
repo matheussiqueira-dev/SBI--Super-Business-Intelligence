@@ -13,7 +13,7 @@ const origin = 'http://127.0.0.1:18080';
 const baseline = JSON.parse(readFileSync(new URL('../config/openapi/baseline-errors-openapi-2026-10-14.json', import.meta.url), 'utf8'));
 const results = [];
 let liveContract;
-const directory = new URL('../reports/contrato/spike-2026-10-04/', import.meta.url);
+const directory = new URL('../target/contrato/', import.meta.url);
 mkdirSync(directory, { recursive: true });
 const client = sessionClient(origin);
 const request = client.request;
