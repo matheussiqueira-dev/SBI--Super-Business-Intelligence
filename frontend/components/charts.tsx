@@ -1,8 +1,9 @@
 'use client';
-// Graficos do painel de gestao. Duas series validadas (data-1 #3D4ED6 e data-3 #B26400: CVD ΔE 30, contraste >= 3:1);
-// o teal data-2 nao passa no piso de croma e fica fora. Linha de 2px, grade hairline, legenda sempre, rotulo so no
-// fim da serie, crosshair por ponteiro e teclado, e tabela com os mesmos dados.
+// Graficos do painel de gestao (identidade v2.0). Series na ordem fixa da paleta: data-1 (Petroleo) e data-2 (laranja), validadas
+// nos dois temas (contraste >= 3:1 sobre a superficie e separacao nas simulacoes de daltonismo). Eixo com divisoes redondas,
+// linha de 2px, grade hairline, legenda sempre, rotulo so no fim da serie, crosshair por ponteiro e teclado e tabela com os dados.
 import { useId, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { niceScale } from '../lib/chart-scale.ts';
 import { compactMoney, formatDate, money } from '../lib/format.ts';
 
 export interface DailyPoint { date: string; net: number; profit: number | null }
@@ -12,15 +13,8 @@ const H = 240;
 const PAD = { top: 16, right: 92, bottom: 28, left: 64 };
 const SERIES = [
   { key: 'net', label: 'Faturamento líquido', color: 'var(--data-1)' },
-  { key: 'profit', label: 'Lucro bruto', color: 'var(--data-3)' },
+  { key: 'profit', label: 'Lucro bruto', color: 'var(--data-2)' },
 ] as const;
-
-function niceMax(value: number): number {
-  if (value <= 0) return 1;
-  const exp = 10 ** Math.floor(Math.log10(value));
-  for (const step of [1, 2, 2.5, 5, 10]) if (step * exp >= value) return step * exp;
-  return 10 * exp;
-}
 
 /** Caminho com quebra onde o valor e nulo (dia sem custo conhecido nao vira zero). */
 function path(points: Array<[number, number] | null>): string {
@@ -39,13 +33,11 @@ export function RevenueChart({ data, title }: { data: readonly DailyPoint[]; tit
   const id = useId();
   if (data.length === 0) return <p className="empty">Sem dados no período.</p>;
   const values = data.flatMap(d => [d.net, d.profit ?? 0]);
-  const min = Math.min(0, ...values);
-  const max = niceMax(Math.max(...values));
+  const { min, max, ticks } = niceScale(Math.min(...values), Math.max(...values));
   const plotW = W - PAD.left - PAD.right;
   const plotH = H - PAD.top - PAD.bottom;
   const x = (i: number) => PAD.left + (data.length === 1 ? plotW / 2 : (i * plotW) / (data.length - 1));
   const y = (v: number) => PAD.top + plotH - ((v - min) / (max - min)) * plotH;
-  const ticks = [0, 0.25, 0.5, 0.75, 1].map(t => min + t * (max - min));
   const lines = {
     net: data.map((d, i) => [x(i), y(d.net)] as [number, number]),
     profit: data.map((d, i) => (d.profit === null ? null : [x(i), y(d.profit)] as [number, number])),
@@ -89,7 +81,7 @@ export function RevenueChart({ data, title }: { data: readonly DailyPoint[]; tit
           {ticks.map(t => (
             <g key={t}>
               <line x1={PAD.left} x2={W - PAD.right} y1={y(t)} y2={y(t)} className="grid" />
-              <text x={PAD.left - 8} y={y(t) + 4} textAnchor="end" className="tick">{money(t).replace(',00', '')}</text>
+              <text x={PAD.left - 8} y={y(t) + 4} textAnchor="end" className="tick">{compactMoney(t)}</text>
             </g>
           ))}
           {xLabels.map(i => (
@@ -97,13 +89,13 @@ export function RevenueChart({ data, title }: { data: readonly DailyPoint[]; tit
               {formatDate(data[i]?.date ?? '').slice(0, 5)}</text>
           ))}
           <path d={path(lines.net)} className="series" stroke="var(--data-1)" />
-          <path d={path(lines.profit)} className="series" stroke="var(--data-3)" />
+          <path d={path(lines.profit)} className="series" stroke="var(--data-2)" />
           {lastNet && <text x={lastNet[0] + 8} y={labelY.net} className="end-label">Líquido</text>}
           {lastProfit && <text x={lastProfit[0] + 8} y={labelY.profit} className="end-label">Lucro</text>}
           {active !== null && point && <>
             <line x1={x(active)} x2={x(active)} y1={PAD.top} y2={PAD.top + plotH} className="crosshair" />
             <circle cx={x(active)} cy={y(point.net)} r={4.5} fill="var(--data-1)" className="dot" />
-            {point.profit !== null && <circle cx={x(active)} cy={y(point.profit)} r={4.5} fill="var(--data-3)" className="dot" />}
+            {point.profit !== null && <circle cx={x(active)} cy={y(point.profit)} r={4.5} fill="var(--data-2)" className="dot" />}
           </>}
         </svg>
         {active !== null && point && (
@@ -156,7 +148,7 @@ export function ShareBars({ items, title }: { items: readonly ShareItem[]; title
   );
 }
 
-/** Realizado contra a meta: barra Indigo e meta como linha ambar tracejada com o valor no rotulo ("Meta R$ 47 mil"). */
+/** Realizado contra a meta: barra Petroleo sobre a trilha do medidor e meta como linha tracejada em Tinta, com o valor no rotulo ("Meta R$ 47 mil"). */
 export function GoalBar({ realized, goal, title }: { realized: number; goal: number; title: string }) {
   const scale = Math.max(goal, realized, 1) * 1.15;
   const goalX = (goal / scale) * 600;
@@ -164,7 +156,7 @@ export function GoalBar({ realized, goal, title }: { realized: number; goal: num
     <figure className="chart">
       <figcaption className="label">{title}</figcaption>
       <svg viewBox="0 0 600 72" role="img" aria-label={`Realizado ${money(realized)}${goal > 0 ? `, meta ${money(goal)}` : ', sem meta'}`}>
-        <rect x="0" y="24" width="600" height="20" rx="4" fill="var(--line)" />
+        <rect x="0" y="24" width="600" height="20" rx="4" fill="var(--meter-track)" />
         <rect x="0" y="24" width={Math.max((realized / scale) * 600, 2)} height="20" rx="4" fill="var(--data-1)" />
         {goal > 0 && <>
           <line className="goal" x1={goalX} x2={goalX} y1="14" y2="54" />
