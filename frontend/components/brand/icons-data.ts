@@ -1,12 +1,21 @@
-// Icones de traco do SBI: grade de 24, traco de 1,75 com pontas arredondadas, cor do texto (currentColor).
-// Os seis do manual v1.0 e sete derivados na mesma construcao. Fica em .ts para os testes unitarios.
+// Icones de traco do SBI (manual de identidade visual v2.0, figura 13): grade de 24, traco de 1,75 com pontas e juncoes
+// arredondadas, cor do texto ao lado (currentColor); 20 px na interface, 16 em selos e tabelas, 24 em destaque.
+// Fica em .ts para os testes unitarios.
 
 export type IconName =
-  | 'visao-geral' | 'vender' | 'estoque' | 'preco' | 'promocao' | 'analises'
-  | 'clientes' | 'vendas' | 'desempenho' | 'usuarios' | 'senha' | 'sair' | 'check';
+  | 'visao-geral' | 'vender' | 'estoque' | 'preco' | 'promocao' | 'analises' | 'clientes' | 'vendas' | 'desempenho' | 'usuarios'
+  | 'senha' | 'sair' | 'check' | 'alerta' | 'info' | 'sucesso' | 'erro' | 'seta-cima' | 'seta-baixo' | 'busca' | 'filtro'
+  | 'calendario' | 'mais' | 'fechar' | 'chevron-baixo' | 'chevron-direita' | 'chevron-esquerda' | 'menu' | 'tabela' | 'meta'
+  | 'sol' | 'lua' | 'monitor';
 
-export const MANUAL_ICONS: readonly IconName[] = ['visao-geral', 'vender', 'estoque', 'preco', 'promocao', 'analises'];
-export const DERIVED_ICONS: readonly IconName[] = ['clientes', 'vendas', 'desempenho', 'usuarios', 'senha', 'sair', 'check'];
+/** Os 30 icones da figura 13 do manual, na ordem do manual (os 13 primeiros ja existiam na v1.0). */
+export const MANUAL_ICONS: readonly IconName[] = [
+  'visao-geral', 'vender', 'estoque', 'preco', 'promocao', 'analises', 'clientes', 'vendas', 'desempenho', 'usuarios', 'senha', 'sair',
+  'check', 'alerta', 'info', 'sucesso', 'erro', 'seta-cima', 'seta-baixo', 'busca', 'filtro', 'calendario', 'mais', 'fechar',
+  'chevron-baixo', 'chevron-direita', 'chevron-esquerda', 'menu', 'tabela', 'meta',
+];
+/** Seletor de tema da conta, desenhado na mesma construcao. */
+export const THEME_ICONS: readonly IconName[] = ['sol', 'lua', 'monitor'];
 
 export const ICON_VIEWBOX = '0 0 24 24';
 export const ICON_STROKE = 1.75;
@@ -25,6 +34,27 @@ export const ICON_PATHS: Readonly<Record<IconName, readonly string[]>> = {
   senha: ['M6 11h12v9H6z', 'M8.5 11V8a3.5 3.5 0 0 1 7 0v3', 'M12 15v2'],
   sair: ['M14 4h5v16h-5', 'M10 8l-4 4 4 4', 'M6 12h10'],
   check: ['M5 12.5l4.5 4.5L19 7.5'],
+  alerta: ['M12 4L2.8 19.5h18.4z', 'M12 10v4.5', 'M12 17.2v.01'],
+  info: ['M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z', 'M12 11v5.5', 'M12 7.8v.01'],
+  sucesso: ['M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z', 'M8 12.3l2.7 2.7L16 9.7'],
+  erro: ['M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z', 'M9 9l6 6', 'M15 9l-6 6'],
+  'seta-cima': ['M12 19V5', 'M6 11l6-6 6 6'],
+  'seta-baixo': ['M12 5v14', 'M6 13l6 6 6-6'],
+  busca: ['M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13z', 'M15.5 15.5L20 20'],
+  filtro: ['M4 6h16', 'M7 12h10', 'M10 18h4'],
+  calendario: ['M4 6h16v14H4z', 'M4 10h16', 'M8 3v4', 'M16 3v4'],
+  mais: ['M12 5v14', 'M5 12h14'],
+  fechar: ['M6 6l12 12', 'M18 6L6 18'],
+  'chevron-baixo': ['M6 9l6 6 6-6'],
+  'chevron-direita': ['M9 6l6 6-6 6'],
+  'chevron-esquerda': ['M15 6l-6 6 6 6'],
+  menu: ['M4 7h16', 'M4 12h16', 'M4 17h16'],
+  tabela: ['M4 5h16v14H4z', 'M4 10h16', 'M4 15h16', 'M10 5v14'],
+  meta: ['M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z', 'M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', 'M12 12.01V12'],
+  sol: ['M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', 'M12 2.5v2', 'M12 19.5v2', 'M2.5 12h2', 'M19.5 12h2', 'M5.3 5.3l1.4 1.4', 'M17.3 17.3l1.4 1.4',
+    'M5.3 18.7l1.4-1.4', 'M17.3 6.7l1.4-1.4'],
+  lua: ['M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z'],
+  monitor: ['M3 5h18v11H3z', 'M8 20h8', 'M12 16v4'],
 };
 
 /** Icone decorativo por padrao (o texto ao lado ja nomeia a acao); com rotulo, vira imagem nomeada. */

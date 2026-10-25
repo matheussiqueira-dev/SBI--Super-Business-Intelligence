@@ -14,6 +14,9 @@ export const COLORS = {
   grafite300: '#CCD2DB',
 } as const;
 
+/** Cor da barra do navegador e do app instalado: o fundo da aplicacao de cada tema (Nevoa e o canvas escuro). */
+export const THEME_COLORS = { light: '#F4F6F9', dark: '#090F16' } as const;
+
 export const MODULE = 10;
 export const SYMBOL_SIZE = 13 * MODULE;
 export const BLOCK_PATH = 'M20 0H110A20 20 0 0 1 130 20V60H100A40 40 0 0 0 60 100V130H20A20 20 0 0 1 0 110V20A20 20 0 0 1 20 0Z';
@@ -36,6 +39,6 @@ export function toneColors(tone: LogoTone): { block: string; dot: string; text: 
   switch (tone) {
     case 'negativa': return { block: COLORS.white, dot: COLORS.petroleoClaro, text: COLORS.white, descriptor: COLORS.grafite300 };
     case 'mono': return { block: 'currentColor', dot: 'currentColor', text: 'currentColor', descriptor: 'currentColor' };
-    default: return { block: 'var(--brand-block)', dot: 'var(--brand-dot)', text: 'var(--ink)', descriptor: 'var(--slate)' };
+    default: return { block: 'var(--sbi-brand-block)', dot: 'var(--sbi-brand-dot)', text: 'var(--sbi-text-primary)', descriptor: 'var(--sbi-text-secondary)' };
   }
 }

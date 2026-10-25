@@ -4,7 +4,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BLOCK_PATH, BRAND_ACCESSIBLE_NAME, DOT, MODULE, SYMBOL_SIZE, toneColors } from '../components/brand/geometry.ts';
-import { DERIVED_ICONS, ICON_PATHS, MANUAL_ICONS, iconA11y } from '../components/brand/icons-data.ts';
+import { ICON_PATHS, MANUAL_ICONS, THEME_ICONS, iconA11y } from '../components/brand/icons-data.ts';
 import { menuFor, menuGroups, PASSWORD_PATH } from '../lib/areas.ts';
 import { compactMoney, formatDateTime, formatMonth, formatPeriod, formatTime, initials, money, MISSING, statusPill } from '../lib/format.ts';
 
@@ -28,15 +28,18 @@ test('[CT-WEB-122] simbolo do componente tem a mesma geometria do favicon app/ic
 });
 
 test('variantes do logo: principal segue o tema e negativa fica fixa sobre Tinta', () => {
-  assert.equal(toneColors('principal').block, 'var(--brand-block)');
-  assert.equal(toneColors('principal').text, 'var(--ink)');
+  assert.equal(toneColors('principal').block, 'var(--sbi-brand-block)');
+  assert.equal(toneColors('principal').text, 'var(--sbi-text-primary)');
   assert.equal(toneColors('negativa').block, '#FFFFFF');
   assert.equal(toneColors('negativa').dot, '#64B1D7');
 });
 
-test('[CT-WEB-123] icones: os seis do manual e os derivados, decorativos por padrao', () => {
-  assert.equal(MANUAL_ICONS.length, 6);
-  for (const name of [...MANUAL_ICONS, ...DERIVED_ICONS]) assert.ok(ICON_PATHS[name].length > 0, name);
+test('[CT-WEB-123] icones: os 30 da figura 13 do manual v2.0 e os do seletor de tema, decorativos por padrao', () => {
+  assert.equal(MANUAL_ICONS.length, 30);
+  assert.equal(new Set(MANUAL_ICONS).size, 30);
+  assert.deepEqual(MANUAL_ICONS.slice(0, 3), ['visao-geral', 'vender', 'estoque']);
+  assert.deepEqual(MANUAL_ICONS.slice(-3), ['menu', 'tabela', 'meta']);
+  for (const name of [...MANUAL_ICONS, ...THEME_ICONS]) assert.ok(ICON_PATHS[name].length > 0, name);
   assert.deepEqual(iconA11y(), { 'aria-hidden': true, focusable: false });
   assert.deepEqual(iconA11y('Concluída'), { role: 'img', 'aria-label': 'Concluída' });
 });
@@ -65,7 +68,7 @@ test('[CT-WEB-124] formatos do manual: hora 14h30, periodo, ausente e valor curt
   assert.equal(initials('Allan Paula Lima'), 'AL');
   assert.equal(initials('marta'), 'M');
   assert.equal(statusPill('PAID'), 'pill pill-ok');
-  assert.equal(statusPill('PENDING_PAYMENT'), 'pill pill-warn');
+  assert.equal(statusPill('PENDING_PAYMENT'), 'pill pill-pending');
   assert.equal(statusPill('CANCELED'), 'pill pill-err');
   assert.equal(statusPill('PROCESSING'), 'pill pill-info');
 });

@@ -6,13 +6,13 @@ function Encaixe({ tone }: { tone: LogoTone }) {
   return <><path d={BLOCK_PATH} fill={c.block} /><circle cx={DOT.cx} cy={DOT.cy} r={DOT.r} fill={c.dot} /></>;
 }
 
-interface SymbolProps { size?: number; tone?: LogoTone; decorative?: boolean }
+interface SymbolProps { size?: number; tone?: LogoTone; decorative?: boolean; className?: string }
 
-/** Simbolo isolado. Decorativo quando acompanha o nome por extenso; senao, imagem com o nome acessivel. */
-export function SbiSymbol({ size = 36, tone = 'principal', decorative = false }: SymbolProps) {
+/** Simbolo isolado. Decorativo quando acompanha o nome por extenso ou e recorte de fundo; senao, imagem com o nome acessivel. */
+export function SbiSymbol({ size = 36, tone = 'principal', decorative = false, className = 'sbi-symbol' }: SymbolProps) {
   const a11y = decorative ? { 'aria-hidden': true as const, focusable: false as const } : { role: 'img' as const, 'aria-label': BRAND_ACCESSIBLE_NAME };
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${SYMBOL_SIZE} ${SYMBOL_SIZE}`} xmlns="http://www.w3.org/2000/svg" className="sbi-symbol" {...a11y}>
+    <svg width={size} height={size} viewBox={`0 0 ${SYMBOL_SIZE} ${SYMBOL_SIZE}`} xmlns="http://www.w3.org/2000/svg" className={className} {...a11y}>
       <Encaixe tone={tone} />
     </svg>
   );

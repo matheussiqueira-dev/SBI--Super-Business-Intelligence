@@ -3,10 +3,10 @@ import { ICON_PATHS, ICON_STROKE, ICON_VIEWBOX, iconA11y, type IconName } from '
 
 export type { IconName } from './icons-data.ts';
 
-export function Icon({ name, size = 20, label }: { name: IconName; size?: number; label?: string }) {
+export function Icon({ name, size = 20, label, className = 'icon' }: { name: IconName; size?: number; label?: string; className?: string }) {
   return (
     <svg width={size} height={size} viewBox={ICON_VIEWBOX} fill="none" stroke="currentColor" strokeWidth={ICON_STROKE}
-         strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg" className="icon" {...iconA11y(label)}>
+         strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg" className={className} {...iconA11y(label)}>
       {ICON_PATHS[name].map(d => <path key={d} d={d} />)}
     </svg>
   );
