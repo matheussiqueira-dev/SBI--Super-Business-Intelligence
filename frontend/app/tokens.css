@@ -1,0 +1,337 @@
+/* SBI · tokens de design v2 (manual de identidade visual v2.0, seção 26; arquivo 05-design-system/tokens.css).
+   Três camadas: primitivos (valor bruto), semânticos (papel na interface, mudam por tema) e componentes (globals.css, só
+   semânticos). O tema escuro segue o sistema e pode ser fixado por <html data-theme="light|dark"> (seletor de tema da conta).
+   Os 76 pares semânticos passam no contraste da WCAG 2.2 nos dois temas (05-design-system/contraste.csv). */
+:root {
+  color-scheme: light;
+  /* primitivos */
+  --sbi-petroleo-50: #EFF8FE;
+  --sbi-petroleo-100: #DDF1FD;
+  --sbi-petroleo-200: #BFE4F9;
+  --sbi-petroleo-300: #96CFED;
+  --sbi-petroleo-400: #64B1D7;
+  --sbi-petroleo-500: #3791BA;
+  --sbi-petroleo-600: #04729B;
+  --sbi-petroleo-700: #025C7D;
+  --sbi-petroleo-800: #054761;
+  --sbi-petroleo-900: #063447;
+  --sbi-petroleo-950: #052432;
+  --sbi-grafite-0: #FFFFFF;
+  --sbi-grafite-25: #FAFBFD;
+  --sbi-grafite-50: #F4F6F9;
+  --sbi-grafite-100: #ECEFF4;
+  --sbi-grafite-200: #DEE3E9;
+  --sbi-grafite-300: #CCD2DB;
+  --sbi-grafite-400: #A1AAB6;
+  --sbi-grafite-500: #7B8693;
+  --sbi-grafite-600: #5D6977;
+  --sbi-grafite-700: #444F5F;
+  --sbi-grafite-800: #2D3948;
+  --sbi-grafite-900: #1B2838;
+  --sbi-grafite-950: #0D1A2B;
+
+  /* semânticos (claro) */
+  --sbi-bg-canvas: #F4F6F9;
+  --sbi-bg-surface: #FFFFFF;
+  --sbi-bg-subtle: #FAFBFD;
+  --sbi-bg-hover: #ECEFF4;
+  --sbi-bg-pressed: #DEE3E9;
+  --sbi-bg-inverse: #0D1A2B;
+  --sbi-bg-selected: #EFF8FE;
+  --sbi-bg-overlay: rgba(14, 26, 43, 0.48);
+  --sbi-border-subtle: #DEE3E9;
+  --sbi-border-default: #CCD2DB;
+  --sbi-border-control: #7B8693;
+  --sbi-border-strong: #444F5F;
+  --sbi-text-primary: #0D1A2B;
+  --sbi-text-secondary: #444F5F;
+  --sbi-text-tertiary: #5D6977;
+  --sbi-text-disabled: #A1AAB6;
+  --sbi-text-inverse: #FFFFFF;
+  --sbi-text-link: #04729B;
+  --sbi-text-link-hover: #025C7D;
+  --sbi-text-selected: #054761;
+  --sbi-icon-default: #5D6977;
+  --sbi-icon-strong: #0D1A2B;
+  --sbi-action-primary: #04729B;
+  --sbi-action-primary-hover: #025C7D;
+  --sbi-action-primary-pressed: #054761;
+  --sbi-action-on-primary: #FFFFFF;
+  --sbi-action-secondary-hover: #ECEFF4;
+  --sbi-action-disabled-bg: #ECEFF4;
+  --sbi-action-disabled-text: #A1AAB6;
+  --sbi-focus-ring: #04729B;
+  --sbi-selected-indicator: #04729B;
+  --sbi-brand-block: #0D1A2B;
+  --sbi-brand-dot: #04729B;
+  --sbi-success-text: #0B6834;
+  --sbi-success-bg: #E5FAEA;
+  --sbi-success-border: #78D694;
+  --sbi-success-solid: #137D41;
+  --sbi-warning-text: #92500B;
+  --sbi-warning-bg: #FFF4E3;
+  --sbi-warning-border: #FFC669;
+  --sbi-warning-solid: #ED9E20;
+  --sbi-danger-text: #B02523;
+  --sbi-danger-bg: #FFEFEE;
+  --sbi-danger-border: #FDA19B;
+  --sbi-danger-solid: #C52C2A;
+  --sbi-danger-solid-hover: #B02523;
+  --sbi-info-text: #025C7D;
+  --sbi-info-bg: #EFF8FE;
+  --sbi-info-border: #96CFED;
+  --sbi-chart-grid: #DEE3E9;
+  --sbi-chart-axis: #CCD2DB;
+  --sbi-chart-label: #5D6977;
+  --sbi-chart-goal: #0D1A2B;
+  --sbi-chart-compare: #A1AAB6;
+  --sbi-meter-track: #DDF1FD;
+  /* painel de marca (entrada no sistema): Tinta com texto branco e de apoio, nos dois temas */
+  --sbi-brand-panel: #0D1A2B;
+  --sbi-brand-panel-text: #FFFFFF;
+  --sbi-brand-panel-muted: #CCD2DB;
+  /* avatar de iniciais (branco sobre Tinta 17,5:1 e sobre Petróleo 5,4:1) e fundo das fotos de produto, iguais nos dois temas */
+  --sbi-avatar-gestao: #0D1A2B;
+  --sbi-avatar-venda: #04729B;
+  --sbi-avatar-text: #FFFFFF;
+  --sbi-media-bg: #FFFFFF;
+  --sbi-shadow-sticky: 0 -8px 16px -12px rgba(14, 26, 43, 0.25);
+
+  /* visualização de dados (claro): a ordem das oito cores é fixa e a cor segue a entidade */
+  --sbi-data-1: #04729B;
+  --sbi-data-2: #E26B1B;
+  --sbi-data-3: #7454D6;
+  --sbi-data-4: #269143;
+  --sbi-data-5: #CA488F;
+  --sbi-data-6: #DDA317;
+  --sbi-data-7: #0B9CC0;
+  --sbi-data-8: #D03833;
+
+  /* tipografia: Inter variável (next/font) com eixo de tamanho óptico; o desenho Display entra sozinho a partir de 22 px */
+  --sbi-font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sbi-font-display: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sbi-font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --sbi-type-display: 600 40px/48px var(--sbi-font-display);
+  --sbi-tracking-display: -0.022em;
+  --sbi-type-heading-1: 600 30px/38px var(--sbi-font-display);
+  --sbi-tracking-heading-1: -0.02em;
+  --sbi-type-heading-2: 600 22px/30px var(--sbi-font-display);
+  --sbi-tracking-heading-2: -0.015em;
+  --sbi-type-heading-3: 600 17px/24px var(--sbi-font-sans);
+  --sbi-tracking-heading-3: -0.01em;
+  --sbi-type-body-lg: 400 16px/24px var(--sbi-font-sans);
+  --sbi-tracking-body-lg: -0.011em;
+  --sbi-type-body: 400 15px/22px var(--sbi-font-sans);
+  --sbi-tracking-body: -0.009em;
+  --sbi-type-body-strong: 600 15px/22px var(--sbi-font-sans);
+  --sbi-tracking-body-strong: -0.009em;
+  --sbi-type-label: 500 14px/20px var(--sbi-font-sans);
+  --sbi-tracking-label: -0.006em;
+  --sbi-type-caption: 400 13px/18px var(--sbi-font-sans);
+  --sbi-tracking-caption: -0.003em;
+  --sbi-type-overline: 600 12px/16px var(--sbi-font-sans);
+  --sbi-tracking-overline: 0.06em;
+  --sbi-type-kpi: 600 28px/34px var(--sbi-font-display);
+  --sbi-tracking-kpi: -0.02em;
+  --sbi-type-kpi-sm: 600 20px/26px var(--sbi-font-sans);
+  --sbi-tracking-kpi-sm: -0.015em;
+  --sbi-type-table: 400 14px/20px var(--sbi-font-sans);
+  --sbi-tracking-table: -0.006em;
+  --sbi-type-table-head: 600 12px/16px var(--sbi-font-sans);
+  --sbi-tracking-table-head: 0.02em;
+  --sbi-type-button: 600 15px/20px var(--sbi-font-sans);
+  --sbi-tracking-button: -0.009em;
+
+  /* espaço (múltiplos de 4 px), forma, sombra e movimento */
+  --sbi-space-1: 4px;
+  --sbi-space-2: 8px;
+  --sbi-space-3: 12px;
+  --sbi-space-4: 16px;
+  --sbi-space-5: 20px;
+  --sbi-space-6: 24px;
+  --sbi-space-8: 32px;
+  --sbi-space-10: 40px;
+  --sbi-space-12: 48px;
+  --sbi-space-16: 64px;
+  --sbi-radius-xs: 4px;
+  --sbi-radius-sm: 6px;
+  --sbi-radius-md: 8px;
+  --sbi-radius-lg: 12px;
+  --sbi-radius-xl: 16px;
+  --sbi-radius-full: 999px;
+  --sbi-shadow-1: 0 1px 2px rgba(14, 26, 43, 0.06);
+  --sbi-shadow-2: 0 4px 12px -2px rgba(14, 26, 43, 0.10), 0 2px 4px -2px rgba(14, 26, 43, 0.06);
+  --sbi-shadow-3: 0 16px 40px -8px rgba(14, 26, 43, 0.20);
+  --sbi-duration-fast: 120ms;
+  --sbi-duration-base: 200ms;
+  --sbi-easing-standard: ease-out;
+  --sbi-control-sm: 32px;
+  --sbi-control-md: 40px;
+  --sbi-control-lg: 48px;
+  --sbi-touch-target: 44px;
+  --sbi-sidebar-width: 248px;
+  --sbi-topbar-height: 56px;
+  --sbi-content-max: 1280px;
+
+  /* ícones de interface que o CSS desenha (seta da seleção e lupa da busca), na cor icon-default de cada tema */
+  --sbi-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235D6977' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  --sbi-search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235D6977' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13z'/%3E%3Cpath d='M15.5 15.5L20 20'/%3E%3C/svg%3E");
+}
+
+/* Tema escuro: cada token tem valor próprio, validado contra a superfície escura (não é inversão automática). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --sbi-bg-canvas: #090F16;
+    --sbi-bg-surface: #101821;
+    --sbi-bg-subtle: #0D131C;
+    --sbi-bg-hover: #1F2834;
+    --sbi-bg-pressed: #28313D;
+    --sbi-bg-inverse: #F4F6F9;
+    --sbi-bg-selected: #133240;
+    --sbi-bg-overlay: rgba(4, 8, 14, 0.64);
+    --sbi-border-subtle: #262E39;
+    --sbi-border-default: #37414D;
+    --sbi-border-control: #727B88;
+    --sbi-border-strong: #A6AFBB;
+    --sbi-text-primary: #F2F4F6;
+    --sbi-text-secondary: #C3CAD2;
+    --sbi-text-tertiary: #9FA7B2;
+    --sbi-text-disabled: #626A73;
+    --sbi-text-inverse: #0D1A2B;
+    --sbi-text-link: #96CFED;
+    --sbi-text-link-hover: #BFE4F9;
+    --sbi-text-selected: #BFE4F9;
+    --sbi-icon-default: #9FA7B2;
+    --sbi-icon-strong: #F2F4F6;
+    --sbi-action-primary-hover: #167AA2;
+    --sbi-action-primary-pressed: #025C7D;
+    --sbi-action-secondary-hover: #1F2834;
+    --sbi-action-disabled-bg: #202730;
+    --sbi-action-disabled-text: #626A73;
+    --sbi-focus-ring: #64B1D7;
+    --sbi-selected-indicator: #64B1D7;
+    --sbi-brand-block: #FFFFFF;
+    --sbi-brand-dot: #64B1D7;
+    --sbi-success-text: #78D694;
+    --sbi-success-bg: #142D1B;
+    --sbi-success-border: #265937;
+    --sbi-warning-text: #FFC669;
+    --sbi-warning-bg: #37250E;
+    --sbi-warning-border: #714D1D;
+    --sbi-danger-text: #FDA19B;
+    --sbi-danger-bg: #3B1C1A;
+    --sbi-danger-border: #7A3A36;
+    --sbi-info-text: #96CFED;
+    --sbi-info-bg: #122C39;
+    --sbi-info-border: #205670;
+    --sbi-chart-grid: #262E39;
+    --sbi-chart-axis: #37414D;
+    --sbi-chart-label: #9FA7B2;
+    --sbi-chart-goal: #F2F4F6;
+    --sbi-chart-compare: #5C646F;
+    --sbi-meter-track: #063447;
+    --sbi-brand-panel: #101821;
+    --sbi-data-1: #1C8CB4;
+    --sbi-data-2: #DE6E29;
+    --sbi-data-3: #927EEC;
+    --sbi-data-4: #369E4E;
+    --sbi-data-5: #D4599B;
+    --sbi-data-6: #BF8B00;
+    --sbi-data-7: #2DA1C2;
+    --sbi-data-8: #DE4F46;
+    --sbi-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.40);
+    --sbi-shadow-2: 0 6px 16px -4px rgba(0, 0, 0, 0.55);
+    --sbi-shadow-3: 0 20px 48px -8px rgba(0, 0, 0, 0.65);
+    --sbi-shadow-sticky: 0 -8px 16px -12px rgba(0, 0, 0, 0.7);
+    --sbi-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239FA7B2' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    --sbi-search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239FA7B2' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13z'/%3E%3Cpath d='M15.5 15.5L20 20'/%3E%3C/svg%3E");
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --sbi-bg-canvas: #090F16;
+  --sbi-bg-surface: #101821;
+  --sbi-bg-subtle: #0D131C;
+  --sbi-bg-hover: #1F2834;
+  --sbi-bg-pressed: #28313D;
+  --sbi-bg-inverse: #F4F6F9;
+  --sbi-bg-selected: #133240;
+  --sbi-bg-overlay: rgba(4, 8, 14, 0.64);
+  --sbi-border-subtle: #262E39;
+  --sbi-border-default: #37414D;
+  --sbi-border-control: #727B88;
+  --sbi-border-strong: #A6AFBB;
+  --sbi-text-primary: #F2F4F6;
+  --sbi-text-secondary: #C3CAD2;
+  --sbi-text-tertiary: #9FA7B2;
+  --sbi-text-disabled: #626A73;
+  --sbi-text-inverse: #0D1A2B;
+  --sbi-text-link: #96CFED;
+  --sbi-text-link-hover: #BFE4F9;
+  --sbi-text-selected: #BFE4F9;
+  --sbi-icon-default: #9FA7B2;
+  --sbi-icon-strong: #F2F4F6;
+  --sbi-action-primary-hover: #167AA2;
+  --sbi-action-primary-pressed: #025C7D;
+  --sbi-action-secondary-hover: #1F2834;
+  --sbi-action-disabled-bg: #202730;
+  --sbi-action-disabled-text: #626A73;
+  --sbi-focus-ring: #64B1D7;
+  --sbi-selected-indicator: #64B1D7;
+  --sbi-brand-block: #FFFFFF;
+  --sbi-brand-dot: #64B1D7;
+  --sbi-success-text: #78D694;
+  --sbi-success-bg: #142D1B;
+  --sbi-success-border: #265937;
+  --sbi-warning-text: #FFC669;
+  --sbi-warning-bg: #37250E;
+  --sbi-warning-border: #714D1D;
+  --sbi-danger-text: #FDA19B;
+  --sbi-danger-bg: #3B1C1A;
+  --sbi-danger-border: #7A3A36;
+  --sbi-info-text: #96CFED;
+  --sbi-info-bg: #122C39;
+  --sbi-info-border: #205670;
+  --sbi-chart-grid: #262E39;
+  --sbi-chart-axis: #37414D;
+  --sbi-chart-label: #9FA7B2;
+  --sbi-chart-goal: #F2F4F6;
+  --sbi-chart-compare: #5C646F;
+  --sbi-meter-track: #063447;
+  --sbi-brand-panel: #101821;
+  --sbi-data-1: #1C8CB4;
+  --sbi-data-2: #DE6E29;
+  --sbi-data-3: #927EEC;
+  --sbi-data-4: #369E4E;
+  --sbi-data-5: #D4599B;
+  --sbi-data-6: #BF8B00;
+  --sbi-data-7: #2DA1C2;
+  --sbi-data-8: #DE4F46;
+  --sbi-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.40);
+  --sbi-shadow-2: 0 6px 16px -4px rgba(0, 0, 0, 0.55);
+  --sbi-shadow-3: 0 20px 48px -8px rgba(0, 0, 0, 0.65);
+  --sbi-shadow-sticky: 0 -8px 16px -12px rgba(0, 0, 0, 0.7);
+  --sbi-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239FA7B2' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  --sbi-search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239FA7B2' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13z'/%3E%3Cpath d='M15.5 15.5L20 20'/%3E%3C/svg%3E");
+}
+@media (prefers-reduced-motion: reduce) {
+  :root { --sbi-duration-fast: 0ms; --sbi-duration-base: 0ms; }
+}
+
+/* Apelidos da v1.0 (mapa de migração do apêndice D): só para os ramos abertos que ainda usam os nomes antigos.
+   Código novo usa os nomes --sbi-*. */
+:root {
+  --ink: var(--sbi-text-primary); --slate: var(--sbi-text-secondary); --muted: var(--sbi-text-secondary);
+  --mist: var(--sbi-bg-canvas); --bg: var(--sbi-bg-canvas); --white: var(--sbi-bg-surface); --card: var(--sbi-bg-surface);
+  --hover: var(--sbi-bg-hover); --line: var(--sbi-border-subtle); --field: var(--sbi-border-control);
+  --indigo: var(--sbi-action-primary); --primary: var(--sbi-action-primary); --primary-hover: var(--sbi-action-primary-hover);
+  --on-primary: var(--sbi-action-on-primary); --indigo-soft: var(--sbi-bg-selected); --indigo-deep: var(--sbi-text-selected);
+  --link: var(--sbi-text-link); --link-hover: var(--sbi-text-link-hover); --focus: var(--sbi-focus-ring);
+  --ok-ink: var(--sbi-success-text); --ok-bg: var(--sbi-success-bg); --warn-ink: var(--sbi-warning-text); --warn-bg: var(--sbi-warning-bg);
+  --err-ink: var(--sbi-danger-text); --err-bg: var(--sbi-danger-bg); --info-ink: var(--sbi-info-text); --info-bg: var(--sbi-info-bg);
+  --data-1: var(--sbi-data-1); --data-2: var(--sbi-data-2); --data-3: var(--sbi-data-3); --data-4: var(--sbi-data-4);
+  --radius-control: var(--sbi-radius-md); --radius-card: var(--sbi-radius-lg); --radius: var(--sbi-radius-lg); --radius-sm: var(--sbi-radius-md);
+  --space-1: 8px; --space-2: 16px; --space-3: 24px; --space-4: 32px; --space-6: 48px;
+  --font-display: var(--sbi-font-display); --font-sans: var(--sbi-font-sans);
+}

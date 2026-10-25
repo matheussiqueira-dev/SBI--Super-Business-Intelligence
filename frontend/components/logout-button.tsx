@@ -6,7 +6,8 @@ import { Icon } from './brand/icons.tsx';
 
 const auth = authApi(api);
 
-export default function LogoutButton() {
+/** Sair da conta. Na barra lateral e so o icone (nome acessivel "Sair"); nas demais telas, icone e texto. */
+export default function LogoutButton({ compact = false }: { compact?: boolean }) {
   const [busy, setBusy] = useState(false);
   async function logout() {
     setBusy(true);
@@ -16,5 +17,12 @@ export default function LogoutButton() {
       window.location.assign('/entrar');
     }
   }
-  return <button type="button" className="btn btn-ghost" onClick={logout} disabled={busy}><Icon name="sair" />{busy ? 'Saindo…' : 'Sair'}</button>;
+  if (compact) {
+    return (
+      <button type="button" className="btn btn-quiet btn-icon" onClick={logout} disabled={busy} aria-label={busy ? 'Saindo…' : 'Sair'} title="Sair">
+        <Icon name="sair" />
+      </button>
+    );
+  }
+  return <button type="button" className="btn btn-quiet" onClick={logout} disabled={busy}><Icon name="sair" />{busy ? 'Saindo…' : 'Sair'}</button>;
 }

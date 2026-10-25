@@ -1,9 +1,13 @@
 'use client';
 import { useEffect, useState, type ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
-import { SbiLogo } from './brand/logo.tsx';
+import { SbiLogo, SbiSymbol } from './brand/logo.tsx';
+import { Icon } from './brand/icons.tsx';
 
-/** Barra lateral; abaixo de 760 px vira faixa superior com o logo e o menu recolhivel, que fecha ao trocar de tela. */
+/**
+ * Barra lateral de 248 px com o logotipo horizontal; abaixo de 1.024 px vira a barra superior de 56 px com o simbolo e
+ * "Menu" (manual v2.0, secao 31), e o menu recolhivel fecha ao trocar de tela.
+ */
 export default function Sidebar({ home, children }: { home: string; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -11,10 +15,13 @@ export default function Sidebar({ home, children }: { home: string; children: Re
   return (
     <aside className="sidebar" aria-label="Navegação principal" data-open={open}>
       <div className="sidebar-top">
-        <a className="brand-link" href={home}><SbiLogo size={36} /></a>
-        <button type="button" className="btn btn-ghost nav-toggle" aria-expanded={open} aria-controls="menu-principal"
+        <a className="brand-link" href={home}>
+          <span className="brand-full"><SbiLogo size={28} /></span>
+          <span className="brand-compact"><SbiSymbol size={28} /></span>
+        </a>
+        <button type="button" className="btn btn-quiet nav-toggle" aria-expanded={open} aria-controls="menu-principal"
                 onClick={() => setOpen(value => !value)}>
-          {open ? 'Fechar menu' : 'Menu'}
+          <Icon name={open ? 'fechar' : 'menu'} />{open ? 'Fechar menu' : 'Menu'}
         </button>
       </div>
       <div className="sidebar-body" id="menu-principal">{children}</div>

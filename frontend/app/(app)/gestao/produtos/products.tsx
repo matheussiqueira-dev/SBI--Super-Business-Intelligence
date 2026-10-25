@@ -15,9 +15,13 @@ import { ErrorNotice, Loading, errorMessage } from '../../../../components/feedb
 import { Field } from '../../../../components/customer-form.tsx';
 import ConfirmDialog from '../../../../components/confirm-dialog.tsx';
 import Drawer from '../../../../components/drawer.tsx';
+import EmptyState from '../../../../components/empty-state.tsx';
+import PageHeader from '../../../../components/page-header.tsx';
 import Pager from '../../../../components/pager.tsx';
+import { Icon } from '../../../../components/brand/icons.tsx';
 import ProductThumb from '../../../../components/product-thumb.tsx';
 import { StatusMessage, useStatusMessage } from '../../../../components/status-message.tsx';
+import TableWrap from '../../../../components/table-wrap.tsx';
 
 type Product = z.infer<typeof ListProductsResponse>['content'][number];
 type Panel = { kind: 'new' } | { kind: 'edit' | 'price' | 'history'; product: Product } | { kind: 'categories' } | null;
@@ -56,15 +60,14 @@ export default function Products() {
 
   return (
     <div className="stack">
-      <header className="toolbar">
-        <div className="stack-sm"><p className="muted">Gestão / Produtos</p><h1>Produtos e insumos</h1></div>
-        <div className="actions">
+      <PageHeader section="Gestão" title="Produtos e insumos"
+        description="O preço muda só com motivo e fica no histórico; vendas já feitas mantêm o preço antigo."
+        actions={<>
           <button type="button" className="btn" onClick={() => setPanel({ kind: 'categories' })}>Categorias</button>
-          <button type="button" className="btn btn-primary" onClick={() => setPanel({ kind: 'new' })}>Novo produto</button>
-        </div>
-      </header>
+          <button type="button" className="btn btn-primary" onClick={() => setPanel({ kind: 'new' })}><Icon name="mais" />Novo produto</button>
+        </>} />
       <StatusMessage message={message.message} onClose={message.clear} />
-      <section className="card stack" aria-label="Lista de produtos">
+      <section className="card stack-md" aria-label="Lista de produtos">
         <div className="toolbar">
           <fieldset className="segmented"><legend className="sr-only">Mostrar</legend>
             <label><input type="radio" name="tipo-lista" checked={tab === 'true'} onChange={() => { setTab('true'); setPage(0); }} /><span>Produtos</span></label>
@@ -75,29 +78,29 @@ export default function Products() {
         </div>
         <ErrorNotice error={list.error ?? status.error} />
         {list.isLoading ? <Loading label="Carregando produtos…" /> : data && data.content.length === 0
-          ? <p className="empty">Nenhum item encontrado.</p>
-          : data && <div className="table-wrap"><table>
+          ? <EmptyState icon="preco" title="Nenhum item encontrado">{q ? 'Confira o nome ou o SKU digitado.' : 'Cadastre o primeiro item com “Novo produto”.'}</EmptyState>
+          : data && <TableWrap label={tab === 'true' ? 'Produtos' : 'Insumos'}><table>
               <caption className="sr-only">{tab === 'true' ? 'Produtos' : 'Insumos'}</caption>
               <thead><tr><th scope="col">Item</th><th scope="col">Categoria</th><th scope="col" className="right">Preço</th>
                 <th scope="col">Situação</th><th scope="col"><span className="sr-only">Ações</span></th></tr></thead>
               <tbody>{data.content.map(p => (
                 <tr key={p.id}>
                   <td><div className="product-cell"><ProductThumb sku={p.sku} name={p.name} />
-                    <span>{p.name}<br /><span className="mono muted">{p.sku}</span> · <span className="muted">{p.type === 'DIGITAL' ? 'Digital' : 'Físico'}</span></span></div></td>
+                    <span>{p.name}<span className="cell-sub"><span className="id">{p.sku}</span> · {p.type === 'DIGITAL' ? 'Digital' : 'Físico'}</span></span></div></td>
                   <td>{p.category?.name ?? '—'}</td>
                   <td className="num right">{money(p.price)}</td>
                   <td>{p.active ? <span className="pill pill-ok">Ativo</span> : <span className="pill">Inativo</span>}</td>
                   <td><div className="actions">
-                    <button type="button" className="btn" onClick={() => setPanel({ kind: 'edit', product: p })}>Editar</button>
-                    <button type="button" className="btn" onClick={() => setPanel({ kind: 'price', product: p })}>Preço</button>
-                    <button type="button" className="btn btn-ghost" onClick={() => setPanel({ kind: 'history', product: p })}>Histórico</button>
-                    <button type="button" className="btn btn-ghost" disabled={status.isPending}
+                    <button type="button" className="btn btn-sm" onClick={() => setPanel({ kind: 'edit', product: p })}>Editar</button>
+                    <button type="button" className="btn btn-sm" onClick={() => setPanel({ kind: 'price', product: p })}>Preço</button>
+                    <button type="button" className="btn btn-sm btn-ghost" onClick={() => setPanel({ kind: 'history', product: p })}>Histórico</button>
+                    <button type="button" className="btn btn-sm btn-ghost" disabled={status.isPending}
                             onClick={() => (p.active ? setDeactivating(p) : status.mutate(p))}>{p.active ? 'Inativar' : 'Ativar'}</button>
                   </div></td>
                 </tr>
               ))}</tbody>
-            </table></div>}
-        {data && <Pager page={data.page} size={data.size} total={data.totalElements} onPage={setPage} />}
+            </table></TableWrap>}
+        {data && <Pager page={data.page} size={data.size} total={data.totalElements} onPage={setPage} noun="itens" />}
       </section>
       <Drawer open={panel !== null} title={title} onClose={() => setPanel(null)}>
         {panel?.kind === 'new' && <ProductForm onDone={name => done(`${name} cadastrado.`)} />}
@@ -157,7 +160,7 @@ function ProductForm({ product, onDone }: { product?: Product; onDone: (name: st
         <label><input type="radio" name="tipo" checked={type === 'DIGITAL'} onChange={() => setType('DIGITAL')} /><span>Digital</span></label>
       </fieldset>}
       <div className="form-grid">
-        <Field id="prod-sku" label="SKU"><input id="prod-sku" name="sku" className="input mono" defaultValue={product?.sku} required maxLength={40} /></Field>
+        <Field id="prod-sku" label="SKU"><input id="prod-sku" name="sku" className="input id" defaultValue={product?.sku} required maxLength={40} /></Field>
         <Field id="prod-nome" label="Nome"><input id="prod-nome" name="name" className="input" defaultValue={product?.name} required maxLength={120} /></Field>
         <Field id="prod-cat" label="Categoria"><select id="prod-cat" name="categoryId" className="select" defaultValue={product?.category?.id ?? ''}>
           <option value="">Sem categoria</option>{categories.data?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></Field>
@@ -168,7 +171,7 @@ function ProductForm({ product, onDone }: { product?: Product; onDone: (name: st
         {!product && <Field id="prod-min" label="Estoque mínimo (opcional)"><input id="prod-min" name="minLevel" className="input" type="number" min={0} /></Field>}
         <Field id="prod-desc" label="Descrição (opcional)"><input id="prod-desc" name="description" className="input" defaultValue={product?.description ?? ''} maxLength={255} /></Field>
       </div>
-      <label className="actions"><input type="checkbox" name="sellable" defaultChecked={product?.sellable ?? true} /> Vendável no PDV (desmarcado = insumo)</label>
+      <label className="check"><input type="checkbox" name="sellable" defaultChecked={product?.sellable ?? true} />Vendável no PDV (desmarcado = insumo)</label>
       {problems.length > 0 && <div className="notice notice-error" role="alert">{problems.map(p => <p key={p}>{p}</p>)}</div>}
       <ErrorNotice error={save.error} />
       <div className="actions"><button type="submit" className="btn btn-primary" disabled={save.isPending}>{save.isPending ? 'Salvando…' : 'Salvar'}</button></div>
@@ -206,15 +209,15 @@ function PriceHistory({ product }: { product: Product }) {
   });
   if (history.isLoading) return <Loading />;
   if (history.error || !history.data) return <ErrorNotice error={history.error} />;
-  return history.data.content.length === 0 ? <p className="empty">Sem alterações de preço.</p> : (
-    <div className="table-wrap"><table>
+  return history.data.content.length === 0 ? <EmptyState icon="preco" title="Sem alterações de preço">O preço de cadastro continua valendo.</EmptyState> : (
+    <TableWrap label="Histórico de preço"><table>
       <caption className="sr-only">Histórico de preço</caption>
       <thead><tr><th scope="col">Quando</th><th scope="col" className="right">De</th><th scope="col" className="right">Para</th><th scope="col">Motivo</th><th scope="col">Por</th></tr></thead>
       <tbody>{history.data.content.map(h => (
         <tr key={h.id}><td className="num">{formatDateTime(h.changedAt)}</td><td className="num right">{money(h.oldPrice)}</td>
           <td className="num right">{money(h.newPrice)}</td><td>{h.reason ?? '—'}</td><td>{h.changedBy?.name ?? '—'}</td></tr>
       ))}</tbody>
-    </table></div>
+    </table></TableWrap>
   );
 }
 
@@ -246,7 +249,7 @@ function Categories() {
               <label htmlFor={`cat-${c.id}`} className="sr-only">Nome da categoria</label>
               <input id={`cat-${c.id}`} name="name" className="input" defaultValue={c.name} minLength={2} maxLength={80} required />
               <button type="submit" className="btn">Salvar</button></form>
-          : <span className="actions">{c.name}<button type="button" className="btn btn-ghost" onClick={() => setEditing(c.id)}>Renomear</button></span>}
+          : <span className="actions">{c.name}<button type="button" className="btn btn-sm btn-ghost" onClick={() => setEditing(c.id)}>Renomear</button></span>}
         </li>
       ))}</ul>
     </div>
