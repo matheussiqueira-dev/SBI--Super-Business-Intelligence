@@ -8,13 +8,13 @@ O objetivo é que cada integrante consiga revisar, rodar e aceitar a sua área s
 
 | Módulo | O que entrou | PR |
 | --- | --- | --- |
-| Banco | Migrações V5 (papéis, clientes PF/PJ, estoque com reserva, promoções, auditoria) e V6 (views de faturamento, metas e alertas), seed demo V6_1/V6_2 no perfil `demo`, Flyway como única fonte do esquema, V7 (cartão só com os 4 últimos dígitos) | [#13](https://github.com/matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST/pull/13), [#15](https://github.com/matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST/pull/15) |
-| Segurança | Hierarquia GERENTE > VENDEDOR em URL e método, dono do dado com 404, bloqueio após 5 falhas por 15 min, `ErrorResponse` com `code`, matriz de acesso executável | [#14](https://github.com/matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST/pull/14) |
-| Endpoints e contrato | As 45 operações do contrato v4 implementadas e verificadas ao vivo (PDV, clientes, backoffice, estoque, promoções, gestão, metas, análises) | [#15](https://github.com/matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST/pull/15) |
-| Frontend | Next.js em TypeScript com schemas Zod gerados do contrato; telas Vender, Vendas, Clientes, Meu desempenho e Gestão (visão geral, estoque, produtos, promoções, análises); axe WCAG 2.2 AA | [#16](https://github.com/matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST/pull/16) |
-| Testes e CI | CI com quatro jobs (`test (backend)`, `bd`, `contract`, `frontend`), testes de lacuna, métricas R1 e rastreabilidade requisito → teste → evidência | [#17](https://github.com/matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST/pull/17) |
-| Entrega | Demonstração em um comando, README, arquitetura, roteiro de demonstração, relatório final | [#18](https://github.com/matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST/pull/18) |
-| Registro | Registro da integração e exceções da varredura de termos | [#19](https://github.com/matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST/pull/19), [#20](https://github.com/matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST/pull/20) |
+| Banco | Migrações V5 (papéis, clientes PF/PJ, estoque com reserva, promoções, auditoria) e V6 (views de faturamento, metas e alertas), seed demo V6_1/V6_2 no perfil `demo`, Flyway como única fonte do esquema, V7 (cartão só com os 4 últimos dígitos) | [#13](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/pull/13), [#15](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/pull/15) |
+| Segurança | Hierarquia GERENTE > VENDEDOR em URL e método, dono do dado com 404, bloqueio após 5 falhas por 15 min, `ErrorResponse` com `code`, matriz de acesso executável | [#14](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/pull/14) |
+| Endpoints e contrato | As 45 operações do contrato v4 implementadas e verificadas ao vivo (PDV, clientes, backoffice, estoque, promoções, gestão, metas, análises) | [#15](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/pull/15) |
+| Frontend | Next.js em TypeScript com schemas Zod gerados do contrato; telas Vender, Vendas, Clientes, Meu desempenho e Gestão (visão geral, estoque, produtos, promoções, análises); axe WCAG 2.2 AA | [#16](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/pull/16) |
+| Testes e CI | CI com quatro jobs (`test (backend)`, `bd`, `contract`, `frontend`), testes de lacuna, métricas R1 e rastreabilidade requisito → teste → evidência | [#17](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/pull/17) |
+| Entrega | Demonstração em um comando, README, arquitetura, roteiro de demonstração, relatório final | [#18](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/pull/18) |
+| Registro | Registro da integração e exceções da varredura de termos | [#19](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/pull/19), [#20](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/pull/20) |
 
 ## 2. Como rodar
 

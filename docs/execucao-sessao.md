@@ -1,6 +1,6 @@
 # API-01 e UI-01: acesso com sessao
 
-Data: 04/10/2026. Acesso validado no [CI 37177302914](https://github.com/matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST/actions/runs/37177302914): 12 testes Java, 23 de contrato, tres do cliente web, 12 HTTP e dois E2E passaram; build Next aprovado. Capturas desktop/mobile inspecionadas. Evidencia em `reports/execucoes/run-2026-10-04-sessao-nextjs.md`. O contrato v3 continua marcando as rotas de dominio como planejadas.
+Data: 04/10/2026. Acesso validado no [CI 37177302914](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/actions/runs/37177302914): 12 testes Java, 23 de contrato, tres do cliente web, 12 HTTP e dois E2E passaram; build Next aprovado. Capturas desktop/mobile inspecionadas. Evidencia em `reports/execucoes/run-2026-10-04-sessao-nextjs.md`. O contrato v3 continua marcando as rotas de dominio como planejadas.
 
 ## Implementacao desta rodada
 

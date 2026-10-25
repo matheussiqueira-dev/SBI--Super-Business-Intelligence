@@ -13,7 +13,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>order-management-spring</name>
     <description>order-management-spring</description>
-    <url/>
+    <url>https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence</url>
     <licenses>
         <license/>
     </licenses>
@@ -21,10 +21,10 @@
         <developer/>
     </developers>
     <scm>
-        <connection/>
+        <connection>scm:git:https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence.git</connection>
         <developerConnection/>
         <tag/>
-        <url/>
+        <url>https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence</url>
     </scm>
     <properties>
         <java.version>25</java.version>
