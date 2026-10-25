@@ -5,21 +5,14 @@
 // perder o contraste de 3:1. Teclado: uma parada de Tab por grafico, setas, Home e End percorrem, Enter ou Espaco
 // escolhe. Os mesmos valores ficam numa tabela em "Ver dados em tabela".
 import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { formatPercent, money } from '../lib/format.ts';
+import { compactNumber, formatPercent, money } from '../lib/format.ts';
+import { niceScale } from '../lib/chart-scale.ts';
 import type { GoalStatus } from '../lib/executive.ts';
 import { Icon } from './brand/icons.tsx';
 import { Meter } from './meter.tsx';
-
-function niceMax(value: number): number {
-  if (value <= 0) return 1;
-  const exp = 10 ** Math.floor(Math.log10(value));
-  for (const step of [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (step * exp >= value) return step * exp;
-  return 10 * exp;
-}
+import TableWrap from './table-wrap.tsx';
 
 const pct = (value: number, max: number) => `${Math.max(0, Math.min(100, (value / max) * 100)).toFixed(2)}%`;
-/** Eixo em reais sem o simbolo ("240 mil"), para caber na coluna estreita; dica e tabela trazem o valor completo. */
-const axisNumber = new Intl.NumberFormat('pt-BR', { notation: 'compact', maximumFractionDigits: 1 });
 
 /** Navegacao por setas com uma unica parada de Tab (roving tabindex). */
 function useRoving(count: number) {
@@ -64,10 +57,11 @@ export function ColumnChart({ title, columns, selected, onSelect, valueLabel, co
   const id = useId();
   const roving = useRoving(columns.length);
   const [hover, setHover] = useState<number | null>(null);
-  const max = niceMax(Math.max(1, ...columns.flatMap(c => [c.value, c.goal ?? 0, c.compare ?? 0])));
-  const ticks = [1, 0.75, 0.5, 0.25, 0];
   const hasGoal = columns.some(c => (c.goal ?? 0) > 0);
-  const hasCompare = columns.some(c => c.compare !== null && c.compare !== undefined);
+  // Ano anterior sem nenhuma venda: sem marcas paradas no zero, como o "sem base" dos indicadores.
+  const hasCompare = columns.some(c => (c.compare ?? 0) !== 0);
+  // Divisoes redondas da identidade v2.0 (D-MAR-05); valores negativos ficam no zero, como a barra.
+  const { max, ticks } = niceScale(0, Math.max(1, ...columns.flatMap(c => [c.value, c.goal ?? 0, hasCompare ? c.compare ?? 0 : 0])));
   const active = hover ?? (selected === null ? null : columns.findIndex(c => c.key === selected));
   const tip = active !== null && active >= 0 ? columns[active] : undefined;
   const describe = (c: Column) => [`${c.name}: ${valueLabel} ${money(c.value)}`,
@@ -87,10 +81,10 @@ export function ColumnChart({ title, columns, selected, onSelect, valueLabel, co
       {help && <p className="caption">{help}</p>}
       <div className="colchart" data-selected={selected !== null}>
         <div className="colchart-axis" aria-hidden="true">
-          {ticks.map(t => <span key={t} style={{ bottom: `${t * 100}%` }}>{axisNumber.format(max * t)}</span>)}
+          {ticks.map(t => <span key={t} style={{ bottom: pct(t, max) }}>{compactNumber(t)}</span>)}
         </div>
         <div className="colchart-plot">
-          {ticks.map(t => <span key={t} className="colchart-grid" style={{ bottom: `${t * 100}%` }} aria-hidden="true" />)}
+          {ticks.map(t => <span key={t} className="colchart-grid" style={{ bottom: pct(t, max) }} aria-hidden="true" />)}
           <div className="colchart-bars" role="group" aria-label={`${title}. Use as setas para percorrer e Enter para filtrar.`}
                onPointerLeave={() => setHover(null)}>
             {columns.map((c, index) => {
@@ -98,7 +92,7 @@ export function ColumnChart({ title, columns, selected, onSelect, valueLabel, co
               const content = <>
                 <span className="colchart-fill" style={{ height: pct(c.value, max) }} />
                 {(c.goal ?? 0) > 0 && <span className="colchart-goal" style={{ bottom: pct(c.goal ?? 0, max) }} />}
-                {c.compare !== null && c.compare !== undefined && <span className="colchart-compare" style={{ bottom: pct(c.compare, max) }} />}
+                {hasCompare && c.compare !== null && c.compare !== undefined && <span className="colchart-compare" style={{ bottom: pct(c.compare, max) }} />}
               </>;
               return (
                 <div key={c.key} className="colchart-col">
@@ -129,7 +123,7 @@ export function ColumnChart({ title, columns, selected, onSelect, valueLabel, co
       </div>
       <details className="chart-table">
         <summary>Ver dados em tabela</summary>
-        <div className="table-wrap" tabIndex={0} role="group" aria-label={`${title} em tabela`}><table>
+        <TableWrap label={`${title} em tabela`}><table>
           <caption className="sr-only">{title}</caption>
           <thead><tr><th scope="col">Período</th><th scope="col" className="right">{valueLabel}</th>
             {hasGoal && <th scope="col" className="right">Meta</th>}{hasCompare && <th scope="col" className="right">{compareLabel}</th>}</tr></thead>
@@ -138,7 +132,7 @@ export function ColumnChart({ title, columns, selected, onSelect, valueLabel, co
               {hasGoal && <td className="num right">{c.goal ? money(c.goal) : '—'}</td>}
               {hasCompare && <td className="num right">{c.compare === null || c.compare === undefined ? '—' : money(c.compare)}</td>}</tr>
           ))}</tbody>
-        </table></div>
+        </table></TableWrap>
       </details>
     </figure>
   );
@@ -156,7 +150,8 @@ export function RankBars({ title, items, selected, onSelect, format = money, lim
   const [all, setAll] = useState(false);
   const shown = all ? items : items.slice(0, limit);
   const roving = useRoving(shown.length);
-  const max = niceMax(Math.max(1, ...items.flatMap(i => [i.value, i.goal ?? 0])));
+  // Como as barras de participacao da v2.0: a maior barra (ou meta) ocupa a trilha inteira.
+  const max = Math.max(1, ...items.flatMap(i => [i.value, i.goal ?? 0]));
   const Heading = headingLevel === 2 ? 'h2' : 'h3';
   return (
     <section className="stack-md" aria-labelledby={id}>
