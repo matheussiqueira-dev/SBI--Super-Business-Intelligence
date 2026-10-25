@@ -13,7 +13,7 @@ OUT = os.path.join(ROOT, "frontend", "public", "produtos")
 LIB = os.path.join(ROOT, "frontend", "lib", "product-photos.ts")
 SEED = {"IP-128-PT": "iPhone 128 GB Preto", "AP-BR": "AirPods Branco", "AW-41": "Apple Watch 41 mm",
         "CP-SIL": "Capa de silicone", "CG-20W": "Carregador 20 W", "PL-VID": "Pelicula de vidro"}
-UA = {"User-Agent": "SBI-demo-thumbnails/1.0 (https://github.com/matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST)"}
+UA = {"User-Agent": "SBI-demo-thumbnails/1.0 (https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence)"}
 SIZE = 96
 
 

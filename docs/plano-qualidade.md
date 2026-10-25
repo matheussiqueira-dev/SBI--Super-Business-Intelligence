@@ -29,7 +29,7 @@ As metas O3 e O4 são propostas: o R0 mediu só a suíte original de 17 testes. 
 | Segurança | Confidencialidade, integridade, autenticidade | 401/403 por perfil, CSRF, segredos fora do código, achados estáticos | Casos de sessão aprovados; vulnerabilidades/achados abertos | `http-session.mjs`, `SessionSecurityTest`, SpotBugs, `npm audit` |
 | Manutenibilidade | Modularidade, analisabilidade, testabilidade | Complexidade, duplicação, violações de regra | CC média/máxima, métodos com CC > 10, blocos CPD, violações PMD | JaCoCo, PMD 7, CPD, SpotBugs 4.10, `scripts/quality-metrics.mjs` |
 | Eficiência | Comportamento no tempo | p95 local sob protocolo definido (RNF-06) | p95 em ms por endpoint crítico | QA-05 (P2; pode ser cortado — ver plano restante, seção 9) |
-| Usabilidade | Operabilidade, acessibilidade | Estados de erro/vazio, teclado, foco, viewport móvel | Tarefas E2E concluídas; erro acessível exibido | Playwright (`frontend/e2e/session.spec.mjs`) |
+| Usabilidade | Operabilidade, acessibilidade | Estados de erro/vazio, teclado, foco, viewport móvel | Tarefas E2E concluídas; erro acessível exibido | Playwright (`frontend/e2e/session.spec.ts`) |
 | Portabilidade | Adaptabilidade, instalabilidade | Mesma suíte em Windows (local) e Linux (CI) | Execuções aprovadas por ambiente | `scripts/*.ps1` + GitHub Actions |
 | Compatibilidade | Interoperabilidade | Respostas conformes ao contrato OpenAPI 3.1 / JSON Schema 2020-12 | Pontos de schema sem achado | Ajv 8, `scripts/http-contract.mjs` |
 
@@ -58,7 +58,7 @@ Fonte única: [`criterios-aceitacao.md`](criterios-aceitacao.md), no formato Dad
 | Unitário | Regras isoladas com repositórios simulados | JUnit 5, Mockito, AssertJ | `src/test/java/.../services`, `entities`, `dto` | `scripts/test.ps1` |
 | Integração | JPA, constraints, transações, migrações Flyway, concorrência com banco real | Spring Boot Test, PostgreSQL 18 descartável via Docker Compose (`docker-compose.test.yml`, porta 15432) | `OrderPersistenceTest`, `FlywayMigrationTest`, `ConcurrencyTest` (`@Tag("integration")`) | `scripts/test.ps1 -Mode Integration` |
 | Sistema | API completa em execução, respostas HTTP contra o contrato e sessão | Node 24, Ajv 8 | `scripts/http-contract.mjs`, `scripts/http-session.mjs` | `scripts/test-contract.ps1 -HttpOnly` |
-| Aceitação | Critérios Dado/Quando/Então pela interface e pela API | Playwright 1.63 | `frontend/e2e/session.spec.mjs` (login/logout); demais telas em QA-07 | `scripts/test-contract.ps1 -Frontend` |
+| Aceitação | Critérios Dado/Quando/Então pela interface e pela API | Playwright 1.63 | `frontend/e2e/session.spec.ts` (login/logout); demais telas em QA-07 | `scripts/test-contract.ps1 -Frontend` |
 | Regressão | Defeitos corrigidos não voltam | Tag `regression` + CI a cada push/PR | Testes `[Dxxx]` | CI GitHub Actions (`.github/workflows/ci.yml`) |
 
 ## 6. Ferramentas utilizadas

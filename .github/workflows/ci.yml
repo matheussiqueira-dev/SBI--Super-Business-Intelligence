@@ -4,8 +4,8 @@ on:
   push:
   pull_request:
 
-# Quatro jobs independentes (WP-4.3): backend, banco, contrato e frontend. Cada um sobe o proprio PostgreSQL
-# descartavel e guarda seus relatorios como artefato.
+# Quatro jobs de teste independentes (WP-4.3): backend, banco, contrato e frontend. Cada um sobe o proprio
+# PostgreSQL descartavel e guarda seus relatorios como artefato. O job hygiene roda so em pull request.
 env:
   # Secret opcional; sem ele, cada execucao usa um valor deterministico do run (banco descartavel).
   # A mesma expressao se repete em services.postgres.env: o contexto env nao existe em services.

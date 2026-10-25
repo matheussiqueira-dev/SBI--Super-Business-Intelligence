@@ -20,7 +20,7 @@ Trabalho A3 · SBI — Super Business Intelligence, feito pelos alunos Allan Gab
 | --- | --- |
 | API | Java 25, Spring Boot 4.1, Spring Security 7, `JdbcClient` nos módulos novos e JPA no legado, Springdoc |
 | Banco | PostgreSQL 18, Flyway V1–V12 (única fonte do esquema, Hibernate em `validate`), views do V6, do V9 e do V12 para os painéis, o resumo do cliente e o painel executivo |
-| Frontend | Next.js 16, React 19, TypeScript estrito, Zod 4 gerado do contrato (orval), TanStack Query, marca SBI v1.0 |
+| Frontend | Next.js 16, React 19, TypeScript estrito, Zod 4 gerado do contrato (orval), TanStack Query, identidade visual SBI v2.0 (temas claro e escuro) |
 | Testes | JUnit 5, MockMvc, PostgreSQL 18 descartável via Docker Compose (`docker-compose.test.yml`, porta 15432), Playwright + axe, Ajv para o contrato, pacote SQL por `psql` |
 
 Detalhes em [docs/arquitetura.md](docs/arquitetura.md) e versões em [docs/decisoes/stack.md](docs/decisoes/stack.md).
@@ -94,12 +94,12 @@ Execute no PowerShell, na raiz do repositório, com JDK 25 em `JAVA_HOME` e Dock
 .\mvnw.cmd -q verify                                                                        # unitários (233)
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\test.ps1 -Mode Integration     # integração (649), JaCoCo, PMD, CPD, SpotBugs
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\test-contract.ps1 -HttpOnly -Frontend  # contrato ao vivo + E2E e axe
-npm test; node scripts\audit-contract.mjs                                                  # auditoria estática do contrato
+npm test; node scripts\audit-contract.mjs config\openapi\target-loja-gestao-openapi-2026-10-24-v6.json  # auditoria estática do contrato v6
 cd frontend; npm run typecheck; npm run api:check; npm test; npm run build
 node scripts\quality-metrics.mjs reports\metricas\r1 "R1"                                  # métricas a partir de target/
 ```
 
-A CI (`.github/workflows/ci.yml`) roda quatro jobs, cada um com seus relatórios como artefato:
+A CI (`.github/workflows/ci.yml`) roda quatro jobs de teste, cada um com seus relatórios como artefato, e, nos pull requests, o job `hygiene`, que barra rodapé de coautoria, crédito a ferramenta e endereço antigo do site nas mensagens de commit e nos arquivos versionados:
 - `test (backend)`;
 - `bd`: Flyway, seed demo e pacote SQL com 61 PASS, mais 11 PASS da massa Olist;
 - `contract`: auditoria estática e verificação ao vivo das 61 operações do contrato v6;
@@ -116,6 +116,6 @@ A CI (`.github/workflows/ci.yml`) roda quatro jobs, cada um com seus relatórios
 | Plano de testes, defeitos e métricas | [docs/plano-testes.md](docs/plano-testes.md), [docs/defeitos.md](docs/defeitos.md), [reports/metricas/comparativo-r0-r1.md](reports/metricas/comparativo-r0-r1.md) |
 | Modelo de dados e pacote SQL | [docs/bd/modelo-erp-pdv.md](docs/bd/modelo-erp-pdv.md), [docs/bd/pacote-sql/](docs/bd/pacote-sql/) |
 | Decisões | [docs/decisoes/](docs/decisoes/) (ERP/PDV, evolução D-EVO, matriz de acesso, autenticação, dinheiro, stack) |
-| Marca SBI v1.0 aplicada | [reports/marca/](reports/marca/) (capturas de todas as telas nos dois papéis) |
+| Identidade visual | Manual SBI v2.0 aplicado ([docs/arquitetura.md](docs/arquitetura.md), decisões D-MAR-01 a D-MAR-15); [reports/marca/](reports/marca/) guarda as capturas da marca v1.0, nos dois papéis anteriores ao perfil CEO |
 | Contrato | [config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json](config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json) e Swagger em `/swagger-ui/index.html` |
 | Rotas legadas (`/orders`, `/payment`, `/address`) | [docs/api-legada.md](docs/api-legada.md) |

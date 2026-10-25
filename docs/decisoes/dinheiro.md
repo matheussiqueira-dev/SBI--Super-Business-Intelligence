@@ -118,8 +118,8 @@ Execução local em 09/10/2026 (Windows, JDK 25 portátil, PostgreSQL 18 via `do
 
 CI do GitHub no commit `ce3f222` (inclui Hibernate `validate` sobre o esquema Flyway, contrato HTTP e E2E Playwright):
 
-- push: https://github.com/matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST/actions/runs/37960769072
-- pull request: https://github.com/matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST/actions/runs/37960815649
+- push: https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/actions/runs/37960769072
+- pull request: https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/actions/runs/37960815649
 
 Todos com massa sintética e bancos descartáveis; nenhum banco da loja foi migrado.
 

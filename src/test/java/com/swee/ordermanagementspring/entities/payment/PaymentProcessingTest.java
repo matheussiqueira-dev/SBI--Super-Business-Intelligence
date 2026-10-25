@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Caixa-branca: cada teste percorre um caminho do grafo de fluxo de processPayment()
- * (ver docs/qualidade/caixa-branca.md). Unitario, sem Spring nem banco.
+ * (ver docs/catalogo-casos.md, caso CT-WB-PIX-02). Unitario, sem Spring nem banco.
  */
 class PaymentProcessingTest {
 

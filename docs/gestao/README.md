@@ -4,18 +4,18 @@ Atualizado em 09/10/2026 por **Matheus Siqueira** (versão anterior: 04/10). Qua
 
 ## Situação em 09/10/2026
 
-- **Repositório oficial**: `matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST`, `main` em `3f10c37` (histórico reescrito em 08/10; quem clonou antes precisa clonar de novo). A branch `a3-contract-validation` é histórica e não recebe mais publicações.
+- **Repositório oficial**: `matheussiqueira-dev/SBI--Super-Business-Intelligence` (antes `Conformidade-de-Contrato-da-API-REST`), `main` em `3f10c37` (histórico reescrito em 08/10; quem clonou antes precisa clonar de novo). A branch `a3-contract-validation` é histórica e não recebe mais publicações.
 - **PRs abertos, todos com CI verde e sem revisão humana**: #5 FIX-01 (pagamentos), #6 card 19 (senhas fora do código + D021), #7 plano restante, #8 FIX-02 (status/exclusão), #9 DOM-02 (BigDecimal/NUMERIC). Ordem de merge obrigatória: **#5 → #8 → #9**, depois #6 e #7. A branch `fix/FIX-03-pagamento-dinheiro` (D017–D020) vira PR depois do #9.
 - **Defeitos**: D003, D004, D006, D012, D016 (FIX-01), D008, D010, D011 (FIX-02) e D017–D021 (achados na revisão dos PRs #6 e #9). Registro completo com os 13 campos do enunciado em `docs/defeitos.md` (card 16; rascunho em PR próprio).
 - **Prioridade definida em 09/10**: artefatos da rubrica (plano de qualidade, risco, catálogo, defeitos, inspeção, R1) antes da expansão do domínio. Detalhes, corte de escopo e cards novos em [plano restante, seção 9](plano-restante-2026-10-07.md#9-ajustes-da-avaliação-de-0910).
 
 ## O que já foi entregue até 04/10
 
-Matheus implementou correção do preço unitário do pedido, validação OpenAPI 3.1/2020-12, contrato de erros, runners isolados e CI, autenticação Spring com sessão/CSRF/perfis e interface Next de acesso. A primeira fatia de autoria do pedido também está em andamento. Evidência: [sessão](../execucao-sessao.md), [relatório e capturas](../../reports/execucoes/run-2026-10-04-sessao-nextjs.md), [CI da autoria aprovado](https://github.com/matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST/actions/runs/37198467104). Resultado atual: 15 Java + 23 contrato + 3 cliente + 12 HTTP + 2 E2E = 55 verificações; build Next aprovado. Essa soma não é catálogo acadêmico ou cobertura percentual.
+Matheus implementou correção do preço unitário do pedido, validação OpenAPI 3.1/2020-12, contrato de erros, runners isolados e CI, autenticação Spring com sessão/CSRF/perfis e interface Next de acesso. A primeira fatia de autoria do pedido também está em andamento. Evidência: [sessão](../execucao-sessao.md), [relatório e capturas](../../reports/execucoes/run-2026-10-04-sessao-nextjs.md), [CI da autoria aprovado](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/actions/runs/37198467104). Resultado atual: 15 Java + 23 contrato + 3 cliente + 12 HTTP + 2 E2E = 55 verificações; build Next aprovado. Essa soma não é catálogo acadêmico ou cobertura percentual.
 
 Em 04/10 a publicação era na branch `a3-contract-validation` (mesclada depois na `main` pelos PRs #1, #2 e #4). Revisão dos integrantes continua necessária. Dinheiro decimal, migração de banco real e acesso por vendedor, metas, estoque, pagamentos consistentes e quatro telas de negócio permanecem futuros.
 
-Fase seguinte iniciada: Matheus implementou V1/V2 Flyway para esquema vazio e vínculo de vendedor, documentou DER/dicionário e guia de adoção controlada. O [CI #22 aprovado](https://github.com/matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST/actions/runs/37200555926) executou 17 testes Java e inicializou a API com Hibernate `validate` sobre V1/V2 em PostgreSQL 18. Migração de banco real e conversão monetária permanecem pendentes; detalhes em [BD-02](cards/FwvkkAdG.md).
+Fase seguinte iniciada: Matheus implementou V1/V2 Flyway para esquema vazio e vínculo de vendedor, documentou DER/dicionário e guia de adoção controlada. O [CI #22 aprovado](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/actions/runs/37200555926) executou 17 testes Java e inicializou a API com Hibernate `validate` sobre V1/V2 em PostgreSQL 18. Migração de banco real e conversão monetária permanecem pendentes; detalhes em [BD-02](cards/FwvkkAdG.md).
 
 ## Como usar os registros
 
