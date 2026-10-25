@@ -8,4 +8,4 @@ Telas do frontend com o manual de marca v1.0 aplicado, geradas em 14/10/2026 e r
 - `vendedor-*.png`: as 5 telas do vendedor em 1280 × 800; `vendedor-vender-mobile.png` em 390 × 844.
 - `index.json`: rota, arquivos e resultado do axe (WCAG 2.2 AA) de cada captura; todas com 0 violação.
 
-Decisões: D-EVO-32 a D-EVO-37 e D-PUB-04 a D-PUB-07 em [docs/decisoes/evolucao.md](../../docs/decisoes/evolucao.md).
+Decisões: D-EVO-32 a D-EVO-37 e D-PUB-04 a D-PUB-07 em [docs/06-decisoes/evolucao.md](../../docs/06-decisoes/evolucao.md).

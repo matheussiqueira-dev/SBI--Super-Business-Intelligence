@@ -14,7 +14,7 @@ if (!MANAGER.email || !MANAGER.password || !SELLER.email || !SELLER.password) {
 
 /** CPF do cliente recorrente da massa Olist (CLI-001, 14 pedidos), lido do CSV versionado. */
 function recurringCpf(): string {
-  const csv = readFileSync(join(process.cwd(), '..', 'docs', 'bd', 'pacote-sql', 'olist', 'clientes.csv'), 'utf8');
+  const csv = readFileSync(join(process.cwd(), '..', 'docs', '03-banco-de-dados', 'pacote-sql', 'olist', 'clientes.csv'), 'utf8');
   const [header = '', ...rows] = csv.trim().split(/\r?\n/);
   const column = header.split(',').indexOf('cpf');
   const cpf = rows.find(line => line.startsWith('CLI-001,'))?.split(',')[column];

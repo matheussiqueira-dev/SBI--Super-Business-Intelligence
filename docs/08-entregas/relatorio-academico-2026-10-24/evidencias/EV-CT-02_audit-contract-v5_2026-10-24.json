@@ -1,0 +1,482 @@
+{
+  "scope": "structural-policy-audit-only",
+  "paths": 46,
+  "operations": [
+    {
+      "method": "POST",
+      "path": "/auth/login",
+      "operationId": "login",
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/auth/csrf",
+      "operationId": "getCsrf",
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/auth/logout",
+      "operationId": "logout",
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/auth/me",
+      "operationId": "getCurrentUser",
+      "roles": [
+        "GERENTE",
+        "VENDEDOR"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/auth/password",
+      "operationId": "changePassword",
+      "roles": [
+        "GERENTE",
+        "VENDEDOR"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/sales/catalog",
+      "operationId": "listSalesCatalog",
+      "roles": [
+        "GERENTE",
+        "VENDEDOR"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/sales/quote",
+      "operationId": "quoteSale",
+      "roles": [
+        "GERENTE",
+        "VENDEDOR"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/sales/orders",
+      "operationId": "createSaleOrder",
+      "roles": [
+        "GERENTE",
+        "VENDEDOR"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/sales/orders",
+      "operationId": "listSalesOrders",
+      "roles": [
+        "GERENTE",
+        "VENDEDOR"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/sales/orders/{id}",
+      "operationId": "getSalesOrder",
+      "roles": [
+        "GERENTE",
+        "VENDEDOR"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/sales/orders/{id}/payment",
+      "operationId": "confirmSalePayment",
+      "roles": [
+        "GERENTE",
+        "VENDEDOR"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/sales/orders/{id}/discount-approval",
+      "operationId": "approveOrderDiscount",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/orders/{id}/cancel",
+      "operationId": "cancelOrder",
+      "roles": [
+        "GERENTE",
+        "VENDEDOR"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/customers",
+      "operationId": "listCustomers",
+      "roles": [
+        "GERENTE",
+        "VENDEDOR"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/customers",
+      "operationId": "createCustomer",
+      "roles": [
+        "GERENTE",
+        "VENDEDOR"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/customers/{id}",
+      "operationId": "getCustomer",
+      "roles": [
+        "GERENTE",
+        "VENDEDOR"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/customers/{id}",
+      "operationId": "updateCustomer",
+      "roles": [
+        "GERENTE",
+        "VENDEDOR"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/customers/{id}",
+      "operationId": "deleteCustomer",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/customers/{id}/orders",
+      "operationId": "listCustomerOrders",
+      "roles": [
+        "GERENTE",
+        "VENDEDOR"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/customers/{id}/summary",
+      "operationId": "getCustomerSummary",
+      "roles": [
+        "GERENTE",
+        "VENDEDOR"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/performance/me",
+      "operationId": "getMyPerformance",
+      "roles": [
+        "GERENTE",
+        "VENDEDOR"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/goals/monthly",
+      "operationId": "getMonthlyGoals",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/goals/monthly",
+      "operationId": "saveMonthlyGoals",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/management/summary",
+      "operationId": "getManagementSummary",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/management/revenue",
+      "operationId": "getRevenueReport",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/payment/{id}/refund",
+      "operationId": "refundPayment",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/promotions/active",
+      "operationId": "listActivePromotions",
+      "roles": [
+        "GERENTE",
+        "VENDEDOR"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/promotions",
+      "operationId": "listPromotions",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/promotions",
+      "operationId": "createPromotion",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/promotions/{id}/close",
+      "operationId": "closePromotion",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/products",
+      "operationId": "listProducts",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/products",
+      "operationId": "createProduct",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/products/{id}",
+      "operationId": "getProduct",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/products/{id}",
+      "operationId": "updateProduct",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/products/{id}",
+      "operationId": "deleteProduct",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/products/{id}/price",
+      "operationId": "changeProductPrice",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/products/{id}/status",
+      "operationId": "changeProductStatus",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/products/{id}/price-history",
+      "operationId": "listPriceHistory",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/categories",
+      "operationId": "listCategories",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/categories",
+      "operationId": "createCategory",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/categories/{id}",
+      "operationId": "updateCategory",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/stock/products",
+      "operationId": "listStockProducts",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/stock/products/{id}/entries",
+      "operationId": "createStockEntry",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/stock/products/{id}/adjustments",
+      "operationId": "createStockAdjustment",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/stock/products/{id}/min-level",
+      "operationId": "changeMinLevel",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/stock/movements",
+      "operationId": "listStockMovements",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/analytics/sales",
+      "operationId": "getSalesAnalytics",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/analytics/stock",
+      "operationId": "getStockAnalytics",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/users",
+      "operationId": "listUsers",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/users",
+      "operationId": "createUser",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/users/{id}",
+      "operationId": "getUser",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/users/{id}",
+      "operationId": "updateUser",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/users/{id}/role",
+      "operationId": "changeUserRole",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/users/{id}/status",
+      "operationId": "changeUserStatus",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/users/{id}/unlock",
+      "operationId": "unlockUser",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/users/{id}/password-reset",
+      "operationId": "resetUserPassword",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/discount-policy",
+      "operationId": "listDiscountPolicies",
+      "roles": [
+        "GERENTE"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/discount-policy/{role}",
+      "operationId": "updateDiscountPolicy",
+      "roles": [
+        "GERENTE"
+      ]
+    }
+  ],
+  "errors": []
+}

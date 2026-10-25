@@ -1,0 +1,18 @@
+%%{init: {"flowchart": {"wrappingWidth": 190, "nodeSpacing": 22, "rankSpacing": 14}}}%%
+flowchart LR
+  V(["Vendedor"]):::actor
+  G(["Gerente"]):::actor
+  subgraph ATD["Atendimento (Vendedor e Gerente)"]
+    direction TB
+    UC01(["UC01 Autenticar-se"]) ~~~ UC02(["UC02 Trocar a própria senha"]) ~~~ UC03(["UC03 Registrar venda no PDV"]) ~~~ UC04(["UC04 Confirmar pagamento"]) ~~~ UC05(["UC05 Cancelar pedido pendente"])
+    UC06(["UC06 Cadastrar e consultar cliente"]) ~~~ UC07(["UC07 Consultar histórico e resumo do cliente"]) ~~~ UC08(["UC08 Consultar Meu desempenho"]) ~~~ UC09(["UC09 Aplicar desconto manual na alçada"])
+  end
+  subgraph GES["Gestão (somente Gerente)"]
+    direction TB
+    UC10(["UC10 Manter produtos, insumos e categorias"]) ~~~ UC11(["UC11 Alterar preço com motivo"]) ~~~ UC12(["UC12 Registrar entrada e ajuste de estoque"]) ~~~ UC13(["UC13 Liberar e encerrar promoção"]) ~~~ UC14(["UC14 Definir e distribuir metas mensais"]) ~~~ UC15(["UC15 Acompanhar faturamento e análises"])
+    UC16(["UC16 Registrar estorno"]) ~~~ UC17(["UC17 Administrar usuários"]) ~~~ UC18(["UC18 Definir alçadas de desconto"]) ~~~ UC19(["UC19 Aprovar desconto acima da alçada"]) ~~~ UC20(["UC20 Excluir cliente sem pedidos"])
+  end
+  V --- ATD
+  G -- "herda (GERENTE > VENDEDOR)" --- ATD
+  G --- GES
+  classDef actor fill:#ffffff,stroke:#333,stroke-width:1px

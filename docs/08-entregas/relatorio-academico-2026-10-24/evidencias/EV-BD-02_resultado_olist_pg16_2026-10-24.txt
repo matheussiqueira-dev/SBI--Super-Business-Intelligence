@@ -1,0 +1,58 @@
+ set_config 
+------------
+ 1
+(1 row)
+
+psql:07_carga_olist.sql:24: NOTICE:  table "itens_pedido" does not exist, skipping
+psql:07_carga_olist.sql:24: NOTICE:  table "pedidos" does not exist, skipping
+psql:07_carga_olist.sql:24: NOTICE:  table "produtos" does not exist, skipping
+psql:07_carga_olist.sql:24: NOTICE:  table "clientes" does not exist, skipping
+psql:07_carga_olist.sql:24: NOTICE:  table "categoria_pt" does not exist, skipping
+psql:07_carga_olist.sql:24: NOTICE:  table "categoria_apple" does not exist, skipping
+psql:07_carga_olist.sql:24: NOTICE:  table "categoria_antiga" does not exist, skipping
+psql:07_carga_olist.sql:233: NOTICE:  carga Olist: clientes=60 produtos=42 categorias=7 pedidos=219 itens=237 soma=449690.00
+ set_config 
+------------
+ 1
+(1 row)
+
+psql:07_carga_olist.sql:22: NOTICE:  schema "stg_olist" already exists, skipping
+psql:07_carga_olist.sql:24: NOTICE:  table "categoria_pt" does not exist, skipping
+psql:07_carga_olist.sql:233: NOTICE:  carga Olist: clientes=60 produtos=42 categorias=7 pedidos=219 itens=237 soma=449690.00
+NOTICE:  PASS CT-DEMO-06 roteiro 08: CRUD com as tres recusas esperadas (CHECK de CPF, tipo, FK de pedidos)
+psql:09_testes_olist.sql:19: NOTICE:  PASS CT-DEMO-01a 60 clientes (8 PJ), 42 produtos em 7 categorias, 219 pedidos e 237 itens
+ ok 
+----
+ 
+(1 row)
+
+psql:09_testes_olist.sql:23: NOTICE:  PASS CT-DEMO-01b faturamento bruto 449.690,00 e pagamentos aprovados com o mesmo total
+ ok 
+----
+ 
+(1 row)
+
+psql:09_testes_olist.sql:35: NOTICE:  PASS CT-DEMO-02 CLI-001 com 14 pedidos pagos, itens e resumo iguais ao CSV
+ ok 
+----
+ 
+(1 row)
+
+psql:09_testes_olist.sql:42: NOTICE:  PASS CT-DEMO-03 carga repetida sem duplicar SKU, cliente, pedido ou entrada de estoque
+ ok 
+----
+ 
+(1 row)
+
+psql:09_testes_olist.sql:49: NOTICE:  PASS CT-DEMO-04 saldo = entrada - vendido, nunca negativo, reservado 0
+ ok 
+----
+ 
+(1 row)
+
+psql:09_testes_olist.sql:59: NOTICE:  PASS CT-DEMO-07 produtos da massa nas 7 categorias Apple, com nome do CSV; nenhuma categoria do catalogo antigo
+ ok 
+----
+ 
+(1 row)
+

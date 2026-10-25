@@ -1,0 +1,180 @@
+{
+ "fonte": "Neon, projeto wispy-glade-88962628, branch padrao, banco neondb; consultas somente leitura em 2026-10-24 (~21:52-22:05 UTC, isto e, 18:52-19:05 no horario de Brasilia)",
+ "versao": "PostgreSQL 18.6",
+ "flyway_schema_history": [
+  [
+   "1",
+   "legacy schema",
+   "SQL",
+   "2026-10-15T11:45:44Z",
+   true
+  ],
+  [
+   "2",
+   "users and order authorship",
+   "SQL",
+   "2026-10-15T11:45:46Z",
+   true
+  ],
+  [
+   "3",
+   "rename client to customer",
+   "SQL",
+   "2026-10-15T11:45:47Z",
+   true
+  ],
+  [
+   "4",
+   "money numeric",
+   "SQL",
+   "2026-10-15T11:45:48Z",
+   true
+  ],
+  [
+   "5",
+   "catalogo estoque metas promocoes",
+   "SQL",
+   "2026-10-15T11:45:49Z",
+   true
+  ],
+  [
+   "6",
+   "views dashboards",
+   "SQL",
+   "2026-10-15T11:45:52Z",
+   true
+  ],
+  [
+   "6.1",
+   "DemoAccounts",
+   "JDBC",
+   "2026-10-15T11:45:53Z",
+   true
+  ],
+  [
+   "6.2",
+   "demo seed",
+   "SQL",
+   "2026-10-15T11:46:02Z",
+   true
+  ],
+  [
+   "7",
+   "mask card numbers",
+   "SQL",
+   "2026-10-15T11:46:02Z",
+   true
+  ],
+  [
+   "8",
+   "user admin and session version",
+   "SQL",
+   "2026-10-15T11:46:03Z",
+   true
+  ],
+  [
+   "9",
+   "customer summary view",
+   "SQL",
+   "2026-10-15T11:46:03Z",
+   true
+  ],
+  [
+   "10",
+   "alphanumeric cnpj",
+   "SQL",
+   "2026-10-15T11:46:03Z",
+   true
+  ],
+  [
+   "11",
+   "manual discount",
+   "SQL",
+   "2026-10-15T11:46:04Z",
+   true
+  ],
+  [
+   "11.1",
+   "demo promotion until december",
+   "SQL",
+   "2026-10-15T12:57:44Z",
+   true
+  ],
+  [
+   "11.2",
+   "demo costs",
+   "SQL",
+   "2026-10-15T17:00:42Z",
+   true
+  ]
+ ],
+ "objetos_schema_public": {
+  "tabelas_de_negocio": 19,
+  "views": 18,
+  "checks": 52,
+  "fks": 32,
+  "indices_incluindo_flyway": 50,
+  "gatilhos": 8,
+  "funcoes": 13,
+  "schema_staging": "stg_olist (6 tabelas)"
+ },
+ "contagens": {
+  "usuarios": 4,
+  "gerentes": 2,
+  "clientes": 67,
+  "produtos": 48,
+  "categorias": 7,
+  "pedidos": 291,
+  "itens": 337,
+  "pagamentos": 291,
+  "movimentos_estoque": 388,
+  "promocoes": 1,
+  "metas_mensais": 4,
+  "estornos": 0,
+  "eventos_auditoria": 55
+ },
+ "paridade_com_banco_local_migrado_pg16": {
+  "checks": "52 = 52",
+  "fks": "32 = 32",
+  "indices_sem_flyway": "48 = 48",
+  "gatilhos": "8 = 8",
+  "funcoes": "13 = 13",
+  "views": "18 = 18",
+  "tabelas": "19 = 19"
+ },
+ "indices_com_idx_scan_zero": [
+  "app_users_db_role_key",
+  "ux_app_users_email_lower",
+  "audit_event_pkey",
+  "ix_audit_event_occurred",
+  "ix_audit_event_entity",
+  "client_cnpj_key",
+  "client_cpf_key",
+  "ix_customer_name_prefix",
+  "flyway_schema_history_s_idx",
+  "ix_product_name_prefix",
+  "product_price_history_pkey",
+  "refund_pkey",
+  "role_rank_key",
+  "seller_goal_pkey",
+  "stock_entry_pkey",
+  "stock_movement_pkey"
+ ],
+ "ressalva": "pg_stat_user_indexes acumula desde o ultimo reinicio de estatisticas do compute; o Neon suspende o compute ocioso, portanto a contagem e uma amostra parcial.",
+ "contas_app_users_consulta_23h20_utc": {
+  "usuarios": 4,
+  "ativos": 4,
+  "troca_de_senha_pendente": 0,
+  "bloqueados": 0,
+  "gerentes": 2
+ },
+ "configuracao_do_projeto_consulta_23h20_utc": {
+  "allowed_ips": [],
+  "block_public_connections": false,
+  "history_retention_seconds": 21600,
+  "maintenance_window": "sabado 07:00-08:00 UTC",
+  "autoscaling_cu": "0.25-2",
+  "pg_version": 18,
+  "regiao": "aws-us-east-2"
+ }
+}

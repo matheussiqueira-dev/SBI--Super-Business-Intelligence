@@ -1,0 +1,16 @@
+flowchart TB
+  RQ["Requisitos RF-01..RF-26 · RNF-01..RNF-07"] --> CA["Critérios de aceitação<br/>CA-RR-NN (Dado/Quando/Então)"]
+  CA --> RK["Análise de risco<br/>probabilidade × impacto"]
+  RK --> CT["Casos de teste CT-*<br/>técnicas caixa-preta e caixa-branca"]
+  CT --> U["Unitário<br/>JUnit 5 · Mockito · node:test"]
+  CT --> I["Integração<br/>Spring Boot Test + PostgreSQL 18 descartável"]
+  CT --> BD["Banco<br/>pacote SQL por psql (run_bd.sh)"]
+  CT --> SY["Sistema / contrato<br/>OpenAPI 3.1 + Ajv (live-contract.mjs)"]
+  CT --> E2E["Aceitação / E2E<br/>Playwright + axe (WCAG 2.2 AA)"]
+  U & I & BD & SY & E2E --> CI{"GitHub Actions (ci.yml)<br/>test (backend) · bd · contract · frontend"}
+  CI -- "verde" --> MG["merge na main → deploy Render + Vercel"]
+  CI -- "falha" --> DF["registro de defeito<br/>(13 campos)"]
+  DF --> FX["correção + teste de regressão"]
+  FX --> CI
+  MG --> SM["smoke somente leitura do<br/>ambiente publicado (published-smoke.yml)"]
+  CI --> MT["métricas: JaCoCo, PMD, CPD, SpotBugs<br/>(quality-metrics.mjs → R0 × R1)"]

@@ -1,0 +1,355 @@
+
+> loja-gestao-web@0.1.0 test
+> node --test tests/*.test.ts
+
+TAP version 13
+# Subtest: operacao pendente concentra, pagamento confirmado sorri e depois volta ao descanso
+ok 1 - operacao pendente concentra, pagamento confirmado sorri e depois volta ao descanso
+  ---
+  duration_ms: 0.957563
+  type: 'test'
+  ...
+# Subtest: estoque insuficiente e desconto acima do limite surpreendem; falha e cancelamento nao celebram
+ok 2 - estoque insuficiente e desconto acima do limite surpreendem; falha e cancelamento nao celebram
+  ---
+  duration_ms: 0.189723
+  type: 'test'
+  ...
+# Subtest: concorrencia: sucesso nao esconde alerta; fim do aviso volta a operacao ainda pendente
+ok 3 - concorrencia: sucesso nao esconde alerta; fim do aviso volta a operacao ainda pendente
+  ---
+  duration_ms: 0.146017
+  type: 'test'
+  ...
+# Subtest: troca de sessao limpa pendencias; resposta antiga e finalizacao duplicada sao ignoradas
+ok 4 - troca de sessao limpa pendencias; resposta antiga e finalizacao duplicada sao ignoradas
+  ---
+  duration_ms: 0.12718
+  type: 'test'
+  ...
+# Subtest: assinatura deixa de receber eventos depois da limpeza
+ok 5 - assinatura deixa de receber eventos depois da limpeza
+  ---
+  duration_ms: 0.252508
+  type: 'test'
+  ...
+# Subtest: cada clique reinicia a resposta, inclusive cliques repetidos; depois ela expira
+ok 6 - cada clique reinicia a resposta, inclusive cliques repetidos; depois ela expira
+  ---
+  duration_ms: 0.224095
+  type: 'test'
+  ...
+# Subtest: clique confirma interacao sem esconder processamento, sucesso ou alerta
+ok 7 - clique confirma interacao sem esconder processamento, sucesso ou alerta
+  ---
+  duration_ms: 0.135588
+  type: 'test'
+  ...
+# Subtest: pausa global ignora cliques e sobrevive a troca de tela; retomar volta a reagir
+ok 8 - pausa global ignora cliques e sobrevive a troca de tela; retomar volta a reagir
+  ---
+  duration_ms: 0.097004
+  type: 'test'
+  ...
+# Subtest: [CT-WEB-122] nome acessivel unico da marca
+ok 9 - [CT-WEB-122] nome acessivel unico da marca
+  ---
+  duration_ms: 0.731148
+  type: 'test'
+  ...
+# Subtest: [CT-WEB-122] simbolo do componente tem a mesma geometria do favicon app/icon.svg
+ok 10 - [CT-WEB-122] simbolo do componente tem a mesma geometria do favicon app/icon.svg
+  ---
+  duration_ms: 1.107325
+  type: 'test'
+  ...
+# Subtest: variantes do logo: negativa sobre Tinta e principal sobre fundo claro
+ok 11 - variantes do logo: negativa sobre Tinta e principal sobre fundo claro
+  ---
+  duration_ms: 0.204812
+  type: 'test'
+  ...
+# Subtest: [CT-WEB-123] icones: os seis do manual e os derivados, decorativos por padrao
+ok 12 - [CT-WEB-123] icones: os seis do manual e os derivados, decorativos por padrao
+  ---
+  duration_ms: 0.314709
+  type: 'test'
+  ...
+# Subtest: menu em secoes GESTAO, ATENDIMENTO e MEU ESPACO; Trocar senha sempre presente
+ok 13 - menu em secoes GESTAO, ATENDIMENTO e MEU ESPACO; Trocar senha sempre presente
+  ---
+  duration_ms: 0.373101
+  type: 'test'
+  ...
+# Subtest: [CT-WEB-124] formatos do manual: hora 14h30, periodo, ausente e valor curto
+not ok 14 - [CT-WEB-124] formatos do manual: hora 14h30, periodo, ausente e valor curto
+  ---
+  duration_ms: 1.288062
+  type: 'test'
+  location: 'frontend/tests/brand.test.ts:52:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'R$ 47,0 mil'
+    - 'R$ 47 mil'
+            ^
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'R$ 47 mil'
+  actual: 'R$ 47,0 mil'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file://frontend/tests/brand.test.ts:61:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: [CT-WEB-125] nenhum nome proibido da marca na interface nem na documentacao
+ok 15 - [CT-WEB-125] nenhum nome proibido da marca na interface nem na documentacao
+  ---
+  duration_ms: 12.860063
+  type: 'test'
+  ...
+# Subtest: adiciona, soma e limita ao disponivel; promocao vigente vai pre-preenchida (C-08)
+ok 16 - adiciona, soma e limita ao disponivel; promocao vigente vai pre-preenchida (C-08)
+  ---
+  duration_ms: 2.135846
+  type: 'test'
+  ...
+# Subtest: produto sem disponivel nao entra e o carrinho para em 50 itens (C-14)
+ok 17 - produto sem disponivel nao entra e o carrinho para em 50 itens (C-14)
+  ---
+  duration_ms: 0.448258
+  type: 'test'
+  ...
+# Subtest: mesma chave enquanto o corpo nao muda; corpo novo gera chave nova (CT-WEB-104)
+ok 18 - mesma chave enquanto o corpo nao muda; corpo novo gera chave nova (CT-WEB-104)
+  ---
+  duration_ms: 0.23706
+  type: 'test'
+  ...
+# Subtest: 409 STOCK_INSUFFICIENT: detalhe vira disponivel e o carrinho e preservado com a quantidade ajustada
+ok 19 - 409 STOCK_INSUFFICIENT: detalhe vira disponivel e o carrinho e preservado com a quantidade ajustada
+  ---
+  duration_ms: 0.507411
+  type: 'test'
+  ...
+# Subtest: carrinho e chave ficam no sessionStorage por usuario e sobrevivem a JSON invalido
+ok 20 - carrinho e chave ficam no sessionStorage por usuario e sobrevivem a JSON invalido
+  ---
+  duration_ms: 0.802516
+  type: 'test'
+  ...
+# Subtest: desconto manual digitado volta com o carrinho depois de recarregar a pagina
+ok 21 - desconto manual digitado volta com o carrinho depois de recarregar a pagina
+  ---
+  duration_ms: 0.450785
+  type: 'test'
+  ...
+# Subtest: "há N dias" conta dias de calendario no horario da loja (America/Fortaleza)
+ok 22 - "há N dias" conta dias de calendario no horario da loja (America/Fortaleza)
+  ---
+  duration_ms: 0.999541
+  type: 'test'
+  ...
+# Subtest: documento repetido (409) traz o id do cliente ja cadastrado; outros erros nao
+ok 23 - documento repetido (409) traz o id do cliente ja cadastrado; outros erros nao
+  ---
+  duration_ms: 0.273532
+  type: 'test'
+  ...
+# Subtest: desconto manual so vai no corpo com percentual de 0,01 a 100 (2 casas) e motivo de 5 a 200 caracteres
+ok 24 - desconto manual so vai no corpo com percentual de 0,01 a 100 (2 casas) e motivo de 5 a 200 caracteres
+  ---
+  duration_ms: 2.030391
+  type: 'test'
+  ...
+# Subtest: mutacao busca CSRF uma vez, envia o cabecalho e usa cookies da mesma origem
+ok 25 - mutacao busca CSRF uma vez, envia o cabecalho e usa cookies da mesma origem
+  ---
+  duration_ms: 19.409925
+  type: 'test'
+  ...
+# Subtest: POST /sales/orders envia Idempotency-Key; GET nao envia CSRF
+ok 26 - POST /sales/orders envia Idempotency-Key; GET nao envia CSRF
+  ---
+  duration_ms: 0.764906
+  type: 'test'
+  ...
+# Subtest: 403 em mutacao renova o CSRF uma vez (token trocado no login)
+ok 27 - 403 em mutacao renova o CSRF uma vez (token trocado no login)
+  ---
+  duration_ms: 1.377049
+  type: 'test'
+  ...
+# Subtest: ErrorResponse.code vira mensagem em pt-BR sem codigo HTTP; details preservados
+ok 28 - ErrorResponse.code vira mensagem em pt-BR sem codigo HTTP; details preservados
+  ---
+  duration_ms: 0.962129
+  type: 'test'
+  ...
+# Subtest: 401 fora do login chama onUnauthorized; corpo do servidor nao vaza na mensagem
+ok 29 - 401 fora do login chama onUnauthorized; corpo do servidor nao vaza na mensagem
+  ---
+  duration_ms: 0.448463
+  type: 'test'
+  ...
+# Subtest: resposta fora do contrato falha em teste (safeParse)
+ok 30 - resposta fora do contrato falha em teste (safeParse)
+  ---
+  duration_ms: 2.370334
+  type: 'test'
+  ...
+# Subtest: falha de rede vira ApiError com mensagem de conexao
+ok 31 - falha de rede vira ApiError com mensagem de conexao
+  ---
+  duration_ms: 0.347261
+  type: 'test'
+  ...
+# Subtest: login: mesma mensagem generica no 401 e token renovado antes e depois
+ok 32 - login: mesma mensagem generica no 401 e token renovado antes e depois
+  ---
+  duration_ms: 0.688052
+  type: 'test'
+  ...
+# Subtest: 403 de regra de negocio (DISCOUNT_ABOVE_LIMIT) nao repete a mutacao e devolve os details
+ok 33 - 403 de regra de negocio (DISCOUNT_ABOVE_LIMIT) nao repete a mutacao e devolve os details
+  ---
+  duration_ms: 0.599399
+  type: 'test'
+  ...
+# Subtest: 502, 503 e 504 sem ErrorResponse dizem que o sistema esta iniciando, sem codigo HTTP
+ok 34 - 502, 503 e 504 sem ErrorResponse dizem que o sistema esta iniciando, sem codigo HTTP
+  ---
+  duration_ms: 0.851417
+  type: 'test'
+  ...
+# Subtest: miniatura pelo SKU, pelo nome (resumo do cliente) ou icone da linha
+ok 35 - miniatura pelo SKU, pelo nome (resumo do cliente) ou icone da linha
+  ---
+  duration_ms: 1.544957
+  type: 'test'
+  ...
+# Subtest: toda foto do manifesto existe em public/produtos e tem autor e licenca
+ok 36 - toda foto do manifesto existe em public/produtos e tem autor e licenca
+  ---
+  duration_ms: 2.796218
+  type: 'test'
+  ...
+# Subtest: menu vem das areas do servidor; vendedor nao ve Gestao (CT-WEB-103)
+ok 37 - menu vem das areas do servidor; vendedor nao ve Gestao (CT-WEB-103)
+  ---
+  duration_ms: 1.285594
+  type: 'test'
+  ...
+# Subtest: destino depois do login respeita ?next= interno e ignora destino externo
+ok 38 - destino depois do login respeita ?next= interno e ignora destino externo
+  ---
+  duration_ms: 0.147703
+  type: 'test'
+  ...
+# Subtest: CPF e CNPJ conferem digito verificador
+ok 39 - CPF e CNPJ conferem digito verificador
+  ---
+  duration_ms: 0.544342
+  type: 'test'
+  ...
+# Subtest: dinheiro e percentual em pt-BR; ausente vira travessao
+ok 40 - dinheiro e percentual em pt-BR; ausente vira travessao
+  ---
+  duration_ms: 0.318711
+  type: 'test'
+  ...
+# Subtest: mensagens por codigo, com fallback por status e sem codigo HTTP
+ok 41 - mensagens por codigo, com fallback por status e sem codigo HTTP
+  ---
+  duration_ms: 0.331989
+  type: 'test'
+  ...
+# Subtest: formulario de cliente validado pelo schema gerado do contrato
+ok 42 - formulario de cliente validado pelo schema gerado do contrato
+  ---
+  duration_ms: 4.083417
+  type: 'test'
+  ...
+# Subtest: valor digitado aceita virgula ou ponto decimal
+ok 43 - valor digitado aceita virgula ou ponto decimal
+  ---
+  duration_ms: 0.177786
+  type: 'test'
+  ...
+# Subtest: problemas do schema saem com o rotulo do campo, nunca com o nome tecnico do corpo
+ok 44 - problemas do schema saem com o rotulo do campo, nunca com o nome tecnico do corpo
+  ---
+  duration_ms: 0.611659
+  type: 'test'
+  ...
+# Subtest: os sete nomes solicitados apontam para imagens WebP locais nao vazias
+ok 45 - os sete nomes solicitados apontam para imagens WebP locais nao vazias
+  ---
+  duration_ms: 2.032206
+  type: 'test'
+  ...
+# Subtest: preserva as quatro contas demo com nomes abreviados e e-mails existentes
+ok 46 - preserva as quatro contas demo com nomes abreviados e e-mails existentes
+  ---
+  duration_ms: 0.221347
+  type: 'test'
+  ...
+# Subtest: normaliza caixa, espacos e acentos, mas nao associa nomes parciais ou desconhecidos
+ok 47 - normaliza caixa, espacos e acentos, mas nao associa nomes parciais ou desconhecidos
+  ---
+  duration_ms: 0.354189
+  type: 'test'
+  ...
+# Subtest: senha provisoria leva sempre para /conta/senha, mesmo com ?next=
+ok 48 - senha provisoria leva sempre para /conta/senha, mesmo com ?next=
+  ---
+  duration_ms: 1.197277
+  type: 'test'
+  ...
+# Subtest: Usuarios aparece no menu so com a area USUARIOS
+ok 49 - Usuarios aparece no menu so com a area USUARIOS
+  ---
+  duration_ms: 0.182141
+  type: 'test'
+  ...
+# Subtest: situacao: inativo, bloqueado ate HH:MM no horario da loja, ativo
+ok 50 - situacao: inativo, bloqueado ate HH:MM no horario da loja, ativo
+  ---
+  duration_ms: 0.239063
+  type: 'test'
+  ...
+# Subtest: linha do proprio usuario nao oferece papel, situacao nem redefinicao de senha (CT-USR-104)
+ok 51 - linha do proprio usuario nao oferece papel, situacao nem redefinicao de senha (CT-USR-104)
+  ---
+  duration_ms: 0.663411
+  type: 'test'
+  ...
+# Subtest: troca de senha: confere tamanho, bytes, e-mail, igualdade e confirmacao antes de enviar
+ok 52 - troca de senha: confere tamanho, bytes, e-mail, igualdade e confirmacao antes de enviar
+  ---
+  duration_ms: 0.438456
+  type: 'test'
+  ...
+# Subtest: todo ErrorCode do contrato tem mensagem em pt-BR
+ok 53 - todo ErrorCode do contrato tem mensagem em pt-BR
+  ---
+  duration_ms: 2.941163
+  type: 'test'
+  ...
+1..53
+# tests 53
+# suites 0
+# pass 52
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1263.898655

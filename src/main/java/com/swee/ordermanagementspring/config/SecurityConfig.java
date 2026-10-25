@@ -32,7 +32,7 @@ import java.util.List;
 
 /**
  * Sessao + CSRF (ARQ-01), hierarquia CEO > GERENTE > VENDEDOR nas regras de URL e de metodo, negacao por padrao.
- * As regras espelham src/test/resources/security/access-matrix.csv (docs/decisoes/matriz-acesso.md).
+ * As regras espelham src/test/resources/security/access-matrix.csv (docs/06-decisoes/matriz-acesso.md).
  */
 @Configuration
 @EnableWebSecurity

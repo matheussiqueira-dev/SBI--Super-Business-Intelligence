@@ -1,0 +1,38 @@
+sequenceDiagram
+  autonumber
+  actor V as Vendedor
+  participant W as Next.js (/vender)
+  participant S as API: SecurityFilterChain
+  participant P as SalesService
+  participant B as PostgreSQL
+  V->>W: seleciona cliente, itens, forma de pagamento
+  W->>S: POST /sales/quote (cookie de sessão + X-CSRF-TOKEN)
+  S->>P: quote(usuário da sessão, itens)
+  P->>B: preços, promoções vigentes, disponível (on_hand − reserved)
+  P-->>W: 200 subtotal, descontos e total calculados no servidor
+  V->>W: Finalizar
+  W->>S: POST /sales/orders + Idempotency-Key
+  S->>P: create(usuário, chave, hash SHA-256 do corpo)
+  alt chave já usada pelo mesmo vendedor e mesmo corpo
+    P-->>W: 200 pedido existente (sem nova reserva)
+  else chave usada com corpo diferente
+    P-->>W: 409 IDEMPOTENCY_CONFLICT
+  else primeira requisição
+    P->>B: INSERT orders (seller_id = sessão, UNIQUE seller_id + client_request_id)
+    loop itens em ordem crescente de product_id
+      P->>B: UPDATE stock_balance SET reserved = reserved + q WHERE on_hand − reserved ≥ q
+      alt nenhuma linha atualizada
+        P-->>W: 409 STOCK_INSUFFICIENT (rollback de toda a transação)
+      end
+      P->>B: INSERT stock_movement (RESERVA)
+    end
+    P->>B: INSERT payment (PENDING)
+    P-->>W: 201 pedido PENDING_PAYMENT
+  end
+  V->>W: confirma pagamento (Pix, cartão ou boleto)
+  W->>S: POST /sales/orders/{id}/payment
+  S->>P: confirmPayment
+  P->>B: SELECT ... FOR UPDATE (pedido)
+  P->>B: baixa on_hand e reserved, grava unit_cost = avg_cost, INSERT stock_movement (SAIDA)
+  P->>B: payment APPROVED, orders PAID
+  P-->>W: 200 PAID (repetição não altera o estado)
