@@ -8,16 +8,24 @@ import {
   GetCustomerResponse, GetCustomerSummaryResponse, ListCustomerOrdersResponse, UpdateCustomerBody, UpdateCustomerResponse,
 } from '../../../../lib/api/generated/sbi.zod.ts';
 import { ApiError, api } from '../../../../lib/api/http.ts';
-import { daysSince, formatDate, formatDateTime, label, MISSING, money, ORDER_STATUS, PAYMENT_TYPE, statusPill } from '../../../../lib/format.ts';
+import { daysSince, formatDate, formatDateTime, formatDay, label, MISSING, money, ORDER_STATUS, PAYMENT_TYPE, plural, statusPill } from '../../../../lib/format.ts';
 import { contractResolver, optional } from '../../../../lib/forms.ts';
 import { ErrorNotice, Loading, errorMessage } from '../../../../components/feedback.tsx';
 import { Field } from '../../../../components/customer-form.tsx';
+import { StackedBar } from '../../../../components/charts.tsx';
+import { Kpi, MoneyValue } from '../../../../components/kpi.tsx';
+import { Icon } from '../../../../components/brand/icons.tsx';
+import EmptyState from '../../../../components/empty-state.tsx';
+import PageHeader from '../../../../components/page-header.tsx';
 import Pager from '../../../../components/pager.tsx';
 import Tabs from '../../../../components/tabs.tsx';
 import ProductThumb from '../../../../components/product-thumb.tsx';
 import { StatusMessage, useStatusMessage } from '../../../../components/status-message.tsx';
+import TableWrap from '../../../../components/table-wrap.tsx';
 
 type Customer = z.infer<typeof GetCustomerResponse>;
+const PAYMENT_COLORS: Readonly<Record<string, string>> = { PIX: 'var(--sbi-data-1)', CARD: 'var(--sbi-data-2)', BOLETO: 'var(--sbi-data-3)' };
+const PAYMENT_ORDER = ['PIX', 'CARD', 'BOLETO'];
 type Summary = z.infer<typeof GetCustomerSummaryResponse>;
 
 interface EditValues { name: string; companyName: string; email: string; phone: string; birthDate: string;
@@ -66,19 +74,24 @@ export default function CustomerProfile({ customerId, manager }: { customerId: n
   });
 
   if (customerId === null || (query.error instanceof ApiError && query.error.status === 404)) {
-    return <section className="card stack-sm"><h1>Cliente não encontrado</h1><p><Link href="/clientes">Voltar para clientes</Link></p></section>;
+    return <PageHeader section={<Link href="/clientes">Clientes</Link>} title="Cliente não encontrado"
+      description="O cadastro não existe ou foi removido." actions={<Link className="btn" href="/clientes">Voltar para clientes</Link>} />;
   }
   if (query.isLoading) return <Loading label="Carregando cliente…" />;
   if (query.error || !query.data) return <ErrorNotice error={query.error} />;
   const customer = query.data;
 
   const orders = (
-    <section className="card stack-sm" aria-labelledby="historico-titulo">
-      <h2 id="historico-titulo">Histórico de pedidos</h2>
+    <section className="card stack-md" aria-labelledby="historico-titulo">
+      <div>
+        <h2 id="historico-titulo">Histórico de pedidos</h2>
+        <p className="card-sub">Do mais recente ao mais antigo; total e vendedor só nos seus pedidos ou para o perfil Gerente</p>
+      </div>
       <ErrorNotice error={history.error} />
       {history.isLoading ? <Loading label="Carregando histórico…" /> : history.data && history.data.content.length === 0
-        ? <p className="empty">Este cliente ainda não tem pedidos.</p>
-        : history.data && <div className="table-wrap"><table>
+        ? <EmptyState icon="vendas" title="Este cliente ainda não tem pedidos"
+                      action={<Link className="btn btn-primary" href={`/vender?cliente=${customerId}`}>Nova venda para este cliente</Link>} />
+        : history.data && <TableWrap label="Pedidos do cliente, do mais recente ao mais antigo"><table>
             <caption className="sr-only">Pedidos do cliente, do mais recente ao mais antigo</caption>
             <thead><tr><th scope="col">Pedido</th><th scope="col">Data</th><th scope="col">Itens</th><th scope="col">Situação</th>
               <th scope="col">Vendedor</th><th scope="col" className="right">Total</th></tr></thead>
@@ -87,7 +100,7 @@ export default function CustomerProfile({ customerId, manager }: { customerId: n
               const visible = manager || order.own;
               return (
                 <tr key={order.id}>
-                  <td>{visible ? <Link className="mono" href={`/vendas/${order.id}`}>#{order.id}</Link> : <span className="mono">#{order.id}</span>}</td>
+                  <td>{visible ? <Link className="id" href={`/vendas/${order.id}`}>#{order.id}</Link> : <span className="id">#{order.id}</span>}</td>
                   <td className="num">{formatDateTime(order.moment)}</td>
                   <td>{order.items.map(item => `${item.quantity}× ${item.name}`).join(', ')}</td>
                   <td><span className={statusPill(order.status)}>{label(ORDER_STATUS, order.status)}</span></td>
@@ -96,16 +109,16 @@ export default function CustomerProfile({ customerId, manager }: { customerId: n
                 </tr>
               );
             })}</tbody>
-          </table></div>}
-      {history.data && <Pager page={history.data.page} size={history.data.size} total={history.data.totalElements} onPage={setPage} />}
+          </table></TableWrap>}
+      {history.data && <Pager page={history.data.page} size={history.data.size} total={history.data.totalElements} onPage={setPage} noun="pedidos" />}
     </section>
   );
 
   const details = (
-    <section className="card stack" aria-labelledby="dados-titulo">
-      <div className="page-head">
+    <section className="card stack-md" aria-labelledby="dados-titulo">
+      <div className="card-head">
         <h2 id="dados-titulo">Dados cadastrais</h2>
-        {!editing && <button type="button" className="btn" onClick={() => { message.clear(); setEditing(true); }}>Editar dados</button>}
+        {!editing && <button type="button" className="btn btn-sm" onClick={() => { message.clear(); setEditing(true); }}>Editar dados</button>}
       </div>
       <StatusMessage message={message.message} onClose={message.clear} />
       {editing
@@ -133,15 +146,10 @@ export default function CustomerProfile({ customerId, manager }: { customerId: n
 
   return (
     <div className="stack">
-      <header className="page-head">
-        <div className="stack-sm">
-          <p><Link href="/clientes">Clientes</Link> / {customer.name}</p>
-          <h1>{customer.name}</h1>
-          <p><span className="pill">{customer.type === 'CORPORATE' ? 'PJ' : 'PF'}</span> <span className="mono">{customer.document}</span>
-            {customer.phone && <> · {customer.phone}</>} · <span className="muted">cliente desde {formatDate(customer.createdAt.slice(0, 10))}</span></p>
-        </div>
-        <Link className="btn btn-primary" href={`/vender?cliente=${customer.id}`}>Nova venda para este cliente</Link>
-      </header>
+      <PageHeader section={<><Link href="/clientes">Clientes</Link> / {customer.name}</>} title={customer.name}
+        description={<><span className="pill">{customer.type === 'CORPORATE' ? 'PJ' : 'PF'}</span> <span className="id">{customer.document}</span>
+          {customer.phone && <> · {customer.phone}</>} · cliente desde {formatDay(customer.createdAt)}</>}
+        actions={<Link className="btn btn-primary" href={`/vender?cliente=${customer.id}`}><Icon name="vender" />Nova venda para este cliente</Link>} />
 
       <SummaryStrip summary={summary.data} error={summary.error} loading={summary.isLoading} />
 
@@ -164,16 +172,13 @@ function SummaryStrip({ summary, error, loading }: { summary: Summary | undefine
       <h2 id="indicadores-titulo" className="sr-only">Indicadores do cliente</h2>
       {own && <p className="muted">Suas vendas para este cliente</p>}
       <div className="kpis">
-        <div className="card kpi"><span className="label">{own ? 'Total das suas vendas' : 'Total comprado'}</span>
-          <span className="value">{money(summary.totalSpent)}</span>
-          <span className="note">{summary.refundsTotal && summary.refundsTotal.amount > 0 ? `Já descontados ${money(summary.refundsTotal)} em estornos` : 'Pagamentos confirmados menos estornos'}</span></div>
-        <div className="card kpi"><span className="label">Ticket médio</span><span className="value">{money(summary.averageTicket)}</span>
-          <span className="note">{own ? 'Nos seus pedidos pagos' : 'Por pedido pago'}</span></div>
-        <div className="card kpi"><span className="label">Pedidos pagos</span><span className="value">{summary.ordersPaid}</span>
-          <span className="note">{summary.pendingOrders} aguardando pagamento · {summary.canceledOrders} cancelados</span></div>
-        <div className="card kpi"><span className="label">Última compra</span>
-          <span className="value">{summary.lastPurchaseAt ? daysSince(summary.lastPurchaseAt) : '—'}</span>
-          <span className="note">{summary.lastPurchaseAt ? formatDateTime(summary.lastPurchaseAt) : 'Nenhuma compra paga ainda'}</span></div>
+        <Kpi label={own ? 'Total das suas vendas' : 'Total comprado'} value={<MoneyValue value={summary.totalSpent} />}
+             note={summary.refundsTotal && summary.refundsTotal.amount > 0 ? `Já descontados ${money(summary.refundsTotal)} em estornos` : 'Pagamentos confirmados menos estornos'} />
+        <Kpi label="Ticket médio" value={<MoneyValue value={summary.averageTicket} />} note={own ? 'Nos seus pedidos pagos' : 'Por pedido pago'} />
+        <Kpi label="Pedidos pagos" value={<span className="value">{summary.ordersPaid}</span>}
+             note={`${summary.pendingOrders} aguardando pagamento · ${summary.canceledOrders} cancelados`} />
+        <Kpi label="Última compra" value={<span className={summary.lastPurchaseAt ? 'value' : 'value text'}>{summary.lastPurchaseAt ? daysSince(summary.lastPurchaseAt) : 'Nenhuma'}</span>}
+             note={summary.lastPurchaseAt ? formatDateTime(summary.lastPurchaseAt) : 'Nenhuma compra paga ainda'} />
       </div>
     </section>
   );
@@ -183,20 +188,22 @@ function TopProducts({ summary }: { summary: Summary | undefined }) {
   if (!summary) return <Loading label="Carregando produtos…" />;
   return (
     <div className="grid-2">
-      <section className="card stack-sm" aria-labelledby="produtos-titulo">
+      <section className="card stack-md" aria-labelledby="produtos-titulo">
         <h2 id="produtos-titulo">Produtos mais comprados</h2>
         {summary.topProducts.length === 0 ? <p className="empty">Nenhuma compra paga ainda.</p>
           : <ol className="rank">{summary.topProducts.map(product => (
               <li key={product.productId}><span className="product-cell"><ProductThumb name={product.name} size={32} />
-                <span>{product.name} <span className="muted">· {product.quantity} {product.quantity === 1 ? 'unidade' : 'unidades'}</span></span></span></li>
+                <span>{product.name}<span className="cell-sub num">{plural(product.quantity, 'unidade')}</span></span></span></li>
             ))}</ol>}
       </section>
-      <section className="card stack-sm" aria-labelledby="formas-titulo">
-        <h2 id="formas-titulo">{summary.scope === 'OWN' ? 'Formas de pagamento nas suas vendas' : 'Formas de pagamento'}</h2>
-        {summary.paymentMix.length === 0 ? <p className="empty">Nenhum pagamento confirmado.</p>
-          : <dl className="facts">{summary.paymentMix.map(mix => (
-              <div key={mix.method}><dt>{label(PAYMENT_TYPE, mix.method)}</dt><dd className="num">{money(mix.amount)} · {mix.orders} {mix.orders === 1 ? 'pedido' : 'pedidos'}</dd></div>
-            ))}</dl>}
+      <section className="card stack-md" aria-labelledby="formas-titulo">
+        <div>
+          <h2 id="formas-titulo">{summary.scope === 'OWN' ? 'Formas de pagamento nas suas vendas' : 'Formas de pagamento'}</h2>
+          <p className="card-sub">Participação nos pagamentos confirmados</p>
+        </div>
+        <StackedBar label="Participação de cada forma de pagamento" colors={PAYMENT_COLORS}
+                    items={[...summary.paymentMix].sort((a, b) => PAYMENT_ORDER.indexOf(a.method) - PAYMENT_ORDER.indexOf(b.method))
+                      .map(mix => ({ key: mix.method, label: label(PAYMENT_TYPE, mix.method), value: mix.amount.amount, orders: mix.orders }))} />
       </section>
     </div>
   );

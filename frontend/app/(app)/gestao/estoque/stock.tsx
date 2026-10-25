@@ -13,9 +13,12 @@ import { formatDateTime, money, parseDecimal } from '../../../../lib/format.ts';
 import { ErrorNotice, Loading, errorMessage } from '../../../../components/feedback.tsx';
 import { Field } from '../../../../components/customer-form.tsx';
 import Drawer from '../../../../components/drawer.tsx';
+import EmptyState from '../../../../components/empty-state.tsx';
+import PageHeader from '../../../../components/page-header.tsx';
 import Pager from '../../../../components/pager.tsx';
 import ProductThumb from '../../../../components/product-thumb.tsx';
 import { StatusMessage, useStatusMessage } from '../../../../components/status-message.tsx';
+import TableWrap from '../../../../components/table-wrap.tsx';
 
 type StockProduct = z.infer<typeof ListStockProductsResponse>['content'][number];
 type Panel = { kind: 'entry' | 'adjust' | 'min'; product: StockProduct } | null;
@@ -60,49 +63,49 @@ export default function Stock({ initialBelowMin = false }: { initialBelowMin?: b
 
   return (
     <div className="stack">
-      <header className="page-head">
-        <div className="stack-sm">
-          <p className="muted">Gestão / Estoque</p>
-          <h1>Estoque {below.data && <span className="pill pill-warn">{below.data.totalElements} abaixo do mínimo</span>}</h1>
-        </div>
-      </header>
+      <PageHeader section="Gestão" title="Estoque"
+        badge={below.data && below.data.totalElements > 0 ? <span className="pill pill-warn">{below.data.totalElements} abaixo do mínimo</span> : undefined}
+        description="Disponível = saldo físico − reservado em pedidos aguardando pagamento. Custo médio visível só para o perfil Gerente." />
       <StatusMessage message={status.message} onClose={status.clear} />
-      <section className="card stack" aria-labelledby="posicao-titulo">
-        <div className="toolbar">
+      <section className="card stack-md" aria-labelledby="posicao-titulo">
+        <div>
           <h2 id="posicao-titulo">Posição</h2>
-          <div className="actions">
-            <div className="field"><label htmlFor="busca-estoque">Nome ou SKU</label>
-              <input id="busca-estoque" className="input" type="search" value={q} onChange={event => { setQ(event.target.value); setPage(0); }} /></div>
-            <label className="btn"><input type="checkbox" checked={belowMin} onChange={event => { setBelowMin(event.target.checked); setPage(0); }} /> Só abaixo do mínimo</label>
-          </div>
+          <p className="card-sub">Saldo, reservado e disponível por produto; entrada e ajuste ficam registrados no extrato</p>
+        </div>
+        <div className="toolbar">
+          <div className="field"><label htmlFor="busca-estoque">Nome ou SKU</label>
+            <input id="busca-estoque" className="input" type="search" value={q} onChange={event => { setQ(event.target.value); setPage(0); }} /></div>
+          <label className="check"><input type="checkbox" checked={belowMin} onChange={event => { setBelowMin(event.target.checked); setPage(0); }} />Só abaixo do mínimo</label>
         </div>
         <ErrorNotice error={position.error} />
         {position.isLoading ? <Loading label="Carregando estoque…" /> : data && data.content.length === 0
-          ? <p className="empty">Nenhum produto encontrado.</p>
-          : data && <div className="table-wrap"><table>
+          ? <EmptyState icon="estoque" title={belowMin ? 'Nenhum produto abaixo do mínimo' : 'Nenhum produto encontrado'}>
+              {belowMin ? 'Todos os produtos estão com o disponível acima do estoque mínimo.' : 'Confira o nome ou o SKU digitado.'}
+            </EmptyState>
+          : data && <TableWrap label="Posição de estoque"><table>
               <caption className="sr-only">Posição de estoque</caption>
               <thead><tr><th scope="col">Produto</th><th scope="col" className="right">Saldo</th><th scope="col" className="right">Reservado</th>
                 <th scope="col" className="right">Disponível</th><th scope="col" className="right">Mínimo</th><th scope="col" className="right">Custo médio</th>
                 <th scope="col"><span className="sr-only">Ações</span></th></tr></thead>
               <tbody>{data.content.map(p => (
-                <tr key={p.productId}>
+                <tr key={p.productId} className={p.belowMin ? 'is-alert' : undefined}>
                   <td><div className="product-cell"><ProductThumb sku={p.sku} name={p.name} />
-                    <span>{p.name}<br /><span className="mono muted">{p.sku}</span>{!p.sellable && <> · <span className="pill">Insumo</span></>}
-                      {!p.active && <> · <span className="pill">Inativo</span></>}</span></div></td>
+                    <span>{p.name}<span className="cell-sub"><span className="id">{p.sku}</span>{!p.sellable && <> · Insumo</>}{!p.active && <> · Inativo</>}</span>
+                      {p.belowMin && <span className="pill pill-warn">Abaixo do mínimo</span>}</span></div></td>
                   <td className="num right">{p.onHand}</td>
                   <td className="num right">{p.reserved}</td>
-                  <td className="num right">{p.belowMin ? <span className="pill pill-warn">{p.available}</span> : p.available}</td>
+                  <td className="num right"><strong>{p.available}</strong></td>
                   <td className="num right">{p.minLevel}</td>
                   <td className="num right">{p.avgCost ? money(p.avgCost) : 'Não informado'}</td>
                   <td><div className="actions">
-                    <button type="button" className="btn" onClick={() => setPanel({ kind: 'entry', product: p })}>Entrada</button>
-                    <button type="button" className="btn" onClick={() => setPanel({ kind: 'adjust', product: p })}>Ajuste</button>
-                    <button type="button" className="btn btn-ghost" onClick={() => setPanel({ kind: 'min', product: p })}>Mínimo</button>
+                    <button type="button" className="btn btn-sm" onClick={() => setPanel({ kind: 'entry', product: p })}>Entrada</button>
+                    <button type="button" className="btn btn-sm" onClick={() => setPanel({ kind: 'adjust', product: p })}>Ajuste</button>
+                    <button type="button" className="btn btn-sm btn-ghost" onClick={() => setPanel({ kind: 'min', product: p })}>Mínimo</button>
                   </div></td>
                 </tr>
               ))}</tbody>
-            </table></div>}
-        {data && <Pager page={data.page} size={data.size} total={data.totalElements} onPage={setPage} />}
+            </table></TableWrap>}
+        {data && <Pager page={data.page} size={data.size} total={data.totalElements} onPage={setPage} noun="produtos" />}
       </section>
       <Movements />
       <Drawer open={panel !== null} onClose={() => setPanel(null)}
@@ -200,8 +203,11 @@ function Movements() {
   const set = (key: keyof typeof filters) => (value: string) => { setFilters(current => ({ ...current, [key]: value })); setPage(0); };
   const data = query.data;
   return (
-    <section className="card stack" aria-labelledby="extrato-titulo">
-      <h2 id="extrato-titulo">Extrato de movimentos</h2>
+    <section className="card stack-md" aria-labelledby="extrato-titulo">
+      <div>
+        <h2 id="extrato-titulo">Extrato de movimentos</h2>
+        <p className="card-sub">Cada entrada, reserva, saída e ajuste, com quem registrou</p>
+      </div>
       <div className="form-grid">
         <Field id="mov-tipo" label="Tipo"><select id="mov-tipo" className="select" value={filters.kind} onChange={event => set('kind')(event.target.value)}>
           <option value="">Todos</option>{Object.entries(KINDS).map(([value, text]) => <option key={value} value={value}>{text}</option>)}</select></Field>
@@ -211,18 +217,18 @@ function Movements() {
       <ErrorNotice error={query.error} />
       {query.isLoading ? <Loading label="Carregando movimentos…" /> : data && data.content.length === 0
         ? <p className="empty">Nenhum movimento no filtro escolhido.</p>
-        : data && <div className="table-wrap"><table>
+        : data && <TableWrap label="Movimentos de estoque"><table>
             <caption className="sr-only">Movimentos de estoque</caption>
             <thead><tr><th scope="col">Quando</th><th scope="col">Produto</th><th scope="col">Tipo</th><th scope="col" className="right">Qtd.</th>
               <th scope="col">Motivo</th><th scope="col">Por</th></tr></thead>
             <tbody>{data.content.map(m => (
               <tr key={m.id}><td className="num">{formatDateTime(m.createdAt)}</td><td>{m.product.name}</td><td>{KINDS[m.kind] ?? m.kind}
-                {m.orderId ? <span className="muted mono"> #{m.orderId}</span> : null}</td><td className="num right">{m.quantity}</td>
+                {m.orderId ? <span className="id subtle"> #{m.orderId}</span> : null}</td><td className="num right">{m.quantity}</td>
                 <td>{m.reason ? REASONS[m.reason] ?? m.reason : '—'}{m.note ? <span className="muted"> · {m.note}</span> : null}</td>
                 <td>{m.createdBy?.name ?? '—'}</td></tr>
             ))}</tbody>
-          </table></div>}
-      {data && <Pager page={data.page} size={data.size} total={data.totalElements} onPage={setPage} />}
+          </table></TableWrap>}
+      {data && <Pager page={data.page} size={data.size} total={data.totalElements} onPage={setPage} noun="movimentos" />}
     </section>
   );
 }

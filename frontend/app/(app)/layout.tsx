@@ -7,6 +7,7 @@ import { currentUser } from '../../lib/server/session.ts';
 import NavLinks from '../../components/nav-links.tsx';
 import LogoutButton from '../../components/logout-button.tsx';
 import Sidebar from '../../components/sidebar.tsx';
+import ThemeSwitch from '../../components/theme-switch.tsx';
 
 /** Shell das areas internas: menu montado a partir de UserSession.areas, so com telas existentes. */
 export default async function AppLayout({ children }: { children: ReactNode }) {
@@ -23,12 +24,23 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         <NavLinks groups={menuGroups(menu)} />
         <div className="account-box">
           <span className={`avatar ${manager ? 'avatar-gerente' : 'avatar-vendedor'}`} aria-hidden="true">{initials(user.name)}</span>
-          <span><strong>{user.name}</strong><br /><span className="muted">{manager ? 'Gerente' : 'Vendedor'}</span></span>
-          <div className="account-actions"><LogoutButton /></div>
+          <span><span className="account-name">{user.name}</span><span className="account-role">{manager ? 'Gerente' : 'Vendedor'}</span></span>
+          <LogoutButton compact />
         </div>
-        <p className="sidebar-credits"><Link href="/creditos">Créditos das imagens</Link></p>
+        <div className="account-tools">
+          <span className="caption">Tema</span>
+          <ThemeSwitch />
+        </div>
       </Sidebar>
-      <main id="conteudo" className="main" tabIndex={-1}>{children}</main>
+      <main id="conteudo" className="main" tabIndex={-1}>
+        <div className="content">
+          {children}
+          <footer className="app-footer">
+            <p>Dados de demonstração · valores fictícios · Projeto A3 · UNIFG 2026</p>
+            <p><Link href="/creditos">Créditos das imagens</Link></p>
+          </footer>
+        </div>
+      </main>
     </div>
   );
 }

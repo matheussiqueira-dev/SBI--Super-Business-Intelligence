@@ -63,7 +63,7 @@ export default function LoginForm() {
                minLength={8} maxLength={72} disabled={busy} />
         <ShowPassword checked={visible} onChange={setVisible} disabled={busy} />
       </div>
-      <button type="submit" className="btn btn-primary btn-block" disabled={busy}>{busy ? 'Entrando…' : 'Entrar'}</button>
+      <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={busy}>{busy ? 'Entrando…' : 'Entrar'}</button>
       <div role="status" className="status-slot">{slow && <p className="notice notice-warn">{SLOW_START_HINT}</p>}</div>
       <p className="muted login-help">{LOCKOUT_HINT} Precisa de acesso? Fale com o gerente da loja.</p>
     </form>
