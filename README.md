@@ -96,7 +96,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\test.ps1 -Mode Integ
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\test-contract.ps1 -HttpOnly -Frontend  # contrato ao vivo + E2E e axe
 npm test; node scripts\audit-contract.mjs config\openapi\target-loja-gestao-openapi-2026-10-24-v6.json  # auditoria estática do contrato v6
 cd frontend; npm run typecheck; npm run api:check; npm test; npm run build
-node scripts\quality-metrics.mjs reports\metricas\r1 "R1"                                  # métricas a partir de target/
+node scripts\quality-metrics.mjs                                                           # métricas de target/ em reports\metricas\ultima (fora do Git)
 ```
 
 A CI (`.github/workflows/ci.yml`) roda quatro jobs de teste, cada um com seus relatórios como artefato, e, nos pull requests, o job `hygiene`, que barra rodapé de coautoria, crédito a ferramenta e endereço antigo do site nas mensagens de commit e nos arquivos versionados:

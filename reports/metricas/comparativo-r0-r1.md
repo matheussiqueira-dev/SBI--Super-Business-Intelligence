@@ -19,4 +19,4 @@ R0 (`r0-baseline/`) foi gerado em 06/10/2026, antes dos novos testes e correçõ
 
 - O PMD e o SpotBugs rodam sem quebrar o build (`failOnViolation=false`, `failOnError=false`), como no R0.
 - Nenhuma meta foi fixada. Uma proposta de meta (por exemplo, branches ≥ 80% ou SpotBugs sem achado fora de `EI_EXPOSE_REP*`) precisa ser decidida pela equipe em `docs/decisoes/`.
-- Os relatórios brutos de cada rodada estão nas pastas `r0-baseline/` e `r1/`: `jacoco/`, `pmd.xml`, `cpd.xml`, `spotbugsXml.xml`, `surefire-reports/`, `metrics.json` e `resumo.md`.
+- Cada rodada guarda `metrics.json` e `resumo.md` na sua pasta (`r0-baseline/` e `r1/`). Os relatórios brutos (`jacoco/`, `surefire-reports/`, `pmd.xml`, `cpd.xml` e `spotbugsXml.xml`) não são versionados: saem em `target/` a cada `mvnw -Pintegration verify` e ficam no artefato `backend-reports` da CI. Os de R0 e R1 continuam no histórico do Git, por exemplo no commit `af1f10f` (`git show af1f10f:reports/metricas/r1/pmd.xml`).
