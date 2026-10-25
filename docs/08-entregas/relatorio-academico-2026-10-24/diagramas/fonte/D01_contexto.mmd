@@ -1,0 +1,19 @@
+flowchart LR
+  G(["Gerente<br/>(papel GERENTE)"])
+  V(["Vendedor<br/>(papel VENDEDOR)"])
+  A(["Avaliador acadêmico<br/>(contas de demonstração)"])
+  subgraph SBI["SBI — Super Business Intelligence"]
+    direction TB
+    WEB["Interface web<br/>Next.js 16"]
+    API["API REST<br/>Spring Boot 4.1"]
+    DB[("PostgreSQL 18")]
+    WEB -- "HTTPS /api/backend/*" --> API
+    API -- "JDBC" --> DB
+  end
+  GH["GitHub<br/>repositório e Actions (CI)"]
+  OL["Conjunto público Olist<br/>(CC BY-NC-SA 4.0)"]
+  G -- "gestão, backoffice, usuários,<br/>metas, análises e PDV" --> WEB
+  V -- "PDV, clientes,<br/>vendas próprias e desempenho" --> WEB
+  A -- "inspeção autorizada" --> WEB
+  GH -- "deploy automático<br/>a cada push na main" --> SBI
+  OL -- "carga SQL<br/>(07_carga_olist.sql)" --> DB

@@ -1,0 +1,34 @@
+flowchart TB
+  subgraph FE["Frontend (frontend/)"]
+    PG["app/: páginas por área<br/>/vender /vendas /clientes /meu-desempenho<br/>/gestao/* /conta/senha /entrar"]
+    PX["proxy.ts<br/>sem cookie → /entrar?next="]
+    LIB["lib/api: http.ts (CSRF, erros)<br/>generated/sbi.zod.ts (orval, contrato v5)"]
+    CMP["components/: marca, gráficos,<br/>formulários, diálogos, paginação"]
+    PG --> LIB
+    PG --> CMP
+  end
+  subgraph BE["API (src/main/java/com/swee/ordermanagementspring)"]
+    SEC["security/ + config/SecurityConfig<br/>sessão, CSRF, RoleHierarchy,<br/>LockoutAuthenticationProvider, SessionVersionFilter"]
+    subgraph MOD["api/ — módulos novos"]
+      S1["sales (PDV)"]
+      S2["customers"]
+      S3["backoffice (produtos, estoque)"]
+      S4["management (faturamento, metas,<br/>estorno, análises)"]
+      S5["promotions"]
+      S6["discounts"]
+      S7["users"]
+      S8["common (Money, paginação,<br/>CurrentUser, DbSessionContext)"]
+    end
+    LEG["controllers/ services/ repositories/ entities/<br/>legado JPA: /orders /payment /address"]
+    EXC["exceptions/GlobalExceptionHandler<br/>ErrorResponse + ErrorCode"]
+    MIG["resources/db/migration V1–V11<br/>resources/db/demo V6_1–V11_2"]
+  end
+  DB[("PostgreSQL<br/>tabelas, CHECKs, gatilhos, views, funções fn_*")]
+  LIB -- "/api/backend/* (mesma origem)" --> SEC
+  SEC --> MOD
+  SEC --> LEG
+  MOD -. "exceções" .-> EXC
+  LEG -. "exceções" .-> EXC
+  MOD -- "JdbcClient (SQL explícito)" --> DB
+  LEG -- "JPA/Hibernate (validate)" --> DB
+  MIG -- "Flyway" --> DB

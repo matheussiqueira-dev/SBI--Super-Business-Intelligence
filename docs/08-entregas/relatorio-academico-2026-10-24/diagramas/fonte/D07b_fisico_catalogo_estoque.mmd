@@ -1,0 +1,106 @@
+erDiagram
+    ORDERS |o--o{ ORDER_ITEM : "order_id"
+    PRODUCT |o--o{ ORDER_ITEM : "product_id"
+    PROMOTION |o--o{ ORDER_ITEM : "promotion_id"
+    CATEGORY |o--o{ PRODUCT : "category_id"
+    PRODUCT ||--o{ PRODUCT_PRICE_HISTORY : "product_id"
+    CATEGORY |o--o{ PROMOTION : "category_id"
+    PRODUCT |o--o{ PROMOTION : "product_id"
+    PRODUCT ||--o| STOCK_BALANCE : "product_id"
+    PRODUCT ||--o{ STOCK_ENTRY : "product_id"
+    ORDERS |o--o{ STOCK_MOVEMENT : "order_id"
+    PRODUCT ||--o{ STOCK_MOVEMENT : "product_id"
+    CATEGORY {
+        bigint id PK "NOT NULL"
+        varchar_80 name UK "NOT NULL"
+    }
+    PRODUCT {
+        bigint id PK "NOT NULL"
+        varchar_31 product_type  "NOT NULL"
+        varchar_255 name
+        numeric_12_2 price
+        varchar_255 description
+        varchar_255 download_link
+        double_precision weight
+        varchar_40 sku UK
+        bigint category_id FK
+        boolean active  "NOT NULL"
+        boolean sellable  "NOT NULL"
+        timestamptz updated_at  "NOT NULL"
+    }
+    PRODUCT_PRICE_HISTORY {
+        bigint id PK "NOT NULL"
+        bigint product_id FK "NOT NULL"
+        numeric_12_2 old_price
+        numeric_12_2 new_price  "NOT NULL"
+        bigint changed_by FK
+        timestamptz changed_at  "NOT NULL"
+        varchar_200 reason
+    }
+    PROMOTION {
+        bigint id PK "NOT NULL"
+        varchar_120 name  "NOT NULL"
+        varchar_10 kind  "NOT NULL"
+        numeric_12_2 value  "NOT NULL"
+        bigint product_id FK
+        bigint category_id FK
+        timestamptz starts_at  "NOT NULL"
+        timestamptz ends_at  "NOT NULL"
+        boolean active  "NOT NULL"
+        bigint created_by FK "NOT NULL"
+        timestamptz created_at  "NOT NULL"
+    }
+    STOCK_BALANCE {
+        bigint product_id PK,FK "NOT NULL"
+        integer on_hand  "NOT NULL"
+        integer reserved  "NOT NULL"
+        integer min_level  "NOT NULL"
+        numeric_12_2 avg_cost
+        timestamptz updated_at  "NOT NULL"
+    }
+    STOCK_ENTRY {
+        bigint id PK "NOT NULL"
+        bigint product_id FK "NOT NULL"
+        integer quantity  "NOT NULL"
+        numeric_12_2 unit_cost
+        bigint created_by FK "NOT NULL"
+        timestamptz created_at  "NOT NULL"
+        varchar_200 note
+    }
+    STOCK_MOVEMENT {
+        bigint id PK "NOT NULL"
+        bigint product_id FK "NOT NULL"
+        bigint order_id FK
+        varchar_16 kind  "NOT NULL"
+        integer quantity  "NOT NULL"
+        varchar_20 reason
+        varchar_200 note
+        bigint created_by FK
+        timestamptz created_at  "NOT NULL"
+    }
+    ORDER_ITEM {
+        bigint id PK "NOT NULL"
+        integer quantity
+        numeric_12_2 price
+        bigint order_id FK
+        bigint product_id FK
+        bigint promotion_id FK
+        numeric_12_2 discount  "NOT NULL"
+        numeric_12_2 unit_cost
+        numeric_12_2 manual_discount  "NOT NULL"
+    }
+    ORDERS {
+        bigint id PK "NOT NULL"
+        timestamp_6 moment
+        varchar_255 status
+        bigint customer_id FK
+        bigint address_id FK,UK
+        bigint seller_id FK
+        uuid client_request_id
+        char_64 request_hash
+        varchar_10 fulfillment  "NOT NULL"
+        numeric_12_2 manual_discount  "NOT NULL"
+        numeric_5_2 manual_discount_percent
+        varchar_200 manual_discount_reason
+        bigint discount_approved_by FK
+    }

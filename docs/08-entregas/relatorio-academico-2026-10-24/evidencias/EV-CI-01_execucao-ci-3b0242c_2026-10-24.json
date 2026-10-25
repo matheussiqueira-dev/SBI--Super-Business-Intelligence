@@ -1,0 +1,288 @@
+{
+ "fonte": "API REST do GitHub Actions (somente leitura), consultada em 2026-10-25T02:45Z (24/10/2026, 23:45 no horário de Brasília)",
+ "repositorio": "matheussiqueira-dev/SBI--Super-Business-Intelligence",
+ "workflow": "CI (.github/workflows/ci.yml)",
+ "run_id": 39668791724,
+ "evento": "push na main",
+ "commit": "3b0242c477bf7b5401a6eff55ae2b88c74927b1b",
+ "conclusao": "success",
+ "observacao": "Os artefatos (relatórios Surefire, contrato ao vivo, E2E e bd) e os logs não puderam ser baixados no ambiente de análise (armazenamento externo bloqueado); a evidência registra a conclusão de cada job e de cada etapa.",
+ "jobs": [
+  {
+   "nome": "frontend",
+   "conclusao": "success",
+   "inicio": "2026-10-21T20:15:59Z",
+   "fim": "2026-10-21T20:20:09Z",
+   "etapas": [
+    [
+     "Set up job",
+     "success"
+    ],
+    [
+     "Initialize containers",
+     "success"
+    ],
+    [
+     "Checkout",
+     "success"
+    ],
+    [
+     "Set up JDK",
+     "success"
+    ],
+    [
+     "Set up Node",
+     "success"
+    ],
+    [
+     "Typecheck, generated schemas, unit tests and build",
+     "success"
+    ],
+    [
+     "Build API",
+     "success"
+    ],
+    [
+     "End-to-end and accessibility (axe)",
+     "success"
+    ],
+    [
+     "Preserve frontend reports",
+     "success"
+    ],
+    [
+     "Post Set up Node",
+     "success"
+    ],
+    [
+     "Post Set up JDK",
+     "success"
+    ],
+    [
+     "Post Checkout",
+     "success"
+    ],
+    [
+     "Stop containers",
+     "success"
+    ],
+    [
+     "Complete job",
+     "success"
+    ]
+   ]
+  },
+  {
+   "nome": "contract",
+   "conclusao": "success",
+   "inicio": "2026-10-21T20:15:59Z",
+   "fim": "2026-10-21T20:16:56Z",
+   "etapas": [
+    [
+     "Set up job",
+     "success"
+    ],
+    [
+     "Initialize containers",
+     "success"
+    ],
+    [
+     "Checkout",
+     "success"
+    ],
+    [
+     "Set up JDK",
+     "success"
+    ],
+    [
+     "Set up Node",
+     "success"
+    ],
+    [
+     "Static contract audit",
+     "success"
+    ],
+    [
+     "Build API",
+     "success"
+    ],
+    [
+     "Live OpenAPI, HTTP errors, session and v4 responses",
+     "success"
+    ],
+    [
+     "Preserve contract reports",
+     "success"
+    ],
+    [
+     "Post Set up Node",
+     "success"
+    ],
+    [
+     "Post Set up JDK",
+     "success"
+    ],
+    [
+     "Post Checkout",
+     "success"
+    ],
+    [
+     "Stop containers",
+     "success"
+    ],
+    [
+     "Complete job",
+     "success"
+    ]
+   ]
+  },
+  {
+   "nome": "test (backend)",
+   "conclusao": "success",
+   "inicio": "2026-10-21T20:15:59Z",
+   "fim": "2026-10-21T20:18:19Z",
+   "etapas": [
+    [
+     "Set up job",
+     "success"
+    ],
+    [
+     "Initialize containers",
+     "success"
+    ],
+    [
+     "Checkout",
+     "success"
+    ],
+    [
+     "Set up JDK",
+     "success"
+    ],
+    [
+     "Unit, integration, JaCoCo, PMD, CPD and SpotBugs",
+     "success"
+    ],
+    [
+     "Verify Flyway schema with Hibernate validation",
+     "success"
+    ],
+    [
+     "Preserve backend reports",
+     "success"
+    ],
+    [
+     "Post Set up JDK",
+     "success"
+    ],
+    [
+     "Post Checkout",
+     "success"
+    ],
+    [
+     "Stop containers",
+     "success"
+    ],
+    [
+     "Complete job",
+     "success"
+    ]
+   ]
+  },
+  {
+   "nome": "bd",
+   "conclusao": "success",
+   "inicio": "2026-10-21T20:15:59Z",
+   "fim": "2026-10-21T20:16:46Z",
+   "etapas": [
+    [
+     "Set up job",
+     "success"
+    ],
+    [
+     "Initialize containers",
+     "success"
+    ],
+    [
+     "Checkout",
+     "success"
+    ],
+    [
+     "Set up JDK",
+     "success"
+    ],
+    [
+     "Set up Node",
+     "success"
+    ],
+    [
+     "Build",
+     "success"
+    ],
+    [
+     "Migrate with demo seed",
+     "success"
+    ],
+    [
+     "Run RBAC, CRUD, package tests and CC-01 by psql",
+     "success"
+    ],
+    [
+     "Olist demo dataset by psql (07 twice, 08, 09) and masking by the API (CT-DEMO-05)",
+     "success"
+    ],
+    [
+     "Preserve database reports",
+     "success"
+    ],
+    [
+     "Post Set up Node",
+     "success"
+    ],
+    [
+     "Post Set up JDK",
+     "success"
+    ],
+    [
+     "Post Checkout",
+     "success"
+    ],
+    [
+     "Stop containers",
+     "success"
+    ],
+    [
+     "Complete job",
+     "success"
+    ]
+   ]
+  },
+  {
+   "nome": "hygiene",
+   "conclusao": "skipped",
+   "inicio": "2026-10-21T20:15:57Z",
+   "fim": "2026-10-21T20:15:56Z",
+   "etapas": []
+  }
+ ],
+ "artefatos_publicados": {
+  "backend-reports": 1207439,
+  "frontend-reports": 464756,
+  "contract-reports": 128564,
+  "bd-reports": 4893
+ },
+ "fumaca_publicada": "workflow published-smoke.yml sem nenhuma execução registrada (total_count = 0)",
+ "carga_olist_no_neon": [
+  {
+   "run_id": 39331371873,
+   "data": "2026-10-19T21:56:42Z",
+   "commit": "03ec2cd",
+   "conclusao": "success"
+  },
+  {
+   "run_id": 38788393322,
+   "data": "2026-10-15T18:46:26Z",
+   "commit": "3ac9019",
+   "conclusao": "success"
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+stateDiagram-v2
+  direction LR
+  [*] --> PENDING_PAYMENT: POST /sales/orders\n(reserva estoque; payment PENDING)
+  PENDING_PAYMENT --> PAID: POST /sales/orders/{id}/payment\n(saída de estoque; payment APPROVED)
+  PENDING_PAYMENT --> CANCELED: POST /orders/{id}/cancel\n(libera reserva; payment DECLINED)
+  PAID --> PAID: confirmação repetida\n(sem efeito)
+  PAID --> PAID: estorno parcial ou total\n(refund; pedido não muda)
+  PENDING_PAYMENT --> PENDING_PAYMENT: aprovação de desconto\npelo gerente
+  PAID --> SHIPPED: rota legada /orders/{id}/status
+  SHIPPED --> DELIVERED: rota legada
+  CANCELED --> [*]
+  DELIVERED --> [*]

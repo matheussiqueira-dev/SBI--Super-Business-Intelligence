@@ -1,0 +1,22 @@
+flowchart TB
+  A["GET /auth/csrf<br/>token CSRF na sessão HTTP"] --> B["POST /auth/login<br/>e-mail + senha + X-CSRF-TOKEN"]
+  B --> C{"Conta existe,<br/>ativa e não bloqueada?"}
+  C -- "não" --> F1["BCrypt(12) executado mesmo assim<br/>(tempo equivalente)"]
+  F1 --> R401["401 UNAUTHENTICATED<br/>mensagem única"]
+  C -- "sim" --> D{"Senha confere?"}
+  D -- "não" --> E["UPDATE atômico:<br/>failed_login_attempts + 1"]
+  E --> E2{"5ª falha consecutiva?"}
+  E2 -- "sim" --> L["locked_until = agora + 15 min<br/>audit ACCOUNT_LOCKED"]
+  E2 -- "não" --> R401
+  L --> R401
+  D -- "sim" --> OK["zera contador · last_login_at<br/>troca o ID da sessão · novo token CSRF<br/>audit LOGIN_SUCCEEDED"]
+  OK --> M{"must_change_password?"}
+  M -- "sim" --> PW["sessão limitada a /auth/me,<br/>/auth/password e /auth/logout<br/>(403 PASSWORD_CHANGE_REQUIRED)"]
+  M -- "não" --> S["Sessão HttpOnly · Secure · SameSite=Lax<br/>expira após 30 min de inatividade"]
+  S --> Q["Requisição seguinte"]
+  Q --> SV{"SessionVersionFilter:<br/>session_version, papel e situação<br/>iguais aos do login?"}
+  SV -- "não" --> RV["401 SESSION_REVOKED"]
+  SV -- "sim" --> AZ{"Regra de URL (RoleHierarchy)<br/>+ @PreAuthorize + dono do dado"}
+  AZ -- "negado por papel" --> R403["403 FORBIDDEN"]
+  AZ -- "objeto de outro vendedor" --> R404["404 NOT_FOUND"]
+  AZ -- "permitido" --> OK2["2xx"]

@@ -1,0 +1,135 @@
+erDiagram
+    ROLE ||--o{ APP_USERS : "role"
+    ADDRESS |o--o| CUSTOMER : "address_id"
+    ROLE ||--o| DISCOUNT_POLICY : "role"
+    ORDERS |o--o{ ORDER_ITEM : "order_id"
+    PRODUCT |o--o{ ORDER_ITEM : "product_id"
+    PROMOTION |o--o{ ORDER_ITEM : "promotion_id"
+    APP_USERS |o--o{ ORDERS : "seller_id"
+    ADDRESS |o--o| ORDERS : "address_id"
+    CUSTOMER |o--o{ ORDERS : "customer_id"
+    ORDERS |o--o| PAYMENT : "order_id"
+    CATEGORY |o--o{ PRODUCT : "category_id"
+    PRODUCT ||--o{ PRODUCT_PRICE_HISTORY : "product_id"
+    CATEGORY |o--o{ PROMOTION : "category_id"
+    PRODUCT |o--o{ PROMOTION : "product_id"
+    PAYMENT ||--o{ REFUND : "payment_id"
+    MONTHLY_GOAL ||--o{ SELLER_GOAL : "monthly_goal_id"
+    APP_USERS ||--o{ SELLER_GOAL : "seller_id"
+    PRODUCT ||--o| STOCK_BALANCE : "product_id"
+    PRODUCT ||--o{ STOCK_ENTRY : "product_id"
+    ORDERS |o--o{ STOCK_MOVEMENT : "order_id"
+    PRODUCT ||--o{ STOCK_MOVEMENT : "product_id"
+    ADDRESS {
+        bigint id PK
+    }
+    APP_USERS {
+        bigint id PK
+        varchar name
+        varchar email UK
+        varchar role FK
+        varchar db_role UK
+    }
+    AUDIT_EVENT {
+        bigint id PK
+        varchar action
+    }
+    CATEGORY {
+        bigint id PK
+        varchar name UK
+    }
+    CUSTOMER {
+        bigint id PK
+        varchar customer_type
+        varchar name
+        varchar email
+        bigint address_id FK,UK
+        varchar cpf UK
+        varchar cnpj UK
+    }
+    DISCOUNT_POLICY {
+        varchar role PK,FK
+        numeric max_percent
+    }
+    MONTHLY_GOAL {
+        bigint id PK
+        date period UK
+        numeric amount
+    }
+    ORDER_ITEM {
+        bigint id PK
+        integer quantity
+        numeric price
+        bigint order_id FK
+        bigint product_id FK
+        bigint promotion_id FK
+    }
+    ORDERS {
+        bigint id PK
+        timestamp moment
+        varchar status
+        bigint customer_id FK
+        bigint address_id FK,UK
+        bigint seller_id FK
+        varchar fulfillment
+    }
+    PAYMENT {
+        bigint id PK
+        varchar payment_type
+        numeric amount
+        varchar status
+        bigint order_id FK,UK
+    }
+    PRODUCT {
+        bigint id PK
+        varchar product_type
+        varchar name
+        numeric price
+        varchar sku UK
+        bigint category_id FK
+    }
+    PRODUCT_PRICE_HISTORY {
+        bigint id PK
+        bigint product_id FK
+    }
+    PROMOTION {
+        bigint id PK
+        varchar name
+        varchar kind
+        numeric value
+        bigint product_id FK
+        bigint category_id FK
+    }
+    REFUND {
+        bigint id PK
+        bigint payment_id FK
+        numeric amount
+    }
+    ROLE {
+        varchar code PK
+        varchar name
+        smallint rank UK
+    }
+    SELLER_GOAL {
+        bigint id PK
+        bigint monthly_goal_id FK
+        bigint seller_id FK
+        numeric amount
+    }
+    STOCK_BALANCE {
+        bigint product_id PK,FK
+        integer on_hand
+        integer reserved
+    }
+    STOCK_ENTRY {
+        bigint id PK
+        bigint product_id FK
+        integer quantity
+    }
+    STOCK_MOVEMENT {
+        bigint id PK
+        bigint product_id FK
+        bigint order_id FK
+        varchar kind
+        integer quantity
+    }

@@ -1,0 +1,24 @@
+%%{init: {"flowchart": {"wrappingWidth": 330, "nodeSpacing": 30, "rankSpacing": 28}}}%%
+flowchart LR
+  subgraph A["Planejamento e base"]
+    direction TB
+    T0["<b>31/08–01/09/2026</b><br/>Base Order Management API publicada por Gabriel Sousa (repositório JkbSousa/order-management-api)"]
+    T1["<b>05/09</b> · Enunciado de GQS (metadado do PDF)"]
+    T2["<b>26/09</b> · Plano de execução, Manual v1.0, quadro Trello (34 cards) e incorporação da base ao repositório da equipe"]
+    T3["<b>01/10</b> · 16 cards do escopo “Loja • Gestão” (gerente, vendedor, metas, estoque)"]
+    T4["<b>03–04/10</b> · Baseline, correção do total do pedido (H-01), validação do contrato, sessão Spring + Next.js, autoria do pedido pela sessão, Flyway"]
+    T5["<b>06–08/10</b> · Métricas R0 (JaCoCo, PMD, CPD, SpotBugs), suíte ampliada (111 testes, 21 falhas), PR #2 e troca do repositório oficial"]
+    T6["<b>10/10</b> · Renomeação client → customer (Gabriel Sousa)"]
+    T0 --> T1 --> T2 --> T3 --> T4 --> T5 --> T6
+  end
+  subgraph B["Construção, publicação e avaliação"]
+    direction TB
+    T7["<b>12/10</b> · Pacote SQL da disciplina (51 PASS) · última ação no Trello"]
+    T8["<b>14/10</b> · Etapas 2A–5 (V5–V7, segurança, 45 operações do contrato v4, frontend, CI em 4 jobs) e evolução WP-EVO (V8–V11, usuários, resumo do cliente, CNPJ alfanumérico, desconto, Olist, marca)"]
+    T9["<b>15/10</b> · Publicação Vercel + Render + Neon (Flyway V1–V11.2 no Neon) e smoke publicado"]
+    T10["<b>19–21/10</b> · Catálogo Apple, contas da equipe, correção do boleto (#40), usabilidade (#45), partida a frio (#43), cliente existente (#46)"]
+    T11["<b>21/10</b> · Commit de referência 3b0242c em produção na Vercel"]
+    T12["<b>30/11–05/12</b> · Janela de avaliação A3 (calendário UNIFG)"]
+    T7 --> T8 --> T9 --> T10 --> T11 --> T12
+  end
+  A --> B

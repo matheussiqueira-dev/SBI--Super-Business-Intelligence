@@ -1,0 +1,277 @@
+/* SBI v2 — componentes de interface. Depende de tokens.css. Classes com prefixo sbi-.
+   Estados estáticos (.is-hover, .is-active, .is-focus, .is-disabled) existem para documentação e testes visuais. */
+
+/* ---------- base ---------- */
+.sbi-root, .sbi-root * { box-sizing: border-box; }
+.sbi-root {
+  font-family: var(--sbi-font-sans);
+  font: var(--sbi-type-body);
+  letter-spacing: var(--sbi-tracking-body);
+  color: var(--sbi-text-primary);
+  background: var(--sbi-bg-canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-optical-sizing: auto;
+}
+.sbi-root h1, .sbi-root h2, .sbi-root h3, .sbi-root p { margin: 0; }
+.sbi-h1 { font: var(--sbi-type-heading-1); letter-spacing: var(--sbi-tracking-heading-1); }
+.sbi-h2 { font: var(--sbi-type-heading-2); letter-spacing: var(--sbi-tracking-heading-2); }
+.sbi-h3 { font: var(--sbi-type-heading-3); letter-spacing: var(--sbi-tracking-heading-3); }
+.sbi-body-lg { font: var(--sbi-type-body-lg); letter-spacing: var(--sbi-tracking-body-lg); }
+.sbi-caption { font: var(--sbi-type-caption); letter-spacing: var(--sbi-tracking-caption); color: var(--sbi-text-tertiary); }
+.sbi-overline { font: var(--sbi-type-overline); letter-spacing: var(--sbi-tracking-overline); text-transform: uppercase; color: var(--sbi-text-tertiary); font-feature-settings: "case" 1; }
+.sbi-muted { color: var(--sbi-text-secondary); }
+.sbi-subtle { color: var(--sbi-text-tertiary); }
+/* números: tabulares em colunas e valores que se atualizam; SKU e IDs com desambiguação (0 cortado, I/l/1 distintos) */
+.sbi-num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+.sbi-id { font-feature-settings: "ss02" 1, "tnum" 1; font-weight: 500; letter-spacing: 0.01em; color: var(--sbi-text-secondary); }
+.sbi-icon { flex: none; vertical-align: middle; }
+.sbi-link { color: var(--sbi-text-link); font-weight: 600; text-decoration: none; }
+.sbi-link:hover { color: var(--sbi-text-link-hover); text-decoration: underline; text-underline-offset: 3px; }
+.sbi-link:focus-visible { outline: 2px solid var(--sbi-focus-ring); outline-offset: 2px; border-radius: 4px; }
+.sbi-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- botões ---------- */
+.sbi-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: var(--sbi-control-md); padding: 0 16px; border-radius: var(--sbi-radius-md);
+  border: 1px solid var(--sbi-border-control); background: var(--sbi-bg-surface); color: var(--sbi-text-primary);
+  font: var(--sbi-type-button); letter-spacing: var(--sbi-tracking-button); white-space: nowrap; text-decoration: none; cursor: pointer;
+  transition: background-color var(--sbi-duration-fast) var(--sbi-easing-standard), border-color var(--sbi-duration-fast) var(--sbi-easing-standard), color var(--sbi-duration-fast) var(--sbi-easing-standard);
+}
+.sbi-btn:hover, .sbi-btn.is-hover { background: var(--sbi-action-secondary-hover); }
+.sbi-btn:active, .sbi-btn.is-active { background: var(--sbi-bg-pressed); }
+.sbi-btn:focus-visible, .sbi-btn.is-focus { outline: 2px solid var(--sbi-focus-ring); outline-offset: 2px; }
+.sbi-btn--primary { background: var(--sbi-action-primary); border-color: var(--sbi-action-primary); color: var(--sbi-action-on-primary); }
+.sbi-btn--primary:hover, .sbi-btn--primary.is-hover { background: var(--sbi-action-primary-hover); border-color: var(--sbi-action-primary-hover); }
+.sbi-btn--primary:active, .sbi-btn--primary.is-active { background: var(--sbi-action-primary-pressed); border-color: var(--sbi-action-primary-pressed); }
+.sbi-btn--ghost { background: transparent; border-color: transparent; color: var(--sbi-text-link); }
+.sbi-btn--ghost:hover, .sbi-btn--ghost.is-hover { background: var(--sbi-bg-hover); }
+.sbi-btn--danger { background: var(--sbi-danger-solid); border-color: var(--sbi-danger-solid); color: #FFFFFF; }
+.sbi-btn--danger:hover, .sbi-btn--danger.is-hover { background: var(--sbi-danger-solid-hover); border-color: var(--sbi-danger-solid-hover); }
+.sbi-btn--danger-outline { color: var(--sbi-danger-text); border-color: var(--sbi-danger-text); }
+.sbi-btn:disabled, .sbi-btn.is-disabled { background: var(--sbi-action-disabled-bg); border-color: var(--sbi-action-disabled-bg); color: var(--sbi-action-disabled-text); cursor: not-allowed; }
+.sbi-btn--sm { height: var(--sbi-control-sm); padding: 0 12px; font-size: 14px; }
+.sbi-btn--lg { height: var(--sbi-control-lg); padding: 0 20px; font-size: 16px; }
+.sbi-btn--block { width: 100%; }
+.sbi-btn--icon { width: var(--sbi-control-md); padding: 0; }
+.sbi-btn[aria-busy="true"] { cursor: progress; }
+.sbi-btn .sbi-kbd { font: 500 12px/16px var(--sbi-font-sans); padding: 1px 6px; border-radius: 4px; border: 1px solid currentColor; opacity: 0.7; }
+
+/* ---------- campos ---------- */
+.sbi-field { display: grid; gap: 6px; min-width: 0; }
+.sbi-label { font: var(--sbi-type-label); letter-spacing: var(--sbi-tracking-label); color: var(--sbi-text-primary); }
+.sbi-label .sbi-opt { color: var(--sbi-text-tertiary); font-weight: 400; }
+.sbi-input, .sbi-select {
+  width: 100%; min-width: 0; height: var(--sbi-control-md); padding: 0 12px;
+  border: 1px solid var(--sbi-border-control); border-radius: var(--sbi-radius-md);
+  background: var(--sbi-bg-surface); color: var(--sbi-text-primary); font: var(--sbi-type-body); letter-spacing: var(--sbi-tracking-body);
+  transition: border-color var(--sbi-duration-fast) var(--sbi-easing-standard), box-shadow var(--sbi-duration-fast) var(--sbi-easing-standard);
+}
+.sbi-input::placeholder { color: var(--sbi-text-tertiary); }
+.sbi-input:hover, .sbi-input.is-hover, .sbi-select:hover { border-color: var(--sbi-border-strong); }
+.sbi-input:focus, .sbi-input.is-focus, .sbi-select:focus { outline: none; border-color: var(--sbi-focus-ring); box-shadow: 0 0 0 1px var(--sbi-focus-ring); }
+.sbi-input[aria-invalid="true"], .sbi-input.is-invalid { border-color: var(--sbi-danger-text); box-shadow: 0 0 0 1px var(--sbi-danger-text); }
+.sbi-input:disabled, .sbi-input.is-disabled { background: var(--sbi-action-disabled-bg); border-color: var(--sbi-border-subtle); color: var(--sbi-text-disabled); }
+.sbi-input[readonly], .sbi-input.is-readonly { background: var(--sbi-bg-subtle); border-color: var(--sbi-border-subtle); }
+.sbi-input--lg { height: var(--sbi-control-lg); }
+.sbi-help { font: var(--sbi-type-caption); letter-spacing: var(--sbi-tracking-caption); color: var(--sbi-text-tertiary); }
+.sbi-field-error { display: flex; gap: 6px; align-items: flex-start; font: var(--sbi-type-caption); color: var(--sbi-danger-text); }
+.sbi-field-error .sbi-icon { margin-top: 1px; }
+.sbi-input-wrap { position: relative; }
+.sbi-input-wrap .sbi-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--sbi-icon-default); pointer-events: none; }
+.sbi-input-wrap .sbi-input { padding-left: 40px; }
+.sbi-select-wrap { position: relative; }
+.sbi-select { appearance: none; padding-right: 36px; }
+.sbi-select-wrap .sbi-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--sbi-icon-default); pointer-events: none; }
+.sbi-check { display: inline-flex; align-items: center; gap: 10px; min-height: 24px; font: var(--sbi-type-label); cursor: pointer; }
+.sbi-check-box { width: 18px; height: 18px; border-radius: var(--sbi-radius-xs); border: 1px solid var(--sbi-border-control); background: var(--sbi-bg-surface); display: grid; place-items: center; color: #FFFFFF; }
+.sbi-check-box.is-checked { background: var(--sbi-action-primary); border-color: var(--sbi-action-primary); }
+@media (max-width: 767px) { .sbi-input, .sbi-select { font-size: 16px; } }
+
+/* ---------- seletor segmentado (período) e abas ---------- */
+.sbi-seg { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--sbi-border-subtle); border-radius: calc(var(--sbi-radius-md) + 3px); background: var(--sbi-bg-surface); }
+.sbi-seg button { height: 32px; padding: 0 12px; border: 0; border-radius: var(--sbi-radius-md); background: transparent; color: var(--sbi-text-secondary); font: 500 14px/20px var(--sbi-font-sans); letter-spacing: -0.006em; cursor: pointer; }
+.sbi-seg button:hover { background: var(--sbi-bg-hover); color: var(--sbi-text-primary); }
+.sbi-seg button[aria-pressed="true"] { background: var(--sbi-bg-inverse); color: var(--sbi-text-inverse); font-weight: 600; }
+.sbi-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--sbi-border-subtle); }
+.sbi-tab { height: 44px; padding: 0 12px; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; background: none; color: var(--sbi-text-secondary); font: 500 14px/20px var(--sbi-font-sans); cursor: pointer; }
+.sbi-tab[aria-selected="true"] { color: var(--sbi-text-primary); font-weight: 600; border-bottom-color: var(--sbi-action-primary); }
+
+/* ---------- selos de estado (sempre com ícone e texto) ---------- */
+.sbi-badge { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px 0 6px; border-radius: var(--sbi-radius-full); font: 600 12px/16px var(--sbi-font-sans); white-space: nowrap; background: var(--sbi-bg-hover); color: var(--sbi-text-secondary); }
+.sbi-badge .sbi-icon { width: 14px; height: 14px; }
+.sbi-badge--success { background: var(--sbi-success-bg); color: var(--sbi-success-text); }
+.sbi-badge--warning { background: var(--sbi-warning-bg); color: var(--sbi-warning-text); }
+.sbi-badge--danger { background: var(--sbi-danger-bg); color: var(--sbi-danger-text); }
+.sbi-badge--info { background: var(--sbi-info-bg); color: var(--sbi-info-text); }
+
+/* ---------- avisos ---------- */
+.sbi-notice { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 12px; align-items: start; padding: 12px 16px; border-radius: var(--sbi-radius-md); border: 1px solid; font: var(--sbi-type-body); }
+.sbi-notice .sbi-icon { margin-top: 1px; }
+.sbi-notice strong { font-weight: 600; }
+.sbi-notice p { color: var(--sbi-text-primary); }
+.sbi-notice--info { background: var(--sbi-info-bg); border-color: var(--sbi-info-border); color: var(--sbi-info-text); }
+.sbi-notice--success { background: var(--sbi-success-bg); border-color: var(--sbi-success-border); color: var(--sbi-success-text); }
+.sbi-notice--warning { background: var(--sbi-warning-bg); border-color: var(--sbi-warning-border); color: var(--sbi-warning-text); }
+.sbi-notice--danger { background: var(--sbi-danger-bg); border-color: var(--sbi-danger-border); color: var(--sbi-danger-text); }
+.sbi-notice-action { font: 600 14px/22px var(--sbi-font-sans); color: inherit; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+
+/* ---------- cartões e indicadores ---------- */
+.sbi-card { background: var(--sbi-bg-surface); border: 1px solid var(--sbi-border-subtle); border-radius: var(--sbi-radius-lg); padding: 20px 24px; min-width: 0; }
+.sbi-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.sbi-card-title { font: var(--sbi-type-heading-3); letter-spacing: var(--sbi-tracking-heading-3); }
+.sbi-card-sub { font: var(--sbi-type-caption); color: var(--sbi-text-tertiary); margin-top: 2px; }
+.sbi-kpi { display: grid; gap: 6px; align-content: start; }
+.sbi-kpi-label { font: var(--sbi-type-label); letter-spacing: var(--sbi-tracking-label); color: var(--sbi-text-secondary); }
+.sbi-kpi-value { font: var(--sbi-type-kpi); letter-spacing: var(--sbi-tracking-kpi); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sbi-kpi-value .sbi-unit { font-size: 0.64em; font-weight: 500; color: var(--sbi-text-secondary); margin-right: 0.22em; letter-spacing: 0; }
+.sbi-kpi-value.is-missing { font: var(--sbi-type-body-strong); color: var(--sbi-text-tertiary); padding: 6px 0; }
+.sbi-kpi-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font: var(--sbi-type-caption); color: var(--sbi-text-tertiary); }
+.sbi-delta { display: inline-flex; align-items: center; gap: 2px; font: 600 13px/18px var(--sbi-font-sans); font-variant-numeric: tabular-nums; }
+.sbi-delta .sbi-icon { width: 14px; height: 14px; }
+.sbi-delta--up { color: var(--sbi-success-text); }
+.sbi-delta--down { color: var(--sbi-danger-text); }
+.sbi-delta--flat { color: var(--sbi-text-tertiary); }
+.sbi-skeleton { display: block; height: 12px; border-radius: 6px; background: var(--sbi-bg-hover); }
+.sbi-meter { display: grid; gap: 8px; }
+.sbi-meter-track { position: relative; height: 8px; border-radius: 999px; background: var(--sbi-petroleo-100); }
+:root[data-theme="dark"] .sbi-meter-track { background: var(--sbi-petroleo-900); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .sbi-meter-track { background: var(--sbi-petroleo-900); } }
+.sbi-meter-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: var(--sbi-action-primary); }
+.sbi-meter-pace { position: absolute; top: -4px; bottom: -4px; width: 2px; border-radius: 1px; background: var(--sbi-text-primary); }
+.sbi-meter-legend { display: flex; justify-content: space-between; gap: 12px; font: var(--sbi-type-caption); color: var(--sbi-text-tertiary); }
+
+/* ---------- tabelas ---------- */
+.sbi-table { width: 100%; border-collapse: collapse; font: var(--sbi-type-table); letter-spacing: var(--sbi-tracking-table); }
+.sbi-table th { text-align: left; font: var(--sbi-type-table-head); letter-spacing: var(--sbi-tracking-table-head); color: var(--sbi-text-secondary); padding: 10px 12px; background: var(--sbi-bg-subtle); border-bottom: 1px solid var(--sbi-border-subtle); white-space: nowrap; }
+.sbi-table td { padding: 12px; border-bottom: 1px solid var(--sbi-border-subtle); vertical-align: middle; }
+.sbi-table tr:last-child td { border-bottom: 0; }
+.sbi-table tbody tr:hover td, .sbi-table tr.is-hover td { background: var(--sbi-bg-hover); }
+.sbi-table tr.is-selected td { background: var(--sbi-bg-selected); }
+.sbi-table tr.is-alert td { background: var(--sbi-warning-bg); }
+.sbi-table .num, .sbi-table th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sbi-table--compact td { padding: 8px 12px; }
+.sbi-table tfoot td { font-weight: 600; border-top: 1px solid var(--sbi-border-default); border-bottom: 0; }
+.sbi-table-wrap { border: 1px solid var(--sbi-border-subtle); border-radius: var(--sbi-radius-lg); overflow: hidden; background: var(--sbi-bg-surface); }
+.sbi-product { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.sbi-thumb { flex: none; width: 36px; height: 36px; border-radius: var(--sbi-radius-md); border: 1px solid var(--sbi-border-subtle); background: var(--sbi-bg-subtle); display: grid; place-items: center; color: var(--sbi-icon-default); }
+.sbi-product-name { font-weight: 500; color: var(--sbi-text-primary); }
+.sbi-pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--sbi-border-subtle); font: var(--sbi-type-caption); color: var(--sbi-text-tertiary); }
+
+/* ---------- estrutura: barra lateral, topo, conteúdo ---------- */
+.sbi-shell { display: grid; grid-template-columns: var(--sbi-sidebar-width) minmax(0, 1fr); min-height: 100%; }
+.sbi-sidebar { display: flex; flex-direction: column; gap: 20px; padding: 20px 12px 16px; background: var(--sbi-bg-surface); border-right: 1px solid var(--sbi-border-subtle); }
+.sbi-sidebar-brand { display: flex; align-items: center; height: 32px; padding: 0 8px; }
+.sbi-nav { display: grid; gap: 16px; }
+.sbi-nav-group { display: grid; gap: 2px; }
+.sbi-nav-group .sbi-overline { padding: 0 12px 4px; }
+.sbi-nav-item { position: relative; display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 12px; border-radius: var(--sbi-radius-md); color: var(--sbi-text-primary); font: var(--sbi-type-label); letter-spacing: var(--sbi-tracking-label); text-decoration: none; }
+.sbi-nav-item .sbi-icon { color: var(--sbi-icon-default); }
+.sbi-nav-item:hover, .sbi-nav-item.is-hover { background: var(--sbi-bg-hover); }
+.sbi-nav-item[aria-current="page"] { background: var(--sbi-bg-selected); color: var(--sbi-text-selected); font-weight: 600; }
+.sbi-nav-item[aria-current="page"]::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--sbi-action-primary); }
+.sbi-nav-item[aria-current="page"] .sbi-icon { color: var(--sbi-action-primary); }
+.sbi-nav-item:focus-visible, .sbi-nav-item.is-focus { outline: 2px solid var(--sbi-focus-ring); outline-offset: -2px; }
+@media (pointer: coarse) { .sbi-nav-item { height: var(--sbi-touch-target); } }
+.sbi-account { margin-top: auto; display: grid; grid-template-columns: auto 1fr auto; gap: 2px 8px; align-items: center; padding: 12px 8px 0; border-top: 1px solid var(--sbi-border-subtle); }
+.sbi-avatar { position: relative; overflow: hidden; flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--sbi-bg-inverse); color: var(--sbi-text-inverse); font: 600 12px/1 var(--sbi-font-sans); letter-spacing: 0.02em; }
+/* avatar com imagem: 36 px na conta, 28 px em listas; iniciais sobre a cor do perfil enquanto a imagem carrega ou se ela falhar */
+.sbi-avatar--md { width: 36px; height: 36px; font: 600 14px/1 var(--sbi-font-display); letter-spacing: 0; }
+.sbi-avatar--sm { width: 28px; height: 28px; font-size: 11px; }
+.sbi-avatar[data-profile] { box-shadow: 0 0 0 1px var(--sbi-border-subtle); }
+.sbi-avatar[data-profile="gestao"] { background: var(--sbi-grafite-950); color: var(--sbi-grafite-0); }
+.sbi-avatar[data-profile="vendedor"] { background: var(--sbi-petroleo-600); color: var(--sbi-grafite-0); }
+.sbi-avatar > img, .sbi-avatar-expression { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sbi-avatar > img { object-fit: cover; }
+.sbi-avatar.has-image::after { content: ""; position: absolute; inset: 0; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--sbi-border-subtle); pointer-events: none; }
+.sbi-avatar-expression { overflow: hidden; opacity: 0; transition: opacity var(--sbi-duration-fast) ease; }
+.sbi-avatar-expression > img { position: absolute; left: 0; top: 0; width: 200%; height: 200%; max-width: none; }
+.sbi-avatar[data-expression]:not([data-expression="repouso"]) .sbi-avatar-expression { opacity: 1; }
+.sbi-avatar[data-expression="surpresa"] .sbi-avatar-expression > img { left: -100%; }
+.sbi-avatar[data-expression="atencao"] .sbi-avatar-expression > img { top: -100%; }
+.sbi-avatar[data-expression="piscadela"] .sbi-avatar-expression > img { left: -100%; top: -100%; }
+.sbi-avatar-control { display: inline-grid; place-items: center; width: var(--sbi-touch-target); height: var(--sbi-touch-target); padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; flex: none; transition: transform var(--sbi-duration-base) ease; }
+.sbi-avatar-control:hover { transform: scale(1.08); }
+.sbi-avatar-control:active { transform: scale(0.96); }
+.sbi-avatar-control:focus-visible { outline: 2px solid var(--sbi-focus-ring); outline-offset: 2px; }
+.sbi-avatar-control[aria-disabled="true"] { cursor: default; transform: none; }
+@media (prefers-reduced-motion: reduce) { .sbi-avatar-control:hover, .sbi-avatar-control:active { transform: none; } }
+.sbi-account-name { font: 600 14px/18px var(--sbi-font-sans); white-space: nowrap; }
+.sbi-account-role { font: var(--sbi-type-caption); color: var(--sbi-text-tertiary); }
+.sbi-main { padding: 28px 40px 48px; min-width: 0; }
+.sbi-page-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 24px; margin-bottom: 24px; }
+.sbi-page-head .sbi-caption { margin-top: 6px; color: var(--sbi-text-secondary); font-size: 14px; line-height: 20px; }
+.sbi-breadcrumb { font: var(--sbi-type-caption); color: var(--sbi-text-tertiary); margin-bottom: 4px; }
+.sbi-topbar { display: flex; align-items: center; justify-content: space-between; height: var(--sbi-topbar-height); padding: 0 16px; background: var(--sbi-bg-surface); border-bottom: 1px solid var(--sbi-border-subtle); }
+.sbi-grid { display: grid; gap: 16px; }
+.sbi-grid-4 { display: grid; gap: 16px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.sbi-grid-3 { display: grid; gap: 16px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.sbi-grid-2-1 { display: grid; gap: 16px; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+.sbi-row { display: flex; align-items: center; gap: 12px; }
+.sbi-stack { display: grid; gap: 16px; align-content: start; }
+.sbi-divider { height: 1px; background: var(--sbi-border-subtle); border: 0; margin: 16px 0; }
+
+/* ---------- etapas (PDV) ---------- */
+.sbi-steps { display: flex; gap: 8px; list-style: none; padding: 0; margin: 0; flex-wrap: wrap; }
+.sbi-step { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px 0 6px; border-radius: 999px; border: 1px solid var(--sbi-border-subtle); background: var(--sbi-bg-surface); font: 500 14px/20px var(--sbi-font-sans); color: var(--sbi-text-secondary); }
+.sbi-step-n { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font: 600 12px/1 var(--sbi-font-sans); background: var(--sbi-bg-hover); color: var(--sbi-text-secondary); }
+.sbi-step.is-done .sbi-step-n { background: var(--sbi-success-bg); color: var(--sbi-success-text); }
+.sbi-step[aria-current="step"] { border-color: var(--sbi-action-primary); color: var(--sbi-text-primary); font-weight: 600; }
+.sbi-step[aria-current="step"] .sbi-step-n { background: var(--sbi-action-primary); color: var(--sbi-action-on-primary); }
+
+/* ---------- diálogo, estado vazio, carregamento ---------- */
+.sbi-dialog { width: min(440px, 100%); background: var(--sbi-bg-surface); border: 1px solid var(--sbi-border-subtle); border-radius: var(--sbi-radius-xl); box-shadow: var(--sbi-shadow-3); padding: 24px; display: grid; gap: 12px; }
+.sbi-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+.sbi-empty { display: grid; justify-items: center; text-align: center; gap: 8px; padding: 40px 24px; }
+.sbi-empty-icon { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--sbi-bg-hover); color: var(--sbi-icon-default); margin-bottom: 4px; }
+.sbi-empty p { max-width: 36ch; color: var(--sbi-text-secondary); }
+
+/* ---------- gráficos (SVG) ---------- */
+.sbi-chart { display: grid; gap: 12px; }
+.sbi-chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.sbi-chart .grid { stroke: var(--sbi-chart-grid); stroke-width: 1; }
+.sbi-chart .axis { stroke: var(--sbi-chart-axis); stroke-width: 1; }
+.sbi-chart .tick { fill: var(--sbi-chart-label); font: 12px/1 var(--sbi-font-sans); font-variant-numeric: tabular-nums; }
+.sbi-chart .goal { stroke: var(--sbi-chart-goal); stroke-width: 1.5; stroke-dasharray: 6 4; }
+.sbi-chart .goal-label { fill: var(--sbi-text-primary); font: 600 12px/1 var(--sbi-font-sans); }
+.sbi-chart .value-label { fill: var(--sbi-text-primary); font: 600 12px/1 var(--sbi-font-sans); font-variant-numeric: tabular-nums; }
+.sbi-chart .end-label { fill: var(--sbi-text-secondary); font: 500 12px/1 var(--sbi-font-sans); }
+.sbi-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; list-style: none; margin: 0; padding: 0; font: var(--sbi-type-caption); color: var(--sbi-text-secondary); }
+.sbi-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.sbi-swatch { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.sbi-swatch--line { width: 16px; height: 2px; border-radius: 1px; }
+.sbi-swatch--goal { width: 16px; height: 0; border-top: 1.5px dashed var(--sbi-chart-goal); border-radius: 0; }
+.sbi-tooltip { display: grid; gap: 2px; padding: 8px 12px; border-radius: var(--sbi-radius-md); background: var(--sbi-bg-inverse); color: var(--sbi-text-inverse); box-shadow: var(--sbi-shadow-2); font: var(--sbi-type-caption); font-variant-numeric: tabular-nums; width: max-content; }
+.sbi-tooltip strong { font-weight: 600; }
+
+/* ---------- autenticação ---------- */
+.sbi-auth { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 100%; background: var(--sbi-bg-canvas); }
+.sbi-auth-panel { background: var(--sbi-grafite-950); color: #FFFFFF; padding: 48px; display: flex; flex-direction: column; justify-content: space-between; gap: 32px; }
+.sbi-auth-panel h1 { font: 600 36px/44px var(--sbi-font-display); letter-spacing: -0.022em; max-width: 16ch; }
+.sbi-auth-panel p { color: var(--sbi-grafite-300); max-width: 42ch; font: var(--sbi-type-body-lg); }
+:root[data-theme="dark"] .sbi-auth-panel { background: var(--sbi-bg-surface); border-right: 1px solid var(--sbi-border-subtle); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .sbi-auth-panel { background: var(--sbi-bg-surface); border-right: 1px solid var(--sbi-border-subtle); } }
+.sbi-auth-form { display: grid; place-items: center; padding: 32px; }
+.sbi-auth-card { width: 100%; max-width: 400px; display: grid; gap: 20px; }
+
+/* ---------- lista de exceções ("Precisa de atenção") ---------- */
+.sbi-attn { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.sbi-attn li { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; }
+.sbi-attn li + li { padding-top: 16px; border-top: 1px solid var(--sbi-border-subtle); }
+.sbi-attn-icon { width: 32px; height: 32px; border-radius: var(--sbi-radius-md); display: grid; place-items: center; }
+.sbi-attn-icon.is-warning { background: var(--sbi-warning-bg); color: var(--sbi-warning-text); }
+.sbi-attn-icon.is-info { background: var(--sbi-info-bg); color: var(--sbi-info-text); }
+.sbi-attn-icon.is-success { background: var(--sbi-success-bg); color: var(--sbi-success-text); }
+.sbi-attn-icon.is-danger { background: var(--sbi-danger-bg); color: var(--sbi-danger-text); }
+.sbi-attn-title { font: var(--sbi-type-body-strong); letter-spacing: var(--sbi-tracking-body-strong); }
+.sbi-attn p { color: var(--sbi-text-secondary); margin: 2px 0 6px; }
+.sbi-attn .sbi-link { font-size: 14px; }
+
+/* ---------- resumo da venda (PDV) ---------- */
+.sbi-sum { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.sbi-sum-line { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: start; }
+.sbi-sum-total { display: flex; justify-content: space-between; gap: 12px; color: var(--sbi-text-secondary); margin-top: 6px; }
+.sbi-sum-grand { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 12px; font: var(--sbi-type-kpi-sm); letter-spacing: var(--sbi-tracking-kpi-sm); }
+.sbi-sum-grand .sbi-num { font: var(--sbi-type-kpi); letter-spacing: var(--sbi-tracking-kpi); }

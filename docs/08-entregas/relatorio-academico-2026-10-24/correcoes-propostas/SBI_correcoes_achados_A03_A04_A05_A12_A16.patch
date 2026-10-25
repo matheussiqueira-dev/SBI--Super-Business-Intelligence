@@ -1,0 +1,379 @@
+From b0fb004f64caaaffcd71c57e9c589c7909f2cedb Mon Sep 17 00:00:00 2001
+From: Matheus Siqueira <hellomatheusdev@gmail.com>
+Date: Sat, 24 Oct 2026 23:52:07 -0300
+Subject: [PATCH 1/5] fix(deps): upgrade next to 16.4.3
+
+---
+ frontend/package-lock.json | 82 +++++++++++++++++++-------------------
+ frontend/package.json      |  2 +-
+ 2 files changed, 42 insertions(+), 42 deletions(-)
+
+diff --git a/frontend/package-lock.json b/frontend/package-lock.json
+index 4c66043..c391e8f 100644
+--- a/frontend/package-lock.json
++++ b/frontend/package-lock.json
+@@ -9,7 +9,7 @@
+       "version": "0.1.0",
+       "dependencies": {
+         "@tanstack/react-query": "5.104.2",
+-        "next": "16.3.8",
++        "next": "16.4.3",
+         "react": "19.3.0",
+         "react-dom": "19.3.0",
+         "react-hook-form": "7.90.0",
+@@ -1053,15 +1053,15 @@
+       }
+     },
+     "node_modules/@next/env": {
+-      "version": "16.3.8",
+-      "resolved": "https://registry.npmjs.org/@next/env/-/env-16.3.8.tgz",
+-      "integrity": "sha512-Al9zqHVV7TJv0eFuOU4U7Lvv74PTih4Ch63sk2xCIpSTkE3udFnaOcnzP2lQVymiL7yS9Cj2iClUXlR3EQ5sEw==",
++      "version": "16.4.3",
++      "resolved": "https://registry.npmjs.org/@next/env/-/env-16.4.3.tgz",
++      "integrity": "sha512-a7tz1QCcWWkwC/rPJcPMJk/UNRu9CFhDd3OHYE5hddbJrs8BqRTalxI6GlKCWEGzRLHN+S/B7a4PAHCtm25aBQ==",
+       "license": "MIT"
+     },
+     "node_modules/@next/swc-darwin-arm64": {
+-      "version": "16.3.8",
+-      "resolved": "https://registry.npmjs.org/@next/swc-darwin-arm64/-/swc-darwin-arm64-16.3.8.tgz",
+-      "integrity": "sha512-2JPRMh2nmQG5CiL7cXGL9AGwnPWJQ//cTtAUCT+w511QHk79SYz3LGv/pc5X643B/WEO0rvu3Yww0hqwt3kgeA==",
++      "version": "16.4.3",
++      "resolved": "https://registry.npmjs.org/@next/swc-darwin-arm64/-/swc-darwin-arm64-16.4.3.tgz",
++      "integrity": "sha512-4yq5EXBt+VDtAZwTyfijaFp5D2C5oz3Ikw5a2kiX2K9nw72vrZX2q5UuAlkPtUMO1tQz6JTKpaKWjS7OOefTDQ==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -1075,9 +1075,9 @@
+       }
+     },
+     "node_modules/@next/swc-darwin-x64": {
+-      "version": "16.3.8",
+-      "resolved": "https://registry.npmjs.org/@next/swc-darwin-x64/-/swc-darwin-x64-16.3.8.tgz",
+-      "integrity": "sha512-GZtCCOBKJ4leVIT/Th0llWKhD1ca92lzbQiS5R5ON9QkoiFnilFsebDae1JU2a3HWoKMEmEZWGs1AGLavVM72Q==",
++      "version": "16.4.3",
++      "resolved": "https://registry.npmjs.org/@next/swc-darwin-x64/-/swc-darwin-x64-16.4.3.tgz",
++      "integrity": "sha512-1Rvkn/LUhnEF8WxnRkOrqGhbwXui1bkWFxONKIbN+r7C+9KHDSZ+iUoj4CzymVMWUyZIyx9szcb9+kbKhD500A==",
+       "cpu": [
+         "x64"
+       ],
+@@ -1091,9 +1091,9 @@
+       }
+     },
+     "node_modules/@next/swc-linux-arm64-gnu": {
+-      "version": "16.3.8",
+-      "resolved": "https://registry.npmjs.org/@next/swc-linux-arm64-gnu/-/swc-linux-arm64-gnu-16.3.8.tgz",
+-      "integrity": "sha512-O659ygeQYqneJ1fBKMpFxIFqYkYswu8IAS1OCKK/4f3ZgJJm1dRz4fVJZRi/kLLWjnBKnebOePA4WNv+sV1pVA==",
++      "version": "16.4.3",
++      "resolved": "https://registry.npmjs.org/@next/swc-linux-arm64-gnu/-/swc-linux-arm64-gnu-16.4.3.tgz",
++      "integrity": "sha512-dCKpXErGg3abUM6t5JTJV/ottVBTStJB5lRJTbgdUdQaQ+jNHiK56Hsc0YAEg/rinSh42hYG3HWiYmEMdilnxg==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -1110,9 +1110,9 @@
+       }
+     },
+     "node_modules/@next/swc-linux-arm64-musl": {
+-      "version": "16.3.8",
+-      "resolved": "https://registry.npmjs.org/@next/swc-linux-arm64-musl/-/swc-linux-arm64-musl-16.3.8.tgz",
+-      "integrity": "sha512-dSjKSyWpzxoO1d3DIZZcP4XJcNaKeLmxQMFOiYl5vuBRMmweIqnAhty8tAmRsvTss779cK1FtYnDMj40e4TQlg==",
++      "version": "16.4.3",
++      "resolved": "https://registry.npmjs.org/@next/swc-linux-arm64-musl/-/swc-linux-arm64-musl-16.4.3.tgz",
++      "integrity": "sha512-WwYbhWkhYBvBtib1K4W0kL8MW2snBD2A5b3SN4vPpqalZbZs5+bQ1yzAdepVoOqrFfEW3dmREy4Zs1MrWcrFbw==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -1129,9 +1129,9 @@
+       }
+     },
+     "node_modules/@next/swc-linux-x64-gnu": {
+-      "version": "16.3.8",
+-      "resolved": "https://registry.npmjs.org/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-16.3.8.tgz",
+-      "integrity": "sha512-lbqOuz3RPRcv+o9msNsJw5x4+Y1ZwPTs6vmL6DCf7i0fZfvng/F59wyeDwqHIvV0mK//RBy/jJkZ+nCKsSMXjQ==",
++      "version": "16.4.3",
++      "resolved": "https://registry.npmjs.org/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-16.4.3.tgz",
++      "integrity": "sha512-QymWvfUwDEC5/lpJOsxX5VAbyoR2D13+2Jsjz4be7gT4LPqEgdpkeLIR/HFfCLgKzoMhpJbp6I/JnogyNZHcaA==",
+       "cpu": [
+         "x64"
+       ],
+@@ -1148,9 +1148,9 @@
+       }
+     },
+     "node_modules/@next/swc-linux-x64-musl": {
+-      "version": "16.3.8",
+-      "resolved": "https://registry.npmjs.org/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-16.3.8.tgz",
+-      "integrity": "sha512-+316WswI8ScVgZeUd+1KGaXkHhaYQzCjvH/05TZSpJ8zBizb1a4G7DtO7F12jcBIqMOtsz9ji1t48fmKtzqsGA==",
++      "version": "16.4.3",
++      "resolved": "https://registry.npmjs.org/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-16.4.3.tgz",
++      "integrity": "sha512-Vmjd9D7DpA4Vv3cUlr82QWgJD/BQZmns801vtC5VWHg6jCIA4a5vMKpQnfrM2pyCrp2eV0ENdUg4PlN3bAc2Yw==",
+       "cpu": [
+         "x64"
+       ],
+@@ -1167,9 +1167,9 @@
+       }
+     },
+     "node_modules/@next/swc-win32-arm64-msvc": {
+-      "version": "16.3.8",
+-      "resolved": "https://registry.npmjs.org/@next/swc-win32-arm64-msvc/-/swc-win32-arm64-msvc-16.3.8.tgz",
+-      "integrity": "sha512-ji0gd4kMYUxO+1fJBIbiBVRCjzG/lloiyCccnlebvb1ZJ5qXCPZqYg4Jl1DrrixnWNMKylzgpmMWx0yNDYXlzw==",
++      "version": "16.4.3",
++      "resolved": "https://registry.npmjs.org/@next/swc-win32-arm64-msvc/-/swc-win32-arm64-msvc-16.4.3.tgz",
++      "integrity": "sha512-lG1pPdPLk7gTyGb00n5JIMLdBJgjb+UEhSdZvFbhUMg0DyC6z4B7RnpSKF9VCd4imkLObVbXOFA0kFCpw7yFow==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -1183,9 +1183,9 @@
+       }
+     },
+     "node_modules/@next/swc-win32-x64-msvc": {
+-      "version": "16.3.8",
+-      "resolved": "https://registry.npmjs.org/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-16.3.8.tgz",
+-      "integrity": "sha512-WcTlaKt/TWkh5kUjdJcUmB1XgZ+1c6fz4Y9fDHL73YNSdGaUWjceeWrrlwF0nv19iABYWC4iAq1oX1w4Bn0vfg==",
++      "version": "16.4.3",
++      "resolved": "https://registry.npmjs.org/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-16.4.3.tgz",
++      "integrity": "sha512-NmQC9RkJdnPXRaMxtkCzobB3teVjqF33oSOnwDfi+XYGWWYpt+xlGK3mtktSKLbdjwaWbJu2OkkMiRFGUUncKg==",
+       "cpu": [
+         "x64"
+       ],
+@@ -2189,12 +2189,12 @@
+       }
+     },
+     "node_modules/next": {
+-      "version": "16.3.8",
+-      "resolved": "https://registry.npmjs.org/next/-/next-16.3.8.tgz",
+-      "integrity": "sha512-U7QEZaTini6wKrb8A8hqLLqYQyCetegKjCpJOyxk642vWoMoU1x5PyZCJFvgYgiptA8xc5j/9xYlZFO7w9Sjmw==",
++      "version": "16.4.3",
++      "resolved": "https://registry.npmjs.org/next/-/next-16.4.3.tgz",
++      "integrity": "sha512-OqxKTGi9u80FydydsMNYNjnuje9Au+kvHlt2GZ//ftdpDHm1dxKqAaENoOOTX5wKzn+9vaKUNIfZeyZUuLhCnA==",
+       "license": "MIT",
+       "dependencies": {
+-        "@next/env": "16.3.8",
++        "@next/env": "16.4.3",
+         "@swc/helpers": "0.5.23",
+         "baseline-browser-mapping": "^2.9.19",
+         "caniuse-lite": "^1.0.30001579",
+@@ -2208,15 +2208,15 @@
+         "node": ">=20.9.0"
+       },
+       "optionalDependencies": {
+-        "@next/swc-darwin-arm64": "16.3.8",
+-        "@next/swc-darwin-x64": "16.3.8",
+-        "@next/swc-linux-arm64-gnu": "16.3.8",
+-        "@next/swc-linux-arm64-musl": "16.3.8",
+-        "@next/swc-linux-x64-gnu": "16.3.8",
+-        "@next/swc-linux-x64-musl": "16.3.8",
+-        "@next/swc-win32-arm64-msvc": "16.3.8",
+-        "@next/swc-win32-x64-msvc": "16.3.8",
+-        "sharp": "^0.35.4"
++        "@next/swc-darwin-arm64": "16.4.3",
++        "@next/swc-darwin-x64": "16.4.3",
++        "@next/swc-linux-arm64-gnu": "16.4.3",
++        "@next/swc-linux-arm64-musl": "16.4.3",
++        "@next/swc-linux-x64-gnu": "16.4.3",
++        "@next/swc-linux-x64-musl": "16.4.3",
++        "@next/swc-win32-arm64-msvc": "16.4.3",
++        "@next/swc-win32-x64-msvc": "16.4.3",
++        "sharp": "^0.35.5"
+       },
+       "peerDependencies": {
+         "@opentelemetry/api": "^1.1.0",
+diff --git a/frontend/package.json b/frontend/package.json
+index 152e824..f89a251 100644
+--- a/frontend/package.json
++++ b/frontend/package.json
+@@ -18,7 +18,7 @@
+   },
+   "dependencies": {
+     "@tanstack/react-query": "5.104.2",
+-    "next": "16.3.8",
++    "next": "16.4.3",
+     "react": "19.3.0",
+     "react-dom": "19.3.0",
+     "react-hook-form": "7.90.0",
+
+From 754dc150cda54c1890f1a2ac4d5500335dc4df36 Mon Sep 17 00:00:00 2001
+From: Matheus Siqueira <hellomatheusdev@gmail.com>
+Date: Sat, 24 Oct 2026 23:52:07 -0300
+Subject: [PATCH 2/5] fix(frontend): add security headers to pages
+
+---
+ frontend/next.config.mjs                | 14 ++++++++++++++
+ frontend/tests/security-headers.test.ts | 19 +++++++++++++++++++
+ 2 files changed, 33 insertions(+)
+ create mode 100644 frontend/tests/security-headers.test.ts
+
+diff --git a/frontend/next.config.mjs b/frontend/next.config.mjs
+index 4b68d17..4dca49a 100644
+--- a/frontend/next.config.mjs
++++ b/frontend/next.config.mjs
+@@ -2,8 +2,22 @@ const backend = new URL(process.env.BACKEND_ORIGIN ?? 'http://127.0.0.1:8080');
+ if (!['http:', 'https:'].includes(backend.protocol) || backend.username || backend.password || backend.pathname !== '/') {
+   throw new Error('BACKEND_ORIGIN must be an HTTP(S) origin without credentials or path.');
+ }
++
++// Cabecalhos das paginas. A CSP limita enquadramento, base, formularios e plugins sem restringir scripts e
++// estilos, que o App Router injeta em linha; as respostas da API ja trazem os proprios cabecalhos.
++export const PAGE_SECURITY_HEADERS = [
++  { key: 'Content-Security-Policy', value: "frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" },
++  { key: 'X-Frame-Options', value: 'DENY' },
++  { key: 'X-Content-Type-Options', value: 'nosniff' },
++  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
++  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
++];
++
+ export default {
+   poweredByHeader: false,
++  async headers() {
++    return [{ source: '/:path((?!api/backend/).*)', headers: PAGE_SECURITY_HEADERS }];
++  },
+   async rewrites() {
+     return [{ source: '/api/backend/:path*', destination: `${backend.origin}/:path*` }];
+   },
+diff --git a/frontend/tests/security-headers.test.ts b/frontend/tests/security-headers.test.ts
+new file mode 100644
+index 0000000..d420c75
+--- /dev/null
++++ b/frontend/tests/security-headers.test.ts
+@@ -0,0 +1,19 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++
++const configUrl = new URL('../next.config.mjs', import.meta.url).href;
++
++test('paginas recebem CSP contra enquadramento e cabecalhos de seguranca; rotas da API ficam de fora', async () => {
++  const config = (await import(configUrl)).default;
++  const rules: Array<{ source: string; headers: Array<{ key: string; value: string }> }> = await config.headers();
++  assert.equal(rules.length, 1);
++  const [rule] = rules;
++  const headers = new Map(rule!.headers.map(header => [header.key, header.value]));
++  assert.match(headers.get('Content-Security-Policy') ?? '', /frame-ancestors 'none'/);
++  assert.match(headers.get('Content-Security-Policy') ?? '', /object-src 'none'/);
++  assert.equal(headers.get('X-Frame-Options'), 'DENY');
++  assert.equal(headers.get('X-Content-Type-Options'), 'nosniff');
++  assert.equal(headers.get('Referrer-Policy'), 'strict-origin-when-cross-origin');
++  assert.ok(headers.has('Permissions-Policy'));
++  assert.equal(rule!.source, '/:path((?!api/backend/).*)');
++});
+
+From d1ef6463527dbbf1b90a16e7961eb0b1b13adeee Mon Sep 17 00:00:00 2001
+From: Matheus Siqueira <hellomatheusdev@gmail.com>
+Date: Sat, 24 Oct 2026 23:52:07 -0300
+Subject: [PATCH 3/5] fix(frontend): hide goal bar when there is no goal
+
+---
+ frontend/app/(app)/meu-desempenho/my-performance.tsx | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/frontend/app/(app)/meu-desempenho/my-performance.tsx b/frontend/app/(app)/meu-desempenho/my-performance.tsx
+index 51a926c..3e3b25e 100644
+--- a/frontend/app/(app)/meu-desempenho/my-performance.tsx
++++ b/frontend/app/(app)/meu-desempenho/my-performance.tsx
+@@ -55,7 +55,7 @@ export default function MyPerformance({ manager = false }: { manager?: boolean }
+           <div className="kpi"><span className="label">Atingimento</span><span className={`value${data.state === 'SEM_META' ? ' text' : ''}`}>{data.state === 'SEM_META' ? 'Sem meta' : formatPercent(data.achievementPercent)}</span></div>
+           <div className="kpi"><span className="label">Falta</span><span className={`value${data.state === 'SEM_META' ? ' text' : ''}`}>{data.state === 'SEM_META' ? 'Sem meta' : money(data.remaining)}</span></div>
+         </div>
+-        <GoalBar title="Realizado em relação à meta" realized={realized} goal={goal} />
++        {data.state !== 'SEM_META' && <GoalBar title="Realizado em relação à meta" realized={realized} goal={goal} />}
+         <p><Link href="/vendas">{manager ? 'Ver as vendas da loja' : 'Ver as minhas vendas'}</Link>
+           {data.state !== 'META_ATINGIDA' && <> · <Link href="/vender">Nova venda</Link></>}</p>
+       </section>}
+
+From 651a9240f4e8672cf35b9eae5c4d7302c3d3fce0 Mon Sep 17 00:00:00 2001
+From: Matheus Siqueira <hellomatheusdev@gmail.com>
+Date: Sat, 24 Oct 2026 23:52:07 -0300
+Subject: [PATCH 4/5] fix(frontend): format compact money without Intl compact
+ notation
+
+---
+ frontend/lib/format.ts       | 16 +++++++++++++---
+ frontend/tests/brand.test.ts |  6 ++++++
+ 2 files changed, 19 insertions(+), 3 deletions(-)
+
+diff --git a/frontend/lib/format.ts b/frontend/lib/format.ts
+index 70b44f2..257b55c 100644
+--- a/frontend/lib/format.ts
++++ b/frontend/lib/format.ts
+@@ -8,7 +8,8 @@ const dayMonth = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-di
+ 
+ /** Manual de marca v1.0: dado ausente e escrito por extenso, nunca zero inventado. */
+ export const MISSING = 'Não informado';
+-const brlCompact = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', notation: 'compact', maximumFractionDigits: 1 });
++const oneDecimal = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
++const COMPACT_SCALES: readonly (readonly [number, string])[] = [[1, ''], [1e3, ' mil'], [1e6, ' mi'], [1e9, ' bi']];
+ const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric', timeZone: 'America/Fortaleza' });
+ const percent = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+ 
+@@ -22,9 +23,18 @@ export function money(value: Money | number | null | undefined): string {
+   return plain(brl.format(typeof value === 'number' ? value : value.amount));
+ }
+ 
+-/** Valor curto para rotulo de grafico: "R$ 47 mil", "R$ 1,2 mi". */
++/**
++ * Valor curto para rotulo de grafico: "R$ 47 mil", "R$ 1,2 mi". Escala e sufixo sao calculados aqui, e nao pela
++ * notacao compacta do Intl, cujo resultado muda com a versao dos dados de localidade do Node ("R$ 47,0 mil").
++ */
+ export function compactMoney(value: Money | number): string {
+-  return plain(brlCompact.format(typeof value === 'number' ? value : value.amount));
++  const amount = typeof value === 'number' ? value : value.amount;
++  const abs = Math.abs(amount);
++  let index = 0;
++  while (index < COMPACT_SCALES.length - 1 && Math.round((abs / COMPACT_SCALES[index]![0]) * 10) / 10 >= 1000) index++;
++  const [size, suffix] = COMPACT_SCALES[index]!;
++  const scaled = Math.round((abs / size) * 10) / 10;
++  return `${amount < 0 && scaled > 0 ? '-' : ''}R$ ${plain(oneDecimal.format(scaled))}${suffix}`;
+ }
+ 
+ /** Mes de referencia (YYYY-MM) por extenso: "outubro de 2026". */
+diff --git a/frontend/tests/brand.test.ts b/frontend/tests/brand.test.ts
+index 36121c0..c4a9b09 100644
+--- a/frontend/tests/brand.test.ts
++++ b/frontend/tests/brand.test.ts
+@@ -59,6 +59,12 @@ test('[CT-WEB-124] formatos do manual: hora 14h30, periodo, ausente e valor curt
+   assert.equal(MISSING, 'Não informado');
+   assert.equal(money(undefined), MISSING);
+   assert.equal(compactMoney(47_000), 'R$ 47 mil');
++  assert.equal(compactMoney({ amount: 1_234_567, currency: 'BRL' }), 'R$ 1,2 mi');
++  assert.equal(compactMoney(999_960), 'R$ 1 mi');
++  assert.equal(compactMoney(12_350), 'R$ 12,4 mil');
++  assert.equal(compactMoney(950), 'R$ 950');
++  assert.equal(compactMoney(0), 'R$ 0');
++  assert.equal(compactMoney(-47_000), '-R$ 47 mil');
+   assert.equal(money(1234.5), 'R$ 1.234,50');
+   assert.equal(initials('Allan Paula Lima'), 'AL');
+   assert.equal(initials('marta'), 'M');
+
+From 7de897afe071cb6947e5a7edf76daeda5e1b4097 Mon Sep 17 00:00:00 2001
+From: Matheus Siqueira <hellomatheusdev@gmail.com>
+Date: Sat, 24 Oct 2026 23:52:07 -0300
+Subject: [PATCH 5/5] fix(config): disable SQL logging by default
+
+---
+ docs/deploy.md                            | 2 +-
+ src/main/resources/application.properties | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/docs/deploy.md b/docs/deploy.md
+index aba8590..d1b1694 100644
+--- a/docs/deploy.md
++++ b/docs/deploy.md
+@@ -58,7 +58,7 @@ Variáveis de ambiente (os valores reais ficam só no painel do Render):
+ | `SPRING_DATASOURCE_PASSWORD` | `<senha do Neon>` |
+ | `SBI_DEMO_PASSWORD` | `<senha comum das contas demo, 8 a 72 bytes; cada conta pode ter a sua em SBI_DEMO_PASSWORD_MATHEUS, _GABRIEL, _ALLAN ou _FRANCISCO>` |
+ | `SESSION_COOKIE_SECURE` | `true` |
+-| `SPRING_JPA_SHOW_SQL` | `false` (o padrão do projeto registra cada consulta no log) |
++| `SPRING_JPA_SHOW_SQL` | `false` (já é o padrão; `true` só para depurar, porque registra cada consulta no log) |
+ | `PORT` | `8080` (opcional: `application.properties` usa `server.port=${PORT:8080}`, então a porta que o Render informar também funciona) |
+ | `JAVA_TOOL_OPTIONS` | `-XX:MaxRAMPercentage=70 -XX:+UseSerialGC -Xss512k` |
+ 
+diff --git a/src/main/resources/application.properties b/src/main/resources/application.properties
+index 902ae24..1041ba4 100644
+--- a/src/main/resources/application.properties
++++ b/src/main/resources/application.properties
+@@ -9,7 +9,7 @@ spring.datasource.username=postgres
+ spring.datasource.password=${SPRING_DATASOURCE_PASSWORD}
+ spring.datasource.driver-class-name=org.postgresql.Driver
+ 
+-spring.jpa.show-sql=true
++spring.jpa.show-sql=${SPRING_JPA_SHOW_SQL:false}
+ spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+ 
+ # Flyway is the only source of the schema (decision A2); Hibernate only validates it.

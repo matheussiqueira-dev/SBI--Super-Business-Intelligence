@@ -1,0 +1,19 @@
+flowchart TB
+  B["Navegador do usuário"] -->|"HTTPS"| V
+  subgraph VER["Vercel · projeto sbi-app (região de funções iad1)"]
+    V["Next.js 16 / React 19<br/>https://sbi-app-alpha.vercel.app"]
+    RW["Rewrite /api/backend/* → BACKEND_ORIGIN"]
+    V --> RW
+  end
+  subgraph REN["Render · serviço sbi-api (Docker, plano gratuito)"]
+    A["API Spring Boot 4.1 / Java 25<br/>perfil demo · health check /auth/csrf"]
+  end
+  subgraph NEO["Neon · projeto wispy-glade-88962628 (AWS us-east-2)"]
+    D[("PostgreSQL 18.6<br/>banco neondb · branch padrão")]
+    P[("branches preview/pr-N<br/>(uma por pull request)")]
+  end
+  RW -->|"HTTPS"| A
+  A -->|"JDBC + TLS<br/>Flyway V1–V11 + db/demo"| D
+  GH["GitHub · branch main"] -->|"push: deploy automático"| A
+  GH -->|"push: build automático"| V
+  GH -->|"pull_request: neon-preview.yml"| P

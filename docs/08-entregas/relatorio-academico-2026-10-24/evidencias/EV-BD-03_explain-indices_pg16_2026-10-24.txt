@@ -1,0 +1,117 @@
+=== SELECT id, name FROM customer WHERE lower(name) LIKE 'mar%' ORDER BY lower(name) LIMIT 20
+                         QUERY PLAN                          
+-------------------------------------------------------------
+ Limit (actual rows=3 loops=1)
+   ->  Sort (actual rows=3 loops=1)
+         Sort Key: (lower((name)::text))
+         Sort Method: quicksort  Memory: 25kB
+         ->  Seq Scan on customer (actual rows=3 loops=1)
+               Filter: (lower((name)::text) ~~ 'mar%'::text)
+               Rows Removed by Filter: 63
+(7 rows)
+
+--- enable_seqscan=off
+                                                     QUERY PLAN                                                     
+--------------------------------------------------------------------------------------------------------------------
+ Limit (actual rows=3 loops=1)
+   ->  Sort (actual rows=3 loops=1)
+         Sort Key: (lower((name)::text))
+         Sort Method: quicksort  Memory: 25kB
+         ->  Bitmap Heap Scan on customer (actual rows=3 loops=1)
+               Filter: (lower((name)::text) ~~ 'mar%'::text)
+               Heap Blocks: exact=3
+               ->  Bitmap Index Scan on ix_customer_name_prefix (actual rows=3 loops=1)
+                     Index Cond: ((lower((name)::text) ~>=~ 'mar'::text) AND (lower((name)::text) ~<~ 'mas'::text))
+(9 rows)
+
+=== SELECT id, moment, status FROM orders WHERE customer_id = (SELECT min(id) FROM customer) ORDER BY moment DESC LIMIT 20
+                                         QUERY PLAN                                          
+---------------------------------------------------------------------------------------------
+ Limit (actual rows=14 loops=1)
+   InitPlan 2 (returns $1)
+     ->  Result (actual rows=1 loops=1)
+           InitPlan 1 (returns $0)
+             ->  Limit (actual rows=1 loops=1)
+                   ->  Index Only Scan using client_pkey on customer (actual rows=1 loops=1)
+                         Index Cond: (id IS NOT NULL)
+                         Heap Fetches: 0
+   ->  Sort (actual rows=14 loops=1)
+         Sort Key: orders.moment DESC
+         Sort Method: quicksort  Memory: 25kB
+         ->  Seq Scan on orders (actual rows=14 loops=1)
+               Filter: (customer_id = $1)
+               Rows Removed by Filter: 273
+(14 rows)
+
+--- enable_seqscan=off
+                                         QUERY PLAN                                          
+---------------------------------------------------------------------------------------------
+ Limit (actual rows=14 loops=1)
+   InitPlan 2 (returns $1)
+     ->  Result (actual rows=1 loops=1)
+           InitPlan 1 (returns $0)
+             ->  Limit (actual rows=1 loops=1)
+                   ->  Index Only Scan using client_pkey on customer (actual rows=1 loops=1)
+                         Index Cond: (id IS NOT NULL)
+                         Heap Fetches: 0
+   ->  Sort (actual rows=14 loops=1)
+         Sort Key: orders.moment DESC
+         Sort Method: quicksort  Memory: 25kB
+         ->  Bitmap Heap Scan on orders (actual rows=14 loops=1)
+               Recheck Cond: (customer_id = $1)
+               Heap Blocks: exact=1
+               ->  Bitmap Index Scan on ix_orders_customer_moment (actual rows=14 loops=1)
+                     Index Cond: (customer_id = $1)
+(16 rows)
+
+=== SELECT id FROM orders WHERE seller_id = (SELECT id FROM app_users WHERE email='allanbarros@sbi.tech') AND status='PAID'
+                            QUERY PLAN                            
+------------------------------------------------------------------
+ Seq Scan on orders (actual rows=84 loops=1)
+   Filter: ((seller_id = $0) AND ((status)::text = 'PAID'::text))
+   Rows Removed by Filter: 203
+   InitPlan 1 (returns $0)
+     ->  Seq Scan on app_users (actual rows=1 loops=1)
+           Filter: ((email)::text = 'allanbarros@sbi.tech'::text)
+           Rows Removed by Filter: 3
+(7 rows)
+
+--- enable_seqscan=off
+                                    QUERY PLAN                                     
+-----------------------------------------------------------------------------------
+ Bitmap Heap Scan on orders (actual rows=84 loops=1)
+   Recheck Cond: (seller_id = $0)
+   Filter: ((status)::text = 'PAID'::text)
+   Rows Removed by Filter: 2
+   Heap Blocks: exact=4
+   InitPlan 1 (returns $0)
+     ->  Index Scan using app_users_email_key on app_users (actual rows=1 loops=1)
+           Index Cond: ((email)::text = 'allanbarros@sbi.tech'::text)
+   ->  Bitmap Index Scan on uq_orders_seller_request (actual rows=86 loops=1)
+         Index Cond: (seller_id = $0)
+(10 rows)
+
+=== SELECT product_id, sku, produto, preco, disponivel FROM v_catalogo_vendedor WHERE sku = 'IP-128-PT'
+                                    QUERY PLAN                                     
+-----------------------------------------------------------------------------------
+ Hash Join (actual rows=1 loops=1)
+   Hash Cond: (b.product_id = p.id)
+   ->  Seq Scan on stock_balance b (actual rows=49 loops=1)
+   ->  Hash (actual rows=1 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 9kB
+         ->  Seq Scan on product p (actual rows=1 loops=1)
+               Filter: (active AND sellable AND ((sku)::text = 'IP-128-PT'::text))
+               Rows Removed by Filter: 48
+(8 rows)
+
+--- enable_seqscan=off
+                                      QUERY PLAN                                      
+--------------------------------------------------------------------------------------
+ Nested Loop (actual rows=1 loops=1)
+   ->  Index Scan using product_sku_key on product p (actual rows=1 loops=1)
+         Index Cond: ((sku)::text = 'IP-128-PT'::text)
+         Filter: (active AND sellable)
+   ->  Index Scan using stock_balance_pkey on stock_balance b (actual rows=1 loops=1)
+         Index Cond: (product_id = p.id)
+(6 rows)
+

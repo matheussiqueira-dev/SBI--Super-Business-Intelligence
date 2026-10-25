@@ -68,7 +68,7 @@ jobs:
           chmod +x mvnw
           ./mvnw -B -q -DskipTests package
 
-      # Host sem pooler: o Flyway e o set_config dos gatilhos precisam de conexao direta (docs/deploy.md).
+      # Host sem pooler: o Flyway e o set_config dos gatilhos precisam de conexao direta (docs/05-operacao/deploy.md).
       # A senha NAO vem de steps.neon.outputs.password: output de action nao e mascarado e o GitHub imprime o
       # bloco env de cada passo no log (publico neste repositorio). O neonctl a entrega dentro do script, que a
       # mascara antes de qualquer uso; a branch Neon herda a senha da branch pai (producao).

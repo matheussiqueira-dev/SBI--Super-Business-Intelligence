@@ -1,4 +1,4 @@
-# Massa de demonstracao Olist (equivalente PowerShell de docs/bd/pacote-sql/run_demo_olist.sh).
+# Massa de demonstracao Olist (equivalente PowerShell de docs/03-banco-de-dados/pacote-sql/run_demo_olist.sh).
 # Sobe a stack demo, espera a API saudavel (Flyway aplicado), carrega 07_carga_olist.sql por psql dentro do
 # conteiner do banco e imprime as contagens. Com -Check: carga repetida (idempotencia), testes 09 (CT-DEMO-01 a 04)
 # e verificacao pela API (CT-DEMO-05).
@@ -20,7 +20,7 @@ try {
         $ErrorActionPreference = 'Continue'
         # A URL chega ao psql por variavel de ambiente do conteiner (-e sem valor), fora da linha de comando do docker.
         $env:SBI_PSQL_URL = $DatabaseUrl
-        $mount = (Join-Path $projectDirectory 'docs\bd\pacote-sql') + ':/pacote-sql:ro'
+        $mount = (Join-Path $projectDirectory 'docs\03-banco-de-dados\pacote-sql') + ':/pacote-sql:ro'
         # set -f: a URL sem aspas (o PowerShell 5.1 estraga aspas internas) nao sofre expansao de curinga no sh.
         # Por isso so vao argumentos simples na linha de comando; consulta com espaco entra pela entrada padrao (-i).
         $psql = @('run', '--rm', '-i', '-e', 'SBI_PSQL_URL', '-v', $mount, '-w', '/pacote-sql', 'postgres:18',
@@ -39,7 +39,7 @@ try {
             if ($lines.Count -eq 0 -or ($lines -cmatch '^FAIL |ERROR:')) { throw 'Verificacao da massa Olist falhou.' }
             Write-Host 'CT-DEMO-05 (pela API) nao roda neste modo: use scripts/demo-olist-api.mjs com a URL publica da API.'
         }
-        Write-Host 'Massa Olist carregada no banco externo. Roteiro SQL: docs/bd/pacote-sql/08_crud_clientes_olist.sql'
+        Write-Host 'Massa Olist carregada no banco externo. Roteiro SQL: docs/03-banco-de-dados/pacote-sql/08_crud_clientes_olist.sql'
         return
     }
     # O docker compose tambem le o .env ao lado do docker-compose.demo.yml (fora do git).
@@ -59,7 +59,7 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'API nao voltou depois de recriada.' }
     }
     & docker @compose exec -T db rm -rf /tmp/pacote-sql
-    & docker @compose cp docs/bd/pacote-sql db:/tmp/pacote-sql
+    & docker @compose cp docs/03-banco-de-dados/pacote-sql db:/tmp/pacote-sql
     if ($LASTEXITCODE -ne 0) { throw 'Copia do pacote SQL para o banco falhou.' }
     $psql = @('exec', '-T', '-w', '/tmp/pacote-sql', 'db', 'psql', '-X', '-q', '-U', 'sbi', '-d', 'sbi_demo')
     & docker @compose @psql -v ON_ERROR_STOP=1 -f 07_carga_olist.sql
@@ -77,7 +77,7 @@ try {
         $apiExit = $LASTEXITCODE
         if ($apiExit -ne 0 -or $lines.Count -eq 0 -or ($lines -cmatch '^FAIL |ERROR:')) { throw 'Verificacao da massa Olist falhou.' }
     }
-    Write-Host 'Banco: jdbc:postgresql://127.0.0.1:5433/sbi_demo (usuario sbi). Roteiro SQL: docs/bd/pacote-sql/08_crud_clientes_olist.sql'
+    Write-Host 'Banco: jdbc:postgresql://127.0.0.1:5433/sbi_demo (usuario sbi). Roteiro SQL: docs/03-banco-de-dados/pacote-sql/08_crud_clientes_olist.sql'
 }
 finally {
     Remove-Item Env:SBI_PSQL_URL -ErrorAction SilentlyContinue
