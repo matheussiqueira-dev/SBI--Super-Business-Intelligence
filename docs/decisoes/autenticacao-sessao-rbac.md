@@ -8,7 +8,7 @@ A sessão Spring (`HttpSession`) continua sendo o mecanismo de autenticação (A
 
 - **Revogação imediata no logout.** `POST /auth/logout` invalida a sessão no servidor; o cookie roubado deixa de valer no mesmo instante. Com JWT, o token continuaria válido até expirar, a menos que se mantivesse uma lista de tokens revogados, que é uma sessão com outro nome.
 - **Mesma origem.** O Next.js encaminha `/api/backend/:path*` para `BACKEND_ORIGIN`; o navegador só conversa com uma origem. O cookie `HttpOnly` vai sozinho, e o JavaScript da página nunca guarda credencial. Um token no navegador exigiria `localStorage` (exposto a XSS) ou cookie, o que traz de volta CSRF sem os ganhos da sessão.
-- **Já implementado e testado.** Login com `ChangeSessionIdAuthenticationStrategy`, CSRF com `HttpSessionCsrfTokenRepository`, BCrypt(12) e `SessionSecurityTest` estão na `main`.
+- **Já implementado e testado.** Login com `ChangeSessionIdAuthenticationStrategy`, CSRF com `HttpSessionCsrfTokenRepository`, BCrypt (custo 12 até 25/10/2026, 10 desde então: D-EVO-50) e `SessionSecurityTest` estão na `main`.
 
 Configuração mantida ou reforçada:
 
@@ -19,7 +19,7 @@ Configuração mantida ou reforçada:
 | Fixação de sessão | `ChangeSessionIdAuthenticationStrategy` no login |
 | CSRF | Token de `GET /auth/csrf`, enviado em `X-CSRF-TOKEN` em toda mutação, inclusive login e logout; renovado após login (`CsrfAuthenticationStrategy`) e após logout |
 | Logout | Invalida a sessão, apaga o cookie, grava `LOGOUT` em `audit_event`, responde 204 |
-| Senha | BCrypt(12); senha de 8 a 72 bytes UTF-8 (limite do BCrypt) |
+| Senha | BCrypt(10) desde 25/10/2026 (era 12; hash antigo refeito no primeiro login correto, D-EVO-50); senha de 8 a 72 bytes UTF-8 (limite do BCrypt) |
 
 ## 2. Hierarquia de papéis
 
@@ -59,7 +59,7 @@ static MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHiera
 `LoginAttemptService`, com `java.time.Clock` injetado, e um `AuthenticationProvider` próprio no lugar do `DaoAuthenticationProvider`:
 
 1. Carrega o usuário pelo e-mail normalizado (minúsculas, sem espaços).
-2. **Sempre** executa `passwordEncoder.matches(senha, hash)`: com o hash do usuário, se existir, ou com um hash BCrypt(12) fixo gerado na inicialização, se não existir. É a mesma mitigação de tempo do `DaoAuthenticationProvider` para usuário inexistente.
+2. **Sempre** executa `passwordEncoder.matches(senha, hash)`: com o hash do usuário, se existir, ou com um hash BCrypt fixo, do custo atual, gerado na inicialização, se não existir. É a mesma mitigação de tempo do `DaoAuthenticationProvider` para usuário inexistente.
 3. Só **depois** da comparação avalia o estado: inexistente, inativo (`active = false`), bloqueado (`locked_until > agora`) ou senha errada → mesma `BadCredentialsException`.
 4. Senha errada em conta ativa e não bloqueada: `failed_login_attempts + 1`. Na 5ª falha seguida: `locked_until = agora + 15 min`, `failed_login_attempts = 0` e `audit_event ACCOUNT_LOCKED`.
 5. Sucesso: zera o contador, grava `last_login_at`, `LOGIN_SUCCEEDED`.
@@ -100,7 +100,7 @@ Os quatro casos (senha errada, inexistente, bloqueada, inativa) respondem **401*
 | --- | --- |
 | Força bruta distribuída (muitas contas, um IP; ou muitos IPs, uma conta) | Sem limitação por IP nem CAPTCHA; o bloqueio é só por conta. |
 | Bloqueio proposital de conta alheia (negação de serviço) | Quem sabe o e-mail pode manter a conta bloqueada errando a senha a cada 15 min. Não há desbloqueio manual porque a gestão de usuários está fora do escopo (DEC-ERP-07). |
-| Diferença residual de tempo | Contas existentes fazem um `UPDATE` a mais na falha; o BCrypt domina o tempo, mas a diferença não foi medida. |
+| Diferença residual de tempo | Contas existentes fazem um `UPDATE` a mais na falha; o BCrypt domina o tempo, mas a diferença não foi medida. Na troca do custo 12 para o 10 (D-EVO-50), conta que ainda não entrou desde então tem hash de custo 12 e responde mais devagar que um e-mail inexistente até o primeiro login correto. |
 | Inativação com sessão aberta | Conta inativada direto no banco só é barrada no próximo login; sessões já abertas expiram em até 30 min. Não há `SessionRegistry` nesta etapa. |
 | XSS no frontend | Um script injetado pode ler o token CSRF e agir na sessão; a defesa é não renderizar HTML não confiável (React escapa por padrão). |
 | Cookie sem `Secure` em dev | `SESSION_COOKIE_SECURE=false` só para HTTP local. |

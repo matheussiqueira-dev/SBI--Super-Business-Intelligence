@@ -20,4 +20,10 @@ public interface LoginCounter {
 
     /** Zera contador e bloqueio e grava o ultimo acesso, sem tocar nas demais colunas da conta. */
     void registerSuccess(long userId, Instant now);
+
+    /**
+     * Troca o hash da mesma senha (novo custo do BCrypt, D-EVO-50) so se ele ainda for {@code currentHash}: uma
+     * troca de senha concorrente vence. Nao altera session_version, porque a senha continua a mesma.
+     */
+    void replacePasswordHash(long userId, String currentHash, String newHash);
 }

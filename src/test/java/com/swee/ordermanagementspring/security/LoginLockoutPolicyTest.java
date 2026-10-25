@@ -15,7 +15,9 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -34,6 +36,7 @@ class LoginLockoutPolicyTest {
     private final AuditService audit = mock(AuditService.class);
     private final PasswordEncoder encoder = mock(PasswordEncoder.class);
     private AppUser allan;
+    private EntityCounter counter;
     private LockoutAuthenticationProvider provider;
 
     @BeforeEach
@@ -45,7 +48,8 @@ class LoginLockoutPolicyTest {
         when(encoder.encode(anyString())).thenReturn("hash-ficticio");
         when(encoder.matches(anyString(), anyString())).thenReturn(false);
         when(encoder.matches(PASSWORD, "hash-allan")).thenReturn(true);
-        provider = new LockoutAuthenticationProvider(users, encoder, new LoginAttemptService(new EntityCounter(allan), audit, clock));
+        counter = new EntityCounter(allan);
+        provider = new LockoutAuthenticationProvider(users, encoder, new LoginAttemptService(counter, audit, clock));
     }
 
     private UsernamePasswordAuthenticationToken login(String email, String password) {
@@ -118,12 +122,44 @@ class LoginLockoutPolicyTest {
         assertThat(expected).doesNotContain("ninguem").matches("\\{\"emailSha256\":\"[0-9a-f]{64}\"}");
     }
 
+    @Test
+    @DisplayName("[CT-AUTH-103] login correto com hash de outro custo regrava o hash; falha e custo atual nao")
+    void correctLoginRehashesOnlyOtherCosts() {
+        String oldCost = "$2a$12$abcdefghijklmnopqrstuuabcdefghijklmnopqrstuvwxyz01234";
+        String currentCost = "$2a$10$abcdefghijklmnopqrstuuabcdefghijklmnopqrstuvwxyz01234";
+        ReflectionTestUtils.setField(allan, "passwordHash", oldCost);
+        when(encoder.matches(PASSWORD, oldCost)).thenReturn(true);
+        when(encoder.encode(PASSWORD)).thenReturn(currentCost);
+
+        fail(1);
+        assertThat(counter.replaced).isEmpty();
+
+        assertThat(provider.authenticate(login("allan@example.test", PASSWORD)).isAuthenticated()).isTrue();
+        assertThat(counter.replaced).containsExactly(oldCost + " -> " + currentCost);
+
+        ReflectionTestUtils.setField(allan, "passwordHash", currentCost);
+        when(encoder.matches(PASSWORD, currentCost)).thenReturn(true);
+        assertThat(provider.authenticate(login("allan@example.test", PASSWORD)).isAuthenticated()).isTrue();
+        assertThat(counter.replaced).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("[CT-AUTH-103] so hash BCrypt de outro custo precisa ser refeito")
+    void needsRehashReadsTheBcryptCost() {
+        assertThat(PasswordHashing.needsRehash("$2a$12$abcdefghijklmnopqrstuuabcdefghijklmnopqrstuvwxyz01234")).isTrue();
+        assertThat(PasswordHashing.needsRehash("$2b$04$abcdefghijklmnopqrstuuabcdefghijklmnopqrstuvwxyz01234")).isTrue();
+        assertThat(PasswordHashing.needsRehash("$2a$10$abcdefghijklmnopqrstuuabcdefghijklmnopqrstuvwxyz01234")).isFalse();
+        assertThat(PasswordHashing.needsRehash("hash-allan")).isFalse();
+        assertThat(PasswordHashing.needsRehash(null)).isFalse();
+    }
+
     /**
      * Emula o UPDATE atomico do {@link JdbcLoginCounter} sobre a propria entidade, que faz o papel da linha do
      * banco. A atomicidade real e coberta pelo CT-SEC-120 ({@code LoginAttemptConcurrencyTest}).
      */
     static final class EntityCounter implements LoginCounter {
         private final Map<Long, AppUser> rows = new HashMap<>();
+        final List<String> replaced = new ArrayList<>();
 
         EntityCounter(AppUser... users) {
             for (AppUser user : users) rows.put(user.getId(), user);
@@ -142,6 +178,11 @@ class LoginLockoutPolicyTest {
         @Override
         public void registerSuccess(long userId, Instant now) {
             rows.get(userId).registerSuccess(now);
+        }
+
+        @Override
+        public void replacePasswordHash(long userId, String currentHash, String newHash) {
+            replaced.add(currentHash + " -> " + newHash);
         }
     }
 

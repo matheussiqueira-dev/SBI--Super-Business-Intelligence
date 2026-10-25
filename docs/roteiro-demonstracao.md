@@ -7,7 +7,7 @@ A apresentação roda no ambiente publicado: <https://sbi-app-alpha.vercel.app> 
 1. Aqueça o ambiente, porque o plano gratuito do Render dorme o serviço e o Neon suspende o banco ocioso ([deploy.md, seção 6](deploy.md)):
    - abra <https://sbi-api-puk8.onrender.com/auth/csrf> até responder 200 (com o serviço dormindo, a primeira vez leva de 1 a 3 minutos);
    - entre como Matheus e visite Visão geral e Clientes;
-   - deixe uma aba em Visão geral: o painel consulta a API a cada 15 segundos e impede o serviço de dormir.
+   - deixe uma aba em Visão geral e role ou clique nela a cada poucos minutos: o painel consulta a API a cada 15 segundos enquanto a tela está em uso e impede o serviço de dormir; 10 minutos parada, a consulta pausa até a próxima interação.
 2. Confira, como Matheus:
    - em Usuários, as quatro contas ativas (se um ensaio anterior parou no passo 8, ative o Francisco);
    - em Promoções, "Acessorios 10% - outubro a dezembro" vigente;

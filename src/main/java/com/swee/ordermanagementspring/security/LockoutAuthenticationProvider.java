@@ -15,7 +15,8 @@ import java.util.UUID;
 /**
  * Login com bloqueio (RF-18). O BCrypt roda antes de qualquer verificacao de estado, inclusive para conta
  * inexistente (hash ficticio), para que o tempo de resposta nao revele se a conta existe, esta bloqueada ou
- * inativa. Os quatro casos de falha lancam a mesma excecao e geram o mesmo 401.
+ * inativa. Os quatro casos de falha lancam a mesma excecao e geram o mesmo 401. Login correto com hash de outro
+ * custo regrava o hash com o custo atual (D-EVO-50).
  */
 public class LockoutAuthenticationProvider implements AuthenticationProvider {
     private final AppUserRepository users;
@@ -50,6 +51,7 @@ public class LockoutAuthenticationProvider implements AuthenticationProvider {
             throw invalid();
         }
         attempts.succeeded(user);
+        if (PasswordHashing.needsRehash(user.getPasswordHash())) attempts.rehashed(user, encoder.encode(password));
         AppPrincipal principal = new AppPrincipal(user);
         return UsernamePasswordAuthenticationToken.authenticated(principal, null, principal.getAuthorities());
     }

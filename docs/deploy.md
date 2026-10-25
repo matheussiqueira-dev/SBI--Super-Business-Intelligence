@@ -130,7 +130,7 @@ O plano gratuito do Render dorme o serviço depois de um tempo sem acesso, e o N
 
 1. abra `https://sbi-api-puk8.onrender.com/auth/csrf` até responder 200 (a primeira chamada pode levar de 1 a 3 minutos com o serviço dormindo);
 2. abra `https://sbi-app-alpha.vercel.app/entrar`, entre como gerente e visite Visão geral e Clientes (aquece a JVM, o pool de conexões e o banco);
-3. mantenha uma aba aberta em Visão geral: o painel consulta a API a cada 15 segundos com a aba visível, o que impede o serviço de dormir durante a apresentação.
+3. mantenha uma aba aberta em Visão geral e use a tela de vez em quando: o painel consulta a API a cada 15 segundos com a aba visível e em uso, o que impede o serviço de dormir durante a apresentação. Depois de 10 minutos sem interação a consulta pausa (D-EVO-51) e, sem outro acesso, o Neon dorme em 5 minutos e o Render em 15; um clique ou rolagem na tela volta a consultar na hora.
 
 Com a API em imagem com cache AOT (#43), a partida a frio medida em 0,1 CPU caiu de cerca de 280 s para 67 s. Para encurtar mais a primeira entrada no dia da apresentação, defina `NEXT_PUBLIC_SBI_AQUECER=1` na Vercel e refaça o deploy do frontend; depois da apresentação, remova a variável e refaça o deploy, para não acordar o Render e o Neon a cada visita à tela de login. A tela de login avisa depois de 8 s que o servidor pode estar acordando.
 
