@@ -14,7 +14,7 @@ export default function CreditosPage() {
       <section className="card stack-sm" aria-label="Avatares da equipe">
         <h2>Avatares da equipe</h2>
         <p>Avatares do arquivo <a href="https://www.figma.com/design/khzxuhK7C7U7UnlzkKufqT/Memoji-Avatars--Community-?node-id=0-1" rel="noreferrer">Memoji Avatars (Community), no Figma</a>, selecionados para os perfis da equipe.</p>
-        <p>As expressões faciais são versões derivadas, criadas com auxílio de IA a partir desses avatares.</p>
+        <p>As expressões faciais são versões derivadas desses avatares.</p>
       </section>
       <section className="card">
         <TableWrap label="Créditos das imagens">
