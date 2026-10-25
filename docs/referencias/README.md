@@ -11,4 +11,4 @@ Publicados por Matheus Siqueira em04/10/2026, copiados dos arquivos do projeto s
 | Guia-Visual-Sistema-da-Loja.pdf | Guia-Visual-Sistema-da-Loja.pdf | Referência visual, não screenshots do produto integrado. |
 | direcao-criativa.md | direcao-criativa.md | Direção visual do projeto. |
 
-Versão atual executável: [documentação de sessão](../execucao-sessao.md), [regras](../decisoes/regras-loja.md), [índice por card](../gestao/README.md). Referências antigas podem estar superadas; preservar história não significa adotar regras antigas.
+Versão atual executável: [regras](../decisoes/regras-loja.md) e os documentos listados no [README](../../README.md). A [documentação de sessão](../historico/execucao-sessao.md) (04/10) e o [índice por card](../historico/gestao/README.md) (09/10) estão no [histórico](../historico/README.md). Referências antigas podem estar superadas; preservar história não significa adotar regras antigas.

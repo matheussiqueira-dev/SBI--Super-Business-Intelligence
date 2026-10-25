@@ -21,7 +21,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Testes dos validadores falharam.' }
     if (-not $HttpOnly) {
         & node scripts/validate-contract.mjs
-        if ($LASTEXITCODE -ne 0) { throw 'Validacao OpenAPI falhou ou download oficial indisponivel. Veja reports/contrato/spike-2026-10-04/validation.json. Para executar HTTP separadamente use -HttpOnly.' }
+        if ($LASTEXITCODE -ne 0) { throw 'Validacao OpenAPI falhou ou download oficial indisponivel. Veja target/contrato/validation.json. Para executar HTTP separadamente use -HttpOnly.' }
     }
     if (-not (Get-Command docker -ErrorAction SilentlyContinue)) { throw 'Inicie Docker Desktop e disponibilize docker no PATH.' }
     if (-not $env:JAVA_HOME) {
@@ -56,7 +56,8 @@ try {
     & docker compose -f docker-compose.test.yml -p a3-tests up -d --wait
     if ($LASTEXITCODE -ne 0) { throw 'Banco descartavel nao iniciou.' }
     $jar = Join-Path $projectDirectory 'target/order-management-spring-0.0.1-SNAPSHOT.jar'
-    $outputDirectory = Join-Path $projectDirectory 'reports/contrato/spike-2026-10-04'
+    # Relatorios JSON e logs desta execucao ficam em target/contrato, fora do Git (na CI, artefato contract-reports).
+    $outputDirectory = Join-Path $projectDirectory 'target/contrato'
     New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
     # Explicit disposable datasource; application-integration.properties is a test resource,
     # so it is not bundled in the application jar. Flyway migrates the schema and ContractUsersConfig
@@ -82,11 +83,11 @@ try {
     if (-not $ready) { throw 'Timeout aguardando API isolada.' }
     $env:A3_CONTRACT_ISOLATED = '1'
     & node scripts/http-contract.mjs
-    if ($LASTEXITCODE -ne 0) { throw 'Teste HTTP falhou. Consulte reports/contrato/spike-2026-10-04/http-swagger-errors-v1.json.' }
+    if ($LASTEXITCODE -ne 0) { throw 'Teste HTTP falhou. Consulte target/contrato/http-swagger-errors-v1.json.' }
     & node scripts/http-session.mjs
-    if ($LASTEXITCODE -ne 0) { throw 'Teste de sessao falhou. Consulte reports/contrato/session-2026-10-04/http-session.json.' }
+    if ($LASTEXITCODE -ne 0) { throw 'Teste de sessao falhou. Consulte target/contrato/http-session.json.' }
     & node scripts/live-contract.mjs
-    if ($LASTEXITCODE -ne 0) { throw 'Contrato ao vivo diverge do contrato alvo. Consulte reports/contrato/live-v6/live-contract.json.' }
+    if ($LASTEXITCODE -ne 0) { throw 'Contrato ao vivo diverge do contrato alvo. Consulte target/contrato/live-contract.json.' }
     if ($Frontend) {
         Push-Location frontend
         try {

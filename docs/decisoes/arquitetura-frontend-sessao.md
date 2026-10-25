@@ -4,7 +4,7 @@ Data: 04/10/2026. Estado: escolha de frontend/autenticação confirmada por Math
 
 ## Decisão confirmada
 
-Frontend em Next.js. Sessão mantida no Spring, identificada por cookie HttpOnly. A API permanece responsável por autenticação, autorização por perfil e autoria dos pedidos. A continuação adicionou código de autenticação e interface de acesso; aceite e pendências estão em [execucao-sessao.md](../execucao-sessao.md). Autoria de pedidos e áreas de domínio seguem pendentes.
+Frontend em Next.js. Sessão mantida no Spring, identificada por cookie HttpOnly. A API permanece responsável por autenticação, autorização por perfil e autoria dos pedidos. A continuação adicionou código de autenticação e interface de acesso; aceite e pendências estão em [execucao-sessao.md](../historico/execucao-sessao.md). Autoria de pedidos e áreas de domínio seguem pendentes.
 
 ## Direção de integração
 

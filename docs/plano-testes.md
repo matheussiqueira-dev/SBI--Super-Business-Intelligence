@@ -98,7 +98,7 @@ O wrapper foi restaurado e recebeu correção para `Target` nulo no PowerShell. 
 
 `mvnw.cmd test` seleciona unitários sem banco. `mvnw.cmd -Pintegration verify` também inclui os testes `@Tag("integration")`, com perfil Spring `integration`, PostgreSQL exclusivo na porta 15432 e banco `order_management_test`. O runner `scripts/test.ps1 -Mode Integration` usa Compose descartável. `OrderFixtures` cria a massa sintética e os testes de persistência usam rollback; não há seed automático na base de desenvolvimento.
 
-CT-MONEY-001 e a recarga de preço histórico de CT-MONEY-003 foram implementados e conferidos nas duas rodadas da suíte Java ampliada, com seis testes aprovados por rodada. Os seis casos HTTP da rodada Swagger passaram, incluindo schemas dos corpos 400/404 e documento OpenAPI ao vivo. Evidências: `reports/execucoes/run-2026-10-03-continuacao.md` e `reports/execucoes/run-2026-10-04-swagger-erros.md`. Isso não aprova os demais casos ainda não implementados nem autenticação/perfis.
+CT-MONEY-001 e a recarga de preço histórico de CT-MONEY-003 foram implementados e conferidos nas duas rodadas da suíte Java ampliada, com seis testes aprovados por rodada. Os seis casos HTTP da rodada Swagger passaram, incluindo schemas dos corpos 400/404 e documento OpenAPI ao vivo. Evidências: `docs/historico/reports/execucoes/run-2026-10-03-continuacao.md` e `docs/historico/reports/execucoes/run-2026-10-04-swagger-erros.md`. Isso não aprova os demais casos ainda não implementados nem autenticação/perfis.
 
 ## Mapa caso -> nivel -> tecnica -> risco
 
@@ -161,7 +161,7 @@ Planejados em 14/10/2026 (ETAPA 1); a situacao dos casos da 2C esta na tabela se
 | CT-AUTH-101 | CA-18-01 a CA-18-05 | Unitario | Analise de valor limite | 2B | Bloqueio na falha errada; sem desbloqueio; BCrypt pulado para conta bloqueada, inativa ou inexistente. |
 | CT-AUTH-102 | CA-18-02 a CA-18-04 | API | Transicao de estados | 2B | Resposta revela conta bloqueada ou inativa; desbloqueio nao ocorre apos 15 min (Clock). |
 | CT-CONTRACT-101 | CA-20-01, CA-19-02 | Unitario | Particionamento | 2C | Bean Validation aceita CPF/CNPJ invalido, entrega sem endereco ou cartao sem final. |
-| CT-CONTRACT-102 | CA-23-01 | Sistema | Particionamento | 2C | OpenAPI ao vivo diverge do v4 nas operacoes `implemented`, inclusive erros. |
+| CT-CONTRACT-102 | CA-23-01 | Sistema | Particionamento | 2C | OpenAPI ao vivo diverge do v6 nas operacoes `implemented`, inclusive erros. |
 | CT-CONTRACT-103 | - | Build | - | 3 | Schemas Zod gerados divergem do contrato (`api:generate` com diff). |
 | CT-SEC-101 | CA-17-01, CA-17-02 | API | Tabela de decisao | 2B | Linha da matriz com status diferente do esperado; corpo de erro fora do `ErrorResponse`. |
 | CT-SEC-102 | CA-17-02 | API | Tabela de decisao | 2B | Endpoint mapeado sem linha na matriz (exposicao acidental). |
@@ -216,7 +216,7 @@ Executados na branch `feat/business-endpoints` com `scripts/test.ps1 -Mode Integ
 | CT-CRM-104 | Verde | `CustomersApiTest.updateUsesVersionAndKeepsDocument` (versao desatualizada responde 409; edicao em paralelo real nao e simulada) |
 | CT-CRM-105 | Verde | `CustomersApiTest.deleteRules` |
 | CT-CONTRACT-101 | Verde (nivel API) | `CustomersApiTest` (CPF/CNPJ), `SalesApiTest.deliveryRequiresAddress`, `cardStoresOnlyLastFourDigits` |
-| CT-CONTRACT-102 | Verde | `scripts/live-contract.mjs` (45 operacoes, escopo em D-EXEC-07), relatorio `reports/contrato/live-v4/live-contract.json` |
+| CT-CONTRACT-102 | Verde | `scripts/live-contract.mjs` (contrato v6, 61 operacoes, 0 divergencias, escopo em D-EXEC-07), relatorio `reports/contrato/live-v6/live-contract.json`; cada execucao grava em `target/contrato/` |
 | CT-SEC-110 | Verde | `SalesApiTest.unknownPropertiesAreRejected` |
 | CT-SEC-111 | Verde | Corpo com `sellerId` responde 400; header e parametro forjados sao ignorados (`SalesApiTest.sellerComesOnlyFromSession`) |
 | CT-SEC-112 | Verde | `SalesApiTest.ownershipOnPaymentAndCancel`, `sellersSeeOnlyTheirOwnOrders` |

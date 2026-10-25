@@ -265,10 +265,7 @@ jobs:
           name: contract-reports
           path: |
             target/api-ci.log
-            reports/contrato/spike-2026-10-04/
-            reports/contrato/validacao/
-            reports/contrato/session-2026-10-04/
-            reports/contrato/live-v6/
+            target/contrato/
 
   frontend:
     # Build, testes de logica, schemas gerados sem diff e E2E com axe contra a API isolada.

@@ -96,7 +96,8 @@ export async function loadOfficialSchema() {
   return JSON.parse(readFileSync(officialSchemaPath, 'utf8'));
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  // Optional argument: contract to validate. Without it, the v3 target and its historical report are kept.
+  // Optional argument: contract to validate. Without it, the v3 target is validated.
+  // Reports go to target/contrato/, outside Git; the committed ones under reports/contrato/ are past runs.
   const file = process.argv[2] ? resolve(process.argv[2]) : fileURLToPath(targetPath);
   const document = JSON.parse(readFileSync(file, 'utf8'));
   let officialSchema, blocked;
@@ -106,8 +107,8 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const result = { ...validateDocument(document, officialSchema),
     revisedBaseline: validateDocument(revisedBaseline, officialSchema), ...(blocked ? { blocked } : {}) };
   const report = process.argv[2]
-    ? new URL(`../reports/contrato/validacao/${basename(file, '.json')}.json`, import.meta.url)
-    : new URL('../reports/contrato/spike-2026-10-04/validation.json', import.meta.url);
+    ? new URL(`../target/contrato/validacao/${basename(file, '.json')}.json`, import.meta.url)
+    : new URL('../target/contrato/validation.json', import.meta.url);
   mkdirSync(new URL('.', report), { recursive: true });
   writeFileSync(report, JSON.stringify(result, null, 2) + '\n');
   console.log(JSON.stringify(result, null, 2));

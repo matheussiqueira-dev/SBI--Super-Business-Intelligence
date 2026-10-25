@@ -21,7 +21,7 @@ Situação em 14/10/2026, com o código das etapas 2A a 5 empilhado em PRs abert
 | Java integração, no PostgreSQL 18 descartável via Docker Compose (`docker-compose.test.yml`, porta 15432) | 544 testes, 0 falhas, 0 ignorados | `scripts\test.ps1 -Mode Integration` |
 | Matriz de acesso | 221 combinações (anônimo, vendedor, gerente) | `AccessMatrixTest`, dentro da integração |
 | Contrato estático (Node) | 35/35; `audit-contract` sem erros | `npm test`; `node scripts\audit-contract.mjs` |
-| Contrato ao vivo | 45 de 45 operações exercitadas, 0 divergências | `scripts\test-contract.ps1 -HttpOnly` (`reports/contrato/live-v4/live-contract.json`) |
+| Contrato ao vivo | 45 de 45 operações exercitadas, 0 divergências | `scripts\test-contract.ps1 -HttpOnly` (`docs/historico/reports/contrato/live-v4/live-contract.json`) |
 | HTTP legado e sessão | 6/6 e 7/7 | mesmo runner |
 | Frontend: lógica | 20/20 | `cd frontend; npm test` |
 | Frontend: E2E e axe | 14/14 (CT-WEB-101 a 109, CT-E2E-002, CT-UI-001/002); sem violação WCAG 2.2 AA nas telas dos dois perfis; sem rolagem horizontal em 320 px | `scripts\test-contract.ps1 -HttpOnly -Frontend` |
@@ -37,7 +37,7 @@ A evolução (PRs #23 a #29, empilhados e não integrados) acrescentou cadastro 
 | Java integração | 649 testes, 0 falhas, 0 ignorados | `.\mvnw.cmd -Pintegration clean verify` |
 | Matriz de acesso | 260 combinações | `AccessMatrixTest`, dentro da integração |
 | Contrato (Node) | 40/40 | `npm test` na raiz |
-| Contrato ao vivo | contrato v5: 58 de 58 operações, 0 divergências | `scripts\test-contract.ps1 -HttpOnly` (`reports/contrato/live-v5/live-contract.json`) |
+| Contrato ao vivo | contrato v5: 58 de 58 operações, 0 divergências | `scripts\test-contract.ps1 -HttpOnly` (`docs/historico/reports/contrato/live-v5/live-contract.json`) |
 | Frontend: lógica | 36/36 | `cd frontend; npm test` |
 | Frontend: E2E e axe | 24/24, inclusive marca (CT-WEB-120, 121), usuários, cliente, desconto | `scripts\test-contract.ps1 -HttpOnly -Frontend` |
 | Banco (`psql`) | 61 PASS e 11 PASS da massa Olist | job `bd` da CI |
