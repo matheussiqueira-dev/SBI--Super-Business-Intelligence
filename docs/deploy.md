@@ -58,7 +58,7 @@ Variáveis de ambiente (os valores reais ficam só no painel do Render):
 | `SPRING_DATASOURCE_PASSWORD` | `<senha do Neon>` |
 | `SBI_DEMO_PASSWORD` | `<senha comum das contas demo, 8 a 72 bytes; cada conta pode ter a sua em SBI_DEMO_PASSWORD_MATHEUS, _GABRIEL, _ALLAN ou _FRANCISCO>` |
 | `SESSION_COOKIE_SECURE` | `true` |
-| `SPRING_JPA_SHOW_SQL` | `false` (o padrão do projeto registra cada consulta no log) |
+| `SPRING_JPA_SHOW_SQL` | `false` (já é o padrão; `true` só para depurar, porque registra cada consulta no log) |
 | `PORT` | `8080` (opcional: `application.properties` usa `server.port=${PORT:8080}`, então a porta que o Render informar também funciona) |
 | `JAVA_TOOL_OPTIONS` | `-XX:MaxRAMPercentage=70 -XX:+UseSerialGC -Xss512k` |
 
