@@ -292,7 +292,7 @@ Lacunas e decisoes em [decisoes/evolucao.md](decisoes/evolucao.md). Um pacote po
 | CT-WEB-127 | WP-PUB-2 | E2E | - | Verde | `e2e/brand.spec.ts`: rodape do login em duas linhas inteiras ("Ambiente de demonstracao · dados ficticios" e "Projeto A3 · UNIFG 2026") em 1280 px e 390 px, sem rolagem horizontal |
 | CT-WEB-128 | D-EVO-40 | E2E | - | Verde | `e2e/customers.spec.ts`: no PDV, cadastrar cliente com CPF já existente mostra "Este documento já pertence a um cliente cadastrado" e "Usar o cliente já cadastrado" coloca o cliente existente na venda |
 | CT-WEB-136 | D-MAR-05 | Unitario | Valor limite | Verde | `tests/chart-scale.test.ts`: eixo de valor com passo de 1, 2 ou 5 x 10^n, zero incluido e de 3 a 6 divisoes (47 mil vira 0, 20, 40 e 60 mil) |
-| CT-WEB-137 | D-MAR-02 | E2E/Acessibilidade | - | Pendente | `e2e/theme.spec.ts`: tema escuro pela preferencia do sistema; login e oito telas do gerente com axe WCAG 2.2 AA e sem rolagem horizontal em 320 px |
+| CT-WEB-137 | D-MAR-02 | E2E/Acessibilidade | - | Verde | `e2e/theme.spec.ts`: tema escuro pela preferencia do sistema; login e oito telas do gerente com axe WCAG 2.2 AA e sem rolagem horizontal em 320 px |
 
 ## Selecao inicial da suite
 
