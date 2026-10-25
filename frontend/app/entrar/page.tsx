@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import LoginForm from './login-form.tsx';
 import { SbiLogo, SbiSymbol } from '../../components/brand/logo.tsx';
 import ThemeSwitch from '../../components/theme-switch.tsx';
+import AcademicCredits from '../../components/academic-credits.tsx';
 
 export const metadata: Metadata = { title: 'Entrar' };
 
@@ -33,6 +34,7 @@ export default function LoginPage() {
           </Suspense>
           <div className="login-tools"><ThemeSwitch /></div>
         </section>
+        <AcademicCredits centered />
       </div>
     </main>
   );

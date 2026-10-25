@@ -31,7 +31,7 @@ import org.springframework.security.web.savedrequest.NullRequestCache;
 import java.util.List;
 
 /**
- * Sessao + CSRF (ARQ-01), hierarquia GERENTE > VENDEDOR nas regras de URL e de metodo, negacao por padrao.
+ * Sessao + CSRF (ARQ-01), hierarquia CEO > GERENTE > VENDEDOR nas regras de URL e de metodo, negacao por padrao.
  * As regras espelham src/test/resources/security/access-matrix.csv (docs/decisoes/matriz-acesso.md).
  */
 @Configuration
@@ -41,10 +41,14 @@ public class SecurityConfig {
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(SecurityConfig.class);
     private static final String VENDEDOR = "VENDEDOR";
     private static final String GERENTE = "GERENTE";
+    private static final String CEO = "CEO";
 
+    /** D-EVO-42: o CEO herda tudo do GERENTE, que herda tudo do VENDEDOR. */
     @Bean
     static RoleHierarchy roleHierarchy() {
-        return RoleHierarchyImpl.fromHierarchy("ROLE_GERENTE > ROLE_VENDEDOR");
+        return RoleHierarchyImpl.fromHierarchy("""
+                ROLE_CEO > ROLE_GERENTE
+                ROLE_GERENTE > ROLE_VENDEDOR""");
     }
 
     @Bean
@@ -103,6 +107,8 @@ public class SecurityConfig {
                                 "/promotions", "/promotions/**", "/goals/**", "/management/**", "/analytics/**",
                                 "/orders", "/orders/**", "/payment", "/payment/**", "/address", "/address/**",
                                 "/users", "/users/**", "/discount-policy", "/discount-policy/**").hasRole(GERENTE)
+                        // Painel executivo e meta anual: somente CEO.
+                        .requestMatchers("/executive", "/executive/**").hasRole(CEO)
                         .anyRequest().denyAll())
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((request, response, ex) -> SecurityJson.error(response, 401))

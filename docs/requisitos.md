@@ -58,6 +58,9 @@ Status usados neste documento:
 | RF-24 | Cadastro de usuarios pelo Gerente (cadastrar com senha provisoria, editar, alterar papel, ativar/desativar, desbloquear, redefinir senha) e troca da propria senha; mudanca de papel, situacao, senha ou desbloqueio encerra as sessoes abertas do usuario; sempre existe pelo menos um Gerente ativo. | Alvo | Evolucao G-01/G-03 (14/10/2026). Substitui DEC-ERP-07; ver `docs/decisoes/evolucao.md`. |
 | RF-25 | Perfil do cliente com indicadores de compra (total comprado, ticket medio, pedidos pagos, pendentes e cancelados, primeira e ultima compra, produtos mais comprados e formas de pagamento); para o Vendedor, valores so das vendas dele. | Alvo | Evolucao G-05 (14/10/2026). Le `v_cliente_resumo` (V9); ver `docs/decisoes/evolucao.md`. |
 | RF-26 | Desconto manual no balcao com alcada por papel (VENDEDOR 5%, GERENTE 20%), motivo obrigatorio, sem venda abaixo do custo medio, aprovacao do Gerente no pedido pendente acima da alcada e relatorio de descontos concedidos. | Alvo | Evolucao G-04 (14/10/2026). Decisao da equipe DEC-01 em `docs/decisoes/regras-loja.md`; V11. |
+| RF-27 | Papel CEO acima do Gerente (hierarquia CEO > Gerente > Vendedor): o CEO faz tudo o que o Gerente faz; so outro CEO cria, promove ou altera conta de CEO; contas de CEO dos professores avaliadores no perfil demo. | Alvo | Pedido do responsavel em 24/10/2026 (D-EVO-42, D-EVO-43, D-EVO-46). V12 e V12_1. |
+| RF-28 | Painel executivo do CEO com filtros cruzados e drill-down (ano > mes > dia): faturamento, lucro e preco de compra (custo), mes atual x mes anterior, ano x ano anterior, ranking de vendedores e de produtos, categorias, formas de pagamento, curva ABC, destaques automaticos e exportacao CSV. | Alvo | D-EVO-45. `GET /executive/overview` le `v_fato_venda_item` e `v_fato_estorno` (V12). |
+| RF-29 | Metas em quatro niveis: meta anual da loja (so o CEO grava), meta mensal da loja, meta por gerente (soma das metas dos vendedores da equipe) e meta por vendedor, com a equipe de venda (vendedor -> gerente). | Alvo | D-EVO-44. `PUT /executive/goals/annual`, `PATCH /users/{id}/manager` e `PUT /goals/monthly`. |
 
 ## Requisitos nao funcionais
 
@@ -70,6 +73,7 @@ Status usados neste documento:
 | RNF-05 | Usabilidade e acessibilidade basica. | Alvo | Estados vazio, carregando, erro e sucesso; teclado, foco e contraste conferidos. |
 | RNF-06 | Desempenho local sob protocolo definido. | Pendente | Medicao p95 somente apos endpoints, seed e ambiente estaveis. |
 | RNF-07 | Rastreabilidade academica. | Alvo | Cada RF liga requisito, criterio de aceitacao, caso de teste, execucao e defeito. |
+| RNF-08 | Identificacao academica. | Alvo | Toda tela, em todos os perfis e no login, mostra "Trabalho A3 · SBI — Super Business Intelligence" e os quatro alunos com RA (D-EVO-47). |
 
 ## Dados demonstrativos preservados
 

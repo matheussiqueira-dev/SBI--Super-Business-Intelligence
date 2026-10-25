@@ -22,7 +22,7 @@ Variáveis, sem valores (os valores ficam só no painel de cada plataforma):
 
 | Plataforma | Variáveis |
 | --- | --- |
-| Render | `SPRING_PROFILES_ACTIVE`, `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, `SBI_DEMO_PASSWORD`, `SESSION_COOKIE_SECURE`, `SPRING_JPA_SHOW_SQL`, `PORT`, `JAVA_TOOL_OPTIONS` (seção 2) |
+| Render | `SPRING_PROFILES_ACTIVE`, `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, `SBI_DEMO_PASSWORD` (e, por conta, `SBI_DEMO_PASSWORD_PAULO`, `_CHRISTIAN` e `_BRUNO` para as contas de CEO), `SESSION_COOKIE_SECURE`, `SPRING_JPA_SHOW_SQL`, `PORT`, `JAVA_TOOL_OPTIONS` (seção 2) |
 | Vercel | `BACKEND_ORIGIN` = `https://sbi-api-puk8.onrender.com` (seção 4); as variáveis `DATABASE_URL*` que a integração do Neon cria não são usadas pelo frontend |
 | GitHub | segredo `NEON_API_KEY` e variável `NEON_PROJECT_ID` (seções 3 e 5); segredos `SBI_SMOKE_*` do smoke (seção 7) |
 
@@ -64,7 +64,9 @@ Variáveis de ambiente (os valores reais ficam só no painel do Render):
 
 **As senhas das contas só valem na primeira migração.** A `V6_1__DemoAccounts` grava o BCrypt das contas `matheussiqueira@sbi.tech`, `allanbarros@sbi.tech`, `franciscoferreira@sbi.tech` e `gabrielsousa@sbi.tech` uma única vez, quando o Flyway aplica o perfil `demo` num banco vazio. Trocar a variável depois não muda a senha: para isso, apague e recrie o banco `sbi` no Neon (e rode a carga Olist de novo) ou troque a senha pela tela de usuários. Como o ambiente é público e os e-mails do seed são conhecidos, prefira senhas fortes e exclusivas.
 
-No primeiro deploy, o log do Render deve mostrar o Flyway aplicando V1 a V11 e as migrações `db/demo`. Conferência: `https://sbi-api-puk8.onrender.com/auth/csrf` responde 200 com o token. Cada chamada a `/auth/csrf` abre uma sessão de até 30 minutos (o token CSRF fica na sessão), então o health check mantém algumas centenas de sessões pequenas em memória, o que cabe na instância.
+**Contas de CEO dos professores (V12 e V12_1, 24/10/2026).** No primeiro deploy depois da V12, o Flyway aplica a V12 (papel CEO, equipes, meta anual e views do painel executivo) e a demo `V12_1__ExecutiveAccounts`, que cria `paulo@sbi.tech`, `christian@sbi.tech` e `bruno@sbi.tech` com o BCrypt de `SBI_DEMO_PASSWORD_PAULO`, `_CHRISTIAN` e `_BRUNO` (ou, sem elas, de `SBI_DEMO_PASSWORD`) e põe Allan na equipe de Matheus e Francisco na de Gabriel, achando as contas pelo `db_role`. Para cada professor entrar com a própria senha, defina as três variáveis no Render **antes** do deploy que leva a V12_1; depois disso, a troca é pela tela de usuários (por outro CEO) ou por `UPDATE` do hash no Neon. A meta anual não é semeada: o CEO a define na tela Metas.
+
+No primeiro deploy, o log do Render deve mostrar o Flyway aplicando V1 a V12 e as migrações `db/demo`. Conferência: `https://sbi-api-puk8.onrender.com/auth/csrf` responde 200 com o token. Cada chamada a `/auth/csrf` abre uma sessão de até 30 minutos (o token CSRF fica na sessão), então o health check mantém algumas centenas de sessões pequenas em memória, o que cabe na instância.
 
 ## 3. Carga Olist no Neon
 

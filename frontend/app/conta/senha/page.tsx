@@ -5,6 +5,7 @@ import { currentUser } from '../../../lib/server/session.ts';
 import PasswordForm from './password-form.tsx';
 import LogoutButton from '../../../components/logout-button.tsx';
 import { SbiLogo } from '../../../components/brand/logo.tsx';
+import AcademicCredits from '../../../components/academic-credits.tsx';
 
 export const metadata: Metadata = { title: 'Minha senha' };
 
@@ -33,6 +34,7 @@ export default async function PasswordPage() {
             <LogoutButton />
           </div>
         </section>
+        <AcademicCredits centered />
       </div>
     </main>
   );

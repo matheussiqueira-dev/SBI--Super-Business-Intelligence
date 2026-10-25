@@ -299,6 +299,25 @@ Lacunas e decisoes em [decisoes/evolucao.md](decisoes/evolucao.md). Um pacote po
 | CT-WEB-141 | D-MAR-07 | Unitario | - | Verde | `tests/identity.test.ts`: nenhum hexadecimal nem `rgb()` solto em `app/` e `components/` fora de `tokens.css`; tema escuro do sistema e tema escuro fixado com os mesmos papeis semanticos |
 | CT-WEB-142 | D-MAR-13 | E2E | - | Verde | `e2e/theme.spec.ts`: com o sistema claro, o seletor fixa o tema escuro, a escolha resiste a recarga sem piscar e "Tema do sistema" volta ao claro |
 
+### Casos da visao do CEO (RF-27 a RF-29, 24/10/2026)
+
+Decisoes em [decisoes/evolucao.md](decisoes/evolucao.md) (D-EVO-42 a D-EVO-49).
+
+| Caso | Requisito | Nivel | Tecnica | Situacao | Evidencia |
+| --- | --- | --- | --- | --- | --- |
+| CT-SEC-123 | RF-27 | Integracao/Unitario | Tabela de decisao | Verde | `AccessMatrixTest` (coluna `ceo`: CEO herda toda linha do GERENTE; `/executive/**` 403 para VENDEDOR e GERENTE) e `MethodSecurityHierarchyTest` (CEO alcanca os casos de uso do GERENTE e do VENDEDOR; areas `EXECUTIVO` e `METAS`) |
+| CT-USR-108 | RF-27 | Integracao/Unitario | Tabela de decisao | Verde | `UsersApiTest.onlyCeoManagesCeoAccounts` (GERENTE: 403 ao criar, promover, alterar, desativar, desbloquear ou redefinir CEO; CEO consegue) e `frontend/tests/users.test.ts` |
+| CT-USR-109 | RF-29 | Integracao/Unitario | Transicao de estados | Verde | `UsersApiTest.sellerTeamFollowsActiveManagers` (gerente ativo, 400 para quem nao e gerente, 409 para quem nao e vendedor, equipe liberada quando a gerente e desativada, sessao mantida, auditoria) |
+| CT-BD-33 | RF-27/RF-29 | BD | Tabela de decisao | Verde | `FlywayMigrationTest.v12AddsCeoTeamsAnnualGoalAndFactViews` (niveis CEO > GERENTE > VENDEDOR, gatilhos de equipe e de meta anual, promocao e estorno pelo CEO, fatos = `v_lancamento_realizado`) |
+| CT-EXEC-101 | RF-28 | Integracao | Particionamento | Verde | `ExecutiveApiTest.overviewFactsMatchTheManagerRevenue` (pendente fora, estorno em fato proprio, custo nulo, liquido igual ao `/management/revenue`) |
+| CT-EXEC-102 | RF-29 | Integracao | Particionamento | Verde | `ExecutiveApiTest.overviewCarriesMonthlyGoals` (meta do mes gravada pelo CEO pela hierarquia e devolvida no modelo) |
+| CT-EXEC-103 | RF-29 | Integracao | Valor limite | Verde | `ExecutiveApiTest.annualGoalIsSavedByTheCeo` (grava e substitui com auditoria; ano 1999 e valor negativo: 400) |
+| CT-EXEC-104 | RF-27/RF-28 | Integracao | Tabela de decisao | Verde | `ExecutiveApiTest.onlyTheCeoReachesTheExecutiveArea` (GERENTE e VENDEDOR: 403) |
+| CT-EXEC-111 a CT-EXEC-119 | RF-28/RF-29 | Unitario | Particionamento, tabela de decisao | Verde | `frontend/tests/executive.test.ts`: medidas, estorno fora do recorte por produto, equipes, filtro cruzado, comparacoes, serie com drill-down, metas (anual, mes, gerente, vendedor), lucro x preco de compra, curva ABC, destaques e CSV |
+| CT-EXEC-120 | RF-29 | Unitario | Valor limite | Verde | `frontend/tests/goals.test.ts` (distribuicao em centavos fecha com a meta da loja; cobertura do plano) |
+| CT-WEB-129, CT-WEB-130 | RF-27, RNF-08 | Unitario/E2E | Particionamento | Verde | `frontend/tests/brand.test.ts` e `e2e/brand.spec.ts` (secao Diretoria e entrada no Painel executivo; credito do trabalho A3 em todas as rotas dos tres perfis, no login e na pagina nao encontrada) |
+| CT-WEB-131 a CT-WEB-135 | RF-27 a RF-29 | E2E/Acessibilidade | Particionamento, transicao de estados | Verde | `e2e/executive.spec.ts`: painel com axe WCAG 2.2 AA nas tres abas e 320 px, e de novo no tema escuro com Metas; drill-down e filtro cruzado com chips; metas anual e mensal; Diretoria escondida para GERENTE e VENDEDOR; tela de usuarios sem acao do GERENTE sobre CEO e com a equipe do vendedor |
+
 ## Selecao inicial da suite
 
 | Prioridade | Casos | Motivo |

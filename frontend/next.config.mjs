@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 const backend = new URL(process.env.BACKEND_ORIGIN ?? 'http://127.0.0.1:8080');
 if (!['http:', 'https:'].includes(backend.protocol) || backend.username || backend.password || backend.pathname !== '/') {
   throw new Error('BACKEND_ORIGIN must be an HTTP(S) origin without credentials or path.');
@@ -15,6 +16,9 @@ export const PAGE_SECURITY_HEADERS = [
 
 export default {
   poweredByHeader: false,
+  // A raiz do repositorio tambem tem package-lock.json (scripts do contrato): a raiz do Next e esta pasta.
+  // Sem a barra final: com "/app/" o Turbopack nao resolve o next/font no build do Docker (Linux).
+  turbopack: { root: fileURLToPath(new URL('.', import.meta.url)).replace(/[\\/]+$/, '') },
   async headers() {
     return [{ source: '/:path((?!api/backend/).*)', headers: PAGE_SECURITY_HEADERS }];
   },

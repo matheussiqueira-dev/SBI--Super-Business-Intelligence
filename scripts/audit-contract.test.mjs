@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { auditContract, parseMatrix, targetPath, v4Path, v5Path, matrixPath } from './audit-contract.mjs';
+import { auditContract, parseMatrix, targetPath, v4Path, v5Path, v6Path, matrixPath } from './audit-contract.mjs';
 const target = JSON.parse(readFileSync(targetPath, 'utf8'));
 test('planned target has references and profile policies', () => {
   const result = auditContract(target);
@@ -150,4 +150,34 @@ test('planned operations wait for their matrix row; implemented ones require it'
   assert.ok(!auditContract(doc, { matrix: rows }).errors.some(e => e.includes('GET /users') && e.includes('access matrix')));
   doc.paths['/users'].get['x-status'] = 'implemented';
   assert.ok(auditContract(doc, { matrix: rows }).errors.some(e => e.includes('missing from access matrix: GET /users')));
+});
+
+const v6 = JSON.parse(readFileSync(v6Path, 'utf8'));
+test('v6 keeps every v5 operation, gives the CEO every manager route and passes with the matrix', () => {
+  const result = auditContract(v6, { matrix });
+  assert.deepEqual(result.errors, []);
+  const v6Operations = new Map(result.operations.map(o => [`${o.method} ${o.path}`, o.roles]));
+  for (const o of auditContract(v5, { matrix }).operations) {
+    const key = `${o.method} ${o.path}`;
+    assert.ok(v6Operations.has(key), key);
+    if (o.roles.includes('GERENTE')) assert.ok(v6Operations.get(key).includes('CEO'), key);
+  }
+  for (const key of ['GET /executive/overview', 'PUT /executive/goals/annual']) assert.deepEqual(v6Operations.get(key), ['CEO']);
+  assert.deepEqual(v6Operations.get('PATCH /users/{id}/manager'), ['CEO', 'GERENTE']);
+});
+test('v6 executive area cannot admit a manager and manager routes must admit the CEO', () => {
+  const doc = structuredClone(v6);
+  doc.paths['/executive/overview'].get['x-roles'] = ['CEO', 'GERENTE'];
+  assert.ok(auditContract(doc).errors.some(e => e.includes('Missing executive policy')));
+  const rows = structuredClone(matrix);
+  rows.find(r => r.method === 'GET' && r.path === '/stock/products').ceo = '403';
+  assert.ok(auditContract(v6, { matrix: rows }).errors.some(e => e.includes('x-roles differ') && e.includes('/stock/products')));
+  const managerOnly = structuredClone(v6);
+  managerOnly.paths['/management/summary'].get['x-roles'] = ['GERENTE'];
+  assert.ok(auditContract(managerOnly).errors.some(e => e.includes('Missing manager policy')));
+});
+test('access matrix keeps accepting the two-role header of the archived contracts', () => {
+  assert.deepEqual(parseMatrix(['method,path,anonymous,vendedor,gerente', 'GET,/x,401,403,PERMIT'].join('\n')),
+    [{ method: 'GET', path: '/x', anonymous: '401', vendedor: '403', gerente: 'PERMIT' }]);
+  assert.throws(() => parseMatrix('method,path,ceo'), /Unexpected access matrix header/);
 });

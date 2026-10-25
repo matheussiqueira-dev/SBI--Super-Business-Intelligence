@@ -13,7 +13,7 @@ import java.util.List;
 public final class BusinessTables {
 
     public static final List<String> NAMES = List.of(
-            "audit_event", "refund", "stock_movement", "stock_entry", "stock_balance", "seller_goal", "monthly_goal",
+            "audit_event", "refund", "stock_movement", "stock_entry", "stock_balance", "seller_goal", "monthly_goal", "annual_goal",
             "payment", "order_item", "promotion", "orders", "product_price_history", "product", "category",
             "customer", "address", "app_users");
 

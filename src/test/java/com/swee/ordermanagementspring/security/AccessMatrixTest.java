@@ -40,7 +40,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 
 /**
- * [CT-SEC-101] Cada linha da matriz executavel x {anonimo, VENDEDOR, GERENTE} produz o status esperado, com
+ * [CT-SEC-101] Cada linha da matriz executavel x {anonimo, VENDEDOR, GERENTE, CEO} produz o status esperado, com
  * corpo de erro no formato ErrorResponse. [CT-SEC-102] Todo endpoint mapeado no Spring tem linha na matriz.
  */
 @SpringBootTest
@@ -51,7 +51,7 @@ class AccessMatrixTest {
     /** Objeto inexistente: PERMIT nao pode virar 401/403; 404, 400 e 405 sao aceitos. */
     private static final String MISSING_ID = "999999";
     private static final List<String> ALL_METHODS = List.of("GET", "POST", "PUT", "PATCH", "DELETE");
-    record Row(String method, String path, String anonymous, String vendedor, String gerente) {
+    record Row(String method, String path, String anonymous, String vendedor, String gerente, String ceo) {
         String key() { return method + " " + path; }
     }
 
@@ -59,11 +59,11 @@ class AccessMatrixTest {
         try (InputStream in = AccessMatrixTest.class.getResourceAsStream("/security/access-matrix.csv")) {
             assertThat(in).as("access-matrix.csv no classpath de teste").isNotNull();
             List<String> lines = new String(in.readAllBytes(), StandardCharsets.UTF_8).lines().filter(l -> !l.isBlank()).toList();
-            assertThat(lines.getFirst()).isEqualTo("method,path,anonymous,vendedor,gerente");
+            assertThat(lines.getFirst()).isEqualTo("method,path,anonymous,vendedor,gerente,ceo");
             List<Row> rows = new ArrayList<>();
             for (String line : lines.subList(1, lines.size())) {
                 String[] c = line.split(",");
-                rows.add(new Row(c[0], c[1], c[2], c[3], c[4]));
+                rows.add(new Row(c[0], c[1], c[2], c[3], c[4], c[5]));
             }
             return rows;
         }
@@ -76,6 +76,7 @@ class AccessMatrixTest {
                 cases.add(Arguments.of(method, row.path(), "ANONIMO", row.anonymous(), row.key()));
                 cases.add(Arguments.of(method, row.path(), "VENDEDOR", row.vendedor(), row.key()));
                 cases.add(Arguments.of(method, row.path(), "GERENTE", row.gerente(), row.key()));
+                cases.add(Arguments.of(method, row.path(), "CEO", row.ceo(), row.key()));
             }
         }
         return cases.stream();
@@ -154,6 +155,17 @@ class AccessMatrixTest {
         for (Row row : rows()) {
             if (row.vendedor().equals("PERMIT") || row.vendedor().equals("OWN")) {
                 assertThat(row.gerente()).as(row.key()).isEqualTo("PERMIT");
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("[CT-SEC-123] toda linha liberada ao GERENTE tambem e liberada ao CEO; /executive e so do CEO")
+    void ceoInheritsEveryManagerRow() throws IOException {
+        for (Row row : rows()) {
+            if (row.gerente().equals("PERMIT")) assertThat(row.ceo()).as(row.key()).isEqualTo("PERMIT");
+            if (row.path().startsWith("/executive")) {
+                assertThat(List.of(row.vendedor(), row.gerente(), row.ceo())).as(row.key()).containsExactly("403", "403", "PERMIT");
             }
         }
     }

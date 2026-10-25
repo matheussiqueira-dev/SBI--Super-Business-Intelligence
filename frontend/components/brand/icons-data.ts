@@ -6,7 +6,7 @@ export type IconName =
   | 'visao-geral' | 'vender' | 'estoque' | 'preco' | 'promocao' | 'analises' | 'clientes' | 'vendas' | 'desempenho' | 'usuarios'
   | 'senha' | 'sair' | 'check' | 'alerta' | 'info' | 'sucesso' | 'erro' | 'seta-cima' | 'seta-baixo' | 'busca' | 'filtro'
   | 'calendario' | 'mais' | 'fechar' | 'chevron-baixo' | 'chevron-direita' | 'chevron-esquerda' | 'menu' | 'tabela' | 'meta'
-  | 'sol' | 'lua' | 'monitor';
+  | 'sol' | 'lua' | 'monitor' | 'executivo';
 
 /** Os 30 icones da figura 13 do manual, na ordem do manual (os 13 primeiros ja existiam na v1.0). */
 export const MANUAL_ICONS: readonly IconName[] = [
@@ -16,6 +16,8 @@ export const MANUAL_ICONS: readonly IconName[] = [
 ];
 /** Seletor de tema da conta, desenhado na mesma construcao. */
 export const THEME_ICONS: readonly IconName[] = ['sol', 'lua', 'monitor'];
+/** Diretoria (D-EVO-42): Painel executivo desenhado na mesma construcao; Metas usa o icone "meta" do manual. */
+export const AREA_ICONS: readonly IconName[] = ['executivo'];
 
 export const ICON_VIEWBOX = '0 0 24 24';
 export const ICON_STROKE = 1.75;
@@ -55,6 +57,8 @@ export const ICON_PATHS: Readonly<Record<IconName, readonly string[]>> = {
     'M5.3 18.7l1.4-1.4', 'M17.3 6.7l1.4-1.4'],
   lua: ['M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z'],
   monitor: ['M3 5h18v11H3z', 'M8 20h8', 'M12 16v4'],
+  // Diretoria (D-EVO-42): pasta executiva.
+  executivo: ['M4 8h16v11H4z', 'M9 8V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2', 'M4 13h16', 'M12 12v2'],
 };
 
 /** Icone decorativo por padrao (o texto ao lado ja nomeia a acao); com rotulo, vira imagem nomeada. */

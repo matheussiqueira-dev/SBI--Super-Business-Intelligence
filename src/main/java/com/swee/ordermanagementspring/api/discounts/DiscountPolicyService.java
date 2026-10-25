@@ -6,6 +6,7 @@ import com.swee.ordermanagementspring.api.discounts.DiscountDtos.DiscountPolicy;
 import com.swee.ordermanagementspring.api.discounts.DiscountDtos.DiscountPolicyRequest;
 import com.swee.ordermanagementspring.entities.audit.AuditAction;
 import com.swee.ordermanagementspring.entities.auth.UserRole;
+import com.swee.ordermanagementspring.exceptions.ApiException;
 import com.swee.ordermanagementspring.security.AuditService;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,6 +44,8 @@ public class DiscountPolicyService {
 
     @Transactional
     public DiscountPolicy update(CurrentUser user, UserRole role, DiscountPolicyRequest request) {
+        // D-EVO-42: o CEO vende com a alcada do GERENTE; uma linha propria nunca seria usada.
+        if (role == UserRole.CEO) throw ApiException.badRequest("role: CEO uses the GERENTE limit");
         session.apply(user.id(), request.reason().trim());
         var before = policies.forRole(role);
         jdbc.sql("""
