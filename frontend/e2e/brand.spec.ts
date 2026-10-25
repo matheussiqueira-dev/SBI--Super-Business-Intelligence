@@ -26,8 +26,8 @@ const ROUTES = {
 
 /** [CT-WEB-130] Credito do trabalho A3 com os quatro alunos e RAs. */
 async function expectCredits(page: Page) {
-  // O rodape fica dentro do <main> (nao e landmark contentinfo); o nome acessivel vem do aria-label.
-  const credits = page.locator('footer.credits[aria-label="Créditos do trabalho"]');
+  // Nas areas internas o credito fica no rodape da pagina; nas telas sem menu, logo abaixo do formulario.
+  const credits = page.locator('.credits');
   await expect(credits).toContainText(WORK_TITLE);
   for (const student of STUDENTS) await expect(credits).toContainText(`${student.name} · RA ${student.ra}`);
 }
@@ -48,12 +48,18 @@ for (const [email, routes] of Object.entries(ROUTES)) {
   });
 }
 
-test('[CT-WEB-121] favicon SVG e icone Apple servidos; tela de login com a assinatura da marca', async ({ page, request }) => {
+test('[CT-WEB-121] favicon, icones e manifesto servidos; tela de login com a assinatura da marca', async ({ page, request }) => {
   const icon = await request.get('/icon.svg');
   expect(icon.status()).toBe(200);
   expect(icon.headers()['content-type']).toContain('image/svg+xml');
-  expect(await icon.text()).toContain('#3D4ED6');
+  expect(await icon.text()).toContain('#04729B');
   expect((await request.get('/apple-icon.png')).status()).toBe(200);
+  expect((await request.get('/favicon.ico')).status()).toBe(200);
+  const manifest = await request.get('/manifest.webmanifest');
+  expect(manifest.status()).toBe(200);
+  const { icons } = await manifest.json() as { icons: { src: string; purpose?: string }[] };
+  expect(icons.some(i => i.purpose === 'maskable')).toBe(true);
+  for (const { src } of icons) expect((await request.get(src)).status(), src).toBe(200);
 
   await page.goto('/entrar');
   await expectCredits(page);

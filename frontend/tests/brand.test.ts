@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { BARS, BRAND_ACCESSIBLE_NAME, DOT, SYMBOL_RADIUS, SYMBOL_SIZE, toneColors } from '../components/brand/geometry.ts';
-import { DERIVED_ICONS, ICON_PATHS, MANUAL_ICONS, iconA11y } from '../components/brand/icons-data.ts';
+import { BLOCK_PATH, BRAND_ACCESSIBLE_NAME, DOT, MODULE, SYMBOL_SIZE, toneColors } from '../components/brand/geometry.ts';
+import { AREA_ICONS, ICON_PATHS, MANUAL_ICONS, THEME_ICONS, iconA11y } from '../components/brand/icons-data.ts';
 import { landingPath, menuFor, menuGroups, PASSWORD_PATH } from '../lib/areas.ts';
 import { STUDENTS, WORK_TITLE } from '../lib/credits.ts';
 import { compactMoney, formatDateTime, formatMonth, formatPeriod, formatTime, initials, money, MISSING, statusPill } from '../lib/format.ts';
@@ -17,25 +17,30 @@ test('[CT-WEB-122] nome acessivel unico da marca', () => {
 
 test('[CT-WEB-122] simbolo do componente tem a mesma geometria do favicon app/icon.svg', () => {
   const svg = readFileSync(join(ROOT, 'app', 'icon.svg'), 'utf8');
-  assert.match(svg, new RegExp(`<rect width="${SYMBOL_SIZE}" height="${SYMBOL_SIZE}" rx="${SYMBOL_RADIUS}" fill="#3D4ED6"/>`));
-  const bars = [...svg.matchAll(/<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)" rx="([\d.]+)" fill="#FFFFFF"\/>/g)]
-    .map(m => ({ x: Number(m[1]), y: Number(m[2]), width: Number(m[3]), height: Number(m[4]), rx: Number(m[5]) }));
-  assert.deepEqual(bars, BARS);
-  assert.match(svg, new RegExp(`<circle cx="${DOT.cx}" cy="${DOT.cy}" r="${DOT.r}" fill="#5BD6B8"/>`));
-  // Barras crescentes e o ponto Menta no alto da terceira barra.
-  assert.ok(BARS[0]!.height < BARS[1]!.height && BARS[1]!.height < BARS[2]!.height);
-  assert.ok(DOT.cx > BARS[2]!.x && DOT.cx < BARS[2]!.x + BARS[2]!.width && DOT.cy + DOT.r < BARS[2]!.y);
+  assert.match(svg, new RegExp(`viewBox="0 0 ${SYMBOL_SIZE} ${SYMBOL_SIZE}"`));
+  assert.ok(svg.includes(`<path class="b" d="${BLOCK_PATH}"/>`));
+  assert.ok(svg.includes(`<circle class="d" cx="${DOT.cx}" cy="${DOT.cy}" r="${DOT.r}"/>`));
+  // Tinta e Petroleo no tema claro; bloco branco e Petroleo 400 no escuro.
+  assert.ok(svg.includes('.b{fill:#0D1A2B}.d{fill:#04729B}@media (prefers-color-scheme: dark){.b{fill:#FFFFFF}.d{fill:#64B1D7}}'));
+  // Encaixe: 13 modulos de lado e folga de 1 modulo entre o arco do bloco e o circulo.
+  assert.equal(SYMBOL_SIZE, 13 * MODULE);
+  const arc = /A(\d+) \1 0 0 0 60 100/.exec(BLOCK_PATH);
+  assert.equal(Number(arc?.[1]) - DOT.r, MODULE);
 });
 
-test('variantes do logo: negativa sobre Tinta e principal sobre fundo claro', () => {
-  assert.equal(toneColors('principal').text, '#141B26');
-  assert.equal(toneColors('negativa').text, '#FFFFFF');
-  assert.equal(toneColors('negativa').dot, '#5BD6B8');
+test('variantes do logo: principal segue o tema e negativa fica fixa sobre Tinta', () => {
+  assert.equal(toneColors('principal').block, 'var(--sbi-brand-block)');
+  assert.equal(toneColors('principal').text, 'var(--sbi-text-primary)');
+  assert.equal(toneColors('negativa').block, '#FFFFFF');
+  assert.equal(toneColors('negativa').dot, '#64B1D7');
 });
 
-test('[CT-WEB-123] icones: os seis do manual e os derivados, decorativos por padrao', () => {
-  assert.equal(MANUAL_ICONS.length, 6);
-  for (const name of [...MANUAL_ICONS, ...DERIVED_ICONS]) assert.ok(ICON_PATHS[name].length > 0, name);
+test('[CT-WEB-123] icones: os 30 da figura 13 do manual v2.0 e os do seletor de tema, decorativos por padrao', () => {
+  assert.equal(MANUAL_ICONS.length, 30);
+  assert.equal(new Set(MANUAL_ICONS).size, 30);
+  assert.deepEqual(MANUAL_ICONS.slice(0, 3), ['visao-geral', 'vender', 'estoque']);
+  assert.deepEqual(MANUAL_ICONS.slice(-3), ['menu', 'tabela', 'meta']);
+  for (const name of [...MANUAL_ICONS, ...THEME_ICONS]) assert.ok(ICON_PATHS[name].length > 0, name);
   assert.deepEqual(iconA11y(), { 'aria-hidden': true, focusable: false });
   assert.deepEqual(iconA11y('Concluída'), { role: 'img', 'aria-label': 'Concluída' });
 });
@@ -64,7 +69,7 @@ test('[CT-WEB-124] formatos do manual: hora 14h30, periodo, ausente e valor curt
   assert.equal(initials('Allan Paula Lima'), 'AL');
   assert.equal(initials('marta'), 'M');
   assert.equal(statusPill('PAID'), 'pill pill-ok');
-  assert.equal(statusPill('PENDING_PAYMENT'), 'pill pill-warn');
+  assert.equal(statusPill('PENDING_PAYMENT'), 'pill pill-pending');
   assert.equal(statusPill('CANCELED'), 'pill pill-err');
   assert.equal(statusPill('PROCESSING'), 'pill pill-info');
 });
@@ -100,6 +105,8 @@ test('[CT-WEB-129] CEO: secao Diretoria no topo do menu e entrada no Painel exec
   const groups = menuGroups(menuFor(ceo));
   assert.deepEqual(groups.map(g => g.label), ['Diretoria', 'Gestão', 'Atendimento', 'Meu espaço']);
   assert.deepEqual(groups[0]!.items.map(i => i.href), ['/executivo', '/executivo/metas']);
+  assert.deepEqual(groups[0]!.items.map(i => i.icon), ['executivo', 'meta']);
+  for (const name of AREA_ICONS) assert.ok(ICON_PATHS[name].length > 0, name);
   assert.equal(landingPath(ceo), '/executivo');
   assert.equal(landingPath(ceo.slice(0, 10)), '/vender');
 });

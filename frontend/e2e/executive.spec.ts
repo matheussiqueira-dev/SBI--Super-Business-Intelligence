@@ -29,14 +29,15 @@ test('[CT-WEB-131] CEO entra no Painel executivo: KPIs, destaques, metas, vendas
   await login(page, 'ceo@example.test');
   await expect(page).toHaveURL(/\/executivo$/);
   await expect(page.getByRole('heading', { name: 'Painel executivo', level: 1 })).toBeVisible();
-  const net = page.locator('.kpi').filter({ hasText: 'Faturamento líquido' }).locator('.value');
+  const net = page.locator('.kpi').filter({ hasText: 'Faturamento confirmado' }).locator('.value');
   await expect(net).toBeVisible();
-  await expect(net).not.toHaveText('R$ 0,00');
+  // O "R$" fica num span proprio (manual v2.0, figura 12), sem espaco no texto do valor.
+  await expect(net).not.toHaveText(/^R\$\s?0,00$/);
   await expect(page.locator('.kpi').filter({ hasText: 'Preço de compra (custo)' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Destaques do período' })).toBeVisible();
   await expect(page.getByRole('heading', { name: /^Meta anual da loja/ })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Mês atual × mês anterior' })).toBeVisible();
-  await expect(page.getByRole('group', { name: /Faturamento líquido por mês/ })).toBeVisible();
+  await expect(page.getByRole('group', { name: /Faturamento confirmado por mês/ })).toBeVisible();
   await axe(page, 'visao geral');
 
   await page.getByRole('tab', { name: 'Equipe e metas' }).click();
@@ -64,7 +65,7 @@ test('[CT-WEB-132] filtro cruzado e drill-down: mes abre os dias, produto recort
   const data = await seed(10);
   await paidSale(data, 1);
   await login(page, 'ceo@example.test');
-  await page.getByRole('button', { name: new RegExp(`^${MONTH} de \\d{4}: Faturamento líquido`) }).click();
+  await page.getByRole('button', { name: new RegExp(`^${MONTH} de \\d{4}: Faturamento confirmado`) }).click();
   await expect(page.getByRole('heading', { name: new RegExp(`^Vendas por dia · ${MONTH}`) })).toBeVisible();
   await expect(chips(page)).toContainText(`Mês: ${MONTH}`);
   await expect(page.getByRole('navigation', { name: 'Nível do gráfico' })).toContainText(MONTH);

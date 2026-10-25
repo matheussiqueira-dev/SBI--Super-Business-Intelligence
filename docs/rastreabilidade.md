@@ -56,7 +56,7 @@ Situação em 14/10/2026, depois da evolução (WP-EVO-1 a WP-EVO-9, PRs #23 a #
 | WCAG 2.2 AA e 320 px | E2E `sale.spec.ts` e `manager.spec.ts` (CT-WEB-109, axe nas telas dos dois perfis) |
 | Schemas do frontend iguais ao contrato | `npm run api:check` (CT-CONTRACT-103) no job `frontend` |
 | Sessão revogada na requisição seguinte à mudança de papel, situação ou senha | `SessionRevocationTest`, `UsersApiTest.deactivationRevokesTheSession`; E2E `users.spec.ts` (CT-WEB-112) |
-| Marca SBI v1.0 aplicada em todas as telas | E2E `brand.spec.ts` (CT-WEB-120, CT-WEB-121), `frontend/tests/brand.test.ts` (CT-WEB-122 a CT-WEB-125); capturas em `reports/marca/` com axe sem violação |
+| Marca SBI v2.0 aplicada em todas as telas, nos temas claro e escuro | E2E `brand.spec.ts` (CT-WEB-120, CT-WEB-121) e `theme.spec.ts` (CT-WEB-137 e CT-WEB-142, tema escuro com axe e seletor de tema), `frontend/tests/brand.test.ts` (CT-WEB-122 a CT-WEB-125), `chart-scale.test.ts` (CT-WEB-136) e `identity.test.ts` (CT-WEB-138 a CT-WEB-141: formatos, medidor, tema e cores só por token) |
 | Identificação acadêmica em todas as telas (RNF-08) | E2E `brand.spec.ts` (CT-WEB-130: todas as rotas dos três perfis, login e página não encontrada), `frontend/tests/brand.test.ts` |
 | Massa de demonstração Olist íntegra e idempotente | `09_testes_olist.sql`, `scripts/demo-olist-api.mjs` e `run_olist_bd.sh` (CT-DEMO-01 a CT-DEMO-06) no job `bd` |
 

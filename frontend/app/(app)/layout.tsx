@@ -1,15 +1,14 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { menuFor, menuGroups, PASSWORD_PATH, roleLabel } from '../../lib/areas.ts';
+import { avatarClass, menuFor, menuGroups, PASSWORD_PATH, roleLabel } from '../../lib/areas.ts';
 import { initials } from '../../lib/format.ts';
 import { currentUser } from '../../lib/server/session.ts';
 import NavLinks from '../../components/nav-links.tsx';
 import LogoutButton from '../../components/logout-button.tsx';
 import Sidebar from '../../components/sidebar.tsx';
+import ThemeSwitch from '../../components/theme-switch.tsx';
 import AcademicCredits from '../../components/academic-credits.tsx';
-
-const AVATAR: Readonly<Record<string, string>> = { CEO: 'avatar-ceo', GERENTE: 'avatar-gerente', VENDEDOR: 'avatar-vendedor' };
 
 /** Shell das areas internas: menu montado a partir de UserSession.areas, so com telas existentes. */
 export default async function AppLayout({ children }: { children: ReactNode }) {
@@ -24,15 +23,24 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       <Sidebar home={menu[0]?.href ?? '/'}>
         <NavLinks groups={menuGroups(menu)} />
         <div className="account-box">
-          <span className={`avatar ${AVATAR[user.role] ?? 'avatar-vendedor'}`} aria-hidden="true">{initials(user.name)}</span>
-          <span><strong>{user.name}</strong><br /><span className="muted">{roleLabel(user.role)}</span></span>
-          <div className="account-actions"><LogoutButton /></div>
+          <span className={`avatar ${avatarClass(user.role)}`} aria-hidden="true">{initials(user.name)}</span>
+          <span><span className="account-name">{user.name}</span><span className="account-role">{roleLabel(user.role)}</span></span>
+          <LogoutButton compact />
         </div>
-        <p className="sidebar-credits"><Link href="/creditos">Créditos das imagens</Link></p>
+        <div className="account-tools">
+          <span className="caption">Tema</span>
+          <ThemeSwitch />
+        </div>
       </Sidebar>
       <main id="conteudo" className="main" tabIndex={-1}>
-        {children}
-        <AcademicCredits />
+        <div className="content">
+          {children}
+          <footer className="app-footer">
+            <p>Dados de demonstração · valores fictícios · Projeto A3 · UNIFG 2026</p>
+            <p><Link href="/creditos">Créditos das imagens</Link></p>
+            <AcademicCredits />
+          </footer>
+        </div>
       </main>
     </div>
   );

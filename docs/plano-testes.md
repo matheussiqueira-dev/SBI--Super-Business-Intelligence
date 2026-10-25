@@ -283,18 +283,25 @@ Lacunas e decisoes em [decisoes/evolucao.md](decisoes/evolucao.md). Um pacote po
 | CT-DEMO-06 | WP-EVO-8 | BD | - | Verde | `run_olist_bd.sh`: roteiro `08_crud_clientes_olist.sql` com exatamente as tres recusas esperadas |
 | CT-DEMO-07 | WP-PUB-2 | BD | - | Verde | `09_testes_olist.sql`: catalogo so Apple, produtos da massa nas 7 categorias Apple com nome e preco do CSV e nenhuma categoria do catalogo antigo |
 | CT-WEB-120 | WP-EVO-9 | E2E | Particionamento | Verde | `e2e/brand.spec.ts`: logo com nome acessivel "SBI — Super Business Intelligence" e um unico item com `aria-current` em todas as rotas do gerente (10) e do vendedor (4) |
-| CT-WEB-121 | WP-EVO-9 | E2E/Acessibilidade | - | Verde | `e2e/brand.spec.ts`: `/icon.svg` e `/apple-icon.png` servidos, login "Entrar no SBI" com axe WCAG 2.2 AA e 320 px, menu recolhivel de 44 px em 320 px, 404 da marca |
-| CT-WEB-122 | WP-EVO-9 | Unitario | - | Verde | `tests/brand.test.ts`: nome acessivel unico e geometria do simbolo igual a `app/icon.svg` |
-| CT-WEB-123 | WP-EVO-9 | Unitario | - | Verde | `tests/brand.test.ts`: seis icones do manual e sete derivados; icone decorativo (`aria-hidden`) por padrao e nomeado com rotulo |
+| CT-WEB-121 | WP-EVO-9, D-MAR-04 | E2E/Acessibilidade | - | Verde | `e2e/brand.spec.ts`: `/icon.svg` da v2, `/apple-icon.png`, `/favicon.ico`, manifesto com icone maskable e todos os icones servidos, login "Entrar no SBI" com axe WCAG 2.2 AA e 320 px, menu recolhivel de 44 px em 320 px, 404 da marca |
+| CT-WEB-122 | WP-EVO-9, D-MAR-04 | Unitario | - | Verde | `tests/brand.test.ts`: nome acessivel unico, geometria do Encaixe igual a `app/icon.svg` (13 modulos, folga de 1 modulo) e cores do favicon nos dois temas |
+| CT-WEB-123 | WP-EVO-9, D-MAR-08 | Unitario | - | Verde | `tests/brand.test.ts`: os 30 icones da figura 13 do manual v2.0, na ordem do manual, e os tres do seletor de tema; icone decorativo (`aria-hidden`) por padrao e nomeado com rotulo |
 | CT-WEB-124 | WP-EVO-9 | Unitario | Particionamento | Verde | `tests/brand.test.ts`: hora 14h30, periodo "01/09 a 30/09/2026", "Nao informado", "R$ 47 mil", iniciais do avatar, selos de estado e secoes do menu |
 | CT-WEB-125 | WP-EVO-9 | Unitario | - | Verde | `tests/brand.test.ts`: nenhuma forma proibida do nome (sigla com pontos, so a inicial maiuscula, nome abreviado com ou sem espaco, artigo feminino; lista em `FORBIDDEN`) em `frontend/app`, `components`, `lib` e `docs/` |
 | CT-WEB-126 | WP-PUB-2 | E2E | Valor limite | Verde | `e2e/manager.spec.ts`: com 11 produtos vendidos no dia, "Produtos mais vendidos" mostra 10 linhas, "Mostrando 10 de N" e o link "Ver todos" leva a `/gestao/analises` |
 | CT-WEB-127 | WP-PUB-2 | E2E | - | Verde | `e2e/brand.spec.ts`: rodape do login em duas linhas inteiras ("Ambiente de demonstracao · dados ficticios" e "Projeto A3 · UNIFG 2026") em 1280 px e 390 px, sem rolagem horizontal |
 | CT-WEB-128 | D-EVO-40 | E2E | - | Verde | `e2e/customers.spec.ts`: no PDV, cadastrar cliente com CPF já existente mostra "Este documento já pertence a um cliente cadastrado" e "Usar o cliente já cadastrado" coloca o cliente existente na venda |
+| CT-WEB-136 | D-MAR-05 | Unitario | Valor limite | Verde | `tests/chart-scale.test.ts`: eixo de valor com passo de 1, 2 ou 5 x 10^n, zero incluido e de 3 a 6 divisoes (47 mil vira 0, 20, 40 e 60 mil) |
+| CT-WEB-137 | D-MAR-02 | E2E/Acessibilidade | - | Verde | `e2e/theme.spec.ts`: tema escuro pela preferencia do sistema; login e oito telas do gerente com axe WCAG 2.2 AA e sem rolagem horizontal em 320 px |
+| CT-WEB-138 | D-MAR-09 | Unitario | Particionamento | Verde | `tests/identity.test.ts`: "R$" separado do valor do indicador, sinal de menos (U+2212) em negativo e desconto ("− R$ 60,00"), eixo "20 mil" e "1,2 mi", intervalo "1–6 set.", dia da loja no fuso de Fortaleza, plural e contagem do rodape da tabela |
+| CT-WEB-139 | D-MAR-10, D-MAR-11 | Unitario | Valor limite | Verde | `tests/identity.test.ts`: atingimento limitado a trilha (0 a 1, meta zero sem atingimento), ritmo so no mes corrente (dia 25 de 31) e meta do periodo proporcional aos dias (240 mil em setembro = 48 mil de 1 a 6) |
+| CT-WEB-140 | D-MAR-13 | Unitario | Particionamento | Verde | `tests/identity.test.ts`: escolha de tema valida ou volta ao sistema, atributo `data-theme` de cada escolha e script do `<head>` com tratamento de erro |
+| CT-WEB-141 | D-MAR-07 | Unitario | - | Verde | `tests/identity.test.ts`: nenhum hexadecimal nem `rgb()` solto em `app/` e `components/` fora de `tokens.css`; tema escuro do sistema e tema escuro fixado com os mesmos papeis semanticos |
+| CT-WEB-142 | D-MAR-13 | E2E | - | Verde | `e2e/theme.spec.ts`: com o sistema claro, o seletor fixa o tema escuro, a escolha resiste a recarga sem piscar e "Tema do sistema" volta ao claro |
 
 ### Casos da visao do CEO (RF-27 a RF-29, 24/10/2026)
 
-Decisoes em [decisoes/evolucao.md](decisoes/evolucao.md) (D-EVO-42 a D-EVO-48).
+Decisoes em [decisoes/evolucao.md](decisoes/evolucao.md) (D-EVO-42 a D-EVO-49).
 
 | Caso | Requisito | Nivel | Tecnica | Situacao | Evidencia |
 | --- | --- | --- | --- | --- | --- |

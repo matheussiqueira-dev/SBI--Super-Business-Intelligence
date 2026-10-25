@@ -10,16 +10,20 @@ import {
   GetUserResponse, ListUsersResponse, ResetUserPasswordBody, UpdateUserBody, UpdateUserResponse,
 } from '../../../../lib/api/generated/sbi.zod.ts';
 import { api } from '../../../../lib/api/http.ts';
-import { formatDateTime } from '../../../../lib/format.ts';
+import { formatDateTime, initials } from '../../../../lib/format.ts';
 import { labeledProblems } from '../../../../lib/forms.ts';
 import { actionsFor, assignableRoles, situation, type UserAction } from '../../../../lib/users.ts';
-import { roleLabel } from '../../../../lib/areas.ts';
+import { avatarClass, roleLabel } from '../../../../lib/areas.ts';
 import { ErrorNotice, Loading } from '../../../../components/feedback.tsx';
 import { Field } from '../../../../components/customer-form.tsx';
 import Drawer from '../../../../components/drawer.tsx';
+import EmptyState from '../../../../components/empty-state.tsx';
+import PageHeader from '../../../../components/page-header.tsx';
 import Pager from '../../../../components/pager.tsx';
+import { Icon } from '../../../../components/brand/icons.tsx';
 import ShowPassword from '../../../../components/show-password.tsx';
 import { StatusMessage, useStatusMessage } from '../../../../components/status-message.tsx';
+import TableWrap from '../../../../components/table-wrap.tsx';
 
 type User = z.infer<typeof ListUsersResponse>['content'][number];
 type Panel = { kind: 'new' } | { kind: UserAction; user: User } | null;
@@ -66,12 +70,11 @@ export default function Users({ currentUserId, currentRole }: { currentUserId: n
 
   return (
     <div className="stack">
-      <header className="toolbar">
-        <div className="stack-sm"><p className="muted">Gestão / Usuários</p><h1>Usuários da equipe</h1></div>
-        <div className="actions"><button type="button" className="btn btn-primary" onClick={() => setPanel({ kind: 'new' })}>Cadastrar usuário</button></div>
-      </header>
+      <PageHeader section="Gestão" title="Usuários da equipe"
+        description="Papel, situação, desbloqueio e senha encerram as sessões abertas da pessoa e ficam na auditoria."
+        actions={<button type="button" className="btn btn-primary" onClick={() => setPanel({ kind: 'new' })}><Icon name="mais" />Cadastrar usuário</button>} />
       <StatusMessage message={message.message} onClose={message.clear} />
-      <section className="card stack" aria-label="Lista de usuários">
+      <section className="card stack-md" aria-label="Lista de usuários">
         <div className="toolbar">
           <div className="field"><label htmlFor="busca-usuarios">Nome ou e-mail</label>
             <input id="busca-usuarios" className="input" type="search" value={q} onChange={event => { setQ(event.target.value); setPage(0); }} /></div>
@@ -84,8 +87,8 @@ export default function Users({ currentUserId, currentRole }: { currentUserId: n
         </div>
         <ErrorNotice error={list.error} />
         {list.isLoading ? <Loading label="Carregando usuários…" /> : data && data.content.length === 0
-          ? <p className="empty">Nenhum usuário encontrado.</p>
-          : data && <div className="table-wrap"><table>
+          ? <EmptyState icon="usuarios" title="Nenhum usuário encontrado">Confira o nome, o e-mail ou os filtros.</EmptyState>
+          : data && <TableWrap label="Usuários"><table>
               <caption className="sr-only">Usuários</caption>
               <thead><tr><th scope="col">Nome</th><th scope="col">E-mail</th><th scope="col">Papel</th><th scope="col">Equipe</th><th scope="col">Situação</th>
                 <th scope="col">Último acesso</th><th scope="col"><span className="sr-only">Ações</span></th></tr></thead>
@@ -93,17 +96,18 @@ export default function Users({ currentUserId, currentRole }: { currentUserId: n
                 const state = situation(u);
                 return (
                   <tr key={u.id}>
-                    <td>{u.name}{u.id === currentUserId && <span className="muted"> (você)</span>}</td>
-                    <td className="mono">{u.email}</td>
+                    <td><span className="person"><span className={`avatar avatar-sm ${avatarClass(u.role)}`} aria-hidden="true">{initials(u.name)}</span>
+                      <span>{u.name}{u.id === currentUserId && <span className="muted"> (você)</span>}</span></span></td>
+                    <td>{u.email}</td>
                     <td>{roleLabel(u.role)}</td>
                     <td>{u.role === 'VENDEDOR' ? (u.manager ? u.manager.name : <span className="muted">Sem equipe</span>) : '—'}</td>
                     <td><span className={`pill ${state.tone === 'ok' ? 'pill-ok' : state.tone === 'warn' ? 'pill-warn' : ''}`}>{state.label}</span></td>
-                    <td>{u.lastLoginAt ? formatDateTime(u.lastLoginAt) : '—'}</td>
+                    <td className="num">{u.lastLoginAt ? formatDateTime(u.lastLoginAt) : '—'}</td>
                     <td><div className="actions">
                       {actionsFor(u, currentUserId, new Date(), currentRole).map(action => {
                         const label = action === 'status' ? (u.active ? 'Desativar' : 'Ativar') : ACTION_LABEL[action];
                         return (
-                          <button key={action} type="button" className={action === 'edit' ? 'btn' : 'btn btn-ghost'}
+                          <button key={action} type="button" className={action === 'edit' ? 'btn btn-sm' : 'btn btn-sm btn-ghost'}
                                   aria-label={`${label}: ${u.name}`} onClick={() => setPanel({ kind: action, user: u })}>{label}</button>
                         );
                       })}
@@ -111,8 +115,8 @@ export default function Users({ currentUserId, currentRole }: { currentUserId: n
                   </tr>
                 );
               })}</tbody>
-            </table></div>}
-        {data && <Pager page={data.page} size={data.size} total={data.totalElements} onPage={setPage} />}
+            </table></TableWrap>}
+        {data && <Pager page={data.page} size={data.size} total={data.totalElements} onPage={setPage} noun="usuários" />}
       </section>
       <Drawer open={panel !== null} title={title} onClose={() => setPanel(null)}>
         {panel?.kind === 'new' && <CreateForm roles={assignableRoles(currentRole)} onDone={done('Usuário cadastrado. Entregue a senha provisória pessoalmente; a troca é pedida no primeiro acesso.')} />}

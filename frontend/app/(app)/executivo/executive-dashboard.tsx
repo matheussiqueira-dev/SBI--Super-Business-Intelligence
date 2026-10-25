@@ -1,29 +1,34 @@
 'use client';
-// Painel executivo do CEO (RF-28, D-EVO-45): KPIs com variacao, destaques automaticos, metas (anual, do mes, por
-// gerente e por vendedor), vendas com drill-down (ano > mes > dia), rankings com filtro cruzado, lucro x preco de
-// compra e curva ABC. Clicar em qualquer barra filtra o painel inteiro; os chips mostram e desfazem cada filtro.
+// Painel executivo do CEO (RF-28, D-EVO-45) na anatomia do manual v2.0: indicadores com variacao, destaques automaticos,
+// metas (anual, do mes, por gerente e por vendedor), vendas com drill-down (ano > mes > dia), rankings com filtro cruzado,
+// lucro x preco de compra e curva ABC. Clicar em qualquer barra filtra o painel inteiro; os chips mostram e desfazem cada filtro.
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ErrorNotice, Loading } from '../../../components/feedback.tsx';
-import { ColumnChart, Delta, GoalGauge, RankBars, StackedShare } from '../../../components/exec-charts.tsx';
+import { ColumnChart, Delta, GoalGauge, RankBars } from '../../../components/exec-charts.tsx';
+import { StackedBar } from '../../../components/charts.tsx';
+import { Kpi, MoneyValue } from '../../../components/kpi.tsx';
+import { MiniMeter } from '../../../components/meter.tsx';
+import { Icon, type IconName } from '../../../components/brand/icons.tsx';
+import PageHeader from '../../../components/page-header.tsx';
 import Tabs from '../../../components/tabs.tsx';
 import ProductThumb from '../../../components/product-thumb.tsx';
+import TableWrap from '../../../components/table-wrap.tsx';
 import { formatPercent, formatTime, money } from '../../../lib/format.ts';
 import {
   filterChips, Model, MONTH_NAMES, NO_FILTERS, PAYMENT_LABEL, toCsv, variation, without,
-  type Filters, type PaymentMethod, type ProductRow,
+  type Filters, type Insight, type PaymentMethod, type ProductRow,
 } from '../../../lib/executive.ts';
 import { selectableYears, storeYear, useOverview } from './use-overview.ts';
 
 type ProductMeasure = 'net' | 'units' | 'profit';
 const PRODUCT_MEASURES: readonly [ProductMeasure, string][] = [['net', 'Faturamento'], ['units', 'Unidades'], ['profit', 'Lucro']];
 const STATE_LABEL: Readonly<Record<string, string>> = { SEM_META: 'Sem meta', EM_ANDAMENTO: 'Em andamento', META_ATINGIDA: 'Meta atingida' };
+/** Destaque com o icone do estado; o texto ao lado leva o significado. */
+const INSIGHT_ICON: Readonly<Record<Insight['tone'], IconName>> = { good: 'sucesso', warn: 'alerta', bad: 'erro', neutral: 'info' };
+/** Classes da curva ABC na ordem fixa da paleta. */
+const ABC_COLORS: Readonly<Record<string, string>> = { A: 'var(--sbi-data-1)', B: 'var(--sbi-data-2)', C: 'var(--sbi-data-3)' };
 const units = (value: number) => `${value.toLocaleString('pt-BR')} un.`;
-
-/** Valor ausente sai em texto (manual v1.0), nao na fonte de numeros. */
-function valueClass(value: unknown): string {
-  return value === null || value === undefined ? 'value text' : 'value';
-}
 
 function download(name: string, text: string) {
   const url = URL.createObjectURL(new Blob(['﻿', text], { type: 'text/csv;charset=utf-8' }));
@@ -81,23 +86,24 @@ export default function ExecutiveDashboard() {
   }));
 
   const kpis = (
-    <section className="kpis" aria-label="Indicadores do recorte">
-      <div className="card kpi"><span className="label">Faturamento líquido</span><span className="value">{money(now.net)}</span>
+    <section className="kpis kpis-3" aria-label="Indicadores do recorte">
+      <Kpi label="Faturamento confirmado" value={<MoneyValue value={now.net} />} note={`Vendas ${money(now.sales)} · estornos ${money(now.refunds)}`}>
         <Delta value={variation(now.net, before.net)} label={compareLabel} />
-        <span className="note">Vendas {money(now.sales)} · estornos {money(now.refunds)}</span></div>
-      <div className="card kpi"><span className="label">Lucro bruto</span><span className={valueClass(now.profit)}>{money(now.profit)}</span>
+      </Kpi>
+      <Kpi label="Lucro bruto" value={<MoneyValue value={now.profit} />}
+           note={now.profit === null ? 'Há itens vendidos sem custo informado.' : `Margem ${formatPercent(now.margin)}`}>
         {now.profit !== null && before.profit !== null ? <Delta value={variation(now.profit, before.profit)} label={compareLabel} /> : null}
-        <span className="note">{now.profit === null ? 'Há itens vendidos sem custo informado.' : `Margem ${formatPercent(now.margin)}`}</span></div>
-      <div className="card kpi"><span className="label">Preço de compra (custo)</span><span className="value">{money(now.cost)}</span>
-        <span className="note">{now.sales > 0 ? `${formatPercent((now.cost * 100) / now.sales)} das vendas` : 'Sem vendas no recorte'}
-          {now.itemsWithoutCost > 0 ? ` · ${now.itemsWithoutCost} ${now.itemsWithoutCost === 1 ? 'item' : 'itens'} sem custo` : ''}</span></div>
-      <div className="card kpi"><span className="label">Pedidos pagos</span><span className="value">{now.orders}</span>
+      </Kpi>
+      <Kpi label="Preço de compra (custo)" value={<MoneyValue value={now.cost} />}
+           note={`${now.sales > 0 ? `${formatPercent((now.cost * 100) / now.sales)} das vendas` : 'Sem vendas no recorte'}${
+             now.itemsWithoutCost > 0 ? ` · ${now.itemsWithoutCost} ${now.itemsWithoutCost === 1 ? 'item' : 'itens'} sem custo` : ''}`} />
+      <Kpi label="Pedidos pagos" value={<span className="value">{now.orders}</span>} note={`Ticket médio ${money(now.averageTicket)}`}>
         <Delta value={variation(now.orders, before.orders)} label={compareLabel} />
-        <span className="note">Ticket médio {money(now.averageTicket)}</span></div>
-      <div className="card kpi"><span className="label">Unidades vendidas</span><span className="value">{now.units}</span>
-        <span className="note">{now.orders > 0 ? `${(now.units / now.orders).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} por pedido` : 'Sem pedidos'} · {now.customers} clientes</span></div>
-      <div className="card kpi"><span className="label">Descontos concedidos</span><span className="value">{money(now.discount)}</span>
-        <span className="note">{now.sales + now.discount > 0 ? `${formatPercent((now.discount * 100) / (now.sales + now.discount))} do preço de tabela` : 'Sem vendas no recorte'}</span></div>
+      </Kpi>
+      <Kpi label="Unidades vendidas" value={<span className="value">{now.units}</span>}
+           note={`${now.orders > 0 ? `${(now.units / now.orders).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} por pedido` : 'Sem pedidos'} · ${now.customers} clientes`} />
+      <Kpi label="Descontos concedidos" value={<MoneyValue value={now.discount} />}
+           note={now.sales + now.discount > 0 ? `${formatPercent((now.discount * 100) / (now.sales + now.discount))} do preço de tabela` : 'Sem vendas no recorte'} />
     </section>
   );
 
@@ -112,25 +118,26 @@ export default function ExecutiveDashboard() {
     to: `${previousMonth.year}-${String(previousMonth.month).padStart(2, '0')}-31` });
   const orgLabel = filters.seller !== null ? model.personName(filters.seller === -1 ? null : filters.seller)
     : filters.team !== null ? model.teamName(filters.team) : 'da loja';
+  const insights = model.insights(filters);
 
   const overviewTab = (
     <div className="stack">
-      <section className="card stack-sm" aria-labelledby="destaques">
-        <h2 id="destaques" className="label">Destaques do período</h2>
-        {(() => {
-          const insights = model.insights(filters);
-          return insights.length === 0 ? <p className="muted">Sem vendas suficientes no recorte para destacar.</p>
-            : <ul className="insights">{insights.map(item => <li key={item.text} className={`insight-${item.tone}`}>
-              <span className="insight-dot" aria-hidden="true" /><span>{item.text}</span></li>)}</ul>;
-        })()}
+      <section className="card stack-md" aria-labelledby="destaques">
+        <div>
+          <h2 id="destaques">Destaques do período</h2>
+          <p className="card-sub">Lidos dos números do recorte e dos filtros escolhidos</p>
+        </div>
+        {insights.length === 0 ? <p className="muted">Sem vendas suficientes no recorte para destacar.</p>
+          : <ul className="insights">{insights.map(item => <li key={item.text} className={`insight-${item.tone}`}>
+              <Icon name={INSIGHT_ICON[item.tone]} /><span>{item.text}</span></li>)}</ul>}
       </section>
       <div className="grid-3">
         <GoalGauge title={`Meta anual da loja · ${model.year}`} status={model.annualGoalStatus()}
                    empty="Meta anual não definida. Defina em Metas." />
         <GoalGauge title={`Meta do mês · ${MONTH_NAMES[momMonth - 1]} (${orgLabel})`} status={month}
                    empty="Sem meta para este mês." />
-        <section className="card stack-sm" aria-labelledby="mes-a-mes">
-          <h2 id="mes-a-mes" className="label">Mês atual × mês anterior</h2>
+        <section className="card stack-md" aria-labelledby="mes-a-mes">
+          <h2 id="mes-a-mes">Mês atual × mês anterior</h2>
           <dl className="facts">
             <div><dt>{MONTH_NAMES[momMonth - 1]} (até o dia {momRanges.current.to.slice(8, 10)})</dt><dd className="money">{money(momNow.net)}</dd></div>
             <div><dt>{momRanges.label}</dt><dd className="money">{money(momBefore.net)}</dd></div>
@@ -140,17 +147,20 @@ export default function ExecutiveDashboard() {
           <p className="caption">Pedidos: {momNow.orders} contra {momBefore.orders} · ticket {money(momNow.averageTicket)} contra {money(momBefore.averageTicket)}.</p>
         </section>
       </div>
-      <section className="card stack-sm" aria-labelledby="vendas-tempo">
-        <div className="toolbar">
-          <h2 id="vendas-tempo" className="label">Vendas {filters.month ? `por dia · ${MONTH_NAMES[filters.month - 1]} de ${model.year}` : `por mês · ${model.year}`}</h2>
+      <section className="card stack-md" aria-labelledby="vendas-tempo">
+        <div className="card-head">
+          <div>
+            <h2 id="vendas-tempo">Vendas {filters.month ? `por dia · ${MONTH_NAMES[filters.month - 1]} de ${model.year}` : `por mês · ${model.year}`}</h2>
+            <p className="card-sub">Faturamento confirmado, com a meta e o mesmo período de {model.year - 1} como marcas</p>
+          </div>
           <nav aria-label="Nível do gráfico"><ol className="breadcrumb">
             <li>{filters.month ? <button type="button" className="btn btn-ghost btn-compact" onClick={() => selectMonth(null)}>Ano {model.year}</button>
               : <span aria-current="location">Ano {model.year}</span>}</li>
             {filters.month && <li><span aria-current="location">{MONTH_NAMES[filters.month - 1]}</span></li>}
           </ol></nav>
         </div>
-        <ColumnChart title={filters.month ? 'Faturamento líquido por dia' : 'Faturamento líquido por mês'} columns={timeColumns}
-                     valueLabel="Faturamento líquido" compareLabel={`${model.year - 1}`} sparseLabels={filters.month !== null}
+        <ColumnChart title={filters.month ? 'Faturamento confirmado por dia' : 'Faturamento confirmado por mês'} columns={timeColumns}
+                     valueLabel="Faturamento confirmado" compareLabel={`${model.year - 1}`} sparseLabels={filters.month !== null}
                      selected={filters.month ? (filters.day ? Number(filters.day.slice(8, 10)) : null) : null}
                      help={filters.month ? 'Clique em um dia para filtrar o painel por ele.' : 'Clique em um mês para abrir os dias (drill-down) e filtrar o painel.'}
                      onSelect={key => {
@@ -166,7 +176,7 @@ export default function ExecutiveDashboard() {
             key: r.key, label: r.label, value: r.net, detail: `${r.orders} pedidos` }))}
                     selected={filters.payment} onSelect={key => toggle('payment', key as PaymentMethod, PAYMENT_LABEL[key as PaymentMethod])} />
         </section>
-        <section className="card stack-sm">
+        <section className="card stack-md">
           <RankBars title="Categorias" items={model.ranking('category', filters).map(r => ({
             key: r.key, label: r.label, value: r.net, detail: `${r.units} un.` }))}
                     selected={filters.category} onSelect={key => toggle('category', Number(key), model.categoryName(Number(key) === -1 ? null : Number(key)))} />
@@ -180,11 +190,11 @@ export default function ExecutiveDashboard() {
   const teamTab = (
     <div className="stack">
       <div className="grid-2">
-        <section className="card stack-sm">
+        <section className="card stack-md">
           <RankBars title={`Meta por gerente · ${filters.month ? MONTH_NAMES[filters.month - 1] : `acumulado de ${model.year}`}`}
                     items={model.goalBoard('team', filters).map(r => ({ key: r.key, label: r.label, value: r.realized, goal: r.goal, detail: STATE_LABEL[r.state] }))}
                     selected={filters.team} onSelect={key => toggle('team', Number(key), model.teamName(Number(key)))} />
-          <p className="caption">Meta da equipe = soma das metas dos vendedores dela; o realizado inclui as vendas do próprio gerente.</p>
+          <p className="caption">Meta da equipe = soma das metas dos vendedores dela; o realizado inclui as vendas do próprio gerente. A marca na barra é a meta.</p>
         </section>
         <section className="card">
           <RankBars title="Ranking de vendedores" items={model.ranking('seller', filters).map(r => ({
@@ -192,10 +202,10 @@ export default function ExecutiveDashboard() {
                     selected={filters.seller} onSelect={key => toggle('seller', Number(key), model.personName(Number(key) === -1 ? null : Number(key)))} />
         </section>
       </div>
-      <section className="card stack-sm" aria-labelledby="meta-vendedor">
-        <h2 id="meta-vendedor" className="label">Meta por vendedor · {filters.month ? `${MONTH_NAMES[filters.month - 1]} de ${model.year}` : `acumulado de ${model.year} (meses com meta)`}</h2>
+      <section className="card stack-md" aria-labelledby="meta-vendedor">
+        <h2 id="meta-vendedor">Meta por vendedor · {filters.month ? `${MONTH_NAMES[filters.month - 1]} de ${model.year}` : `acumulado de ${model.year} (meses com meta)`}</h2>
         {sellerBoard.length === 0 ? <p className="empty">Sem metas nem vendas no período.</p>
-          : <div className="table-wrap" tabIndex={0} role="group" aria-labelledby="meta-vendedor"><table>
+          : <TableWrap label="Meta por vendedor"><table>
             <caption className="sr-only">Meta por vendedor</caption>
             <thead><tr><th scope="col">Vendedor</th><th scope="col">Equipe</th><th scope="col" className="right">Meta</th>
               <th scope="col" className="right">Realizado</th><th scope="col" className="right">Atingimento</th><th scope="col" className="right">Falta</th>
@@ -203,15 +213,16 @@ export default function ExecutiveDashboard() {
             <tbody>{sellerBoard.map(r => (
               <tr key={r.key} aria-selected={filters.seller === r.key}>
                 <td>{r.label}</td><td>{r.team}</td><td className="num right">{r.goal > 0 ? money(r.goal) : '—'}</td>
-                <td className="num right">{money(r.realized)}</td><td className="num right">{r.achievement === null ? '—' : formatPercent(r.achievement)}</td>
+                <td className="num right">{money(r.realized)}</td>
+                <td className="num right">{r.goal > 0 ? <MiniMeter realized={r.realized} goal={r.goal} percent={r.achievement} /> : '—'}</td>
                 <td className="num right">{r.goal > 0 ? money(r.remaining) : '—'}</td>
                 {filters.month && <td className="num right">{r.perDay === null ? '—' : money(r.perDay)}</td>}
                 <td><span className={`pill ${r.state === 'META_ATINGIDA' ? 'pill-ok' : r.state === 'EM_ANDAMENTO' ? 'pill-warn' : ''}`}>{STATE_LABEL[r.state]}</span></td>
               </tr>
             ))}</tbody>
-          </table></div>}
+          </table></TableWrap>}
       </section>
-      <section className="card stack-sm">
+      <section className="card stack-md">
         <ColumnChart title={`Metas mensais de ${model.year} · ${orgLabel}`} columns={goalSeries} valueLabel="Realizado"
                      selected={filters.month} onSelect={key => selectMonth(filters.month === key ? null : key)}
                      help="Realizado contra a meta de cada mês; clique em um mês para filtrar o painel." />
@@ -227,7 +238,7 @@ export default function ExecutiveDashboard() {
     <div className="stack">
       {productScoped && <p className="notice notice-warn">Com filtro de produto ou categoria, os estornos ficam fora: eles são do pedido, não de um produto.</p>}
       <div className="grid-2">
-        <section className="card stack-sm">
+        <section className="card stack-md">
           <fieldset className="segmented">
             <legend className="sr-only">Medida do ranking de produtos</legend>
             {PRODUCT_MEASURES.map(([value, text]) => (
@@ -242,11 +253,14 @@ export default function ExecutiveDashboard() {
                       prefix: <ProductThumb sku={r.sku ?? undefined} name={r.label} size={32} /> }))}
                     selected={filters.product} onSelect={key => toggle('product', Number(key), model.productName(Number(key)))} />
         </section>
-        <section className="card stack-sm" aria-labelledby="curva-abc">
-          <h2 id="curva-abc" className="label">Curva ABC do faturamento</h2>
-          <StackedShare title="Participação de cada classe na receita" parts={abc.classes.map(c => ({
-            key: c.klass, label: `Classe ${c.klass} (${c.products} ${c.products === 1 ? 'produto' : 'produtos'})`, share: c.share,
-            tone: c.klass === 'A' ? 'abc-a' : c.klass === 'B' ? 'abc-b' : 'abc-c' }))} />
+        <section className="card stack-md" aria-labelledby="curva-abc">
+          <div>
+            <h2 id="curva-abc">Curva ABC do faturamento</h2>
+            <p className="card-sub">Participação de cada classe na receita de produtos</p>
+          </div>
+          <StackedBar label="Participação de cada classe na receita" colors={ABC_COLORS}
+                      items={abc.classes.filter(c => c.net > 0).map(c => ({
+                        key: c.klass, label: `Classe ${c.klass} · ${c.products} ${c.products === 1 ? 'produto' : 'produtos'}`, value: c.net }))} />
           <p className="caption">A: produtos que somam os primeiros 80% da receita; B: até 95%; C: o restante. Foque estoque e vitrine na classe A.</p>
           <ol className="rank">{abc.items.slice(0, 5).map(item => <li key={item.key}>{item.label} · <span className="num">{money(item.net)}</span>
             <span className="muted"> · {formatPercent(item.share * 100)} · classe {item.klass}</span></li>)}</ol>
@@ -259,21 +273,16 @@ export default function ExecutiveDashboard() {
 
   return (
     <div className="stack">
-      <header className="toolbar">
-        <div className="stack-sm">
-          <p className="muted">Diretoria / Painel executivo</p>
-          <h1>Painel executivo</h1>
-          <p className="muted">Recorte: {periodText} · vendas pagas menos estornos.{updated && <span aria-live="polite"> Atualizado às {updated}.</span>}</p>
-        </div>
-        <div className="actions">
+      <PageHeader section="Diretoria" title="Painel executivo"
+        description={<>Recorte: {periodText} · vendas pagas menos estornos{updated && <> · <span aria-live="polite">Atualizado às {updated}</span></>}</>}
+        actions={<>
           <button type="button" className="btn" onClick={() => download(`sbi-vendas-${scope.from}-${scope.to}.csv`, toCsv(model, filters))}>Exportar CSV</button>
           <Link className="btn btn-primary" href="/executivo/metas">Definir metas</Link>
-        </div>
-      </header>
+        </>} />
 
       <ErrorNotice error={overview.error}><p>Os números abaixo são da última atualização bem-sucedida.</p></ErrorNotice>
 
-      <section className="card stack-sm" aria-labelledby="filtros-titulo">
+      <section className="card stack-md" aria-labelledby="filtros-titulo">
         <h2 id="filtros-titulo" className="sr-only">Filtros</h2>
         <div className="filters">
           <div className="field"><label htmlFor="exec-ano">Ano</label>
@@ -311,7 +320,8 @@ export default function ExecutiveDashboard() {
         {chips.length > 0 && <div className="toolbar">
           <ul className="chips" aria-label="Filtros ativos">
             {chips.map(chip => <li key={chip.key} className="chip">{chip.label}
-              <button type="button" aria-label={`Remover filtro ${chip.label}`} onClick={() => apply(without(filters, chip.key), `Filtro removido: ${chip.label}`)}>×</button></li>)}
+              <button type="button" aria-label={`Remover filtro ${chip.label}`} onClick={() => apply(without(filters, chip.key), `Filtro removido: ${chip.label}`)}>
+                <Icon name="fechar" size={16} /></button></li>)}
           </ul>
           <button type="button" className="btn btn-ghost btn-compact" onClick={() => apply(NO_FILTERS, 'Filtros limpos')}>Limpar filtros</button>
         </div>}
@@ -346,10 +356,12 @@ function ProductMarginTable({ rows, selected, onSelect }: { rows: readonly Produ
     return sort.desc ? y - x : x - y;
   });
   return (
-    <section className="card stack-sm" aria-labelledby="lucro-compra">
-      <h2 id="lucro-compra" className="label">Lucro × preço de compra por produto</h2>
-      <p className="caption">Preço de compra = custo médio atual do estoque. Margem unitária = (preço − custo) ÷ preço. Abaixo de 10% fica em destaque.</p>
-      {rows.length === 0 ? <p className="empty">Nenhum produto vendido no recorte.</p> : <div className="table-wrap" tabIndex={0} role="group" aria-labelledby="lucro-compra"><table>
+    <section className="card stack-md" aria-labelledby="lucro-compra">
+      <div>
+        <h2 id="lucro-compra">Lucro × preço de compra por produto</h2>
+        <p className="card-sub">Preço de compra = custo médio atual do estoque. Margem unitária = (preço − custo) ÷ preço. Abaixo de 10% fica em destaque.</p>
+      </div>
+      {rows.length === 0 ? <p className="empty">Nenhum produto vendido no recorte.</p> : <TableWrap label="Lucro e preço de compra por produto"><table>
         <caption className="sr-only">Lucro e preço de compra por produto</caption>
         <thead><tr>{COLUMNS.map(([key, text]) => (
           <th key={key} scope="col" className={key === 'label' ? undefined : 'right'}
@@ -360,7 +372,7 @@ function ProductMarginTable({ rows, selected, onSelect }: { rows: readonly Produ
         <tbody>{sorted.map(r => (
           <tr key={r.productId} aria-selected={selected === r.productId}>
             <td className="cell-product"><div className="product-cell"><ProductThumb sku={r.sku ?? undefined} name={r.label} size={32} />
-              <span>{r.label}<br /><span className="mono muted">{r.sku ?? '—'} · {r.category}</span></span></div></td>
+              <span>{r.label}<span className="cell-sub"><span className="id">{r.sku ?? '—'}</span> · {r.category}</span></span></div></td>
             <td className="num right">{r.price === null ? '—' : money(r.price)}</td>
             <td className="num right">{r.averageCost === null ? '—' : money(r.averageCost)}</td>
             <td className={`num right${r.unitMarginPercent !== null && r.unitMarginPercent < 10 ? ' margin-low' : ''}`}>
@@ -375,7 +387,7 @@ function ProductMarginTable({ rows, selected, onSelect }: { rows: readonly Produ
                         onClick={() => onSelect(r.productId)}>{selected === r.productId ? 'Remover' : 'Filtrar'}</button></td>
           </tr>
         ))}</tbody>
-      </table></div>}
+      </table></TableWrap>}
     </section>
   );
 }

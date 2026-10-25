@@ -1,12 +1,14 @@
 'use client';
-// Graficos interativos do painel executivo (RF-28). Cores do manual v1.0: barra Indigo (data-1), meta Ambar tracejada
-// (data-3), comparacao e projecao Violeta (data-4). Cada coluna e cada barra e um botao: clicar filtra o painel inteiro
-// (filtro cruzado) e o item escolhido fica destacado; os demais ficam mais claros, sem perder o contraste de 3:1.
-// Teclado: uma parada de Tab por grafico, setas, Home e End percorrem, Enter ou Espaco escolhe. Os mesmos valores
-// ficam numa tabela em "Ver dados em tabela".
+// Graficos interativos do painel executivo (RF-28) nas regras de dados do manual v2.0: barra em Petroleo (data-1), meta
+// tracejada em Tinta (chart-goal) e o ano anterior como marca vazada (chart-compare). Cada coluna e cada barra e um botao:
+// clicar filtra o painel inteiro (filtro cruzado) e o item escolhido fica destacado; os demais ficam mais claros, sem
+// perder o contraste de 3:1. Teclado: uma parada de Tab por grafico, setas, Home e End percorrem, Enter ou Espaco
+// escolhe. Os mesmos valores ficam numa tabela em "Ver dados em tabela".
 import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { compactMoney, formatPercent, money } from '../lib/format.ts';
+import { formatPercent, money } from '../lib/format.ts';
 import type { GoalStatus } from '../lib/executive.ts';
+import { Icon } from './brand/icons.tsx';
+import { Meter } from './meter.tsx';
 
 function niceMax(value: number): number {
   if (value <= 0) return 1;
@@ -46,7 +48,7 @@ export function Delta({ value, label }: { value: number | null; label: string })
     : `${formatPercent(Math.abs(value))} ${up ? 'acima' : 'abaixo'} de ${label}`;
   return (
     <span className={`delta ${up ? 'delta-up' : 'delta-down'}`}>
-      <span aria-hidden="true">{up ? '▲' : '▼'}</span> {text}
+      <Icon name={up ? 'seta-cima' : 'seta-baixo'} size={16} />{text}
     </span>
   );
 }
@@ -77,7 +79,7 @@ export function ColumnChart({ title, columns, selected, onSelect, valueLabel, co
       <figcaption className="chart-head">
         <span id={`${id}-title`} className="label">{title}</span>
         <ul className="legend" aria-label="Legenda">
-          <li><span className="swatch" style={{ background: 'var(--data-1)' }} aria-hidden="true" />{valueLabel}</li>
+          <li><span className="swatch" style={{ background: 'var(--sbi-data-1)' }} aria-hidden="true" />{valueLabel}</li>
           {hasGoal && <li><span className="swatch swatch-goal" aria-hidden="true" />Meta</li>}
           {hasCompare && <li><span className="swatch swatch-compare" aria-hidden="true" />{compareLabel}</li>}
         </ul>
@@ -157,8 +159,8 @@ export function RankBars({ title, items, selected, onSelect, format = money, lim
   const max = niceMax(Math.max(1, ...items.flatMap(i => [i.value, i.goal ?? 0])));
   const Heading = headingLevel === 2 ? 'h2' : 'h3';
   return (
-    <section className="stack-sm" aria-labelledby={id}>
-      <Heading id={id} className="label">{title}</Heading>
+    <section className="stack-md" aria-labelledby={id}>
+      <Heading id={id}>{title}</Heading>
       {items.length === 0 ? <p className="empty">{empty}</p> : <>
         <ol className="rankbars" data-selected={selected !== null && selected !== undefined}>
           {shown.map((item, index) => {
@@ -170,8 +172,8 @@ export function RankBars({ title, items, selected, onSelect, format = money, lim
                 <span className="rankbars-fill" style={{ width: pct(Math.max(item.value, 0), max) }} />
                 {(item.goal ?? 0) > 0 && <span className="rankbars-goal" style={{ left: pct(item.goal ?? 0, max) }} />}
               </span>
-              <span className="rankbars-value num">{format(item.value)}
-                {(item.goal ?? 0) > 0 && <span className="muted"> · {formatPercent((item.value * 100) / (item.goal ?? 1))} da meta</span>}</span>
+              <span className="rankbars-value"><strong className="num">{format(item.value)}</strong>
+                {(item.goal ?? 0) > 0 && <> · {formatPercent((item.value * 100) / (item.goal ?? 1))} da meta</>}</span>
             </>;
             return (
               <li key={item.key}>
@@ -196,60 +198,41 @@ export function RankBars({ title, items, selected, onSelect, format = money, lim
 
 // ---------------- meta: realizado, ritmo e projecao ----------------
 
+/**
+ * Meta do periodo no medidor do manual v2.0 (figura 34): trilha ate a meta e, com o periodo em curso, a marca do ritmo
+ * esperado hoje. O aviso diz o que falta por dia ou a projecao linear do fechamento.
+ */
 export function GoalGauge({ title, status, empty }: { title: string; status: GoalStatus; empty: string }) {
   const id = useId();
   if (status.goal === null || status.goal <= 0) {
     return (
-      <section className="card stack-sm" aria-labelledby={id}>
-        <h2 id={id} className="label">{title}</h2>
-        <p className="muted">{empty}</p>
-        <p><span className="money"><strong>{money(status.realized)}</strong></span> vendidos em {status.label}.</p>
+      <section className="card stack-md" aria-labelledby={id}>
+        <h2 id={id}>{title}</h2>
+        <p className="notice">{empty} Realizado em {status.label}: <strong>{money(status.realized)}</strong>.</p>
       </section>
     );
   }
   const goal = status.goal;
-  const scale = niceMax(Math.max(goal, status.realized, status.projection ?? 0) * 1.08);
+  const running = status.daysLeft > 0;
   const reached = status.realized >= goal;
   const projectionReaches = status.projection !== null && status.projection >= goal;
+  const pace = running && status.expected !== null ? status.expected / goal : null;
   return (
-    <section className="card stack-sm" aria-labelledby={id}>
-      <h2 id={id} className="label">{title}</h2>
-      <p><span className="money"><strong>{money(status.realized)}</strong> de {money(goal)}</span> ({formatPercent(status.achievement)})</p>
-      <div className="gauge" role="img" aria-label={`Realizado ${money(status.realized)} de ${money(goal)}${status.expected !== null ? `; ritmo esperado hoje ${money(status.expected)}` : ''}${status.projection !== null ? `; projeção ${money(status.projection)}` : ''}`}>
-        <span className="gauge-fill" style={{ width: pct(status.realized, scale) }} />
-        <span className="gauge-goal" style={{ left: pct(goal, scale) }} />
-        {status.expected !== null && status.daysLeft > 0 && <span className="gauge-pace" style={{ left: pct(status.expected, scale) }} />}
-        {status.projection !== null && status.daysLeft > 0 && <span className="gauge-projection" style={{ left: pct(status.projection, scale) }} />}
-      </div>
-      <ul className="legend gauge-legend">
-        <li><span className="swatch swatch-goal" aria-hidden="true" />Meta {compactMoney(goal)}</li>
-        {status.expected !== null && status.daysLeft > 0 && <li><span className="swatch swatch-pace" aria-hidden="true" />Ritmo esperado hoje {compactMoney(status.expected)}</li>}
-        {status.projection !== null && status.daysLeft > 0 && <li><span className="swatch swatch-compare" aria-hidden="true" />Projeção {compactMoney(status.projection)}</li>}
-      </ul>
+    <section className="card stack-md" aria-labelledby={id}>
+      <h2 id={id}>{title}</h2>
+      <Meter realized={status.realized} goal={goal} pace={pace}
+             head={<><span className="label">Atingimento</span>
+               <span><strong className="kpi-sm">{formatPercent(status.achievement)}</strong>
+                 <span className="muted"> · {reached ? 'meta atingida' : `faltam ${money(goal - status.realized)}`}</span></span></>}
+             legend={<><span className="num">Realizado {money(status.realized)}</span>
+               {pace !== null && <span>Marca = ritmo esperado hoje</span>}
+               <span className="num">Meta {money(goal)}</span></>} />
       <p className={reached || projectionReaches ? 'notice notice-ok' : 'notice notice-warn'}>
-        {reached ? 'Meta atingida.' : status.daysLeft === 0 ? `Fechou em ${formatPercent(status.achievement)} da meta.`
+        {reached ? 'Meta atingida.' : !running ? `Fechou em ${formatPercent(status.achievement)} da meta.`
           : projectionReaches ? `No ritmo atual, a meta é batida (${money(status.projection)}).`
-            : `Faltam ${money(goal - status.realized)}: ${money((goal - status.realized) / status.daysLeft)} por dia em ${status.daysLeft} dias.`}
+            : `Faltam ${money(goal - status.realized)}: ${money((goal - status.realized) / status.daysLeft)} por dia em ${status.daysLeft} dias.`
+              + (status.projection !== null ? ` No ritmo atual, fecha em ${money(status.projection)}.` : '')}
       </p>
     </section>
-  );
-}
-
-// ---------------- participacao empilhada (curva ABC) ----------------
-
-export function StackedShare({ title, parts }: { title: string; parts: readonly { key: string; label: string; share: number; tone: string }[] }) {
-  const total = parts.reduce((sum, p) => sum + p.share, 0);
-  if (total <= 0) return <p className="empty">Sem vendas no recorte.</p>;
-  return (
-    <figure className="chart">
-      <figcaption className="label">{title}</figcaption>
-      <div className="stacked" role="img" aria-label={parts.map(p => `${p.label}: ${formatPercent(p.share * 100)}`).join('; ')}>
-        {parts.filter(p => p.share > 0).map(p => <span key={p.key} className={`stacked-part ${p.tone}`} style={{ width: `${(p.share / total) * 100}%` }}>
-          {p.share / total >= 0.08 ? p.key : ''}</span>)}
-      </div>
-      <ul className="legend">
-        {parts.map(p => <li key={p.key}><span className={`swatch ${p.tone}`} aria-hidden="true" />{p.label}: {formatPercent(p.share * 100)}</li>)}
-      </ul>
-    </figure>
   );
 }

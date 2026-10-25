@@ -16,7 +16,7 @@ export interface MenuItem { area: Area; href: string; label: string; section: Me
 // O CEO entra no Painel executivo (D-EVO-42); gerente e vendedor continuam entrando em Vender (D-EVO-34).
 export const MENU: readonly MenuItem[] = [
   { area: 'EXECUTIVO', href: '/executivo', label: 'Painel executivo', section: 'DIRETORIA', icon: 'executivo' },
-  { area: 'METAS', href: '/executivo/metas', label: 'Metas', section: 'DIRETORIA', icon: 'metas' },
+  { area: 'METAS', href: '/executivo/metas', label: 'Metas', section: 'DIRETORIA', icon: 'meta' },
   { area: 'VENDER', href: '/vender', label: 'Vender', section: 'ATENDIMENTO', icon: 'vender' },
   { area: 'VENDAS', href: '/vendas', label: 'Vendas', section: 'ATENDIMENTO', icon: 'vendas' },
   { area: 'CLIENTES', href: '/clientes', label: 'Clientes', section: 'ATENDIMENTO', icon: 'clientes' },
@@ -69,4 +69,11 @@ const ROLE_LABELS: Readonly<Record<string, string>> = { CEO: 'CEO', GERENTE: 'Ge
 /** Papel por extenso na tela (hierarquia CEO > Gerente > Vendedor). */
 export function roleLabel(role: string): string {
   return ROLE_LABELS[role] ?? role;
+}
+
+const AVATAR_CLASSES: Readonly<Record<string, string>> = { CEO: 'avatar-ceo', GERENTE: 'avatar-gerente', VENDEDOR: 'avatar-vendedor' };
+
+/** Avatar de iniciais: Tinta para a gestao, Petroleo para a venda e, no CEO, o anel na cor do ponto da marca. */
+export function avatarClass(role: string): string {
+  return AVATAR_CLASSES[role] ?? 'avatar-vendedor';
 }

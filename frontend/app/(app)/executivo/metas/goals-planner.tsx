@@ -13,7 +13,10 @@ import { distributionMatches, planCoverage, splitEvenly, sum } from '../../../..
 import { ErrorNotice, Loading } from '../../../../components/feedback.tsx';
 import { Field } from '../../../../components/customer-form.tsx';
 import Drawer from '../../../../components/drawer.tsx';
+import { MiniMeter } from '../../../../components/meter.tsx';
+import PageHeader from '../../../../components/page-header.tsx';
 import { StatusMessage, useStatusMessage } from '../../../../components/status-message.tsx';
+import TableWrap from '../../../../components/table-wrap.tsx';
 import { overviewKey, selectableYears, storeYear, useOverview } from '../use-overview.ts';
 
 const amount = (value: number) => ({ amount: value, currency: 'BRL' as const });
@@ -39,16 +42,11 @@ export default function GoalsPlanner() {
 
   return (
     <div className="stack">
-      <header className="toolbar">
-        <div className="stack-sm">
-          <p className="muted">Diretoria / Metas</p>
-          <h1>Metas da loja</h1>
-          <p className="muted">Anual (CEO), mensal da loja, por gerente (soma da equipe) e por vendedor.</p>
-        </div>
-        <div className="field"><label htmlFor="metas-ano">Ano</label>
+      <PageHeader section="Diretoria" title="Metas da loja"
+        description="Anual (CEO), mensal da loja, por gerente (soma da equipe) e por vendedor · realizado = vendas pagas menos estornos"
+        actions={<div className="field"><label htmlFor="metas-ano">Ano</label>
           <select id="metas-ano" className="select" value={year} onChange={event => setYear(Number(event.target.value))}>
-            {selectableYears().map(y => <option key={y} value={y}>{y}</option>)}</select></div>
-      </header>
+            {selectableYears().map(y => <option key={y} value={y}>{y}</option>)}</select></div>} />
       <StatusMessage message={message.message} onClose={message.clear} />
       <ErrorNotice error={overview.error} />
 
@@ -56,8 +54,8 @@ export default function GoalsPlanner() {
         <AnnualGoalCard year={model.year} current={annual?.amount.amount ?? null}
                         updated={annual ? `${annual.updatedBy.name}, ${formatDateTime(annual.updatedAt)}` : null}
                         onSaved={value => refresh(`Meta anual de ${model.year} gravada: ${money(value)}.`)} />
-        <section className="card stack-sm" aria-labelledby="cobertura">
-          <h2 id="cobertura" className="label">Plano mensal × meta anual</h2>
+        <section className="card stack-md" aria-labelledby="cobertura">
+          <h2 id="cobertura">Plano mensal × meta anual</h2>
           <p><span className="money"><strong>{money(planned.amount)}</strong></span> em {planned.months} {planned.months === 1 ? 'mês' : 'meses'} com meta
             {coverage !== null && <> · {formatPercent(coverage)} da meta anual</>}.</p>
           <p className="caption">{coverage === null ? 'Defina a meta anual para acompanhar a cobertura do plano.'
@@ -67,9 +65,9 @@ export default function GoalsPlanner() {
         </section>
       </div>
 
-      <section className="card stack-sm" aria-labelledby="metas-mensais">
-        <h2 id="metas-mensais" className="label">Metas mensais de {model.year}</h2>
-        <div className="table-wrap" tabIndex={0} role="group" aria-labelledby="metas-mensais"><table>
+      <section className="card stack-md" aria-labelledby="metas-mensais">
+        <h2 id="metas-mensais">Metas mensais de {model.year}</h2>
+        <TableWrap label="Metas mensais"><table>
           <caption className="sr-only">Metas mensais</caption>
           <thead><tr><th scope="col">Mês</th><th scope="col" className="right">Meta da loja</th><th scope="col" className="right">Realizado</th>
             <th scope="col" className="right">Atingimento</th><th scope="col">Distribuição</th><th scope="col"><span className="sr-only">Ações</span></th></tr></thead>
@@ -82,18 +80,19 @@ export default function GoalsPlanner() {
                 <td>{name}</td>
                 <td className="num right">{goal ? money(goal.storeGoal) : '—'}</td>
                 <td className="num right">{money(realized)}</td>
-                <td className="num right">{goal && goal.storeGoal.amount > 0 ? formatPercent((realized * 100) / goal.storeGoal.amount) : '—'}</td>
+                <td className="num right">{goal && goal.storeGoal.amount > 0
+                  ? <MiniMeter realized={realized} goal={goal.storeGoal.amount} percent={(realized * 100) / goal.storeGoal.amount} /> : '—'}</td>
                 <td>{goal ? (goal.sellers.length > 0 ? `${goal.sellers.length} vendedores` : 'Só a loja') : 'Sem meta'}</td>
-                <td><button type="button" className="btn btn-ghost" aria-label={`${goal ? 'Editar' : 'Definir'} meta de ${name}`}
+                <td><button type="button" className="btn btn-sm" aria-label={`${goal ? 'Editar' : 'Definir'} meta de ${name}`}
                             onClick={() => setEditing(month)}>{goal ? 'Editar' : 'Definir'}</button></td>
               </tr>
             );
           })}</tbody>
-        </table></div>
+        </table></TableWrap>
       </section>
 
-      <section className="card stack-sm" aria-labelledby="equipes">
-        <h2 id="equipes" className="label">Equipes de venda</h2>
+      <section className="card stack-md" aria-labelledby="equipes">
+        <h2 id="equipes">Equipes de venda</h2>
         <p className="caption">A meta de cada gerente é a soma das metas dos vendedores da equipe. Para mudar alguém de equipe, use <Link href="/gestao/usuarios">Usuários</Link>.</p>
         <ul className="stack-sm">
           {[...managers.map(m => m.id), NO_TEAM].map(team => {
@@ -126,8 +125,8 @@ function AnnualGoalCard({ year, current, updated, onSaved }: { year: number; cur
     save.mutate(Math.round(value * 100) / 100);
   }
   return (
-    <section className="card stack-sm" aria-labelledby="meta-anual">
-      <h2 id="meta-anual" className="label">Meta anual da loja · {year}</h2>
+    <section className="card stack-md" aria-labelledby="meta-anual">
+      <h2 id="meta-anual">Meta anual da loja · {year}</h2>
       <p>{current === null ? 'Ainda não definida.' : <span className="money"><strong>{money(current)}</strong></span>}
         {updated && <span className="muted"> · por {updated}</span>}</p>
       <form className="stack-sm" onSubmit={submit} aria-busy={save.isPending} key={`${year}-${current}`}>

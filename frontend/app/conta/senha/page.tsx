@@ -9,7 +9,7 @@ import AcademicCredits from '../../../components/academic-credits.tsx';
 
 export const metadata: Metadata = { title: 'Minha senha' };
 
-/** Fora do grupo (app): com senha provisoria o layout das areas redireciona para ca, sem laco. */
+/** Fora do grupo (app): com senha provisoria o layout das areas redireciona para ca, sem laco. Formulario sobre a Nevoa. */
 export default async function PasswordPage() {
   const user = await currentUser();
   if (!user) redirect(`/entrar?next=${encodeURIComponent(PASSWORD_PATH)}`);
@@ -18,19 +18,23 @@ export default async function PasswordPage() {
   return (
     <main className="login login-single">
       <div className="login-form">
-      <section className="card" aria-labelledby="senha-titulo">
-        <div className="brand-card-head"><SbiLogo size={36} /></div>
-        <h1 id="senha-titulo">{required ? 'Troque a senha provisória' : 'Alterar minha senha'}</h1>
-        <p className="muted">
-          {required
-            ? `Olá, ${user.name}. Para continuar, crie uma senha só sua.`
-            : 'Ao trocar a senha, as suas outras sessões abertas são encerradas.'}
-        </p>
-        <PasswordForm email={user.email} />
-        {back && <a className="btn btn-ghost btn-block" href={back}>Voltar sem alterar</a>}
-        <div className="actions"><LogoutButton /></div>
-      </section>
-      <AcademicCredits centered />
+        <section className="login-box" aria-labelledby="senha-titulo">
+          <SbiLogo size={32} />
+          <header>
+            <h1 id="senha-titulo">{required ? 'Troque a senha provisória' : 'Alterar minha senha'}</h1>
+            <p className="muted">
+              {required
+                ? `Olá, ${user.name}. Para continuar, crie uma senha só sua.`
+                : 'Ao trocar a senha, as suas outras sessões abertas são encerradas.'}
+            </p>
+          </header>
+          <PasswordForm email={user.email} />
+          <div className="actions">
+            {back && <a className="btn btn-ghost" href={back}>Voltar sem alterar</a>}
+            <LogoutButton />
+          </div>
+        </section>
+        <AcademicCredits centered />
       </div>
     </main>
   );
