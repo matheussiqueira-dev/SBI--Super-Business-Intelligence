@@ -6,6 +6,7 @@ import com.swee.ordermanagementspring.security.AppPrincipal;
 import com.swee.ordermanagementspring.security.AuditService;
 import com.swee.ordermanagementspring.security.LockoutAuthenticationProvider;
 import com.swee.ordermanagementspring.security.LoginAttemptService;
+import com.swee.ordermanagementspring.security.PasswordHashing;
 import com.swee.ordermanagementspring.security.SecurityJson;
 import com.swee.ordermanagementspring.security.SessionStateReader;
 import com.swee.ordermanagementspring.security.SessionVersionFilter;
@@ -20,7 +21,6 @@ import org.springframework.security.authentication.*;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.*;
@@ -58,7 +58,7 @@ public class SecurityConfig {
         return handler;
     }
 
-    @Bean public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(12); }
+    @Bean public PasswordEncoder passwordEncoder() { return PasswordHashing.encoder(); }
 
     @Bean public AuthenticationManager authenticationManager(AppUserRepository users, PasswordEncoder encoder,
                                                              LoginAttemptService attempts) {

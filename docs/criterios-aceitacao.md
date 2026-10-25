@@ -141,7 +141,7 @@ Codigos de erro citados abaixo sao o campo `code` do `ErrorResponse` do contrato
 | CA-22-07 | Dado estoque minimo definido, quando o disponivel ficar igual ou abaixo dele, entao a posicao marca `belowMin` e o painel conta o produto no alerta. |
 | CA-23-01 | Dado gerente, quando consultar faturamento do periodo, entao o liquido e vendas pagas menos estornos do periodo, lido das views do V6. |
 | CA-23-02 | Dado item vendido sem custo no periodo, quando consultar faturamento, entao lucro bruto e margem vem nulos e a cobertura de custo e informada. |
-| CA-23-03 | Dado painel de gestao aberto, quando a aba estiver visivel, entao os dados sao recarregados a cada 15 s; com a aba oculta, nao; erro de carga nunca aparece como zero. |
+| CA-23-03 | Dado painel de gestao aberto, quando a aba estiver visivel e em uso, entao os dados sao recarregados a cada 15 s; com a aba oculta ou 10 min sem interacao, nao, e a primeira interacao recarrega na hora; erro de carga nunca aparece como zero. |
 
 ## Matriz inicial de rastreabilidade
 

@@ -298,6 +298,8 @@ Lacunas e decisoes em [decisoes/evolucao.md](decisoes/evolucao.md). Um pacote po
 | CT-WEB-140 | D-MAR-13 | Unitario | Particionamento | Verde | `tests/identity.test.ts`: escolha de tema valida ou volta ao sistema, atributo `data-theme` de cada escolha e script do `<head>` com tratamento de erro |
 | CT-WEB-141 | D-MAR-07 | Unitario | - | Verde | `tests/identity.test.ts`: nenhum hexadecimal nem `rgb()` solto em `app/` e `components/` fora de `tokens.css`; tema escuro do sistema e tema escuro fixado com os mesmos papeis semanticos |
 | CT-WEB-142 | D-MAR-13 | E2E | - | Verde | `e2e/theme.spec.ts`: com o sistema claro, o seletor fixa o tema escuro, a escolha resiste a recarga sem piscar e "Tema do sistema" volta ao claro |
+| CT-AUTH-103 | D-EVO-50 | Unitario/Integracao | Transicao de estados | Verde | `LoginLockoutPolicyTest.correctLoginRehashesOnlyOtherCosts` e `needsRehashReadsTheBcryptCost`; `LoginLockoutIntegrationTest.correctLoginMovesTheHashToTheCurrentCost`: login correto com hash de outro custo grava hash de custo 10 que confere com a senha, senha errada nao regrava, `session_version` nao muda e o segundo login nao regrava de novo |
+| CT-WEB-143 | D-EVO-51, CA-23-03 | Unitario | Transicao de estados | Verde | `tests/idle.test.ts`: o painel para de consultar depois de 10 min sem uso, uso antes do limite reinicia a contagem e a primeira interacao depois da pausa avisa o retorno uma vez so |
 
 ### Casos da visao do CEO (RF-27 a RF-29, 24/10/2026)
 

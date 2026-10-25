@@ -50,4 +50,13 @@ public class JdbcLoginCounter implements LoginCounter {
                 .param("id", userId)
                 .update();
     }
+
+    @Override
+    public void replacePasswordHash(long userId, String currentHash, String newHash) {
+        jdbc.sql("UPDATE app_users SET password_hash = :newHash WHERE id = :id AND password_hash = :currentHash")
+                .param("newHash", newHash)
+                .param("id", userId)
+                .param("currentHash", currentHash)
+                .update();
+    }
 }
