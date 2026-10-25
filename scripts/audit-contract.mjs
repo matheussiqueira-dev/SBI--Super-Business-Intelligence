@@ -5,21 +5,27 @@ import { resolve } from 'node:path';
 export const targetPath = new URL('../config/openapi/target-loja-gestao-openapi-2026-10-04-v3.json', import.meta.url);
 export const v4Path = new URL('../config/openapi/target-loja-gestao-openapi-2026-10-14-v4.json', import.meta.url);
 export const v5Path = new URL('../config/openapi/target-loja-gestao-openapi-2026-10-14-v5.json', import.meta.url);
+export const v6Path = new URL('../config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json', import.meta.url);
 export const matrixPath = new URL('../src/test/resources/security/access-matrix.csv', import.meta.url);
 // Contract marker -> accepted per-operation x-status values. v2/v3 stay planning-only documents.
 export const contractMarkers = {
   'target-planned-not-implemented': ['planned'],
   'target-v4': ['planned', 'implemented'],
   'target-v5': ['planned', 'implemented'],
+  'target-v6': ['planned', 'implemented'],
 };
-const roleNames = ['GERENTE', 'VENDEDOR'];
+// v4 and v5 describe two roles; v6 adds the CEO above the GERENTE (D-EVO-42). x-roles lists every role with access.
+const v4Markers = ['target-v4', 'target-v5', 'target-v6'];
+export const rolesFor = (document) => document['x-contract-status'] === 'target-v6' ? ['CEO', 'GERENTE', 'VENDEDOR'] : ['GERENTE', 'VENDEDOR'];
 const granted = new Set(['PERMIT', 'OWN']);
 export function parseMatrix(text) {
   const [header, ...lines] = text.split(/\r?\n/).filter(line => line.trim() !== '');
-  if (header !== 'method,path,anonymous,vendedor,gerente') throw new Error('Unexpected access matrix header');
+  if (!['method,path,anonymous,vendedor,gerente', 'method,path,anonymous,vendedor,gerente,ceo'].includes(header)) {
+    throw new Error('Unexpected access matrix header');
+  }
   return lines.map(line => {
-    const [method, path, anonymous, vendedor, gerente] = line.split(',');
-    return { method, path, anonymous, vendedor, gerente };
+    const [method, path, anonymous, vendedor, gerente, ceo] = line.split(',');
+    return ceo === undefined ? { method, path, anonymous, vendedor, gerente } : { method, path, anonymous, vendedor, gerente, ceo };
   });
 }
 export function auditContract(document, { matrix } = {}) {
@@ -48,8 +54,10 @@ export function auditContract(document, { matrix } = {}) {
   }
   if (document.openapi !== '3.1.0') errors.push('Expected OpenAPI 3.1.0');
   const statuses = contractMarkers[document['x-contract-status']];
-  // v5 is v4 plus the evolution operations: the same policy applies.
-  const v4 = ['target-v4', 'target-v5'].includes(document['x-contract-status']);
+  // v5 is v4 plus the evolution operations and v6 adds the CEO: the same policy applies.
+  const v4 = v4Markers.includes(document['x-contract-status']);
+  const roleNames = rolesFor(document);
+  const managerRoles = roleNames.filter(role => role !== 'VENDEDOR');
   if (!statuses) errors.push('Missing planned contract marker');
   for (const [path, item] of Object.entries(document.paths ?? {})) {
     for (const [method, operation] of Object.entries(item)) {
@@ -64,7 +72,10 @@ export function auditContract(document, { matrix } = {}) {
       if (!isPublic && (!security?.length || security.some(s => !Object.hasOwn(s, securityName)))) errors.push(`Missing ${session ? 'session' : 'bearer'} security: ${name}`);
       if (isPublic && security?.length !== 0) errors.push(`Auth bootstrap/logout must be public: ${name}`);
       if ((path.startsWith('/stock/') || path === '/management/summary' || path === '/goals/monthly') &&
-          JSON.stringify(operation['x-roles']) !== JSON.stringify(['GERENTE'])) errors.push(`Missing manager policy: ${name}`);
+          JSON.stringify(operation['x-roles']) !== JSON.stringify(managerRoles)) errors.push(`Missing manager policy: ${name}`);
+      if (path.startsWith('/executive') && JSON.stringify(operation['x-roles']) !== JSON.stringify(['CEO'])) {
+        errors.push(`Missing executive policy: ${name}`);
+      }
       const parameters = [...(item.parameters ?? []), ...(operation.parameters ?? [])].map(p => p.$ref ? resolveRef(p.$ref) : p);
       if (session && ['post', 'put', 'patch', 'delete'].includes(method)) {
         if (!parameters.some(p => p?.in === 'header' && p.name === 'X-CSRF-TOKEN' && p.required === true)) errors.push(`Missing required CSRF header: ${name}`);
@@ -157,7 +168,7 @@ export function auditContract(document, { matrix } = {}) {
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const [file = fileURLToPath(targetPath), matrixFile = fileURLToPath(matrixPath)] = process.argv.slice(2).map(arg => resolve(arg));
   const document = JSON.parse(readFileSync(file, 'utf8'));
-  const matrix = ['target-v4', 'target-v5'].includes(document['x-contract-status']) ? parseMatrix(readFileSync(matrixFile, 'utf8')) : undefined;
+  const matrix = v4Markers.includes(document['x-contract-status']) ? parseMatrix(readFileSync(matrixFile, 'utf8')) : undefined;
   const result = auditContract(document, { matrix });
   console.log(JSON.stringify(result, null, 2));
   process.exitCode = result.errors.length ? 1 : 0;

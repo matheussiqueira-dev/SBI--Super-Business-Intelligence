@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 public class AreaResolver {
     static final List<String> SELLER_AREAS = List.of("VENDER", "VENDAS", "CLIENTES", "MEU_DESEMPENHO");
     static final List<String> MANAGER_AREAS = List.of("GESTAO", "PRODUTOS", "ESTOQUE", "PROMOCOES", "ANALISES", "USUARIOS");
+    /** D-EVO-42: painel executivo e planejamento de metas do CEO. */
+    static final List<String> EXECUTIVE_AREAS = List.of("EXECUTIVO", "METAS");
     /** Senha temporaria: nenhuma area de trabalho ate a troca (4.4). */
     static final List<String> PASSWORD_CHANGE_AREAS = List.of("TROCAR_SENHA");
 
@@ -34,6 +36,7 @@ public class AreaResolver {
         List<String> areas = new ArrayList<>();
         if (reachable.contains("ROLE_VENDEDOR")) areas.addAll(SELLER_AREAS);
         if (reachable.contains("ROLE_GERENTE")) areas.addAll(MANAGER_AREAS);
+        if (reachable.contains("ROLE_CEO")) areas.addAll(EXECUTIVE_AREAS);
         return List.copyOf(areas);
     }
 }

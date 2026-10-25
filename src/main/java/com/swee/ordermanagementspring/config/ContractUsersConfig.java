@@ -25,6 +25,7 @@ public class ContractUsersConfig {
             BusinessTables.truncate(jdbc);
             users.save(new AppUser("Gerente sintetico", "manager@example.test", encoder.encode(password), UserRole.GERENTE));
             users.save(new AppUser("Vendedor sintetico", "seller@example.test", encoder.encode(password), UserRole.VENDEDOR));
+            users.save(new AppUser("CEO sintetico", "ceo@example.test", encoder.encode(password), UserRole.CEO));
         };
     }
 

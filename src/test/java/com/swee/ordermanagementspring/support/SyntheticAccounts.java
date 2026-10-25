@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
- * Contas fixas (GERENTE id 1, VENDEDOR id 2) para testes que autenticam com o user() do MockMvc. O user() grava o
+ * Contas fixas (GERENTE id 1, VENDEDOR id 2, CEO id 3) para testes que autenticam com o user() do MockMvc. O user() grava o
  * contexto numa sessao HTTP, entao o SessionVersionFilter confere a conta no banco: sem a linha, a requisicao
  * responderia 401 SESSION_REVOKED.
  */
@@ -20,13 +20,18 @@ public final class SyntheticAccounts {
         jdbc.update("""
                 INSERT INTO app_users (id, name, email, password_hash, role) VALUES
                     (1, 'GERENTE', 'gerente@example.test', 'hash', 'GERENTE'),
-                    (2, 'VENDEDOR', 'vendedor@example.test', 'hash', 'VENDEDOR')""");
-        jdbc.queryForObject("SELECT setval(pg_get_serial_sequence('app_users', 'id'), 2)", Long.class);
+                    (2, 'VENDEDOR', 'vendedor@example.test', 'hash', 'VENDEDOR'),
+                    (3, 'CEO', 'ceo@example.test', 'hash', 'CEO')""");
+        jdbc.queryForObject("SELECT setval(pg_get_serial_sequence('app_users', 'id'), 3)", Long.class);
     }
 
     public static AppPrincipal principal(UserRole role) {
         AppUser user = new AppUser(role.name(), role.name().toLowerCase() + "@example.test", "hash", role);
-        ReflectionTestUtils.setField(user, "id", role == UserRole.GERENTE ? 1L : 2L);
+        ReflectionTestUtils.setField(user, "id", switch (role) {
+            case GERENTE -> 1L;
+            case VENDEDOR -> 2L;
+            case CEO -> 3L;
+        });
         return new AppPrincipal(user);
     }
 }

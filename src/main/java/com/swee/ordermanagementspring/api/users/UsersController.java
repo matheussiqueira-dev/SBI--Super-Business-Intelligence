@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
-/** Cadastro de usuarios pelo GERENTE (contrato v5, G-03). Nao existe DELETE: desativar substitui apagar. */
+/** Cadastro de usuarios pelo GERENTE (contrato v6, G-03). Nao existe DELETE: desativar substitui apagar. */
 @RestController
 @RequestMapping("/users")
 public class UsersController {
@@ -66,6 +66,12 @@ public class UsersController {
     public UserDetail changeStatus(@AuthenticationPrincipal AppPrincipal principal, @PathVariable @Positive long id,
                                    @Valid @RequestBody UserStatusRequest request) {
         return service.changeStatus(CurrentUser.of(principal), id, request);
+    }
+
+    @PatchMapping("/{id}/manager")
+    public UserDetail changeManager(@AuthenticationPrincipal AppPrincipal principal, @PathVariable @Positive long id,
+                                    @Valid @RequestBody UserManagerRequest request) {
+        return service.changeManager(CurrentUser.of(principal), id, request);
     }
 
     @PostMapping("/{id}/unlock")

@@ -58,6 +58,7 @@ class UsersApiTest {
     private long matheus;
     private long paula;
     private long allan;
+    private long carla;
 
     @BeforeEach
     void setUp() {
@@ -67,6 +68,7 @@ class UsersApiTest {
         matheus = users.save(new AppUser("Matheus Siqueira", "matheus@example.test", hash, UserRole.GERENTE)).getId();
         paula = users.save(new AppUser("Paula Duarte", "paula@example.test", hash, UserRole.GERENTE)).getId();
         allan = users.save(new AppUser("Allan Barros", "allan@example.test", hash, UserRole.VENDEDOR)).getId();
+        carla = users.save(new AppUser("Carla Diretora", "carla@example.test", hash, UserRole.CEO)).getId();
     }
 
     private MvcResult login(String email, String password) throws Exception {
@@ -346,5 +348,70 @@ class UsersApiTest {
         }
         assertThat(jdbc.queryForList("SELECT action FROM audit_event WHERE entity_id = ? ORDER BY id", String.class, francisco))
                 .contains("USER_CREATED", "PASSWORD_RESET", "PASSWORD_CHANGED", "USER_STATUS_CHANGED");
+    }
+
+    @Test
+    @DisplayName("[CT-USR-108] GERENTE nao cria, promove nem altera conta de CEO (403); o CEO administra todas")
+    void onlyCeoManagesCeoAccounts() throws Exception {
+        MockHttpSession manager = session("matheus@example.test");
+        String ceo = "/users/" + carla;
+        assertError(call(HttpMethod.POST, "/users", manager, create("Nova Diretora", "nova@example.test", "CEO", TEMPORARY)), 403, "FORBIDDEN");
+        assertError(call(HttpMethod.PATCH, "/users/" + allan + "/role", manager, "{\"role\":\"CEO\",\"reason\":\"Promocao indevida\"}"),
+                403, "FORBIDDEN");
+        assertError(call(HttpMethod.PATCH, ceo + "/role", manager, "{\"role\":\"VENDEDOR\",\"reason\":\"Rebaixar a diretora\"}"),
+                403, "FORBIDDEN");
+        assertError(call(HttpMethod.PATCH, ceo + "/status", manager, "{\"active\":false,\"reason\":\"Desativar a diretora\"}"),
+                403, "FORBIDDEN");
+        assertError(call(HttpMethod.POST, ceo + "/password-reset", manager, "{\"temporaryPassword\":\"" + TEMPORARY + "\"}"), 403, "FORBIDDEN");
+        assertError(call(HttpMethod.POST, ceo + "/unlock", manager), 403, "FORBIDDEN");
+        assertError(call(HttpMethod.PUT, ceo, manager, "{\"name\":\"Carla\",\"email\":\"carla@example.test\",\"version\":0}"),
+                403, "FORBIDDEN");
+        assertThat(jdbc.queryForObject("SELECT role || ':' || active FROM app_users WHERE id = ?", String.class, carla))
+                .isEqualTo("CEO:true");
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM app_users WHERE role = 'CEO'", Integer.class)).isEqualTo(1);
+        // O GERENTE ve a conta do CEO na lista, sem poder alterar.
+        assertThat(body(call(HttpMethod.GET, "/users?role=CEO", manager)).get("totalElements").asLong()).isEqualTo(1);
+
+        MockHttpSession director = session("carla@example.test");
+        MvcResult created = call(HttpMethod.POST, "/users", director, create("Nova Diretora", "nova@example.test", "CEO", TEMPORARY));
+        assertThat(created.getResponse().getStatus()).isEqualTo(201);
+        assertThat(body(created).get("role").asText()).isEqualTo("CEO");
+        MvcResult promoted = call(HttpMethod.PATCH, "/users/" + allan + "/role", director, "{\"role\":\"GERENTE\",\"reason\":\"Promocao pela diretoria\"}");
+        assertThat(promoted.getResponse().getStatus()).isEqualTo(200);
+        assertError(call(HttpMethod.PATCH, "/users/" + carla + "/status", director, "{\"active\":false,\"reason\":\"Autodesativacao\"}"),
+                409, "SELF_CHANGE_FORBIDDEN");
+    }
+
+    @Test
+    @DisplayName("[CT-USR-109] equipe: vendedor aponta para um GERENTE ativo, sai sem gerente e e liberado quando o gerente sai")
+    void sellerTeamFollowsActiveManagers() throws Exception {
+        MockHttpSession manager = session("matheus@example.test");
+        String team = "/users/" + allan + "/manager";
+        MvcResult assigned = call(HttpMethod.PATCH, team, manager, "{\"managerId\":" + paula + "}");
+        assertThat(assigned.getResponse().getStatus()).as(assigned.getResponse().getContentAsString()).isEqualTo(200);
+        assertThat(body(assigned).get("manager").get("id").asLong()).isEqualTo(paula);
+        assertThat(body(assigned).get("manager").get("name").asText()).isEqualTo("Paula Duarte");
+        JsonNode listed = body(call(HttpMethod.GET, "/users?q=allan", manager)).get("content").get(0);
+        assertThat(listed.get("manager").get("id").asLong()).isEqualTo(paula);
+
+        assertError(call(HttpMethod.PATCH, team, manager, "{\"managerId\":" + carla + "}"), 400, "VALIDATION_FAILED");
+        assertError(call(HttpMethod.PATCH, team, manager, "{\"managerId\":" + allan + "}"), 400, "VALIDATION_FAILED");
+        assertError(call(HttpMethod.PATCH, "/users/" + paula + "/manager", manager, "{\"managerId\":" + matheus + "}"), 409, "STATE_CONFLICT");
+        assertError(call(HttpMethod.PATCH, "/users/999999/manager", manager, "{\"managerId\":" + matheus + "}"), 404, "NOT_FOUND");
+        assertError(call(HttpMethod.PATCH, team, session("allan@example.test"), "{\"managerId\":" + matheus + "}"), 403, "FORBIDDEN");
+
+        // A diretora desativa a gerente: a equipe fica sem gerente; a troca de equipe nao derruba a sessao do vendedor.
+        MockHttpSession seller = session("allan@example.test");
+        MockHttpSession director = session("carla@example.test");
+        assertThat(call(HttpMethod.PATCH, "/users/" + paula + "/status", director, "{\"active\":false,\"reason\":\"Licenca da gerente\"}")
+                .getResponse().getStatus()).isEqualTo(200);
+        assertThat(body(call(HttpMethod.GET, "/users/" + allan, manager)).get("manager").isNull()).isTrue();
+        MvcResult moved = call(HttpMethod.PATCH, team, manager, "{\"managerId\":" + matheus + "}");
+        assertThat(body(moved).get("manager").get("id").asLong()).isEqualTo(matheus);
+        MvcResult removed = call(HttpMethod.PATCH, team, manager, "{\"managerId\":null}");
+        assertThat(body(removed).get("manager").isNull()).isTrue();
+        assertThat(call(HttpMethod.GET, "/auth/me", seller).getResponse().getStatus()).isEqualTo(200);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM audit_event WHERE action = 'USER_TEAM_CHANGED' AND entity_id = ?",
+                Integer.class, allan)).isEqualTo(3);
     }
 }

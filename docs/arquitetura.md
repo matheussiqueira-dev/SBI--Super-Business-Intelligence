@@ -70,7 +70,7 @@ sequenceDiagram
 
 ## Segurança em três barreiras
 
-1. **URL**: `SecurityConfig` aplica a matriz `src/test/resources/security/access-matrix.csv`, com a hierarquia GERENTE > VENDEDOR. O `AccessMatrixTest` executa as 260 combinações (anônimo, vendedor, gerente) e falha se aparecer uma rota sem linha na matriz.
+1. **URL**: `SecurityConfig` aplica a matriz `src/test/resources/security/access-matrix.csv`, com a hierarquia CEO > GERENTE > VENDEDOR (D-EVO-42). O `AccessMatrixTest` executa as combinações de anônimo, vendedor, gerente e CEO (359 casos em 24/10/2026) e falha se aparecer uma rota sem linha na matriz.
 2. **Método**: `@PreAuthorize` em cada serviço, com a mesma hierarquia.
 3. **Dono do dado**: o serviço confere o vendedor do pedido; objeto de outro dono responde 404, sem revelar que existe.
 

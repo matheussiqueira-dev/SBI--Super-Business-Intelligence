@@ -4,9 +4,9 @@
 #   SBI_DEMO_PASSWORD=<senha comum das contas, 8 a 72 caracteres> SBI_DB_PASSWORD=<senha interna do banco> \
 #     docker compose -f docker-compose.demo.yml -p sbi-demo up --build
 #
-# Abrir http://localhost:3000 e entrar com matheussiqueira@sbi.tech (gerente) ou allanbarros@sbi.tech (vendedor). Senha propria por conta:
-# SBI_DEMO_PASSWORD_MATHEUS, _GABRIEL, _ALLAN e _FRANCISCO (no .env ao lado deste arquivo, fora do git);
-# a conta sem a sua usa SBI_DEMO_PASSWORD.
+# Abrir http://localhost:3000 e entrar com matheussiqueira@sbi.tech (gerente), allanbarros@sbi.tech (vendedor) ou paulo@sbi.tech (CEO).
+# Senha propria por conta: SBI_DEMO_PASSWORD_MATHEUS, _GABRIEL, _ALLAN, _FRANCISCO, _PAULO, _CHRISTIAN e _BRUNO (no .env ao lado
+# deste arquivo, fora do git); a conta sem a sua usa SBI_DEMO_PASSWORD.
 services:
   db:
     image: postgres:18
@@ -42,6 +42,10 @@ services:
       SBI_DEMO_PASSWORD_GABRIEL: ${SBI_DEMO_PASSWORD_GABRIEL:-}
       SBI_DEMO_PASSWORD_ALLAN: ${SBI_DEMO_PASSWORD_ALLAN:-}
       SBI_DEMO_PASSWORD_FRANCISCO: ${SBI_DEMO_PASSWORD_FRANCISCO:-}
+      # Contas de CEO dos professores (V12_1, D-EVO-46).
+      SBI_DEMO_PASSWORD_PAULO: ${SBI_DEMO_PASSWORD_PAULO:-}
+      SBI_DEMO_PASSWORD_CHRISTIAN: ${SBI_DEMO_PASSWORD_CHRISTIAN:-}
+      SBI_DEMO_PASSWORD_BRUNO: ${SBI_DEMO_PASSWORD_BRUNO:-}
       # Demonstracao local por http://localhost: o cookie de sessao segue HttpOnly e SameSite=Lax.
       SESSION_COOKIE_SECURE: "false"
       SPRING_JPA_SHOW_SQL: "false"

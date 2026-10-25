@@ -7,5 +7,5 @@ export const metadata: Metadata = { title: 'Usuários' };
 
 export default async function UsuariosPage() {
   const { user, allowed } = await sessionFor('USUARIOS', '/gestao/usuarios');
-  return allowed ? <Users currentUserId={user.id} /> : <NoAccess />;
+  return allowed ? <Users currentUserId={user.id} currentRole={user.role} /> : <NoAccess />;
 }

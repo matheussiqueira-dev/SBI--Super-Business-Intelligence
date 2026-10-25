@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { menuFor, menuGroups, PASSWORD_PATH } from '../../lib/areas.ts';
+import { menuFor, menuGroups, PASSWORD_PATH, roleLabel } from '../../lib/areas.ts';
 import { currentUser } from '../../lib/server/session.ts';
 import NavLinks from '../../components/nav-links.tsx';
 import LogoutButton from '../../components/logout-button.tsx';
@@ -9,6 +9,7 @@ import Sidebar from '../../components/sidebar.tsx';
 import ThemeSwitch from '../../components/theme-switch.tsx';
 import UserAvatar from '../../components/user-avatar.tsx';
 import AvatarMotionToggle from '../../components/avatar-motion-toggle.tsx';
+import AcademicCredits from '../../components/academic-credits.tsx';
 
 /** Shell das areas internas: menu montado a partir de UserSession.areas, so com telas existentes. */
 export default async function AppLayout({ children }: { children: ReactNode }) {
@@ -17,7 +18,6 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   // Senha provisoria: nenhuma area de trabalho ate a troca (a API responde 403 PASSWORD_CHANGE_REQUIRED).
   if (user.areas.includes('TROCAR_SENHA')) redirect(PASSWORD_PATH);
   const menu = menuFor(user.areas);
-  const manager = user.role === 'GERENTE';
   return (
     <div className="shell">
       <a className="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -25,7 +25,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         <NavLinks groups={menuGroups(menu)} />
         <div className="account-box">
           <UserAvatar user={user} reactToActivity />
-          <span><span className="account-name">{user.name}</span><span className="account-role">{manager ? 'Gerente' : 'Vendedor'}</span></span>
+          <span><span className="account-name">{user.name}</span><span className="account-role">{roleLabel(user.role)}</span></span>
           <LogoutButton compact />
         </div>
         <div className="account-tools">
@@ -40,6 +40,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           <footer className="app-footer">
             <p>Dados de demonstração · valores fictícios · Projeto A3 · UNIFG 2026</p>
             <p><Link href="/creditos">Créditos das imagens</Link></p>
+            <AcademicCredits />
           </footer>
         </div>
       </main>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore, type PointerEvent } from 'react';
 import type { UserSession } from '../lib/api/auth.ts';
+import { avatarClass } from '../lib/areas.ts';
 import { initials } from '../lib/format.ts';
 import { userAvatar } from '../lib/user-avatars.ts';
 import { avatarReactions, IDLE_REACTION, type AvatarExpression } from '../lib/avatar-reactions.ts';
@@ -110,7 +111,7 @@ export default function UserAvatar({ user, reactToActivity = false }: { user: Av
             aria-disabled={paused} onClick={() => { if (!reactToActivity) greet(true); }}
             onPointerEnter={event => { if (event.pointerType === 'mouse') greet(); }} onFocus={() => greet()}
             onPointerMove={tilt} onPointerLeave={resetTilt} onPointerCancel={resetTilt}>
-      <span className={`avatar ${user.role === 'GERENTE' ? 'avatar-gerente' : 'avatar-vendedor'}`} aria-hidden="true"
+      <span className={`avatar ${avatarClass(user.role)}`} aria-hidden="true"
             data-expression={expression}>
         <span className="avatar-feedback" data-beat={pulse ? pulse % 2 : undefined}><span className="avatar-face">
         {initials(user.name)}

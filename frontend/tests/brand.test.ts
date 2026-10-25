@@ -4,8 +4,9 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BLOCK_PATH, BRAND_ACCESSIBLE_NAME, DOT, MODULE, SYMBOL_SIZE, toneColors } from '../components/brand/geometry.ts';
-import { ICON_PATHS, MANUAL_ICONS, THEME_ICONS, iconA11y } from '../components/brand/icons-data.ts';
-import { menuFor, menuGroups, PASSWORD_PATH } from '../lib/areas.ts';
+import { AREA_ICONS, ICON_PATHS, MANUAL_ICONS, THEME_ICONS, iconA11y } from '../components/brand/icons-data.ts';
+import { landingPath, menuFor, menuGroups, PASSWORD_PATH } from '../lib/areas.ts';
+import { STUDENTS, WORK_TITLE } from '../lib/credits.ts';
 import { compactMoney, formatDateTime, formatMonth, formatPeriod, formatTime, initials, MINUS, money, MISSING, statusPill } from '../lib/format.ts';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
@@ -103,4 +104,22 @@ test('[CT-WEB-125] nenhum nome proibido da marca na interface nem na documentaca
     return FORBIDDEN.filter(([pattern]) => pattern.test(text)).map(([, name]) => `${path}: ${name}`);
   });
   assert.deepEqual(found, []);
+});
+
+test('[CT-WEB-129] CEO: secao Diretoria no topo do menu e entrada no Painel executivo', () => {
+  const ceo = ['VENDER', 'VENDAS', 'CLIENTES', 'MEU_DESEMPENHO', 'GESTAO', 'PRODUTOS', 'ESTOQUE', 'PROMOCOES', 'ANALISES', 'USUARIOS', 'EXECUTIVO', 'METAS'];
+  const groups = menuGroups(menuFor(ceo));
+  assert.deepEqual(groups.map(g => g.label), ['Diretoria', 'Gestão', 'Atendimento', 'Meu espaço']);
+  assert.deepEqual(groups[0]!.items.map(i => i.href), ['/executivo', '/executivo/metas']);
+  assert.deepEqual(groups[0]!.items.map(i => i.icon), ['executivo', 'meta']);
+  for (const name of AREA_ICONS) assert.ok(ICON_PATHS[name].length > 0, name);
+  assert.equal(landingPath(ceo), '/executivo');
+  assert.equal(landingPath(ceo.slice(0, 10)), '/vender');
+});
+
+test('[CT-WEB-130] credito academico: trabalho A3 do SBI e os quatro alunos com RA', () => {
+  assert.equal(WORK_TITLE, 'Trabalho A3 · SBI — Super Business Intelligence');
+  assert.deepEqual(STUDENTS.map(s => s.ra), ['1352524052', '13526110176', '1352523939', '1352623492']);
+  assert.deepEqual(STUDENTS.map(s => s.name), ['Allan Gabriel Almeida Barros', 'Gabriel Sousa Vasconcelos',
+    'Francisco Miguel de Lemos Sena Ferreira', 'Matheus Henrique Dias Siqueira']);
 });

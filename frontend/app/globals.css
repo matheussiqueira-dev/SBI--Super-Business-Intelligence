@@ -614,3 +614,115 @@ td .actions { flex-wrap: nowrap; justify-content: flex-end; }
 .summary-lines .discount-line { grid-column: 2; justify-self: end; color: var(--sbi-success-text); }
 /* Selo dentro do texto de apoio (promoção na busca do PDV): quebra a linha em vez de passar por cima do preço. */
 .cell-sub .pill { max-width: 100%; white-space: normal; padding-block: 2px; }
+
+/* ---------- painel executivo e metas do CEO (RF-28, RF-29): filtros, colunas, rankings e destaques ---------- */
+/* Seis indicadores: 3 colunas quando a largura útil passa de 940 px (2 abaixo disso, 1 no celular). */
+@container conteudo (min-width: 940px) { .kpis.kpis-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.grid-3 { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+.filters { display: grid; gap: 12px 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); align-items: end; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0; padding: 0; list-style: none; }
+.chip {
+  display: inline-flex; align-items: center; gap: 2px; min-height: 36px; padding: 2px 2px 2px 12px; border-radius: var(--sbi-radius-full);
+  background: var(--sbi-bg-selected); color: var(--sbi-text-selected); font: 600 14px/20px var(--sbi-font-sans); letter-spacing: -0.006em;
+}
+.chip button {
+  display: grid; place-items: center; width: var(--sbi-control-sm); height: var(--sbi-control-sm); padding: 0; border: 0; border-radius: 50%;
+  background: transparent; color: inherit; cursor: pointer;
+}
+.chip button:hover { background: var(--sbi-bg-hover); }
+.breadcrumb { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; margin: 0; padding: 0; list-style: none; font: var(--sbi-type-label); }
+.breadcrumb li { display: inline-flex; align-items: center; gap: 8px; }
+.breadcrumb li + li::before { content: "›"; color: var(--sbi-text-tertiary); }
+/* Variação: seta e texto (a cor nunca é a única pista). */
+.delta { display: inline-flex; align-items: center; gap: 4px; font: var(--sbi-type-caption); letter-spacing: var(--sbi-tracking-caption); color: var(--sbi-text-secondary); }
+.delta-up { color: var(--sbi-success-text); }
+.delta-down { color: var(--sbi-danger-text); }
+.insights { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.insights li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; }
+.insights .icon { margin-top: 1px; color: var(--sbi-info-text); }
+.insight-good .icon { color: var(--sbi-success-text); }
+.insight-warn .icon { color: var(--sbi-warning-text); }
+.insight-bad .icon { color: var(--sbi-danger-text); }
+
+/* Colunas no tempo: grade de 1 px, rótulos de 12 px, meta tracejada em Tinta e o ano anterior como marca vazada. */
+.swatch-compare { width: 10px; height: 10px; border: 2px solid var(--sbi-text-secondary); border-radius: 50%; background: var(--sbi-chart-compare); }
+.colchart { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 8px; }
+.colchart-axis, .colchart-plot { position: relative; height: 220px; }
+.colchart-axis span {
+  position: absolute; right: 0; transform: translateY(50%); color: var(--sbi-chart-label); font: 400 12px/1 var(--sbi-font-sans);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.colchart-plot { min-width: 0; margin-bottom: 26px; }
+.colchart-grid { position: absolute; left: 0; right: 0; border-top: 1px solid var(--sbi-chart-grid); }
+.colchart-bars { position: absolute; inset: 0; display: flex; align-items: stretch; gap: 2px; }
+.colchart-col { flex: 1 1 0; min-width: 0; display: grid; grid-template-rows: minmax(0, 1fr) 0; }
+.colchart-bar {
+  position: relative; display: block; width: 100%; height: 100%; padding: 0; border: 0; border-radius: var(--sbi-radius-xs) var(--sbi-radius-xs) 0 0;
+  background: transparent; cursor: pointer;
+}
+span.colchart-bar { cursor: default; }
+.colchart-bar:hover { background: var(--sbi-bg-hover); }
+.colchart-fill { position: absolute; left: 14%; right: 14%; bottom: 0; min-height: 1px; border-radius: 3px 3px 0 0; background: var(--sbi-data-1); }
+/* Com um item escolhido, os outros clareiam: 75% da cor ainda passa de 3:1 sobre a superfície nos dois temas. */
+.colchart[data-selected="true"] .colchart-bar:not([aria-pressed="true"]) .colchart-fill { background: color-mix(in srgb, var(--sbi-data-1) 75%, var(--sbi-bg-surface)); }
+.colchart-bar[aria-pressed="true"] .colchart-fill { outline: 2px solid var(--sbi-chart-goal); outline-offset: 1px; }
+.colchart-goal { position: absolute; left: 4%; right: 4%; border-top: 1.5px dashed var(--sbi-chart-goal); }
+.colchart-compare {
+  position: absolute; left: 50%; width: 10px; height: 10px; border: 2px solid var(--sbi-text-secondary); border-radius: 50%;
+  background: var(--sbi-chart-compare); transform: translate(-50%, 50%);
+}
+.colchart-label {
+  position: relative; top: 6px; color: var(--sbi-chart-label); font: 400 12px/1 var(--sbi-font-sans); font-variant-numeric: tabular-nums;
+  text-align: center; white-space: nowrap;
+}
+.colchart-tip { top: -8px; transform: translate(-50%, -100%); }
+
+/* Rankings: barras horizontais de uma cor com o valor escrito ao lado; cada linha é um botão que filtra o painel. */
+.rankbars { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(80px, 1fr) auto; gap: 2px 0; margin: 0; padding: 0; list-style: none; }
+.rankbars > li { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; }
+.rankbars-row {
+  grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; gap: 4px 12px; align-items: center; width: 100%; min-height: var(--sbi-touch-target);
+  padding: 6px 8px; border: 1px solid transparent; border-radius: var(--sbi-radius-md); background: transparent; color: inherit;
+  font: var(--sbi-type-label); letter-spacing: var(--sbi-tracking-label); text-align: left;
+}
+button.rankbars-row { cursor: pointer; }
+button.rankbars-row:hover { background: var(--sbi-bg-hover); }
+.rankbars-row[aria-pressed="true"] { background: var(--sbi-bg-selected); border-color: var(--sbi-info-border); }
+.rankbars-name { display: flex; align-items: center; gap: 10px; min-width: 0; overflow-wrap: anywhere; }
+.rankbars-pos { color: var(--sbi-text-tertiary); font-variant-numeric: tabular-nums; }
+.rankbars-detail { font: var(--sbi-type-caption); color: var(--sbi-text-tertiary); }
+.rankbars-track { position: relative; display: block; height: 8px; border-radius: var(--sbi-radius-full); background: var(--sbi-bg-hover); }
+.rankbars-fill { position: absolute; inset: 0 auto 0 0; min-width: 2px; border-radius: var(--sbi-radius-full); background: var(--sbi-data-1); }
+.rankbars[data-selected="true"] .rankbars-row:not([aria-pressed="true"]) .rankbars-fill { background: color-mix(in srgb, var(--sbi-data-1) 75%, var(--sbi-bg-surface)); }
+.rankbars-goal { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--sbi-chart-goal); }
+.rankbars-value { font: var(--sbi-type-caption); color: var(--sbi-text-secondary); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.rankbars-value strong { color: var(--sbi-text-primary); font-weight: 600; }
+@container conteudo (max-width: 640px) { .colchart-label-minor { visibility: hidden; } }
+@container conteudo (max-width: 520px) {
+  .colchart { grid-template-columns: 44px minmax(0, 1fr); }
+  .rankbars { grid-template-columns: minmax(0, 1fr) auto; }
+  .rankbars-track { grid-column: 1 / -1; grid-row: 2; }
+}
+
+/* Lucro x preço de compra: margem baixa em destaque, cabeçalho ordenável e coluna do produto com largura mínima. */
+.margin-low { color: var(--sbi-danger-text); font-weight: 600; }
+td.cell-product { min-width: 14rem; }
+.th-button {
+  display: inline-flex; align-items: center; min-height: var(--sbi-control-sm); padding: 0; border: 0; background: transparent; color: inherit;
+  font: inherit; letter-spacing: inherit; text-align: inherit; cursor: pointer;
+}
+.th-button:hover { color: var(--sbi-text-primary); text-decoration: underline; }
+.plain-fieldset > legend { margin-bottom: 8px; padding: 0; }
+/* Avatar do CEO: Tinta da gestão com o anel na cor do ponto da marca. */
+.avatar-ceo { box-shadow: 0 0 0 2px var(--sbi-bg-surface), 0 0 0 4px var(--sbi-brand-dot); }
+
+/* ---------- créditos acadêmicos (RNF-08): em toda tela, de todos os perfis ---------- */
+.credits { display: grid; gap: 4px; font: var(--sbi-type-caption); letter-spacing: var(--sbi-tracking-caption); color: var(--sbi-text-tertiary); }
+.credits strong { color: var(--sbi-text-secondary); font-weight: 600; }
+.credits ul { display: flex; flex-wrap: wrap; gap: 2px 16px; margin: 0; padding: 0; list-style: none; }
+.app-footer .credits { flex-basis: 100%; }
+.credits-onboard { justify-items: center; max-width: 560px; text-align: center; }
+.credits-onboard ul { justify-content: center; }
+/* Entrada e troca de senha: os créditos ficam logo abaixo do formulário, não no meio da sobra da tela. */
+.login-form { align-content: center; row-gap: 32px; }
+@media (max-width: 1023px) { .login-form { align-content: start; } }
