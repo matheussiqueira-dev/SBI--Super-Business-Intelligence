@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { overflowing, PASSWORD } from './support.ts';
 
 const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
-const BASE = 'http://127.0.0.1:3000';
+const BASE = process.env.SBI_E2E_BASE_URL || 'http://127.0.0.1:3000';
 
 async function fillLogin(page: Page, email: string, password: string) {
   await page.getByLabel('E-mail', { exact: true }).fill(email);

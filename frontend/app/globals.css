@@ -289,6 +289,45 @@ td .actions { flex-wrap: nowrap; justify-content: flex-end; }
 .avatar-vendedor { background: var(--sbi-avatar-venda); }
 .avatar-sm { width: 28px; height: 28px; font: 600 11px/1 var(--sbi-font-sans); letter-spacing: 0.02em; }
 
+/* ---------- avatar com foto e expressoes (PR #47): botao de 44 px, movimento so com CSS e temporizadores ---------- */
+.avatar { position: relative; overflow: hidden; }
+.avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.avatar-face, .avatar-feedback { position: absolute; inset: 0; display: grid; place-items: center; }
+.avatar-control[data-visible="true"] .avatar-face { animation: avatar-alive 4.8s ease-in-out infinite; }
+.avatar-feedback[data-beat="0"] { animation: avatar-click-even 380ms ease both; }
+.avatar-feedback[data-beat="1"] { animation: avatar-click-odd 380ms ease both; }
+.avatar-control { display: grid; place-items: center; width: 44px; height: 44px; padding: 4px; border: 0; border-radius: 50%; background: transparent; cursor: pointer; flex: none;
+  transform: perspective(240px) rotateX(var(--avatar-rotate-x, 0deg)) rotateY(var(--avatar-rotate-y, 0deg)); transition: transform 220ms ease; touch-action: manipulation; }
+.avatar-expression { position: absolute; inset: 0; overflow: hidden; opacity: 0; transition: opacity 150ms ease; pointer-events: none; }
+.avatar-expression[data-visible="true"] { opacity: 1; }
+.avatar .avatar-expression img { width: 200%; height: 200%; max-width: none; object-fit: fill; transform: translate(0, 0); }
+.avatar[data-expression="surprised"] .avatar-expression img { transform: translateX(-50%); }
+.avatar[data-expression="focused"] .avatar-expression img { transform: translateY(-50%); }
+.avatar[data-expression="wink"] .avatar-expression img { transform: translate(-50%, -50%); }
+.avatar-control[data-expression="happy"] .avatar { animation: avatar-nod 650ms ease both; }
+.avatar-control[data-expression="surprised"] .avatar { animation: avatar-surprise 450ms ease both; }
+.avatar-control[data-paused="true"] { transform: none; }
+.avatar-control[data-paused="true"] .avatar { animation-play-state: paused; }
+.avatar-control[data-paused="true"] .avatar-face, .avatar-control[data-paused="true"] .avatar-feedback { animation-play-state: paused; }
+.avatar-control[data-paused="true"] .avatar-expression { transition: none; }
+.avatar-control:focus-visible { outline-offset: 2px; border-radius: 50%; }
+.avatar-control:active { transform: scale(0.96); }
+@media (hover: hover) and (pointer: fine) {
+  .avatar-control:hover:not([data-paused="true"]) { transform: perspective(240px) rotateX(var(--avatar-rotate-x, 0deg)) rotateY(var(--avatar-rotate-y, 0deg)) scale(1.08); }
+}
+@keyframes avatar-nod { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-5deg) translateY(1px); } 65% { transform: rotate(3deg); } }
+@keyframes avatar-surprise { 0%, 100% { transform: scale(1); } 45% { transform: scale(1.08); } }
+@keyframes avatar-alive { 0%, 100% { transform: translateY(0) rotate(-1.5deg) scale(1); } 35% { transform: translateY(-0.8px) rotate(1.5deg) scale(1.025); } 70% { transform: translateY(0.5px) rotate(0) scale(1.01); } }
+@keyframes avatar-click-even { 0%, 100% { transform: scale(1) rotate(0); } 40% { transform: scale(1.06) rotate(-4deg); } }
+@keyframes avatar-click-odd { 0%, 100% { transform: scale(1) rotate(0); } 40% { transform: scale(1.06) rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .avatar-control[data-paused], .avatar-control[data-paused]:hover, .avatar-control[data-paused]:active { transform: none; transition: none; }
+  .avatar-control[data-expression] .avatar { animation: none; }
+  .avatar-control[data-visible] .avatar-face, .avatar-control[data-pulse] .avatar-feedback { animation: none; }
+  .avatar-expression { transition: none; }
+}
+.sidebar-avatar { display: none; }
+
 /* ---------- estrutura: barra lateral de 248 px, conteúdo até 1.280 px ---------- */
 .shell { display: grid; grid-template-columns: var(--sbi-sidebar-width) minmax(0, 1fr); min-height: 100svh; }
 .sidebar {
@@ -502,6 +541,7 @@ td .actions { flex-wrap: nowrap; justify-content: flex-end; }
   .brand-full { display: none; }
   .brand-compact { display: inline-flex; }
   .nav-toggle { display: inline-flex; min-height: var(--sbi-touch-target); }
+  .sidebar-avatar { display: block; margin-left: auto; }
   .sidebar-body { display: none; padding: 8px 0 16px; }
   .sidebar[data-open="true"] .sidebar-body { display: flex; }
   .account-box { margin-top: 0; }

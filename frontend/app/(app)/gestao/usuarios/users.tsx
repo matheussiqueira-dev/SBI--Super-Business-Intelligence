@@ -10,10 +10,10 @@ import {
   GetUserResponse, ListUsersResponse, ResetUserPasswordBody, UpdateUserBody, UpdateUserResponse,
 } from '../../../../lib/api/generated/sbi.zod.ts';
 import { api } from '../../../../lib/api/http.ts';
-import { formatDateTime, initials } from '../../../../lib/format.ts';
+import { formatDateTime } from '../../../../lib/format.ts';
 import { labeledProblems } from '../../../../lib/forms.ts';
 import { actionsFor, assignableRoles, situation, type UserAction } from '../../../../lib/users.ts';
-import { avatarClass, roleLabel } from '../../../../lib/areas.ts';
+import { roleLabel } from '../../../../lib/areas.ts';
 import { ErrorNotice, Loading } from '../../../../components/feedback.tsx';
 import { Field } from '../../../../components/customer-form.tsx';
 import Drawer from '../../../../components/drawer.tsx';
@@ -22,6 +22,7 @@ import PageHeader from '../../../../components/page-header.tsx';
 import Pager from '../../../../components/pager.tsx';
 import { Icon } from '../../../../components/brand/icons.tsx';
 import ShowPassword from '../../../../components/show-password.tsx';
+import UserAvatar from '../../../../components/user-avatar.tsx';
 import { StatusMessage, useStatusMessage } from '../../../../components/status-message.tsx';
 import TableWrap from '../../../../components/table-wrap.tsx';
 
@@ -96,7 +97,7 @@ export default function Users({ currentUserId, currentRole }: { currentUserId: n
                 const state = situation(u);
                 return (
                   <tr key={u.id}>
-                    <td><span className="person"><span className={`avatar avatar-sm ${avatarClass(u.role)}`} aria-hidden="true">{initials(u.name)}</span>
+                    <td><span className="person"><UserAvatar user={u} />
                       <span>{u.name}{u.id === currentUserId && <span className="muted"> (você)</span>}</span></span></td>
                     <td>{u.email}</td>
                     <td>{roleLabel(u.role)}</td>

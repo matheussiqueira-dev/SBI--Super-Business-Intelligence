@@ -1,13 +1,14 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { avatarClass, menuFor, menuGroups, PASSWORD_PATH, roleLabel } from '../../lib/areas.ts';
-import { initials } from '../../lib/format.ts';
+import { menuFor, menuGroups, PASSWORD_PATH, roleLabel } from '../../lib/areas.ts';
 import { currentUser } from '../../lib/server/session.ts';
 import NavLinks from '../../components/nav-links.tsx';
 import LogoutButton from '../../components/logout-button.tsx';
 import Sidebar from '../../components/sidebar.tsx';
 import ThemeSwitch from '../../components/theme-switch.tsx';
+import UserAvatar from '../../components/user-avatar.tsx';
+import AvatarMotionToggle from '../../components/avatar-motion-toggle.tsx';
 import AcademicCredits from '../../components/academic-credits.tsx';
 
 /** Shell das areas internas: menu montado a partir de UserSession.areas, so com telas existentes. */
@@ -20,16 +21,17 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="shell">
       <a className="skip-link" href="#conteudo">Pular para o conteúdo</a>
-      <Sidebar home={menu[0]?.href ?? '/'}>
+      <Sidebar home={menu[0]?.href ?? '/'} avatar={<UserAvatar user={user} reactToActivity />}>
         <NavLinks groups={menuGroups(menu)} />
         <div className="account-box">
-          <span className={`avatar ${avatarClass(user.role)}`} aria-hidden="true">{initials(user.name)}</span>
+          <UserAvatar user={user} reactToActivity />
           <span><span className="account-name">{user.name}</span><span className="account-role">{roleLabel(user.role)}</span></span>
           <LogoutButton compact />
         </div>
         <div className="account-tools">
           <span className="caption">Tema</span>
           <ThemeSwitch />
+          <AvatarMotionToggle />
         </div>
       </Sidebar>
       <main id="conteudo" className="main" tabIndex={-1}>

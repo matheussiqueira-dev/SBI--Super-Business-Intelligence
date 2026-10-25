@@ -45,10 +45,12 @@ export default function SaleDetail({ orderId, manager = false }: { orderId: numb
     status.show(message);
   };
   const confirm = useMutation({
+    meta: { avatarAction: 'payment-confirmed' },
     mutationFn: () => api.request(`/sales/orders/${orderId}/payment`, { method: 'POST', schema: ConfirmSalePaymentResponse }),
     onSuccess: updated('Pagamento confirmado. Estoque baixado e venda contada na meta.'),
   });
   const cancel = useMutation({
+    meta: { avatarAction: 'order-canceled' },
     mutationFn: () => api.request(`/orders/${orderId}/cancel`, { method: 'POST', schema: CancelOrderResponse }),
     onSuccess: updated('Pedido cancelado. A reserva de estoque foi liberada.'),
   });

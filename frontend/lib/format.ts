@@ -10,8 +10,8 @@ const dayMonth = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-di
 export const MISSING = 'Não informado';
 /** Sinal de menos tipografico (U+2212), nunca o hifen, em valores negativos e descontos (manual v2.0, secao 23). */
 export const MINUS = '\u2212';
-const brlCompact = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', notation: 'compact', maximumFractionDigits: 1 });
-const numberCompact = new Intl.NumberFormat('pt-BR', { notation: 'compact', maximumFractionDigits: 1 });
+const oneDecimal = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
+const COMPACT_SCALES: readonly (readonly [number, string])[] = [[1, ''], [1e3, ' mil'], [1e6, ' mi'], [1e9, ' bi']];
 const brlAmount = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric', timeZone: 'America/Fortaleza' });
 const monthShort = new Intl.DateTimeFormat('pt-BR', { month: 'short', timeZone: 'America/Fortaleza' });
@@ -45,14 +45,27 @@ export function discountMoney(value: Money | number | null | undefined): string 
   return amount > 0 ? `${MINUS} ${money(amount)}` : money(0);
 }
 
+/**
+ * Escala e sufixo (mil, mi, bi) calculados aqui, e nao pela notacao compacta do Intl, cujo resultado muda com a
+ * versao dos dados de localidade do Node ("R$ 47,0 mil").
+ */
+function compact(value: number): string {
+  const abs = Math.abs(value);
+  let index = 0;
+  while (index < COMPACT_SCALES.length - 1 && Math.round((abs / COMPACT_SCALES[index]![0]) * 10) / 10 >= 1000) index++;
+  const [size, suffix] = COMPACT_SCALES[index]!;
+  const scaled = Math.round((abs / size) * 10) / 10;
+  return `${value < 0 && scaled > 0 ? '-' : ''}${oneDecimal.format(scaled)}${suffix}`;
+}
+
 /** Valor curto para rotulo de grafico: "R$ 47 mil", "R$ 1,2 mi". */
 export function compactMoney(value: Money | number): string {
-  return plain(brlCompact.format(amountOf(value)));
+  return plain(`R$ ${compact(amountOf(value))}`).replace(`R$ ${MINUS}`, `${MINUS}R$ `);
 }
 
 /** Divisao do eixo, sem a moeda (o titulo do grafico diz "em reais"): "20 mil", "1,2 mi". So em eixos, nunca em cartoes. */
 export function compactNumber(value: number): string {
-  return plain(numberCompact.format(value));
+  return plain(compact(value));
 }
 
 /** Intervalo de dias no formato do manual, com meia-risca e sem espacos: "1–6 set.", "28 set.–4 out.". */

@@ -61,6 +61,25 @@ test('[CT-WEB-131] CEO entra no Painel executivo: KPIs, destaques, metas, vendas
   expect(await overflowing(page)).toEqual([]);
 });
 
+test.describe('[CT-WEB-131] tema escuro da identidade v2.0', () => {
+  test.use({ colorScheme: 'dark' });
+
+  test('Painel executivo nas tres abas e Metas sem violacao WCAG 2.2 AA no tema escuro', async ({ page }) => {
+    const data = await seed(10);
+    await paidSale(data, 1);
+    await login(page, 'ceo@example.test');
+    await expect(page.getByRole('heading', { name: 'Painel executivo', level: 1 })).toBeVisible();
+    await axe(page, 'escuro: visao geral');
+    for (const tab of ['Equipe e metas', 'Produtos e margem']) {
+      await page.getByRole('tab', { name: tab }).click();
+      await axe(page, `escuro: ${tab}`);
+    }
+    await page.goto('/executivo/metas');
+    await expect(page.getByRole('heading', { name: 'Metas da loja', level: 1 })).toBeVisible();
+    await axe(page, 'escuro: metas');
+  });
+});
+
 test('[CT-WEB-132] filtro cruzado e drill-down: mes abre os dias, produto recorta o painel e os chips desfazem', async ({ page }) => {
   const data = await seed(10);
   await paidSale(data, 1);
@@ -122,7 +141,8 @@ test('[CT-WEB-135] usuarios: GERENTE nao tem acao sobre conta de CEO e define a 
   await page.goto('/gestao/usuarios');
   const ceo = page.getByRole('row').filter({ hasText: 'ceo@example.test' });
   await expect(ceo).toContainText('CEO');
-  await expect(ceo.getByRole('button')).toHaveCount(0);
+  // So as acoes da linha (o avatar do PR #47 tambem e um botao, de interacao, e continua presente).
+  await expect(ceo.locator('.actions').getByRole('button')).toHaveCount(0);
   await page.getByLabel('Papel', { exact: true }).selectOption('VENDEDOR');
   const seller = page.getByRole('row').filter({ hasText: 'seller@example.test' });
   await seller.getByRole('button', { name: 'Equipe: Vendedor sintetico' }).click();

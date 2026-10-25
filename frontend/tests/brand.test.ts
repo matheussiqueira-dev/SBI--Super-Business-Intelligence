@@ -7,7 +7,7 @@ import { BLOCK_PATH, BRAND_ACCESSIBLE_NAME, DOT, MODULE, SYMBOL_SIZE, toneColors
 import { AREA_ICONS, ICON_PATHS, MANUAL_ICONS, THEME_ICONS, iconA11y } from '../components/brand/icons-data.ts';
 import { landingPath, menuFor, menuGroups, PASSWORD_PATH } from '../lib/areas.ts';
 import { STUDENTS, WORK_TITLE } from '../lib/credits.ts';
-import { compactMoney, formatDateTime, formatMonth, formatPeriod, formatTime, initials, money, MISSING, statusPill } from '../lib/format.ts';
+import { compactMoney, formatDateTime, formatMonth, formatPeriod, formatTime, initials, MINUS, money, MISSING, statusPill } from '../lib/format.ts';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 
@@ -65,6 +65,12 @@ test('[CT-WEB-124] formatos do manual: hora 14h30, periodo, ausente e valor curt
   assert.equal(MISSING, 'Não informado');
   assert.equal(money(undefined), MISSING);
   assert.equal(compactMoney(47_000), 'R$ 47 mil');
+  assert.equal(compactMoney({ amount: 1_234_567, currency: 'BRL' }), 'R$ 1,2 mi');
+  assert.equal(compactMoney(999_960), 'R$ 1 mi');
+  assert.equal(compactMoney(12_350), 'R$ 12,4 mil');
+  assert.equal(compactMoney(950), 'R$ 950');
+  assert.equal(compactMoney(0), 'R$ 0');
+  assert.equal(compactMoney(-47_000), `${MINUS}R$ 47 mil`);
   assert.equal(money(1234.5), 'R$ 1.234,50');
   assert.equal(initials('Allan Paula Lima'), 'AL');
   assert.equal(initials('marta'), 'M');

@@ -316,7 +316,7 @@ Decisoes em [decisoes/evolucao.md](decisoes/evolucao.md) (D-EVO-42 a D-EVO-49).
 | CT-EXEC-111 a CT-EXEC-119 | RF-28/RF-29 | Unitario | Particionamento, tabela de decisao | Verde | `frontend/tests/executive.test.ts`: medidas, estorno fora do recorte por produto, equipes, filtro cruzado, comparacoes, serie com drill-down, metas (anual, mes, gerente, vendedor), lucro x preco de compra, curva ABC, destaques e CSV |
 | CT-EXEC-120 | RF-29 | Unitario | Valor limite | Verde | `frontend/tests/goals.test.ts` (distribuicao em centavos fecha com a meta da loja; cobertura do plano) |
 | CT-WEB-129, CT-WEB-130 | RF-27, RNF-08 | Unitario/E2E | Particionamento | Verde | `frontend/tests/brand.test.ts` e `e2e/brand.spec.ts` (secao Diretoria e entrada no Painel executivo; credito do trabalho A3 em todas as rotas dos tres perfis, no login e na pagina nao encontrada) |
-| CT-WEB-131 a CT-WEB-135 | RF-27 a RF-29 | E2E/Acessibilidade | Particionamento, transicao de estados | Verde | `e2e/executive.spec.ts`: painel com axe WCAG 2.2 AA nas tres abas e 320 px; drill-down e filtro cruzado com chips; metas anual e mensal; Diretoria escondida para GERENTE e VENDEDOR; tela de usuarios sem acao do GERENTE sobre CEO e com a equipe do vendedor |
+| CT-WEB-131 a CT-WEB-135 | RF-27 a RF-29 | E2E/Acessibilidade | Particionamento, transicao de estados | Verde | `e2e/executive.spec.ts`: painel com axe WCAG 2.2 AA nas tres abas e 320 px, e de novo no tema escuro com Metas; drill-down e filtro cruzado com chips; metas anual e mensal; Diretoria escondida para GERENTE e VENDEDOR; tela de usuarios sem acao do GERENTE sobre CEO e com a equipe do vendedor |
 
 ## Selecao inicial da suite
 
