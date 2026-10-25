@@ -44,3 +44,9 @@ Todo clique dentro das telas internas dispara uma resposta imediata no avatar da
 Resultados duram 3,2 segundos e depois retornam à sequência ambiente, ou à atenção se ainda houver uma operação pendente. Operações concorrentes não deixam um sucesso esconder um alerta ativo. Cliques reiniciam uma breve resposta gestual mesmo quando um resultado está ativo, preservando a expressão desse resultado. O encerramento/troca da conta descarta resultados antigos. Cancelamentos e falhas não exibem sorriso de sucesso. Metadados nas mutações do PDV e dos detalhes de venda distinguem criação, pagamento e cancelamento. Consultas periódicas não disparam celebrações. As mensagens em texto permanecem sendo a fonte da explicação e da acessibilidade.
 
 Com `prefers-reduced-motion: reduce`, não há piscadela automática, inclinação, aceno ou transições; as expressões de resultado podem mudar estaticamente. Em falha do atlas, permanece a imagem original. Em falha da imagem original, permanecem as iniciais. Nenhum dado de uso é enviado a serviços de imagem: os atlas são arquivos locais, gerados previamente.
+
+## Validação de publicação
+
+`frontend/e2e/avatars.spec.ts` confere os 14 assets e exercita uma conta autenticada no banco descartável: expressões contínuas, cliques repetidos, teclado, pausa, movimento reduzido, acessibilidade e larguras móveis. `frontend/e2e/published/assets.spec.ts` pode rodar separadamente para comparar os assets publicados com os da revisão e verificar o login/redirecionamento sem credenciais ou escrita em produção.
+
+A suíte E2E aceita `SBI_E2E_BASE_URL` como uma origem HTTP local alternativa (padrão `http://127.0.0.1:3000`), permitindo validar em outra porta sem interromper uma demonstração existente. A API e o banco descartáveis continuam protegidos pelas guardas dos testes.

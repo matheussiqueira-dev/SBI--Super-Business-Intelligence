@@ -16,7 +16,7 @@ test('os sete avatares e seus atlas sao servidos sem alteracao', async ({ reques
   }
 });
 
-test('conta autenticada: expressoes continuas, cada clique, pausa, toque e movimento reduzido', async ({ page }) => {
+test('conta autenticada: expressoes continuas, cada clique, pausa e movimento reduzido', async ({ page }) => {
   test.setTimeout(60_000);
   // A guarda de support.ts exige a API e o banco descartaveis; nunca cria conta em producao.
   const { api, csrf } = await session('manager@example.test');
