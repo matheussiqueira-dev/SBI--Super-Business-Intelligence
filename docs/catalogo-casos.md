@@ -12,7 +12,7 @@ Versão 0.1 (rascunho), 09/10/2026. Preparado por Matheus Siqueira para o card 1
 | E2 | 09/10/2026, `scripts/test-contract.ps1 -HttpOnly` no mesmo código | 6 casos de contrato e 6 de sessão aprovados |
 | E3 | CI GitHub Actions, run [37960769072](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/actions/runs/37960769072), commit `ce3f222` (PR #9), 09/10/2026 | success (inclui E2E Playwright) |
 
-Enquanto os PRs não forem mesclados, o status "Passou" vale para a branch indicada. Depois do merge, refazer E1 na `main` (medição R1, QA-10) e atualizar a coluna. Detalhes do antes × depois do FIX-03: `reports/execucoes/run-2026-10-09-fix-03.md` (na branch do FIX-03).
+Enquanto os PRs não forem mesclados, o status "Passou" vale para a branch indicada. Depois do merge, refazer E1 na `main` (medição R1, QA-10) e atualizar a coluna. Detalhes do antes × depois do FIX-03: `docs/historico/reports/execucoes/run-2026-10-09-fix-03.md` (na branch do FIX-03).
 
 ## Resumo
 
@@ -121,7 +121,7 @@ Um caso pode ter mais de uma técnica ou nível. As técnicas caixa-preta (parti
 | Resultado esperado | R$ 100,00; R$ 200,00; R$ 1.000,00. |
 | Resultado obtido | Conforme o esperado (E1, 09/10). |
 | Status | Passou |
-| Evidência | `ProductAndOrderCalculationTest.itemSubtotalMultipliesQuantityOnce`; reteste de H-01 em `reports/execucoes/run-2026-10-03-ct-money-002.md` |
+| Evidência | `ProductAndOrderCalculationTest.itemSubtotalMultipliesQuantityOnce`; reteste de H-01 em `docs/historico/reports/execucoes/run-2026-10-03-ct-money-002.md` |
 | Técnica · Nível · Risco | Particionamento de equivalência · Unitário, Regressão · R02 |
 
 ### CT-MONEY-003
@@ -229,7 +229,7 @@ Um caso pode ter mais de uma técnica ou nível. As técnicas caixa-preta (parti
 | Resultado esperado | Rejeitados: 0,00; 0,004; 0,0049. Aceitos: 0,005 (vira 0,01) e 0,01. |
 | Resultado obtido | Antes da correção (`fc58a4b`): 0,004 e 0,0049 aceitos, falha → D017. Depois: conforme o esperado (E1). |
 | Status | Passou |
-| Evidência | `MoneyValidationTest.subCentValuesThatRoundToZeroAreRejected`; `reports/execucoes/run-2026-10-09-fix-03.md` |
+| Evidência | `MoneyValidationTest.subCentValuesThatRoundToZeroAreRejected`; `docs/historico/reports/execucoes/run-2026-10-09-fix-03.md` |
 | Técnica · Nível · Risco | Análise de valor-limite · Unitário, Regressão · R06 |
 
 ### CT-ORDER-001

@@ -45,7 +45,7 @@ Fonte única: [`criterios-aceitacao.md`](criterios-aceitacao.md), no formato Dad
 
 1. **Baseada em risco**: a intensidade de teste segue a [matriz de risco](analise-risco.md). Pagamento, total do pedido e status recebem tabelas de decisão, valor-limite, concorrência e testes de regressão; cadastros de baixo risco recebem particionamento simples.
 2. **Contract-first**: o contrato OpenAPI aprovado em `config/openapi/` é o oráculo dos testes HTTP. Diferença entre a API ao vivo e o contrato é defeito ou mudança de contrato registrada, nunca ajuste silencioso.
-3. **Teste antes da correção**: todo defeito ganha um teste que falha antes do fix (commit separado) e passa depois, marcado `@Tag("regression")`. Exemplo: FIX-03 (`reports/execucoes/run-2026-10-09-fix-03.md`).
+3. **Teste antes da correção**: todo defeito ganha um teste que falha antes do fix (commit separado) e passa depois, marcado `@Tag("regression")`. Exemplo: FIX-03 (`docs/historico/reports/execucoes/run-2026-10-09-fix-03.md`).
 4. **Caixa-preta**: particionamento de equivalência, análise de valor-limite, tabela de decisão e transição de estados (4 técnicas; o enunciado exige 3).
 5. **Caixa-branca**: cobertura de instruções e branches (JaCoCo) e caminhos independentes de métodos com maior complexidade (`PaymentService.update`, `OrderService.buildPayment`, `PixPayment.processPayment`; card 12).
 6. **Análise estática antes × depois**: PMD, CPD e SpotBugs na fase `verify`; R0 (06/10), R1 (após os merges dos FIX) e R2 (fim do domínio). ESLint no frontend (QA-12).
@@ -73,7 +73,7 @@ Fonte única: [`criterios-aceitacao.md`](criterios-aceitacao.md), no formato Dad
 | Análise estática | PMD 7 (maven-pmd-plugin 3.28.0), CPD, SpotBugs 4.10 (plugin 4.10.4.1); ESLint (planejado, QA-12) |
 | Métricas | `scripts/quality-metrics.mjs` (gera `metrics.json` e `resumo.md` a partir de `target/`) |
 | CI | GitHub Actions |
-| Gestão | Trello (quadro `ombHh0vo`), `docs/gestao/` |
+| Gestão | Trello (quadro `ombHh0vo`), `docs/historico/gestao/` |
 
 ## 7. Responsabilidades
 

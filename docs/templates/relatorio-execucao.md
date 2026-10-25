@@ -1,6 +1,6 @@
 # Template — relatório de execução
 
-Salvar como `reports/execucoes/run-AAAA-MM-DD-<assunto>.md`. Um relatório por rodada formal. Resultados que não puderem ser reproduzidos com o comando registrado não valem (seção 25 do enunciado).
+Salvar como `reports/execucoes/run-AAAA-MM-DD-<assunto>.md`. Um relatório por rodada formal. Os relatórios de 03 a 09/10/2026 estão em `docs/historico/reports/execucoes/`. Resultados que não puderem ser reproduzidos com o comando registrado não valem (seção 25 do enunciado).
 
 ```markdown
 # Execução <assunto>

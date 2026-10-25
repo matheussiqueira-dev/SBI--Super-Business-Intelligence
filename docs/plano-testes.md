@@ -98,7 +98,7 @@ O wrapper foi restaurado e recebeu correção para `Target` nulo no PowerShell. 
 
 `mvnw.cmd test` seleciona unitários sem banco. `mvnw.cmd -Pintegration verify` também inclui os testes `@Tag("integration")`, com perfil Spring `integration`, PostgreSQL exclusivo na porta 15432 e banco `order_management_test`. O runner `scripts/test.ps1 -Mode Integration` usa Compose descartável. `OrderFixtures` cria a massa sintética e os testes de persistência usam rollback; não há seed automático na base de desenvolvimento.
 
-CT-MONEY-001 e a recarga de preço histórico de CT-MONEY-003 foram implementados e conferidos nas duas rodadas da suíte Java ampliada, com seis testes aprovados por rodada. Os seis casos HTTP da rodada Swagger passaram, incluindo schemas dos corpos 400/404 e documento OpenAPI ao vivo. Evidências: `reports/execucoes/run-2026-10-03-continuacao.md` e `reports/execucoes/run-2026-10-04-swagger-erros.md`. Isso não aprova os demais casos ainda não implementados nem autenticação/perfis.
+CT-MONEY-001 e a recarga de preço histórico de CT-MONEY-003 foram implementados e conferidos nas duas rodadas da suíte Java ampliada, com seis testes aprovados por rodada. Os seis casos HTTP da rodada Swagger passaram, incluindo schemas dos corpos 400/404 e documento OpenAPI ao vivo. Evidências: `docs/historico/reports/execucoes/run-2026-10-03-continuacao.md` e `docs/historico/reports/execucoes/run-2026-10-04-swagger-erros.md`. Isso não aprova os demais casos ainda não implementados nem autenticação/perfis.
 
 ## Mapa caso -> nivel -> tecnica -> risco
 
@@ -216,7 +216,7 @@ Executados na branch `feat/business-endpoints` com `scripts/test.ps1 -Mode Integ
 | CT-CRM-104 | Verde | `CustomersApiTest.updateUsesVersionAndKeepsDocument` (versao desatualizada responde 409; edicao em paralelo real nao e simulada) |
 | CT-CRM-105 | Verde | `CustomersApiTest.deleteRules` |
 | CT-CONTRACT-101 | Verde (nivel API) | `CustomersApiTest` (CPF/CNPJ), `SalesApiTest.deliveryRequiresAddress`, `cardStoresOnlyLastFourDigits` |
-| CT-CONTRACT-102 | Verde | `scripts/live-contract.mjs` (45 operacoes, escopo em D-EXEC-07), relatorio `reports/contrato/live-v4/live-contract.json` |
+| CT-CONTRACT-102 | Verde | `scripts/live-contract.mjs` (45 operacoes, escopo em D-EXEC-07), relatorio `docs/historico/reports/contrato/live-v4/live-contract.json` |
 | CT-SEC-110 | Verde | `SalesApiTest.unknownPropertiesAreRejected` |
 | CT-SEC-111 | Verde | Corpo com `sellerId` responde 400; header e parametro forjados sao ignorados (`SalesApiTest.sellerComesOnlyFromSession`) |
 | CT-SEC-112 | Verde | `SalesApiTest.ownershipOnPaymentAndCancel`, `sellersSeeOnlyTheirOwnOrders` |
