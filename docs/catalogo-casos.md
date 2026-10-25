@@ -10,7 +10,7 @@ Versão 0.1 (rascunho), 09/10/2026. Preparado por Matheus Siqueira para o card 1
 | --- | --- | --- |
 | E1 | 09/10/2026, `scripts/test.ps1 -Mode Integration`, branch `fix/FIX-03-pagamento-dinheiro` @ `c178204` (contém os PRs #5, #8 e #9), Windows 11, JDK 25, PostgreSQL 18 | 176 testes, 0 falhas, 0 erros |
 | E2 | 09/10/2026, `scripts/test-contract.ps1 -HttpOnly` no mesmo código | 6 casos de contrato e 6 de sessão aprovados |
-| E3 | CI GitHub Actions, run [37960769072](https://github.com/matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST/actions/runs/37960769072), commit `ce3f222` (PR #9), 09/10/2026 | success (inclui E2E Playwright) |
+| E3 | CI GitHub Actions, run [37960769072](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/actions/runs/37960769072), commit `ce3f222` (PR #9), 09/10/2026 | success (inclui E2E Playwright) |
 
 Enquanto os PRs não forem mesclados, o status "Passou" vale para a branch indicada. Depois do merge, refazer E1 na `main` (medição R1, QA-10) e atualizar a coluna. Detalhes do antes × depois do FIX-03: `reports/execucoes/run-2026-10-09-fix-03.md` (na branch do FIX-03).
 
@@ -823,7 +823,7 @@ Um caso pode ter mais de uma técnica ou nível. As técnicas caixa-preta (parti
 | Resultado esperado | Sessão mantida após recarregar, cookie HttpOnly, logout encerra a sessão. |
 | Resultado obtido | Conforme o esperado (E3). |
 | Status | Passou |
-| Evidência | `frontend/e2e/session.spec.mjs` |
+| Evidência | `frontend/e2e/session.spec.ts` |
 | Técnica · Nível · Risco | Baseado em requisitos · Aceitação (E2E) · R13 |
 
 ### CT-UI-LOGIN-002
@@ -841,7 +841,7 @@ Um caso pode ter mais de uma técnica ou nível. As técnicas caixa-preta (parti
 | Resultado esperado | Mensagem de erro acessível; formulário cabe na largura. |
 | Resultado obtido | Conforme o esperado (E3). |
 | Status | Passou |
-| Evidência | `frontend/e2e/session.spec.mjs` |
+| Evidência | `frontend/e2e/session.spec.ts` |
 | Técnica · Nível · Risco | Testes de casos inválidos · Aceitação (E2E) · R13 |
 
 ### CT-REG-D021

@@ -2,6 +2,11 @@
   "name": "a3-contract-checks",
   "version": "1.0.0",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence.git"
+  },
+  "homepage": "https://sbi-app-alpha.vercel.app",
   "type": "module",
   "scripts": {
     "test": "node --test scripts/audit-contract.test.mjs scripts/validate-contract.test.mjs scripts/check-commit-messages.test.mjs",

@@ -5,7 +5,7 @@
 ```mermaid
 flowchart LR
   subgraph Navegador
-    UI["Next.js 16 (React 19, TypeScript)<br/>marca SBI v1.0; telas /vender, /vendas, /clientes, /gestao..."]
+    UI["Next.js 16 (React 19, TypeScript)<br/>identidade visual SBI v2.0; telas /vender, /vendas, /clientes, /gestao, /executivo..."]
   end
   subgraph "Servidor Next"
     PX["proxy.ts<br/>sem cookie -> /entrar"]
@@ -19,7 +19,7 @@ flowchart LR
     REPO["Repositórios JdbcClient<br/>(JPA só no legado)"]
     ERR["GlobalExceptionHandler<br/>ErrorResponse com code"]
   end
-  DB[("PostgreSQL 18<br/>Flyway V1–V11, CHECKs, gatilhos, views V6 e V9")]
+  DB[("PostgreSQL 18<br/>Flyway V1–V12, CHECKs, gatilhos, views V6 e V9")]
   UI --> PX --> SSR
   UI --> RW --> SEC --> CTL --> SVC --> REPO --> DB
   CTL -.-> ERR
@@ -148,7 +148,7 @@ flowchart LR
     P[("branches preview/pr-N<br/>uma por pull request")]
   end
   RW -->|"HTTPS"| A
-  A -->|"JDBC + TLS, host sem pooler<br/>Flyway V1 a V11 + db/demo"| D
+  A -->|"JDBC + TLS, host sem pooler<br/>Flyway V1 a V12 + db/demo"| D
   G["GitHub · main"] -->|"push: deploy automático"| A
   G -->|"push: build automático"| V
   G -->|"pull request: workflow neon-preview"| P
