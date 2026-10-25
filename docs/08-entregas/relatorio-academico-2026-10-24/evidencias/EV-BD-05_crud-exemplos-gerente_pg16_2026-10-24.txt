@@ -1,0 +1,166 @@
+BEGIN
+ id | name 
+----+------
+(0 rows)
+
+INSERT 0 0
+ id |  sku   |       name       |  price  
+----+--------+------------------+---------
+ 95 | IPD-10 | iPad 10a geracao | 3600.00
+(1 row)
+
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+        sku        |                     produto                     |    categoria     | saldo | reservado | disponivel | custo_medio | preco_venda 
+-------------------+-------------------------------------------------+------------------+-------+-----------+------------+-------------+-------------
+ OL-ADP-USBC-P2    | Adaptador USB-C para P2                         | Acessorios       |    18 |         0 |         18 |       40.05 |       89.00
+ OL-FONTE-35W      | Adaptador de energia USB-C duplo de 35 W        | Acessorios       |    17 |         0 |         17 |      160.96 |      503.00
+ OL-AIRTAG-1       | AirTag (2ª geração)                             | Acessorios       |    10 |         0 |         10 |      129.48 |      332.00
+ OL-AIRTAG-4       | AirTag (2ª geração, 4 unidades)                 | Acessorios       |     7 |         0 |          7 |      407.66 |     1199.00
+ OL-PENCIL-USBC    | Apple Pencil (USB-C)                            | Acessorios       |     5 |         0 |          5 |      250.79 |      809.00
+ OL-PENCIL-PRO     | Apple Pencil Pro                                | Acessorios       |    18 |         0 |         18 |      512.62 |     1349.00
+ OL-CABO-USBC-1M   | Cabo USB-C de 60 W (1 m)                        | Acessorios       |    19 |         0 |         19 |       63.04 |      197.00
+ OL-CABO-LTN-1M    | Cabo USB-C para Lightning (1 m)                 | Acessorios       |    18 |         0 |         18 |       84.71 |      197.00
+ CP-SIL            | Capa de silicone                                | Acessorios       |    25 |         0 |         25 |       90.00 |      300.00
+ OL-CAPA-SIL-IP18P | Capa de silicone com MagSafe para iPhone 18 Pro | Acessorios       |     5 |         0 |          5 |      195.16 |      476.00
+ OL-CAPA-TRP-IP17  | Capa transparente com MagSafe para iPhone 17    | Acessorios       |    11 |         0 |         11 |      199.92 |      476.00
+ CG-20W            | Carregador 20 W                                 | Acessorios       |    30 |         0 |         30 |       70.00 |      200.00
+ OL-MAGSAFE-1M     | Carregador MagSafe (1 m)                        | Acessorios       |    20 |         0 |         20 |      142.23 |      431.00
+ OL-TECLADO-TID    | Magic Keyboard com Touch ID                     | Acessorios       |    12 |         0 |         12 |      473.99 |     1529.00
+ OL-MOUSE-USBC     | Magic Mouse (USB-C)                             | Acessorios       |     6 |         0 |          6 |      268.56 |      746.00
+ PL-VID            | Pelicula de vidro                               | Acessorios       |    40 |         0 |         40 |       25.00 |      100.00
+ OL-PEL-IP17       | Película Belkin UltraGlass 2 para iPhone 17     | Acessorios       |     9 |         0 |          9 |      111.29 |      359.00
+ OL-PUL-ESP-46     | Pulseira esportiva para Apple Watch 46 mm       | Acessorios       |    14 |         0 |         14 |      177.84 |      494.00
+ OL-PUL-LOOP-42    | Pulseira loop esportiva para Apple Watch 42 mm  | Acessorios       |    17 |         0 |         17 |      187.72 |      494.00
+ OL-FOLIO-IPAD11   | Smart Folio para iPad 11 pol.                   | Acessorios       |    10 |         0 |         10 |      266.97 |      809.00
+ OL-AIRPODS-5      | AirPods 5                                       | Audio            |     6 |         0 |          6 |      989.34 |     1499.00
+ OL-AIRPODS-5-SF   | AirPods 5 com estojo de recarga sem fio         | Audio            |    10 |         0 |         10 |      947.98 |     1529.00
+ AP-BR             | AirPods Branco                                  | Audio            |    13 |         1 |         12 |      720.00 |     1200.00
+ OL-AIRPODS-MAX2   | AirPods Max 2                                   | Audio            |    16 |         0 |         16 |     3989.30 |     5699.00
+ OL-AIRPODS-PRO3   | AirPods Pro 3                                   | Audio            |    20 |         0 |         20 |     1279.36 |     1999.00
+ OL-APPLETV-4K     | Apple TV 4K                                     | Casa inteligente |    12 |         0 |         12 |     2299.69 |     3239.00
+ OL-HOMEPOD-MINI   | HomePod mini                                    | Casa inteligente |     6 |         0 |          6 |      659.34 |      999.00
+ OL-MAC-MINI-M6    | Mac mini M6 16 GB 256 GB                        | Computadores     |    10 |         0 |         10 |     6220.16 |     9719.00
+ OL-MBA13-M5       | MacBook Air 13 pol. M5 16 GB 512 GB             | Computadores     |    11 |         0 |         11 |     8159.32 |    11999.00
+ OL-MBA15-M5       | MacBook Air 15 pol. M5 16 GB 512 GB             | Computadores     |     8 |         0 |          8 |    11363.61 |    16469.00
+ OL-MBP14-M5       | MacBook Pro 14 pol. M5 16 GB 1 TB               | Computadores     |    18 |         0 |         18 |    15551.28 |    21599.00
+ OL-IMAC24-M4      | iMac 24 pol. M4 16 GB 256 GB                    | Computadores     |    14 |         0 |         14 |    10853.33 |    16199.00
+ IP-128-PT         | iPhone 128 GB Preto                             | Smartphones      |    10 |         2 |          8 |     2700.00 |     4500.00
+ OL-IP16-128       | iPhone 16 128 GB Preto                          | Smartphones      |    20 |         0 |         20 |     3570.48 |     4959.00
+ OL-IP17-256       | iPhone 17 256 GB Azul                           | Smartphones      |     8 |         0 |          8 |     3818.33 |     5699.00
+ OL-IP17E-256      | iPhone 17e 256 GB Branco                        | Smartphones      |     6 |         0 |          6 |     3071.36 |     4799.00
+ OL-IP18P-256      | iPhone 18 Pro 256 GB                            | Smartphones      |    19 |         0 |         19 |     7559.30 |    10799.00
+ OL-IP18PM-256     | iPhone 18 Pro Max 256 GB                        | Smartphones      |    12 |         0 |         12 |     8540.27 |    11699.00
+ OL-IPAIR-256      | iPhone Air 256 GB                               | Smartphones      |    19 |         0 |         19 |     4671.36 |     7299.00
+ IPD-10            | iPad 10a geracao                                | Tablets          |     8 |         0 |          8 |     2700.00 |     3600.00
+ OL-IPAD-11-128    | iPad 11 pol. (A16) Wi-Fi 128 GB                 | Tablets          |     9 |         0 |          9 |     2495.36 |     3899.00
+ OL-IPAD-AIR-11    | iPad Air 11 pol. M4 Wi-Fi 128 GB                | Tablets          |     9 |         0 |          9 |     4874.35 |     7499.00
+ OL-IPAD-PRO-11    | iPad Pro 11 pol. M5 Wi-Fi 256 GB                | Tablets          |    15 |         0 |         15 |    10709.30 |    15299.00
+ OL-IPAD-MINI-128  | iPad mini Wi-Fi 128 GB                          | Tablets          |    10 |         0 |         10 |     5183.28 |     7199.00
+ AW-41             | Apple Watch 41 mm                               | Wearables        |     2 |         0 |          2 |     1900.00 |     2800.00
+ OL-AW-SE3-40      | Apple Watch SE 3 40 mm GPS                      | Wearables        |    16 |         0 |         16 |     1699.32 |     2499.00
+ OL-AW-S12-42      | Apple Watch Series 12 42 mm GPS                 | Wearables        |    20 |         0 |         20 |     3266.34 |     4949.00
+ OL-AW-S12-46-CEL  | Apple Watch Series 12 46 mm GPS + Cellular      | Wearables        |     9 |         0 |          9 |     4727.89 |     6659.00
+ OL-AW-ULTRA4      | Apple Watch Ultra 4 49 mm                       | Wearables        |    15 |         0 |         15 |     6614.30 |     9449.00
+ ULT-1             | Ultima unidade                                  |                  |     1 |         1 |          0 |      500.00 |      999.00
+(50 rows)
+
+    categoria     | produtos | preco_medio 
+------------------+----------+-------------
+ Acessorios       |       20 |      554.45
+ Smartphones      |        7 |     7107.71
+ Computadores     |        5 |    15197.00
+ Tablets          |        5 |     7499.20
+ Audio            |        5 |     2385.20
+ Wearables        |        5 |     5271.20
+ Casa inteligente |        2 |     2119.00
+(7 rows)
+
+SET
+UPDATE 1
+          changed_at           |  sku   | old_price | new_price |   alterado_por   |              reason              
+-------------------------------+--------+-----------+-----------+------------------+----------------------------------
+ 2026-10-24 22:25:35.135145+00 | IPD-10 |   3600.00 |   3800.00 | Matheus Siqueira | Reajuste de tabela do fornecedor
+(1 row)
+
+UPDATE 1
+UPDATE 1
+DELETE 1
+DELETE 0
+  periodo   |   meta    | faturamento_confirmado | atingimento_pct |  falta   | pedidos_pagos | ticket_medio 
+------------+-----------+------------------------+-----------------+----------+---------------+--------------
+ 2026-09-01 | 240000.00 |              221432.00 |            92.3 | 18568.00 |            77 |      2875.74
+(1 row)
+
+      vendedor      |   meta    | realizado | atingimento_pct |  falta   
+--------------------+-----------+-----------+-----------------+----------
+ Allan Barros       | 120000.00 |  81507.00 |            67.9 | 38493.00
+ Francisco Ferreira | 120000.00 |  73157.00 |            61.0 | 46843.00
+(2 rows)
+
+   inicio   |    fim     | realizado 
+------------+------------+-----------
+ 2026-09-01 | 2026-09-06 |  39009.00
+ 2026-09-07 | 2026-09-13 |  62923.00
+ 2026-09-14 | 2026-09-20 |  47992.00
+ 2026-09-21 | 2026-09-27 |  44008.00
+ 2026-09-28 | 2026-09-30 |  27500.00
+(5 rows)
+
+                   produto                   | unidades | receita_liquida | margem_pct | itens_sem_custo 
+---------------------------------------------+----------+-----------------+------------+-----------------
+ iPhone 128 GB Preto                         |       28 |       126000.00 |       40.0 |               0
+ AirPods Branco                              |       33 |        39600.00 |       40.0 |               0
+ Apple Watch 41 mm                           |        5 |        14000.00 |       32.1 |               0
+ iPhone 18 Pro 256 GB                        |        1 |        10799.00 |       30.0 |               0
+ Apple Watch Ultra 4 49 mm                   |        1 |         9449.00 |       30.0 |               0
+ iPhone Air 256 GB                           |        1 |         7299.00 |       36.0 |               0
+ Capa de silicone                            |       18 |         5400.00 |       70.0 |               0
+ Apple Pencil Pro                            |        2 |         2698.00 |       62.0 |               0
+ Magic Keyboard com Touch ID                 |        1 |         1529.00 |       69.0 |               0
+ AirPods 5                                   |        1 |         1499.00 |       34.0 |               0
+ Carregador 20 W                             |        6 |         1200.00 |       65.0 |               0
+ Apple Pencil (USB-C)                        |        1 |          809.00 |       69.0 |               0
+ Cabo USB-C de 60 W (1 m)                    |        2 |          394.00 |       68.0 |               0
+ Película Belkin UltraGlass 2 para iPhone 17 |        1 |          359.00 |       69.0 |               0
+ Pelicula de vidro                           |        2 |          200.00 |       75.0 |               0
+ Cabo USB-C para Lightning (1 m)             |        1 |          197.00 |       57.0 |               0
+(16 rows)
+
+ product_id |  sku  |      produto      | categoria | disponivel | estoque_minimo 
+------------+-------+-------------------+-----------+------------+----------------
+          3 | AW-41 | Apple Watch 41 mm | Wearables |          2 |              3
+         10 | ULT-1 | Ultima unidade    |           |          0 |              0
+(2 rows)
+
+                                    QUERY PLAN                                     
+-----------------------------------------------------------------------------------
+ HashAggregate (actual time=0.154..0.170 rows=86 loops=1)
+   Group Key: o.id
+   Batches: 1  Memory Usage: 48kB
+   Buffers: shared hit=15
+   InitPlan 1 (returns $0)
+     ->  Seq Scan on app_users (actual time=0.002..0.002 rows=1 loops=1)
+           Filter: ((email)::text = 'allanbarros@sbi.tech'::text)
+           Rows Removed by Filter: 3
+           Buffers: shared hit=1
+   ->  Hash Join (actual time=0.040..0.103 rows=104 loops=1)
+         Hash Cond: (oi.order_id = o.id)
+         Buffers: shared hit=15
+         ->  Seq Scan on order_item oi (actual time=0.002..0.032 rows=333 loops=1)
+               Buffers: shared hit=8
+         ->  Hash (actual time=0.036..0.036 rows=86 loops=1)
+               Buckets: 1024  Batches: 1  Memory Usage: 12kB
+               Buffers: shared hit=7
+               ->  Seq Scan on orders o (actual time=0.004..0.027 rows=86 loops=1)
+                     Filter: (seller_id = $0)
+                     Rows Removed by Filter: 201
+                     Buffers: shared hit=7
+ Planning:
+   Buffers: shared hit=29
+ Planning Time: 0.178 ms
+ Execution Time: 0.192 ms
+(25 rows)
+
+ROLLBACK

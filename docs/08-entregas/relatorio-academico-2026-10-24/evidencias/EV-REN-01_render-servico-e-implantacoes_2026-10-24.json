@@ -1,0 +1,51 @@
+{
+ "fonte": "API do Render (somente leitura), workspace 'My Workspace', consultada em 2026-10-25T02:47Z (24/10/2026, 23:47 no horário de Brasília)",
+ "servico": {
+  "nome": "sbi-api",
+  "id": "srv-db7ropijnfac73eulml0",
+  "tipo": "web_service",
+  "runtime": "docker",
+  "dockerfile": "./Dockerfile",
+  "plano": "free",
+  "regiao": "virginia",
+  "instancias": 1,
+  "health_check": "/auth/csrf",
+  "auto_deploy": "commit na branch main",
+  "repositorio": "matheussiqueira-dev/SBI--Super-Business-Intelligence",
+  "url": "https://sbi-api-puk8.onrender.com",
+  "previews_de_pull_request": "desativados",
+  "suspenso": "não",
+  "criado_em": "2026-10-14T17:31:18Z"
+ },
+ "implantacao_ativa": {
+  "id": "dep-dbchqurrjlhs73bu8990",
+  "status": "live",
+  "commit": "3b0242c477bf7b5401a6eff55ae2b88c74927b1b",
+  "gatilho": "new_commit",
+  "inicio": "2026-10-21T20:15:55Z",
+  "fim": "2026-10-21T20:18:12Z"
+ },
+ "implantacoes_anteriores": [
+  [
+   "884b8d3",
+   "deactivated",
+   "2026-10-21T19:58:22Z"
+  ],
+  [
+   "b2a3b13",
+   "deactivated",
+   "2026-10-21T19:49:18Z"
+  ],
+  [
+   "438ce29",
+   "deactivated",
+   "2026-10-20T15:57:30Z"
+  ],
+  [
+   "e2c8192",
+   "deactivated",
+   "2026-10-20T15:50:47Z"
+  ]
+ ],
+ "observacao": "Variáveis de ambiente não foram lidas; nenhum valor de segredo foi consultado."
+}

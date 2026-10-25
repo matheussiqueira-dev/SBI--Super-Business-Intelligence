@@ -1,0 +1,165 @@
+{
+ "fonte": "API REST do GitHub e da Vercel (somente leitura) e execução local dos testes, consultadas em 2026-10-25T03:00–03:15Z (25/10/2026, 00h00–00h15 no horário de Brasília)",
+ "pull_request": {
+  "numero": 47,
+  "titulo": "feat(avatars): add expressive user profiles and platform reactions",
+  "estado": "aberto, não mesclado",
+  "criado_em": "2026-10-25T01:13:27Z",
+  "branch": "feat/user-profile-avatars",
+  "commit_head": "a54635d4318f65c0a61772e626adbfc501558c2d",
+  "base": "main @ 3b0242c",
+  "arquivos_alterados": 33,
+  "linhas_adicionadas": 685,
+  "linhas_removidas": 23
+ },
+ "integracao_continua": {
+  "execucao_pull_request": 40150530509,
+  "tentativa": 2,
+  "conclusao": "success",
+  "jobs": {
+   "test (backend)": "success",
+   "bd": "success",
+   "contract": "success",
+   "frontend": "success",
+   "hygiene": "success"
+  },
+  "concluida_em": "2026-10-25T02:56:19Z",
+  "observacao": "A primeira tentativa e a execução do push (40150527989) não iniciaram por pendência de cobrança da conta no GitHub Actions; o workflow de branch do Neon (40150530482) falhou pelo mesmo motivo."
+ },
+ "vercel": {
+  "previews": [
+   {
+    "id": "dpl_Gv4V9wDnuBUd77wz8HzdBmpCbJqc",
+    "commit": "a54635d",
+    "estado": "ERROR",
+    "erro": "BUILD_FAILED: Resource provisioning failed"
+   },
+   {
+    "id": "dpl_8UPHcRNABsG1EPxZimb1K1mzwffg",
+    "commit": "52b38fc",
+    "estado": "ERROR",
+    "erro": "BUILD_FAILED (mesma série de falhas; mensagem não consultada individualmente)"
+   }
+  ],
+  "tentativa_de_producao": {
+   "id": "dpl_5y3sZA5UJ5eZXVduxPtGaM9k596Y",
+   "commit": "a54635d",
+   "criada_em": "2026-10-25T01:25:46Z",
+   "estado": "ERROR",
+   "erro": "BUILD_FAILED: Resource provisioning failed"
+  },
+  "producao_vigente": "commit 3b0242c (dpl_ApRPtFqstvaRHnEgkRRG2h2NKe7o)",
+  "asset_publicado": "GET https://sbi-app-alpha.vercel.app/avatares/avatar-21.webp -> 404"
+ },
+ "testes_locais": {
+  "ambiente": "Node 22.23.4, npm ci no commit a54635d",
+  "typecheck": "aprovado",
+  "npm_test": {
+   "total": 53,
+   "aprovados": 52,
+   "reprovados": 1,
+   "reprovado": "CT-WEB-124 (mesma dependência da versão do Node, achado A-03)",
+   "testes_de_avatar": "11/11 (8 de reações, 3 de associação)"
+  },
+  "com_patch_de_correcoes": {
+   "aplicacao": "git am sem conflitos sobre a54635d",
+   "typecheck": "aprovado",
+   "npm_test": "54/54"
+  }
+ },
+ "associacao_avatar_usuario": [
+  {
+   "pessoa": "Matheus Henrique Dias Siqueira",
+   "avatar": 21,
+   "conta": "matheussiqueira@sbi.tech (GERENTE)"
+  },
+  {
+   "pessoa": "Gabriel Sousa Vasconcelos",
+   "avatar": 26,
+   "conta": "gabrielsousa@sbi.tech (GERENTE)"
+  },
+  {
+   "pessoa": "Allan Gabriel Almeida Barros",
+   "avatar": 12,
+   "conta": "allanbarros@sbi.tech (VENDEDOR)"
+  },
+  {
+   "pessoa": "Francisco Miguel de Lemos Sena Ferreira",
+   "avatar": 9,
+   "conta": "franciscoferreira@sbi.tech (VENDEDOR)"
+  },
+  {
+   "pessoa": "Paulo Thiago Gomes da Silva",
+   "avatar": 18,
+   "conta": "sem conta; associação pelo nome completo"
+  },
+  {
+   "pessoa": "Christian Felix Gbedande Azonyetin",
+   "avatar": 13,
+   "conta": "sem conta; associação pelo nome completo"
+  },
+  {
+   "pessoa": "Bruno Marciano de Amorim Josino",
+   "avatar": 19,
+   "conta": "sem conta; associação pelo nome completo"
+  }
+ ],
+ "assets": {
+  "frontend/public/avatares/avatar-12.webp": {
+   "bytes": 4032,
+   "sha256": "5cf98f4302d8d7b941d4b2da337f8368208f3a721b736dea6772a7a7120fe9ab"
+  },
+  "frontend/public/avatares/avatar-13.webp": {
+   "bytes": 4428,
+   "sha256": "9da8430750441b09da6fc9233eeaf47b2f7d0973156c89d7063e9feab5af602d"
+  },
+  "frontend/public/avatares/avatar-18.webp": {
+   "bytes": 4244,
+   "sha256": "459d0f8be1a607c729454b06ad51b282b6c55840eafd7573701078ef6e2faa80"
+  },
+  "frontend/public/avatares/avatar-19.webp": {
+   "bytes": 4244,
+   "sha256": "0aa9ab910e7460f665cc469bbe8b1bad796076cc27b507681c4daf54b83f7646"
+  },
+  "frontend/public/avatares/avatar-21.webp": {
+   "bytes": 4718,
+   "sha256": "90a67c6e4f2e91b8fca96a5b4dfa8a7c2c221cd3f1af1cb59cf209a2613970ef"
+  },
+  "frontend/public/avatares/avatar-26.webp": {
+   "bytes": 4394,
+   "sha256": "f9d2d8fb92e8917fab2379097c6d777547b17787e763c594a4b3147e1fc5938f"
+  },
+  "frontend/public/avatares/avatar-9.webp": {
+   "bytes": 4352,
+   "sha256": "667de7743afeb17bd167ed6fb77eddba3833e4b297bb6a61e1a6b43d68f3c7de"
+  },
+  "frontend/public/avatares/expressoes/avatar-12.webp": {
+   "bytes": 25684,
+   "sha256": "de3b39b89b09773aaff96f25fdbc6eff4cd5a5af3f681be74cbd7652742fe6c5"
+  },
+  "frontend/public/avatares/expressoes/avatar-13.webp": {
+   "bytes": 21612,
+   "sha256": "01fc132d9d5ac22e50cbb86ce2f244165c4269a191764a8994c2621152c3fc4a"
+  },
+  "frontend/public/avatares/expressoes/avatar-18.webp": {
+   "bytes": 24840,
+   "sha256": "9bd89a70d703a0e8d7c66a95a2a04679a0ed5e4416cc05a5a4c04cc4ca189bfa"
+  },
+  "frontend/public/avatares/expressoes/avatar-19.webp": {
+   "bytes": 20320,
+   "sha256": "abebadddf08e1dca0e3209f57f517af089ad80c6a549a392e1185ad597d5d887"
+  },
+  "frontend/public/avatares/expressoes/avatar-21.webp": {
+   "bytes": 22372,
+   "sha256": "ce6ed38f904c8a541f7c66f7efb1d28a8b2d6896db9fc4c19241f53a938b75ad"
+  },
+  "frontend/public/avatares/expressoes/avatar-26.webp": {
+   "bytes": 20476,
+   "sha256": "35984f0e88e9b040c54e7fe749a6c6c83ba5ba11acc855b56d922684c5e1dc97"
+  },
+  "frontend/public/avatares/expressoes/avatar-9.webp": {
+   "bytes": 20940,
+   "sha256": "8420832a92799cc958f0d92cfdda79791d4d53e1cc92c92b203dd922758f206d"
+  }
+ }
+}

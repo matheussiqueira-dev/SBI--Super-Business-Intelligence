@@ -173,7 +173,7 @@ jobs:
           DB: order_management_test
           SUPERUSER: postgres_test
           OUT: target/resultado_bd.txt
-        run: bash docs/bd/pacote-sql/run_bd.sh
+        run: bash docs/03-banco-de-dados/pacote-sql/run_bd.sh
 
       - name: Olist demo dataset by psql (07 twice, 08, 09) and masking by the API (CT-DEMO-05)
         shell: bash
@@ -185,7 +185,7 @@ jobs:
           JDBC_URL: jdbc:postgresql://localhost:15432/order_management_test
           SPRING_DATASOURCE_PASSWORD: ${{ env.TEST_DB_PASSWORD }}
           OUT: target/resultado_olist.txt
-        run: bash docs/bd/pacote-sql/run_olist_bd.sh
+        run: bash docs/03-banco-de-dados/pacote-sql/run_olist_bd.sh
 
       - name: Preserve database reports
         if: always()

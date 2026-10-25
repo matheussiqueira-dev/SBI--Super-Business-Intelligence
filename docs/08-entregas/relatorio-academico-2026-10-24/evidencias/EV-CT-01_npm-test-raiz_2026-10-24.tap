@@ -1,0 +1,297 @@
+# node v22.23.4 | data: 2026-10-24T19:00:43-03:00 | commit 3b0242c
+
+> a3-contract-checks@1.0.0 test
+> node --test scripts/audit-contract.test.mjs scripts/validate-contract.test.mjs scripts/check-commit-messages.test.mjs
+
+TAP version 13
+# Subtest: planned target has references and profile policies
+ok 1 - planned target has references and profile policies
+  ---
+  duration_ms: 2.954051
+  type: 'test'
+  ...
+# Subtest: broken reference is detected
+ok 2 - broken reference is detected
+  ---
+  duration_ms: 1.993385
+  type: 'test'
+  ...
+# Subtest: protected endpoint cannot declare public security
+ok 3 - protected endpoint cannot declare public security
+  ---
+  duration_ms: 1.08213
+  type: 'test'
+  ...
+# Subtest: anonymous alternative cannot bypass session policy
+ok 4 - anonymous alternative cannot bypass session policy
+  ---
+  duration_ms: 1.424259
+  type: 'test'
+  ...
+# Subtest: login and logout require CSRF and document rejection
+ok 5 - login and logout require CSRF and document rejection
+  ---
+  duration_ms: 4.125404
+  type: 'test'
+  ...
+# Subtest: session login rejects bearer response and malformed cookie scheme
+ok 6 - session login rejects bearer response and malformed cookie scheme
+  ---
+  duration_ms: 1.153479
+  type: 'test'
+  ...
+# Subtest: archived v2 still passes its original bearer policies
+ok 7 - archived v2 still passes its original bearer policies
+  ---
+  duration_ms: 5.132495
+  type: 'test'
+  ...
+# Subtest: manager policy cannot admit a seller
+ok 8 - manager policy cannot admit a seller
+  ---
+  duration_ms: 0.761125
+  type: 'test'
+  ...
+# Subtest: seller projection cannot allow unknown root or nested fields
+ok 9 - seller projection cannot allow unknown root or nested fields
+  ---
+  duration_ms: 1.918648
+  type: 'test'
+  ...
+# Subtest: explicit sensitive field in seller projection is detected
+ok 10 - explicit sensitive field in seller projection is detected
+  ---
+  duration_ms: 1.393636
+  type: 'test'
+  ...
+# Subtest: required path parameters cannot disappear
+ok 11 - required path parameters cannot disappear
+  ---
+  duration_ms: 0.799643
+  type: 'test'
+  ...
+# Subtest: v4 draft passes with the executable access matrix
+ok 12 - v4 draft passes with the executable access matrix
+  ---
+  duration_ms: 3.47757
+  type: 'test'
+  ...
+# Subtest: v4 accepts implemented operations; v3 stays planning-only
+ok 13 - v4 accepts implemented operations; v3 stays planning-only
+  ---
+  duration_ms: 7.929592
+  type: 'test'
+  ...
+# Subtest: v4 x-roles must match the access matrix
+ok 14 - v4 x-roles must match the access matrix
+  ---
+  duration_ms: 15.844357
+  type: 'test'
+  ...
+# Subtest: v4 seller responses stay closed and free of cost data
+ok 15 - v4 seller responses stay closed and free of cost data
+  ---
+  duration_ms: 10.665817
+  type: 'test'
+  ...
+# Subtest: v4 request schemas reject unknown properties
+ok 16 - v4 request schemas reject unknown properties
+  ---
+  duration_ms: 5.679408
+  type: 'test'
+  ...
+# Subtest: v4 sale creation requires Idempotency-Key and protected operations keep session security
+ok 17 - v4 sale creation requires Idempotency-Key and protected operations keep session security
+  ---
+  duration_ms: 11.564565
+  type: 'test'
+  ...
+# Subtest: v5 keeps every v4 operation and passes with the executable access matrix
+ok 18 - v5 keeps every v4 operation and passes with the executable access matrix
+  ---
+  duration_ms: 9.396375
+  type: 'test'
+  ...
+# Subtest: v5 user administration stays manager-only and closed
+ok 19 - v5 user administration stays manager-only and closed
+  ---
+  duration_ms: 11.982869
+  type: 'test'
+  ...
+# Subtest: planned operations wait for their matrix row; implemented ones require it
+ok 20 - planned operations wait for their matrix row; implemented ones require it
+  ---
+  duration_ms: 14.369308
+  type: 'test'
+  ...
+# Subtest: mensagem limpa em Conventional Commits passa
+ok 21 - mensagem limpa em Conventional Commits passa
+  ---
+  duration_ms: 44.965373
+  type: 'test'
+  ...
+# Subtest: corpo vazio passa
+ok 22 - corpo vazio passa
+  ---
+  duration_ms: 33.656049
+  type: 'test'
+  ...
+# Subtest: cada termo proibido falha, em qualquer caixa
+ok 23 - cada termo proibido falha, em qualquer caixa
+  ---
+  duration_ms: 1131.249963
+  type: 'test'
+  ...
+# Subtest: linha de sessao falha; a palavra session em texto comum passa
+ok 24 - linha de sessao falha; a palavra session em texto comum passa
+  ---
+  duration_ms: 0.255042
+  type: 'test'
+  ...
+# Subtest: termo dentro de outra palavra nao conta; comentario do Git fica de fora
+ok 25 - termo dentro de outra palavra nao conta; comentario do Git fica de fora
+  ---
+  duration_ms: 0.120397
+  type: 'test'
+  ...
+# Subtest: endereco antigo do site falha na mensagem e no arquivo; o endereco oficial passa
+ok 26 - endereco antigo do site falha na mensagem e no arquivo; o endereco oficial passa
+  ---
+  duration_ms: 33.128053
+  type: 'test'
+  ...
+# Subtest: --tracked: nenhum arquivo versionado tem endereco antigo do site
+ok 27 - --tracked: nenhum arquivo versionado tem endereco antigo do site
+  ---
+  duration_ms: 89.801224
+  type: 'test'
+  ...
+# Subtest: 2020-12 tuple keywords are executed
+ok 28 - 2020-12 tuple keywords are executed
+  ---
+  duration_ms: 39.804257
+  type: 'test'
+  ...
+# Subtest: all target schema locations compile and validate against 2020-12
+ok 29 - all target schema locations compile and validate against 2020-12
+  ---
+  duration_ms: 99.617439
+  type: 'test'
+  ...
+# Subtest: session login response rejects token fields and CSRF response requires the exact header
+ok 30 - session login response rejects token fields and CSRF response requires the exact header
+  ---
+  duration_ms: 25.274308
+  type: 'test'
+  ...
+# Subtest: seller projection accepts valid sample and rejects sensitive fields at both levels
+ok 31 - seller projection accepts valid sample and rejects sensitive fields at both levels
+  ---
+  duration_ms: 19.788
+  type: 'test'
+  ...
+# Subtest: formats reject invalid email, wrong currency and non numeric money
+ok 32 - formats reject invalid email, wrong currency and non numeric money
+  ---
+  duration_ms: 13.413397
+  type: 'test'
+  ...
+# Subtest: sales order rejects zero quantity and empty items
+ok 33 - sales order rejects zero quantity and empty items
+  ---
+  duration_ms: 13.413628
+  type: 'test'
+  ...
+# Subtest: invalid JSON Schema and broken references fail
+ok 34 - invalid JSON Schema and broken references fail
+  ---
+  duration_ms: 89.686003
+  type: 'test'
+  ...
+# Subtest: official OpenAPI document validates refs and schemas without mutating downloaded schema
+ok 35 - official OpenAPI document validates refs and schemas without mutating downloaded schema
+  ---
+  duration_ms: 156.342414
+  type: 'test'
+  ...
+# Subtest: official document checks reject missing info, malformed parameter and extra operation field
+ok 36 - official document checks reject missing info, malformed parameter and extra operation field
+  ---
+  duration_ms: 291.808987
+  type: 'test'
+  ...
+# Subtest: media-range format accepts JSON and wildcards, rejects malformed content keys
+ok 37 - media-range format accepts JSON and wildcards, rejects malformed content keys
+  ---
+  duration_ms: 92.204546
+  type: 'test'
+  ...
+# Subtest: error revision validates and preserves original baseline and successful responses
+ok 38 - error revision validates and preserves original baseline and successful responses
+  ---
+  duration_ms: 123.905946
+  type: 'test'
+  ...
+# Subtest: 400 and 404 error payloads validate with nullable details and local timestamp
+ok 39 - 400 and 404 error payloads validate with nullable details and local timestamp
+  ---
+  duration_ms: 65.159607
+  type: 'test'
+  ...
+# Subtest: SignedMoney accepts negative results while Money stays non-negative
+ok 40 - SignedMoney accepts negative results while Money stays non-negative
+  ---
+  duration_ms: 41.102555
+  type: 'test'
+  ...
+# Subtest: checkResponse resolves v4 shared responses such as NotFound
+ok 41 - checkResponse resolves v4 shared responses such as NotFound
+  ---
+  duration_ms: 21.92794
+  type: 'test'
+  ...
+# Subtest: v4 document validates against the official OpenAPI 3.1 schema
+ok 42 - v4 document validates against the official OpenAPI 3.1 schema
+  ---
+  duration_ms: 477.67452
+  type: 'test'
+  ...
+# Subtest: v4 sale request rejects seller, price and total fields
+ok 43 - v4 sale request rejects seller, price and total fields
+  ---
+  duration_ms: 13.720636
+  type: 'test'
+  ...
+# Subtest: v4 sale request enforces quantity bounds and payment variants
+ok 44 - v4 sale request enforces quantity bounds and payment variants
+  ---
+  duration_ms: 15.210616
+  type: 'test'
+  ...
+# Subtest: v4 error response requires code and keeps details as strings or null
+ok 45 - v4 error response requires code and keeps details as strings or null
+  ---
+  duration_ms: 9.70378
+  type: 'test'
+  ...
+# Subtest: v4 customer projections mask documents and keep the document immutable
+ok 46 - v4 customer projections mask documents and keep the document immutable
+  ---
+  duration_ms: 30.99905
+  type: 'test'
+  ...
+# Subtest: v5 accepts numeric and alphanumeric CNPJ, masked the same way, and keeps letters uppercase
+ok 47 - v5 accepts numeric and alphanumeric CNPJ, masked the same way, and keeps letters uppercase
+  ---
+  duration_ms: 21.705125
+  type: 'test'
+  ...
+1..47
+# tests 47
+# suites 0
+# pass 47
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3362.79884

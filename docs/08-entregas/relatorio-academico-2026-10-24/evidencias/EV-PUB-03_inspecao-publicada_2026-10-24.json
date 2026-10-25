@@ -1,0 +1,111 @@
+{
+ "data_consulta": "2026-10-24T21:58:52Z a 2026-10-24T22:00:17Z (UTC; 18:58:52 a 19:00:17 no horario de Brasilia, UTC-3)",
+ "origem": "https://sbi-app-alpha.vercel.app (navegador integrado, requisicoes GET sem credenciais)",
+ "deploy_producao_vercel": {
+  "id": "dpl_ApRPtFqstvaRHnEgkRRG2h2NKe7o",
+  "estado": "READY",
+  "commit": "3b0242c477bf7b5401a6eff55ae2b88c74927b1b",
+  "branch": "main"
+ },
+ "paginas": {
+  "/entrar": {
+   "status": 200,
+   "title": "Entrar · SBI",
+   "lang": "pt-BR",
+   "robots": "noindex, nofollow",
+   "campos": [
+    {
+     "id": "email",
+     "type": "email",
+     "label": "E-mail",
+     "autocomplete": "username",
+     "required": true
+    },
+    {
+     "id": "password",
+     "type": "password",
+     "label": "Senha",
+     "autocomplete": "current-password",
+     "required": true
+    },
+    {
+     "type": "checkbox",
+     "label": "Mostrar senha"
+    }
+   ],
+   "cabecalhos_ausentes": [
+    "content-security-policy",
+    "x-frame-options",
+    "x-content-type-options",
+    "referrer-policy",
+    "permissions-policy"
+   ]
+  },
+  "/gestao (sem cookie)": {
+   "redirecionado_para": "/entrar?next=%2Fgestao"
+  }
+ },
+ "api_via_rewrite": {
+  "GET /api/backend/auth/csrf": {
+   "status": 200,
+   "corpo": "{headerName: X-CSRF-TOKEN, token: <omitido>}"
+  },
+  "GET /api/backend/auth/me": {
+   "status": 401,
+   "corpo": {
+    "status": 401,
+    "error": "Unauthorized",
+    "code": "UNAUTHENTICATED",
+    "message": "Autenticacao necessaria ou credenciais invalidas",
+    "details": null
+   }
+  },
+  "GET /api/backend/sales/catalog": {
+   "status": 401,
+   "code": "UNAUTHENTICATED"
+  },
+  "GET /api/backend/management/summary": {
+   "status": 401,
+   "code": "UNAUTHENTICATED"
+  },
+  "GET /api/backend/rota-inexistente": {
+   "status": 401,
+   "code": "UNAUTHENTICATED"
+  },
+  "cabecalhos_api": {
+   "cache-control": "no-store",
+   "x-content-type-options": "nosniff",
+   "x-frame-options": "DENY",
+   "strict-transport-security": "max-age=31536000 ; includeSubDomains",
+   "x-render-origin-server": "Render"
+  }
+ },
+ "openapi_publicado": {
+  "endpoint": "GET /api/backend/v3/api-docs",
+  "status": 200,
+  "openapi": "3.1.0",
+  "operacoes": 76,
+  "schemas": 112,
+  "operacoes_do_contrato_v5_presentes": "58/58",
+  "operacoes_legadas_fora_do_contrato": 18,
+  "divergencias_de_codigo_de_sucesso": 0,
+  "codigos_de_erro_do_v5_nao_documentados": "109 de 201 (400: 39; 404: 31; 409: 22; 403: 17)"
+ },
+ "ativos_estaticos_consulta_2026-10-24T23:29:59Z": [
+  {
+   "GET": "/produtos/airpods-pro.webp",
+   "status": 200,
+   "content-type": "image/webp"
+  },
+  {
+   "GET": "/produtos/airpods-max.webp",
+   "status": 200,
+   "content-type": "image/webp"
+  },
+  {
+   "GET": "/produtos/adaptador-usbc-p2.webp",
+   "status": 200,
+   "content-type": "image/webp"
+  }
+ ]
+}

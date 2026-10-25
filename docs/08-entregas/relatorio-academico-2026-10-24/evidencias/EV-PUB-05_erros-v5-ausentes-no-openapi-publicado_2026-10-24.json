@@ -1,0 +1,712 @@
+[
+ {
+  "op": "DELETE /customers/{id}",
+  "contrato_erros": [
+   "401",
+   "403",
+   "404",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "404",
+   "409"
+  ]
+ },
+ {
+  "op": "DELETE /products/{id}",
+  "contrato_erros": [
+   "401",
+   "403",
+   "404",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "404",
+   "409"
+  ]
+ },
+ {
+  "op": "GET /analytics/sales",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "403"
+  ]
+ },
+ {
+  "op": "GET /analytics/stock",
+  "contrato_erros": [
+   "401",
+   "403"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "403"
+  ]
+ },
+ {
+  "op": "GET /auth/csrf",
+  "contrato_erros": [],
+  "ausentes_no_openapi_publicado": []
+ },
+ {
+  "op": "GET /auth/me",
+  "contrato_erros": [
+   "401"
+  ],
+  "ausentes_no_openapi_publicado": []
+ },
+ {
+  "op": "GET /categories",
+  "contrato_erros": [
+   "401",
+   "403"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "403"
+  ]
+ },
+ {
+  "op": "GET /customers",
+  "contrato_erros": [
+   "400",
+   "401"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400"
+  ]
+ },
+ {
+  "op": "GET /customers/{id}",
+  "contrato_erros": [
+   "401",
+   "404"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "404"
+  ]
+ },
+ {
+  "op": "GET /customers/{id}/orders",
+  "contrato_erros": [
+   "400",
+   "401",
+   "404"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404"
+  ]
+ },
+ {
+  "op": "GET /customers/{id}/summary",
+  "contrato_erros": [
+   "401",
+   "403",
+   "404"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "403",
+   "404"
+  ]
+ },
+ {
+  "op": "GET /discount-policy",
+  "contrato_erros": [
+   "401",
+   "403"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "403"
+  ]
+ },
+ {
+  "op": "GET /goals/monthly",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "403",
+   "404"
+  ]
+ },
+ {
+  "op": "GET /management/revenue",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "403"
+  ]
+ },
+ {
+  "op": "GET /management/summary",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "403"
+  ]
+ },
+ {
+  "op": "GET /performance/me",
+  "contrato_erros": [
+   "400",
+   "401"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400"
+  ]
+ },
+ {
+  "op": "GET /products",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "403"
+  ]
+ },
+ {
+  "op": "GET /products/{id}",
+  "contrato_erros": [
+   "401",
+   "403",
+   "404"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "403"
+  ]
+ },
+ {
+  "op": "GET /products/{id}/price-history",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "403",
+   "404"
+  ]
+ },
+ {
+  "op": "GET /promotions",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "403"
+  ]
+ },
+ {
+  "op": "GET /promotions/active",
+  "contrato_erros": [
+   "400",
+   "401"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400"
+  ]
+ },
+ {
+  "op": "GET /sales/catalog",
+  "contrato_erros": [
+   "400",
+   "401"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400"
+  ]
+ },
+ {
+  "op": "GET /sales/orders",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "403"
+  ]
+ },
+ {
+  "op": "GET /sales/orders/{id}",
+  "contrato_erros": [
+   "401",
+   "404"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "404"
+  ]
+ },
+ {
+  "op": "GET /stock/movements",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "403"
+  ]
+ },
+ {
+  "op": "GET /stock/products",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "403"
+  ]
+ },
+ {
+  "op": "GET /users",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "403"
+  ]
+ },
+ {
+  "op": "GET /users/{id}",
+  "contrato_erros": [
+   "401",
+   "403",
+   "404"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "403",
+   "404"
+  ]
+ },
+ {
+  "op": "PATCH /products/{id}/price",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404"
+  ]
+ },
+ {
+  "op": "PATCH /products/{id}/status",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404"
+  ]
+ },
+ {
+  "op": "PATCH /stock/products/{id}/min-level",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404"
+  ]
+ },
+ {
+  "op": "PATCH /users/{id}/role",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404",
+   "409"
+  ]
+ },
+ {
+  "op": "PATCH /users/{id}/status",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404",
+   "409"
+  ]
+ },
+ {
+  "op": "POST /auth/login",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403"
+  ],
+  "ausentes_no_openapi_publicado": []
+ },
+ {
+  "op": "POST /auth/logout",
+  "contrato_erros": [
+   "403"
+  ],
+  "ausentes_no_openapi_publicado": []
+ },
+ {
+  "op": "POST /categories",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "409"
+  ]
+ },
+ {
+  "op": "POST /customers",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "409"
+  ]
+ },
+ {
+  "op": "POST /orders/{id}/cancel",
+  "contrato_erros": [
+   "401",
+   "403",
+   "404",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "404",
+   "409"
+  ]
+ },
+ {
+  "op": "POST /payment/{id}/refund",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404",
+   "409"
+  ]
+ },
+ {
+  "op": "POST /products",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "404",
+   "409"
+  ]
+ },
+ {
+  "op": "POST /promotions",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404"
+  ]
+ },
+ {
+  "op": "POST /promotions/{id}/close",
+  "contrato_erros": [
+   "401",
+   "403",
+   "404"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "404"
+  ]
+ },
+ {
+  "op": "POST /sales/orders",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404",
+   "409"
+  ]
+ },
+ {
+  "op": "POST /sales/orders/{id}/discount-approval",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404",
+   "409"
+  ]
+ },
+ {
+  "op": "POST /sales/orders/{id}/payment",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404",
+   "409"
+  ]
+ },
+ {
+  "op": "POST /sales/quote",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404",
+   "409"
+  ]
+ },
+ {
+  "op": "POST /stock/products/{id}/adjustments",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404",
+   "409"
+  ]
+ },
+ {
+  "op": "POST /stock/products/{id}/entries",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404",
+   "409"
+  ]
+ },
+ {
+  "op": "POST /users",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "409"
+  ]
+ },
+ {
+  "op": "POST /users/{id}/password-reset",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404",
+   "409"
+  ]
+ },
+ {
+  "op": "POST /users/{id}/unlock",
+  "contrato_erros": [
+   "401",
+   "403",
+   "404"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "404"
+  ]
+ },
+ {
+  "op": "PUT /auth/password",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403"
+  ],
+  "ausentes_no_openapi_publicado": []
+ },
+ {
+  "op": "PUT /categories/{id}",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404",
+   "409"
+  ]
+ },
+ {
+  "op": "PUT /customers/{id}",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404",
+   "409"
+  ]
+ },
+ {
+  "op": "PUT /discount-policy/{role}",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400"
+  ]
+ },
+ {
+  "op": "PUT /goals/monthly",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "409"
+  ]
+ },
+ {
+  "op": "PUT /products/{id}",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404",
+   "409"
+  ]
+ },
+ {
+  "op": "PUT /users/{id}",
+  "contrato_erros": [
+   "400",
+   "401",
+   "403",
+   "404",
+   "409"
+  ],
+  "ausentes_no_openapi_publicado": [
+   "400",
+   "404",
+   "409"
+  ]
+ }
+]

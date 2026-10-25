@@ -1,0 +1,79 @@
+﻿tema;par;token_frente;token_fundo;hex_frente;hex_fundo;razao;minimo;criterio_wcag;resultado
+claro;Texto principal sobre bg-surface;text-primary;bg-surface;#0D1A2B;#FFFFFF;17,50;4,5;1.4.3;aprovado
+claro;Texto secundário sobre bg-surface;text-secondary;bg-surface;#444F5F;#FFFFFF;8,30;4,5;1.4.3;aprovado
+claro;Texto terciário sobre bg-surface;text-tertiary;bg-surface;#5D6977;#FFFFFF;5,60;4,5;1.4.3;aprovado
+claro;Link sobre bg-surface;text-link;bg-surface;#04729B;#FFFFFF;5,40;4,5;1.4.3;aprovado
+claro;Contorno de campo sobre bg-surface;border-control;bg-surface;#7B8693;#FFFFFF;3,70;3,0;1.4.11;aprovado
+claro;Anel de foco sobre bg-surface;focus-ring;bg-surface;#04729B;#FFFFFF;5,40;3,0;1.4.11 / 2.4.7;aprovado
+claro;Ícone padrão sobre bg-surface;icon-default;bg-surface;#5D6977;#FFFFFF;5,60;3,0;1.4.11;aprovado
+claro;Texto principal sobre bg-canvas;text-primary;bg-canvas;#0D1A2B;#F4F6F9;16,17;4,5;1.4.3;aprovado
+claro;Texto secundário sobre bg-canvas;text-secondary;bg-canvas;#444F5F;#F4F6F9;7,67;4,5;1.4.3;aprovado
+claro;Texto terciário sobre bg-canvas;text-tertiary;bg-canvas;#5D6977;#F4F6F9;5,17;4,5;1.4.3;aprovado
+claro;Link sobre bg-canvas;text-link;bg-canvas;#04729B;#F4F6F9;4,99;4,5;1.4.3;aprovado
+claro;Contorno de campo sobre bg-canvas;border-control;bg-canvas;#7B8693;#F4F6F9;3,42;3,0;1.4.11;aprovado
+claro;Anel de foco sobre bg-canvas;focus-ring;bg-canvas;#04729B;#F4F6F9;4,99;3,0;1.4.11 / 2.4.7;aprovado
+claro;Ícone padrão sobre bg-canvas;icon-default;bg-canvas;#5D6977;#F4F6F9;5,17;3,0;1.4.11;aprovado
+claro;Texto principal sobre bg-hover;text-primary;bg-hover;#0D1A2B;#ECEFF4;15,19;4,5;1.4.3;aprovado
+claro;Texto secundário sobre bg-hover;text-secondary;bg-hover;#444F5F;#ECEFF4;7,20;4,5;1.4.3;aprovado
+claro;Texto terciário sobre bg-hover;text-tertiary;bg-hover;#5D6977;#ECEFF4;4,86;4,5;1.4.3;aprovado
+claro;Link sobre bg-hover;text-link;bg-hover;#04729B;#ECEFF4;4,69;4,5;1.4.3;aprovado
+claro;Contorno de campo sobre bg-hover;border-control;bg-hover;#7B8693;#ECEFF4;3,21;3,0;1.4.11;aprovado
+claro;Anel de foco sobre bg-hover;focus-ring;bg-hover;#04729B;#ECEFF4;4,69;3,0;1.4.11 / 2.4.7;aprovado
+claro;Ícone padrão sobre bg-hover;icon-default;bg-hover;#5D6977;#ECEFF4;4,86;3,0;1.4.11;aprovado
+claro;Texto sobre botão primário;action-on-primary;action-primary;#FFFFFF;#04729B;5,40;4,5;1.4.3;aprovado
+claro;Texto sobre botão primário (hover);action-on-primary;action-primary-hover;#FFFFFF;#025C7D;7,42;4,5;1.4.3;aprovado
+claro;Botão primário sobre superfície;action-primary;bg-surface;#04729B;#FFFFFF;5,40;3,0;1.4.11;aprovado
+claro;Texto selecionado sobre fundo selecionado;text-selected;bg-selected;#054761;#EFF8FE;9,39;4,5;1.4.3;aprovado
+claro;Texto inverso sobre fundo inverso;text-inverse;bg-inverse;#FFFFFF;#0D1A2B;17,50;4,5;1.4.3;aprovado
+claro;Sucesso: texto sobre fundo;success-text;success-bg;#0B6834;#E5FAEA;6,31;4,5;1.4.3;aprovado
+claro;Atenção: texto sobre fundo;warning-text;warning-bg;#92500B;#FFF4E3;5,72;4,5;1.4.3;aprovado
+claro;Erro: texto sobre fundo;danger-text;danger-bg;#B02523;#FFEFEE;6,01;4,5;1.4.3;aprovado
+claro;Info: texto sobre fundo;info-text;info-bg;#025C7D;#EFF8FE;6,90;4,5;1.4.3;aprovado
+claro;Sucesso: texto sobre superfície;success-text;bg-surface;#0B6834;#FFFFFF;6,90;4,5;1.4.3;aprovado
+claro;Atenção: texto sobre superfície;warning-text;bg-surface;#92500B;#FFFFFF;6,22;4,5;1.4.3;aprovado
+claro;Erro: texto sobre superfície;danger-text;bg-surface;#B02523;#FFFFFF;6,70;4,5;1.4.3;aprovado
+claro;Texto branco sobre erro sólido;action-on-primary;danger-solid;#FFFFFF;#C52C2A;5,57;4,5;1.4.3;aprovado
+claro;Texto branco sobre erro sólido (hover);action-on-primary;danger-solid-hover;#FFFFFF;#B02523;6,70;4,5;1.4.3;aprovado
+claro;Rótulo de eixo sobre superfície;chart-label;bg-surface;#5D6977;#FFFFFF;5,60;4,5;1.4.3;aprovado
+claro;Linha de meta sobre superfície;chart-goal;bg-surface;#0D1A2B;#FFFFFF;17,50;3,0;1.4.11;aprovado
+claro;Ponto da marca sobre superfície;brand-dot;bg-surface;#04729B;#FFFFFF;5,40;3,0;1.4.11;aprovado
+claro;Bloco da marca sobre superfície;brand-block;bg-surface;#0D1A2B;#FFFFFF;17,50;3,0;1.4.11;aprovado
+escuro;Texto principal sobre bg-surface;text-primary;bg-surface;#F2F4F6;#101821;16,21;4,5;1.4.3;aprovado
+escuro;Texto secundário sobre bg-surface;text-secondary;bg-surface;#C3CAD2;#101821;10,81;4,5;1.4.3;aprovado
+escuro;Texto terciário sobre bg-surface;text-tertiary;bg-surface;#9FA7B2;#101821;7,36;4,5;1.4.3;aprovado
+escuro;Link sobre bg-surface;text-link;bg-surface;#96CFED;#101821;10,59;4,5;1.4.3;aprovado
+escuro;Contorno de campo sobre bg-surface;border-control;bg-surface;#727B88;#101821;4,18;3,0;1.4.11;aprovado
+escuro;Anel de foco sobre bg-surface;focus-ring;bg-surface;#64B1D7;#101821;7,50;3,0;1.4.11 / 2.4.7;aprovado
+escuro;Ícone padrão sobre bg-surface;icon-default;bg-surface;#9FA7B2;#101821;7,36;3,0;1.4.11;aprovado
+escuro;Texto principal sobre bg-canvas;text-primary;bg-canvas;#F2F4F6;#090F16;17,45;4,5;1.4.3;aprovado
+escuro;Texto secundário sobre bg-canvas;text-secondary;bg-canvas;#C3CAD2;#090F16;11,63;4,5;1.4.3;aprovado
+escuro;Texto terciário sobre bg-canvas;text-tertiary;bg-canvas;#9FA7B2;#090F16;7,92;4,5;1.4.3;aprovado
+escuro;Link sobre bg-canvas;text-link;bg-canvas;#96CFED;#090F16;11,40;4,5;1.4.3;aprovado
+escuro;Contorno de campo sobre bg-canvas;border-control;bg-canvas;#727B88;#090F16;4,49;3,0;1.4.11;aprovado
+escuro;Anel de foco sobre bg-canvas;focus-ring;bg-canvas;#64B1D7;#090F16;8,07;3,0;1.4.11 / 2.4.7;aprovado
+escuro;Ícone padrão sobre bg-canvas;icon-default;bg-canvas;#9FA7B2;#090F16;7,92;3,0;1.4.11;aprovado
+escuro;Texto principal sobre bg-hover;text-primary;bg-hover;#F2F4F6;#1F2834;13,50;4,5;1.4.3;aprovado
+escuro;Texto secundário sobre bg-hover;text-secondary;bg-hover;#C3CAD2;#1F2834;9,00;4,5;1.4.3;aprovado
+escuro;Texto terciário sobre bg-hover;text-tertiary;bg-hover;#9FA7B2;#1F2834;6,12;4,5;1.4.3;aprovado
+escuro;Link sobre bg-hover;text-link;bg-hover;#96CFED;#1F2834;8,82;4,5;1.4.3;aprovado
+escuro;Contorno de campo sobre bg-hover;border-control;bg-hover;#727B88;#1F2834;3,47;3,0;1.4.11;aprovado
+escuro;Anel de foco sobre bg-hover;focus-ring;bg-hover;#64B1D7;#1F2834;6,24;3,0;1.4.11 / 2.4.7;aprovado
+escuro;Ícone padrão sobre bg-hover;icon-default;bg-hover;#9FA7B2;#1F2834;6,12;3,0;1.4.11;aprovado
+escuro;Texto sobre botão primário;action-on-primary;action-primary;#FFFFFF;#04729B;5,40;4,5;1.4.3;aprovado
+escuro;Texto sobre botão primário (hover);action-on-primary;action-primary-hover;#FFFFFF;#167AA2;4,84;4,5;1.4.3;aprovado
+escuro;Botão primário sobre superfície;action-primary;bg-surface;#04729B;#101821;3,31;3,0;1.4.11;aprovado
+escuro;Texto selecionado sobre fundo selecionado;text-selected;bg-selected;#BFE4F9;#133240;10,06;4,5;1.4.3;aprovado
+escuro;Texto inverso sobre fundo inverso;text-inverse;bg-inverse;#0D1A2B;#F4F6F9;16,17;4,5;1.4.3;aprovado
+escuro;Sucesso: texto sobre fundo;success-text;success-bg;#78D694;#142D1B;8,34;4,5;1.4.3;aprovado
+escuro;Atenção: texto sobre fundo;warning-text;warning-bg;#FFC669;#37250E;9,44;4,5;1.4.3;aprovado
+escuro;Erro: texto sobre fundo;danger-text;danger-bg;#FDA19B;#3B1C1A;7,86;4,5;1.4.3;aprovado
+escuro;Info: texto sobre fundo;info-text;info-bg;#96CFED;#122C39;8,61;4,5;1.4.3;aprovado
+escuro;Sucesso: texto sobre superfície;success-text;bg-surface;#78D694;#101821;10,08;4,5;1.4.3;aprovado
+escuro;Atenção: texto sobre superfície;warning-text;bg-surface;#FFC669;#101821;11,52;4,5;1.4.3;aprovado
+escuro;Erro: texto sobre superfície;danger-text;bg-surface;#FDA19B;#101821;9,15;4,5;1.4.3;aprovado
+escuro;Texto branco sobre erro sólido;action-on-primary;danger-solid;#FFFFFF;#C52C2A;5,57;4,5;1.4.3;aprovado
+escuro;Texto branco sobre erro sólido (hover);action-on-primary;danger-solid-hover;#FFFFFF;#B02523;6,70;4,5;1.4.3;aprovado
+escuro;Rótulo de eixo sobre superfície;chart-label;bg-surface;#9FA7B2;#101821;7,36;4,5;1.4.3;aprovado
+escuro;Linha de meta sobre superfície;chart-goal;bg-surface;#F2F4F6;#101821;16,21;3,0;1.4.11;aprovado
+escuro;Ponto da marca sobre superfície;brand-dot;bg-surface;#64B1D7;#101821;7,50;3,0;1.4.11;aprovado
+escuro;Bloco da marca sobre superfície;brand-block;bg-surface;#FFFFFF;#101821;17,88;3,0;1.4.11;aprovado

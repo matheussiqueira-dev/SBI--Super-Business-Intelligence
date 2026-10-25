@@ -41,4 +41,4 @@ jobs:
           password="$(SBI_DATABASE_URL="$SBI_DATABASE_URL" python3 -c 'import os, urllib.parse; print(urllib.parse.urlsplit(os.environ["SBI_DATABASE_URL"]).password or "")')"
           [ -n "$password" ] && echo "::add-mask::$password"
           echo "::add-mask::$SBI_DATABASE_URL"
-          bash docs/bd/pacote-sql/run_demo_olist.sh --database-url "$SBI_DATABASE_URL" --check
+          bash docs/03-banco-de-dados/pacote-sql/run_demo_olist.sh --database-url "$SBI_DATABASE_URL" --check

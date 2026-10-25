@@ -1,0 +1,62 @@
+erDiagram
+    APP_USERS |o--o{ APP_USERS : "created_by"
+    ROLE ||--o{ APP_USERS : "role"
+    APP_USERS |o--o{ AUDIT_EVENT : "actor_id"
+    ROLE ||--o| DISCOUNT_POLICY : "role"
+    APP_USERS |o--o{ DISCOUNT_POLICY : "updated_by"
+    APP_USERS ||--o{ MONTHLY_GOAL : "created_by"
+    MONTHLY_GOAL ||--o{ SELLER_GOAL : "monthly_goal_id"
+    APP_USERS ||--o{ SELLER_GOAL : "seller_id"
+    ROLE {
+        varchar_20 code PK "NOT NULL"
+        varchar_60 name  "NOT NULL"
+        smallint rank UK "NOT NULL"
+    }
+    APP_USERS {
+        bigint id PK "NOT NULL"
+        varchar_120 name  "NOT NULL"
+        varchar_254 email UK "NOT NULL"
+        varchar_100 password_hash  "NOT NULL"
+        varchar_20 role FK "NOT NULL"
+        varchar_63 db_role UK
+        boolean active  "NOT NULL"
+        smallint failed_login_attempts  "NOT NULL"
+        timestamptz locked_until
+        timestamptz last_login_at
+        timestamptz created_at  "NOT NULL"
+        integer session_version  "NOT NULL"
+        boolean must_change_password  "NOT NULL"
+        timestamptz password_changed_at
+        timestamptz updated_at  "NOT NULL"
+        bigint created_by FK
+        integer version  "NOT NULL"
+    }
+    DISCOUNT_POLICY {
+        varchar_20 role PK,FK "NOT NULL"
+        numeric_5_2 max_percent  "NOT NULL"
+        boolean allow_below_cost  "NOT NULL"
+        bigint updated_by FK
+        timestamptz updated_at  "NOT NULL"
+    }
+    MONTHLY_GOAL {
+        bigint id PK "NOT NULL"
+        date period UK "NOT NULL"
+        numeric_12_2 amount  "NOT NULL"
+        bigint created_by FK "NOT NULL"
+        timestamptz created_at  "NOT NULL"
+    }
+    SELLER_GOAL {
+        bigint id PK "NOT NULL"
+        bigint monthly_goal_id FK "NOT NULL"
+        bigint seller_id FK "NOT NULL"
+        numeric_12_2 amount  "NOT NULL"
+    }
+    AUDIT_EVENT {
+        bigint id PK "NOT NULL"
+        timestamptz occurred_at  "NOT NULL"
+        bigint actor_id FK
+        varchar_40 action  "NOT NULL"
+        varchar_40 entity
+        bigint entity_id
+        jsonb detail
+    }

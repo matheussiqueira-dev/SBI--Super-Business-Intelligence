@@ -1,0 +1,98 @@
+ set_config 
+------------
+ 1
+(1 row)
+
+ id  | customer_type |          name           |     cpf     | created_by 
+-----+---------------+-------------------------+-------------+------------
+ 127 | INDIVIDUAL    | Cliente da Apresentacao | 52998224725 |          1
+(1 row)
+
+ id  | customer_type |         company_name         |      cnpj      
+-----+---------------+------------------------------+----------------
+ 128 | CORPORATE     | Empresa da Apresentacao Ltda | 12ABC34501DE35
+(1 row)
+
+psql:08_crud_clientes_olist.sql:24: ERROR:  new row for relation "customer" violates check constraint "ck_customer_cpf"
+DETAIL:  Failing row contains (129, INDIVIDUAL, CPF com mascara, mascara@example.com, null, null, 529.982.247-25, null, null, null, 0, 1, 2026-10-24 21:54:01.903737+00, 2026-10-24 21:54:01.903737+00).
+psql:08_crud_clientes_olist.sql:27: ERROR:  new row for relation "customer" violates check constraint "ck_customer_document_type"
+DETAIL:  Failing row contains (130, INDIVIDUAL, PF com CNPJ, tipo@example.com, null, null, null, 11222333000181, null, null, 0, 1, 2026-10-24 21:54:01.903737+00, 2026-10-24 21:54:01.903737+00).
+ pedido |        data         |      vendedor      |       sku        |                   produto                    | qtd |  preco  | subtotal | forma |  status  
+--------+---------------------+--------------------+------------------+----------------------------------------------+-----+---------+----------+-------+----------
+    293 | 2026-02-02 22:56:00 | Gabriel Sousa      | OL-CAPA-TRP-IP17 | Capa transparente com MagSafe para iPhone 17 |   1 |  476.00 |   476.00 | CARD  | APPROVED
+    294 | 2026-02-20 23:10:00 | Gabriel Sousa      | OL-CABO-LTN-1M   | Cabo USB-C para Lightning (1 m)              |   1 |  197.00 |   197.00 | CARD  | APPROVED
+    295 | 2026-02-24 22:11:00 | Allan Barros       | OL-AW-SE3-40     | Apple Watch SE 3 40 mm GPS                   |   1 | 2499.00 |  2499.00 | CARD  | APPROVED
+    296 | 2026-03-22 22:14:00 | Francisco Ferreira | OL-PEL-IP17      | Película Belkin UltraGlass 2 para iPhone 17  |   1 |  359.00 |   359.00 | CARD  | APPROVED
+    297 | 2026-04-17 23:25:00 | Francisco Ferreira | OL-CAPA-TRP-IP17 | Capa transparente com MagSafe para iPhone 17 |   1 |  476.00 |   476.00 | CARD  | APPROVED
+    298 | 2026-04-24 16:58:00 | Gabriel Sousa      | OL-CABO-LTN-1M   | Cabo USB-C para Lightning (1 m)              |   1 |  197.00 |   197.00 | CARD  | APPROVED
+    299 | 2026-05-09 20:01:00 | Francisco Ferreira | OL-CABO-LTN-1M   | Cabo USB-C para Lightning (1 m)              |   1 |  197.00 |   197.00 | CARD  | APPROVED
+    300 | 2026-08-27 22:44:00 | Gabriel Sousa      | OL-AIRTAG-1      | AirTag (2ª geração)                          |   1 |  332.00 |   332.00 | CARD  | APPROVED
+    301 | 2026-08-28 23:08:00 | Gabriel Sousa      | OL-ADP-USBC-P2   | Adaptador USB-C para P2                      |   1 |   89.00 |    89.00 | CARD  | APPROVED
+    302 | 2026-09-23 22:35:00 | Francisco Ferreira | OL-PEL-IP17      | Película Belkin UltraGlass 2 para iPhone 17  |   1 |  359.00 |   359.00 | CARD  | APPROVED
+    303 | 2026-10-04 21:53:00 | Gabriel Sousa      | OL-FONTE-35W     | Adaptador de energia USB-C duplo de 35 W     |   1 |  503.00 |   503.00 | CARD  | APPROVED
+    304 | 2026-10-14 23:32:00 | Allan Barros       | OL-AIRTAG-1      | AirTag (2ª geração)                          |   1 |  332.00 |   332.00 | CARD  | APPROVED
+    305 | 2026-10-20 12:39:00 | Gabriel Sousa      | OL-MAGSAFE-1M    | Carregador MagSafe (1 m)                     |   1 |  431.00 |   431.00 | CARD  | APPROVED
+    306 | 2026-10-21 19:14:00 | Francisco Ferreira | OL-CABO-USBC-1M  | Cabo USB-C de 60 W (1 m)                     |   1 |  197.00 |   197.00 | CARD  | APPROVED
+(14 rows)
+
+      vendedor      | pedidos_pagos | liquido |   primeira_compra   |    ultima_compra    
+--------------------+---------------+---------+---------------------+---------------------
+ Allan Barros       |             2 | 2831.00 | 2026-02-24 22:26:00 | 2026-10-14 23:47:00
+ Gabriel Sousa      |             7 | 2225.00 | 2026-02-02 23:11:00 | 2026-10-20 12:54:00
+ Francisco Ferreira |             5 | 1588.00 | 2026-03-22 22:29:00 | 2026-10-21 19:29:00
+(3 rows)
+
+    cliente     |    tipo    | pedidos |  total   
+----------------+------------+---------+----------
+ Marina Costa   | INDIVIDUAL |      12 | 44600.00
+ Paula Siqueira | INDIVIDUAL |       4 | 36604.00
+ Rodrigo Alves  | INDIVIDUAL |       9 | 35100.00
+ Paula Pacheco  | INDIVIDUAL |       4 | 33616.00
+ Beatriz Nunes  | INDIVIDUAL |      11 | 32100.00
+ Heitor Macedo  | INDIVIDUAL |       4 | 31546.00
+ Lucas Ferreira | INDIVIDUAL |      11 | 31100.00
+ Sofia Nogueira | INDIVIDUAL |       5 | 23845.00
+ Juliana Rocha  | INDIVIDUAL |      12 | 22700.00
+ Pedro Martins  | INDIVIDUAL |      10 | 20800.00
+(10 rows)
+
+ uf | clientes | pedidos | ticket_medio 
+----+----------+---------+--------------
+ SC |        2 |       8 |      4802.75
+ PB |        1 |       4 |      4794.00
+ BA |        1 |       5 |      3897.00
+ GO |        2 |       5 |      3262.80
+ RS |        7 |      19 |      2818.32
+ RJ |        6 |      22 |      2563.73
+ SE |        1 |       1 |      2427.00
+ ES |        3 |      13 |      2299.92
+ MG |        8 |      24 |      1686.79
+ SP |       22 |      82 |      1654.89
+ MA |        1 |       5 |      1529.20
+ PE |        2 |      13 |      1447.00
+ AM |        1 |       4 |      1088.50
+ PR |        3 |      14 |       501.57
+(14 rows)
+
+ id |      name       |    phone    |          email           | version 
+----+-----------------+-------------+--------------------------+---------
+ 67 | Larissa Esteves | 85999990000 | larissa.novo@example.com |       1
+(1 row)
+
+      sku       |          name           | price 
+----------------+-------------------------+-------
+ OL-ADP-USBC-P2 | Adaptador USB-C para P2 | 94.00
+(1 row)
+
+      sku       | old_price | new_price |   alterado_por   |               reason               |          changed_at           
+----------------+-----------+-----------+------------------+------------------------------------+-------------------------------
+ OL-ADP-USBC-P2 |     89.00 |     94.00 | Matheus Siqueira | Reajuste de tabela na apresentacao | 2026-10-24 21:54:01.903737+00
+(1 row)
+
+ id  |          name           
+-----+-------------------------
+ 127 | Cliente da Apresentacao
+(1 row)
+
+psql:08_crud_clientes_olist.sql:85: ERROR:  update or delete on table "customer" violates foreign key constraint "orders_client_id_fkey" on table "orders"
+DETAIL:  Key (id)=(67) is still referenced from table "orders".

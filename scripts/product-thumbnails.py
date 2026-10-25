@@ -35,7 +35,7 @@ def main():
     with open(os.path.join(ROOT, "scripts", "product-thumbnails.json"), encoding="utf-8") as f:
         fotos = json.load(f)
     nomes = dict(SEED)
-    with open(os.path.join(ROOT, "docs", "bd", "pacote-sql", "olist", "produtos.csv"), encoding="utf-8") as f:
+    with open(os.path.join(ROOT, "docs", "03-banco-de-dados", "pacote-sql", "olist", "produtos.csv"), encoding="utf-8") as f:
         nomes.update({r["sku"]: r["nome"] for r in csv.DictReader(f)})
     os.makedirs(OUT, exist_ok=True)
     linhas = []

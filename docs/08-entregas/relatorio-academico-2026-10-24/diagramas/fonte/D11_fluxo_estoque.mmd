@@ -1,0 +1,15 @@
+flowchart LR
+  subgraph SB["stock_balance (uma linha por produto)"]
+    OH["on_hand<br/>saldo físico"]
+    RS["reserved<br/>reservado"]
+    AC["avg_cost<br/>custo médio ponderado"]
+  end
+  EN["Entrada (gerente)<br/>INSERT stock_entry"] -- "gatilho stock_entry_apply:<br/>on_hand + q; recalcula avg_cost;<br/>movimento ENTRADA" --> OH
+  EN --> AC
+  VE["Venda criada<br/>POST /sales/orders"] -- "reserved + q se on_hand − reserved ≥ q<br/>movimento RESERVA" --> RS
+  CF["Pagamento confirmado"] -- "on_hand − q e reserved − q<br/>unit_cost = avg_cost; movimento SAIDA" --> OH
+  CF --> RS
+  CA["Pedido cancelado"] -- "reserved − q<br/>movimento LIBERACAO" --> RS
+  AJ["Ajuste com motivo (gerente)<br/>AJUSTE_ENTRADA: INVENTARIO<br/>AJUSTE_SAIDA: PERDA, AVARIA, USO_INTERNO,<br/>INVENTARIO, DEVOLUCAO_FORNECEDOR"] -- "on_hand ± q<br/>audit STOCK_ADJUSTED" --> OH
+  CK["CHECKs: on_hand ≥ 0 · reserved ≥ 0 ·<br/>reserved ≤ on_hand · min_level ≥ 0"] -.-> SB
+  SB -- "disponível = on_hand − reserved;<br/>alerta se disponível ≤ min_level" --> AL["v_posicao_estoque /<br/>v_alerta_estoque"]

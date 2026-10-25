@@ -23,11 +23,11 @@ Trabalho A3 · SBI — Super Business Intelligence, feito pelos alunos Allan Gab
 | Frontend | Next.js 16, React 19, TypeScript estrito, Zod 4 gerado do contrato (orval), TanStack Query, identidade visual SBI v2.0 (temas claro e escuro) |
 | Testes | JUnit 5, MockMvc, PostgreSQL 18 descartável via Docker Compose (`docker-compose.test.yml`, porta 15432), Playwright + axe, Ajv para o contrato, pacote SQL por `psql` |
 
-Detalhes em [docs/arquitetura.md](docs/arquitetura.md) e versões em [docs/decisoes/stack.md](docs/decisoes/stack.md).
+Detalhes em [docs/02-arquitetura/arquitetura.md](docs/02-arquitetura/arquitetura.md) e versões em [docs/06-decisoes/stack.md](docs/06-decisoes/stack.md).
 
 ## Ambiente publicado
 
-A demonstração publicada roda em <https://sbi-app-alpha.vercel.app> (frontend na Vercel, API no Render, banco no Neon) e abre de qualquer navegador, sem instalar nada. **Os dados são de demonstração:** seed sintético e a massa Olist, com pedidos públicos anonimizados e nomes e documentos sintéticos; nenhuma pessoa real. Lá as contas são as dos integrantes da equipe (dois gerentes e dois vendedores) e as de CEO dos professores avaliadores, com e-mail e senha combinados com a equipe, fora do repositório; a tabela da seção seguinte vale para a stack local. O plano gratuito do Render dorme o serviço sem acesso: a primeira requisição pode levar de 1 a 3 minutos. Publicação, variáveis e manutenção: [docs/deploy.md](docs/deploy.md).
+A demonstração publicada roda em <https://sbi-app-alpha.vercel.app> (frontend na Vercel, API no Render, banco no Neon) e abre de qualquer navegador, sem instalar nada. **Os dados são de demonstração:** seed sintético e a massa Olist, com pedidos públicos anonimizados e nomes e documentos sintéticos; nenhuma pessoa real. Lá as contas são as dos integrantes da equipe (dois gerentes e dois vendedores) e as de CEO dos professores avaliadores, com e-mail e senha combinados com a equipe, fora do repositório; a tabela da seção seguinte vale para a stack local. O plano gratuito do Render dorme o serviço sem acesso: a primeira requisição pode levar de 1 a 3 minutos. Publicação, variáveis e manutenção: [docs/05-operacao/deploy.md](docs/05-operacao/deploy.md).
 
 Cada push na `main` publica sozinho a API (Render) e o frontend (Vercel). Cada pull request ganha uma branch própria do banco no Neon, migrada pelo Flyway, que some quando o PR fecha.
 
@@ -67,7 +67,7 @@ Para mostrar um histórico de clientes volumoso (60 clientes, 219 pedidos, recor
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\demo-olist.ps1 -Check
 ```
 
-O banco de demonstração fica acessível só nesta máquina, para o painel Database do IntelliJ, o DBeaver ou o `psql`: `jdbc:postgresql://127.0.0.1:5433/sbi_demo`, usuário `sbi`, senha de `SBI_DB_PASSWORD`. O roteiro de CRUD da apresentação é `docs/bd/pacote-sql/08_crud_clientes_olist.sql`. Detalhes em [docs/bd/massa-demonstracao.md](docs/bd/massa-demonstracao.md).
+O banco de demonstração fica acessível só nesta máquina, para o painel Database do IntelliJ, o DBeaver ou o `psql`: `jdbc:postgresql://127.0.0.1:5433/sbi_demo`, usuário `sbi`, senha de `SBI_DB_PASSWORD`. O roteiro de CRUD da apresentação é `docs/03-banco-de-dados/pacote-sql/08_crud_clientes_olist.sql`. Detalhes em [docs/03-banco-de-dados/massa-demonstracao.md](docs/03-banco-de-dados/massa-demonstracao.md).
 
 ## Desenvolvimento no VS Code (um atalho)
 
@@ -109,14 +109,15 @@ A CI (`.github/workflows/ci.yml`) roda quatro jobs de teste, cada um com seus re
 
 | Assunto | Documento |
 | --- | --- |
-| Arquitetura, fluxo de venda e segurança | [docs/arquitetura.md](docs/arquitetura.md) |
-| Roteiro de demonstração (12 minutos) | [docs/roteiro-demonstracao.md](docs/roteiro-demonstracao.md) |
-| Relatório final com números reais | [docs/relatorio-final.md](docs/relatorio-final.md) |
-| Requisitos, critérios e rastreabilidade | [docs/requisitos.md](docs/requisitos.md), [docs/criterios-aceitacao.md](docs/criterios-aceitacao.md), [docs/rastreabilidade.md](docs/rastreabilidade.md) |
-| Plano de testes, defeitos e métricas | [docs/plano-testes.md](docs/plano-testes.md), [docs/defeitos.md](docs/defeitos.md), [reports/metricas/comparativo-r0-r1.md](reports/metricas/comparativo-r0-r1.md) |
-| Modelo de dados e pacote SQL | [docs/bd/modelo-erp-pdv.md](docs/bd/modelo-erp-pdv.md), [docs/bd/pacote-sql/](docs/bd/pacote-sql/) |
-| Decisões | [docs/decisoes/](docs/decisoes/) (ERP/PDV, evolução D-EVO, matriz de acesso, autenticação, dinheiro, stack) |
-| Histórico | [docs/historico/](docs/historico/) (Trello e planejamento, sessão de 04/10, rodadas de 03 a 09/10, contratos ao vivo v4 e v5) |
-| Identidade visual | Manual SBI v2.0 aplicado ([docs/arquitetura.md](docs/arquitetura.md), decisões D-MAR-01 a D-MAR-15); [reports/marca/](reports/marca/) guarda as capturas da marca v1.0, nos dois papéis anteriores ao perfil CEO |
+| Mapa de toda a documentação, por tema, e onde estava cada arquivo | [docs/README.md](docs/README.md) |
+| Arquitetura, fluxo de venda e segurança | [docs/02-arquitetura/arquitetura.md](docs/02-arquitetura/arquitetura.md) |
+| Roteiro de demonstração (12 minutos) | [docs/05-operacao/roteiro-demonstracao.md](docs/05-operacao/roteiro-demonstracao.md) |
+| Relatório final e entregas acadêmicas | [docs/08-entregas/relatorio-final.md](docs/08-entregas/relatorio-final.md) e [docs/08-entregas/](docs/08-entregas/README.md) (relatório acadêmico, planilhas, diagramas, evidências, pacote SQL entregue) |
+| Requisitos, critérios e rastreabilidade | [docs/01-produto/requisitos.md](docs/01-produto/requisitos.md), [docs/01-produto/criterios-aceitacao.md](docs/01-produto/criterios-aceitacao.md), [docs/04-qualidade/rastreabilidade.md](docs/04-qualidade/rastreabilidade.md) |
+| Plano de testes, defeitos e métricas | [docs/04-qualidade/plano-testes.md](docs/04-qualidade/plano-testes.md), [docs/04-qualidade/defeitos.md](docs/04-qualidade/defeitos.md), [reports/metricas/comparativo-r0-r1.md](reports/metricas/comparativo-r0-r1.md) |
+| Modelo de dados e pacote SQL | [docs/03-banco-de-dados/modelo-erp-pdv.md](docs/03-banco-de-dados/modelo-erp-pdv.md), [docs/03-banco-de-dados/pacote-sql/](docs/03-banco-de-dados/pacote-sql/) |
+| Decisões | [docs/06-decisoes/](docs/06-decisoes/) (ERP/PDV, evolução D-EVO, matriz de acesso, autenticação, dinheiro, stack) |
+| Histórico | [docs/10-historico/](docs/10-historico/README.md) (Trello e planejamento, sessão de 04/10, rodadas de 03 a 09/10, contratos ao vivo v4 e v5, planos e registros de execução de outubro) |
+| Identidade visual | Manual, design system, logotipos e mockups da v2 em [docs/07-marca/](docs/07-marca/LEIA-ME.md), aplicados nas telas (decisões D-MAR-01 a D-MAR-15); [reports/marca/](reports/marca/) guarda as capturas da marca v1.0, nos dois papéis anteriores ao perfil CEO |
 | Contrato | [config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json](config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json) e Swagger em `/swagger-ui/index.html` |
-| Rotas legadas (`/orders`, `/payment`, `/address`) | [docs/api-legada.md](docs/api-legada.md) |
+| Rotas legadas (`/orders`, `/payment`, `/address`) | [docs/02-arquitetura/api-legada.md](docs/02-arquitetura/api-legada.md) |

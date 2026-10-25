@@ -14,7 +14,7 @@ const sellerAccount = [env.SBI_DEMO_SELLER_EMAIL ?? 'allanbarros@sbi.tech', env.
 const managerAccount = [env.SBI_DEMO_MANAGER_EMAIL ?? 'matheussiqueira@sbi.tech', env.SBI_DEMO_MANAGER_PASSWORD ?? env.SBI_DEMO_PASSWORD_MATHEUS ?? env.SBI_DEMO_PASSWORD];
 if (!sellerAccount[1] || !managerAccount[1]) throw new Error('Defina SBI_DEMO_PASSWORD (senha das contas de demonstracao).');
 
-const [header, ...rows] = readFileSync(new URL('../docs/bd/pacote-sql/olist/clientes.csv', import.meta.url), 'utf8').trim().split(/\r?\n/);
+const [header, ...rows] = readFileSync(new URL('../docs/03-banco-de-dados/pacote-sql/olist/clientes.csv', import.meta.url), 'utf8').trim().split(/\r?\n/);
 const columns = header.split(',');
 const record = line => Object.fromEntries(line.split(',').map((value, i) => [columns[i], value]));
 const recurring = record(rows.find(line => line.startsWith('CLI-001,')));

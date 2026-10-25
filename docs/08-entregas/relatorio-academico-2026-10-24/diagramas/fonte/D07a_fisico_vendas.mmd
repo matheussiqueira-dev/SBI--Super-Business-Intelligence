@@ -1,0 +1,110 @@
+erDiagram
+    APP_USERS |o--o{ APP_USERS : "created_by"
+    ADDRESS |o--o| CUSTOMER : "address_id"
+    APP_USERS |o--o{ CUSTOMER : "created_by"
+    ORDERS |o--o{ ORDER_ITEM : "order_id"
+    APP_USERS |o--o{ ORDERS : "seller_id"
+    ADDRESS |o--o| ORDERS : "address_id"
+    CUSTOMER |o--o{ ORDERS : "customer_id"
+    APP_USERS |o--o{ ORDERS : "discount_approved_by"
+    ORDERS |o--o| PAYMENT : "order_id"
+    APP_USERS ||--o{ REFUND : "created_by"
+    PAYMENT ||--o{ REFUND : "payment_id"
+    CUSTOMER {
+        bigint id PK "NOT NULL"
+        varchar_31 customer_type  "NOT NULL"
+        varchar_255 name
+        varchar_255 email
+        date birth_date
+        bigint address_id FK,UK
+        varchar_255 cpf UK
+        varchar_255 cnpj UK
+        varchar_255 company_name
+        varchar_20 phone
+        integer version  "NOT NULL"
+        bigint created_by FK
+        timestamptz created_at  "NOT NULL"
+        timestamptz updated_at  "NOT NULL"
+    }
+    ADDRESS {
+        bigint id PK "NOT NULL"
+        varchar_255 street
+        varchar_255 number
+        varchar_255 complement
+        varchar_255 neighborhood
+        varchar_255 city
+        varchar_255 state
+        varchar_255 zip_code
+    }
+    ORDERS {
+        bigint id PK "NOT NULL"
+        timestamp_6 moment
+        varchar_255 status
+        bigint customer_id FK
+        bigint address_id FK,UK
+        bigint seller_id FK
+        uuid client_request_id
+        char_64 request_hash
+        varchar_10 fulfillment  "NOT NULL"
+        numeric_12_2 manual_discount  "NOT NULL"
+        numeric_5_2 manual_discount_percent
+        varchar_200 manual_discount_reason
+        bigint discount_approved_by FK
+    }
+    ORDER_ITEM {
+        bigint id PK "NOT NULL"
+        integer quantity
+        numeric_12_2 price
+        bigint order_id FK
+        bigint product_id FK
+        bigint promotion_id FK
+        numeric_12_2 discount  "NOT NULL"
+        numeric_12_2 unit_cost
+        numeric_12_2 manual_discount  "NOT NULL"
+    }
+    PAYMENT {
+        bigint id PK "NOT NULL"
+        varchar_31 payment_type  "NOT NULL"
+        numeric_12_2 amount
+        varchar_255 status
+        timestamp_6 payment_date
+        bigint order_id FK,UK
+        varchar_255 bar_code
+        date due_date
+        varchar_255 card_number
+        varchar_255 card_holder
+        integer installments
+        varchar_255 pix_key
+        varchar_255 pix_holder_name
+        varchar_255 transaction_id
+        varchar_255 pix_key_type
+        char_4 card_last4
+        varchar_20 authorization_code
+    }
+    REFUND {
+        bigint id PK "NOT NULL"
+        bigint payment_id FK "NOT NULL"
+        numeric_12_2 amount  "NOT NULL"
+        varchar_200 reason
+        bigint created_by FK "NOT NULL"
+        timestamptz created_at  "NOT NULL"
+    }
+    APP_USERS {
+        bigint id PK "NOT NULL"
+        varchar_120 name  "NOT NULL"
+        varchar_254 email UK "NOT NULL"
+        varchar_100 password_hash  "NOT NULL"
+        varchar_20 role FK "NOT NULL"
+        varchar_63 db_role UK
+        boolean active  "NOT NULL"
+        smallint failed_login_attempts  "NOT NULL"
+        timestamptz locked_until
+        timestamptz last_login_at
+        timestamptz created_at  "NOT NULL"
+        integer session_version  "NOT NULL"
+        boolean must_change_password  "NOT NULL"
+        timestamptz password_changed_at
+        timestamptz updated_at  "NOT NULL"
+        bigint created_by FK
+        integer version  "NOT NULL"
+    }
