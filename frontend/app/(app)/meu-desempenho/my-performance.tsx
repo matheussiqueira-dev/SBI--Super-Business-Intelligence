@@ -55,7 +55,7 @@ export default function MyPerformance({ manager = false }: { manager?: boolean }
           <div className="kpi"><span className="label">Atingimento</span><span className={`value${data.state === 'SEM_META' ? ' text' : ''}`}>{data.state === 'SEM_META' ? 'Sem meta' : formatPercent(data.achievementPercent)}</span></div>
           <div className="kpi"><span className="label">Falta</span><span className={`value${data.state === 'SEM_META' ? ' text' : ''}`}>{data.state === 'SEM_META' ? 'Sem meta' : money(data.remaining)}</span></div>
         </div>
-        <GoalBar title="Realizado em relação à meta" realized={realized} goal={goal} />
+        {data.state !== 'SEM_META' && <GoalBar title="Realizado em relação à meta" realized={realized} goal={goal} />}
         <p><Link href="/vendas">{manager ? 'Ver as vendas da loja' : 'Ver as minhas vendas'}</Link>
           {data.state !== 'META_ATINGIDA' && <> · <Link href="/vender">Nova venda</Link></>}</p>
       </section>}
