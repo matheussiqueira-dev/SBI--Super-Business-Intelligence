@@ -1,14 +1,17 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
-import { IBM_Plex_Mono, IBM_Plex_Sans, Space_Grotesk } from 'next/font/google';
+import localFont from 'next/font/local';
 import Providers from './providers.tsx';
 import './brand-tokens.css';
 import './globals.css';
 
-// Manual de marca v1.0: Space Grotesk nos titulos e no logo, Plex Sans no texto, Plex Mono 500 nos valores e IDs.
-const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], weight: ['500', '600', '700'], variable: '--font-space-grotesk', display: 'swap' });
-const plexSans = IBM_Plex_Sans({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-plex-sans', display: 'swap' });
-const plexMono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['500'], variable: '--font-plex-mono', display: 'swap' });
+// Identidade v2.0: Inter 4.1 variavel (peso e tamanho optico; o desenho Display entra sozinho nos titulos) e Plex Mono so em
+// SKU, numero de pedido e IDs. Arquivos locais (subconjunto latino, licenca OFL em app/fonts/): o build nao depende de rede.
+const inter = localFont({ src: './fonts/InterVariable-latin.woff2', weight: '100 900', variable: '--font-inter', display: 'swap' });
+const plexMono = localFont({
+  src: [{ path: './fonts/IBMPlexMono-Regular.woff2', weight: '400' }, { path: './fonts/IBMPlexMono-Medium.woff2', weight: '500' }],
+  variable: '--font-plex-mono', display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: { default: 'SBI — Super Business Intelligence', template: '%s · SBI' },
@@ -16,11 +19,16 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export const viewport: Viewport = { themeColor: '#141B26' };
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#F4F6F9' },
+    { media: '(prefers-color-scheme: dark)', color: '#090F16' },
+  ],
+};
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${spaceGrotesk.variable} ${plexSans.variable} ${plexMono.variable}`}>
+    <html lang="pt-BR" className={`${inter.variable} ${plexMono.variable}`}>
       <body>
         <Providers>{children}</Providers>
       </body>
