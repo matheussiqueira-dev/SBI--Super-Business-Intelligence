@@ -5,15 +5,15 @@ import { SbiLogo } from '../../components/brand/logo.tsx';
 
 export const metadata: Metadata = { title: 'Entrar' };
 
-/** Login do manual v1.0: painel Tinta com a assinatura negativa e o cartao do formulario; abaixo de 1024 px, faixa. */
+/** Login da identidade v2.0: painel Tinta com a assinatura negativa, o slogan e o cartao do formulario; abaixo de 1024 px, faixa. */
 export default function LoginPage() {
   return (
     <main className="login">
       <section className="login-panel" aria-label="Sobre o SBI">
         <SbiLogo layout="descritor" tone="negativa" size={44} />
         <div className="stack-sm">
-          <p className="display login-headline">A loja inteira em um só lugar: venda, estoque e meta.</p>
-          <p className="login-lead">Cada venda baixa o estoque e conta para a meta de quem vendeu, com o mesmo número para gerente e vendedor.</p>
+          <p className="display login-headline">O mesmo número para toda a loja.</p>
+          <p className="login-lead">Cada venda baixa o estoque e conta para a meta de quem vendeu. Gerente e vendedor veem o mesmo resultado.</p>
         </div>
         <p className="login-footer"><span>Ambiente de demonstração · dados fictícios</span><span>Projeto A3 · UNIFG 2026</span></p>
       </section>
