@@ -1,4 +1,4 @@
-Verificação dos cabeçalhos de segurança após as correções propostas (branch local fix/security-and-display-findings sobre 3b0242c)
+Verificação dos cabeçalhos de segurança após as correções propostas (branch local fix/security-and-display-findings sobre 6046904)
 Ambiente: next 16.4.3 em modo de desenvolvimento, Node v22.23.4, API apontada para origem inexistente; data 2026-10-25T02:53Z (UTC), 24/10/2026 23h53 no horário de Brasília
 
 == GET /

@@ -1,6 +1,6 @@
 # Reprodução das verificações de banco e de contrato
 
-Scripts usados na auditoria de 24/10/2026 sobre o commit `3b0242c` do SBI.
+Scripts usados na auditoria de 24/10/2026 sobre o commit `6046904` do SBI.
 
 - `apply_migrations.sh`: cria o banco e aplica V1–V11 e `db/demo` na ordem do Flyway por `psql`.
 - `run_bd_local.sh`: variante local de `docs/bd/pacote-sql/run_bd.sh`, com o `psql` fora de contêiner.

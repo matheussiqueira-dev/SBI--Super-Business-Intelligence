@@ -1,8 +1,8 @@
 # Correções propostas para os achados A-03, A-04, A-05, A-12 e A-16
 
-> **Atualização em 25/10/2026.** O *patch* foi aplicado com `git am` na *branch* `fix/security-and-display-findings` e integrado à `main` pelo *pull request* nº 49 (`b1e22f0`), com todas as verificações da integração contínua aprovadas; os cabeçalhos aparecem no ambiente publicado. No *merge* com a identidade visual v2, `compactMoney` passou a compartilhar o cálculo de escala com `compactNumber`. A-08 foi atendido pelo *pull request* nº 48 (contas criadas por migração, com o papel CEO), e A-07 ficou como “Qualquer pessoa com o link: Editor” por decisão do responsável. Ver o Apêndice M do relatório.
+> **Atualização em 25/10/2026.** O *patch* foi aplicado com `git am` na *branch* `fix/security-and-display-findings` e integrado à `main` pelo *pull request* nº 49 (`52a8d34`), com todas as verificações da integração contínua aprovadas; os cabeçalhos aparecem no ambiente publicado. No *merge* com a identidade visual v2, `compactMoney` passou a compartilhar o cálculo de escala com `compactNumber`. A-08 foi atendido pelo *pull request* nº 48 (contas criadas por migração, com o papel CEO), e A-07 ficou como “Qualquer pessoa com o link: Editor” por decisão do responsável. Ver o Apêndice M do relatório.
 
-Arquivo: `SBI_correcoes_achados_A03_A04_A05_A12_A16.patch` (5 *commits* em Conventional Commits, gerados com `git format-patch` sobre o *commit* `3b0242c`, atual `main`).
+Arquivo: `SBI_correcoes_achados_A03_A04_A05_A12_A16.patch` (5 *commits* em Conventional Commits, gerados com `git format-patch` sobre o *commit* `6046904`, atual `main`).
 
 As correções foram preparadas e validadas em uma *branch* local e **não foram enviadas ao repositório**: o escopo da auditoria vedou alterar a aplicação ou o repositório sem decisão da equipe. A aplicação e a abertura do *pull request* ficam com o responsável pelo repositório.
 

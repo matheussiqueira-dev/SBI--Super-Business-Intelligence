@@ -6,13 +6,13 @@ Padrão de nome: `EV-<área>-<nº>_<descrição>_<data>.<ext>`. Áreas: AV (avat
 | --- | --- | --- |
 | `EV-AV-01_avatares-pr47_2026-10-25.json` | Estado do *pull request* nº 47, integração contínua, implantações na Vercel, associação avatar–usuário e *hash* das 14 imagens | GitHub e Vercel, somente leitura (00h00–00h15 de 25/10, horário de Brasília) |
 | `EV-AV-02_frontend-unit-pr47_2026-10-25.tap` | Testes do frontend no *commit* `a54635d`: 52/53, com os 11 de avatar aprovados | Node 22.23.4 |
-| `EV-BD-01_resultado_bd_pg16_2026-10-24.txt` | Saída do pacote SQL do job `bd`: 61 PASS | PostgreSQL 16.15 local, commit 3b0242c |
+| `EV-BD-01_resultado_bd_pg16_2026-10-24.txt` | Saída do pacote SQL do job `bd`: 61 PASS | PostgreSQL 16.15 local, commit 6046904 |
 | `EV-BD-02_resultado_olist_pg16_2026-10-24.txt` | Carga Olist (2 execuções) e 7 PASS | PostgreSQL 16.15 local |
 | `EV-BD-03_explain-indices_pg16_2026-10-24.txt` | Planos de execução com e sem varredura sequencial | PostgreSQL 16.15 local |
 | `EV-BD-04_neon-producao_2026-10-24.json` | Versão, migrações, contagens, uso de índices, contas e configuração do projeto no banco publicado | Neon, consultas somente leitura (~21:52–23:20 UTC) |
 | `EV-BD-05_crud-exemplos-gerente_pg16_2026-10-24.txt` | Roteiro de CRUD executado como gerente (encerrado em ROLLBACK) | PostgreSQL 16.15 local |
 | `EV-BD-06_crud-clientes-olist_pg16_2026-10-24.txt` | Roteiro de CRUD de clientes da massa Olist | PostgreSQL 16.15 local |
-| `EV-CI-01_execucao-ci-3b0242c_2026-10-24.json` | Conclusão de cada *job* e etapa da execução 39668791724 do *workflow* CI; execuções dos *workflows* manuais | API do GitHub Actions, somente leitura (23h45, horário de Brasília) |
+| `EV-CI-01_execucao-ci-6046904_2026-10-24.json` | Conclusão de cada *job* e etapa da execução 39668791724 do *workflow* CI; execuções dos *workflows* manuais | API do GitHub Actions, somente leitura (23h45, horário de Brasília) |
 | `EV-CT-01_npm-test-raiz_2026-10-24.tap` | Validadores de contrato: 47/47 | Node 22.23.4 |
 | `EV-CT-02_audit-contract-v5_2026-10-24.json` | Auditoria estática do contrato v5 | Node 22.23.4 |
 | `EV-CT-03_validate-contract-v5_2026-10-24.json` | Validação dos esquemas do contrato v5 | Node 22.23.4 |

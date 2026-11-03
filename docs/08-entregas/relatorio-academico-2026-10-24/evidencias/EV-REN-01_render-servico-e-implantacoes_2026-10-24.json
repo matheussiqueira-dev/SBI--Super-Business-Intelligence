@@ -20,24 +20,24 @@
  "implantacao_ativa": {
   "id": "dep-dbchqurrjlhs73bu8990",
   "status": "live",
-  "commit": "3b0242c477bf7b5401a6eff55ae2b88c74927b1b",
+  "commit": "6046904bb93a3f2d2e18e6098458fc8acde80714",
   "gatilho": "new_commit",
   "inicio": "2026-10-21T20:15:55Z",
   "fim": "2026-10-21T20:18:12Z"
  },
  "implantacoes_anteriores": [
   [
-   "884b8d3",
+   "ebbc7be",
    "deactivated",
    "2026-10-21T19:58:22Z"
   ],
   [
-   "b2a3b13",
+   "89b83d6",
    "deactivated",
    "2026-10-21T19:49:18Z"
   ],
   [
-   "438ce29",
+   "45c90e3",
    "deactivated",
    "2026-10-20T15:57:30Z"
   ],

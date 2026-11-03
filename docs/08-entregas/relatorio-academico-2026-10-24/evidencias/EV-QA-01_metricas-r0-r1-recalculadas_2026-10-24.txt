@@ -1,4 +1,4 @@
-Recalculo independente das metricas R0 e R1 a partir dos relatorios brutos versionados em reports/metricas/ (commit 3b0242c).
+Recalculo independente das metricas R0 e R1 a partir dos relatorios brutos versionados em reports/metricas/ (commit 6046904).
 Executado em 24/10/2026. Fontes: surefire-reports/TEST-*.xml, jacoco/index.html, pmd.xml, cpd.xml, spotbugsXml.xml.
 
 == r0-baseline

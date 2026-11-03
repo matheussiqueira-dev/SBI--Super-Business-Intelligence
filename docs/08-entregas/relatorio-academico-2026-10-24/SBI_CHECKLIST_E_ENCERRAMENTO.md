@@ -1,13 +1,13 @@
 # SBI — Checklist final de auditoria e relatório de encerramento
 
-Data: 24/10/2026. Versão analisada: commit `3b0242c` (branch `main`), em produção na Vercel e no Render. Situação em 25/10/2026 na seção 4 e no Apêndice M do relatório.
+Data: 24/10/2026. Versão analisada: commit `6046904` (branch `main`), em produção na Vercel e no Render. Situação em 25/10/2026 na seção 4 e no Apêndice M do relatório.
 
 ## 1. Checklist final
 
 | Nº | Verificação | Situação | Observação |
 | ---: | --- | --- | --- |
 | 1 | Todos os capítulos foram desenvolvidos | Conforme | 16 capítulos, referências e 12 apêndices (A a L), incluindo a seção 10.13 sobre os avatares dos usuários (*pull request* nº 47, em integração) |
-| 2 | Os conteúdos representam a implementação real | Conforme | Afirmações conferidas contra o código do commit `3b0242c`, o banco publicado, o site publicado, a integração contínua e o serviço da API no Render; uma revisão independente dos capítulos técnicos levou a 19 correções pontuais (por exemplo: categorias sem exclusão, *views* efetivamente lidas pela API, número de capturas, origem da senha no histórico do Git), além da indicação das funções existentes só na API e da redefinição do achado A-10 |
+| 2 | Os conteúdos representam a implementação real | Conforme | Afirmações conferidas contra o código do commit `6046904`, o banco publicado, o site publicado, a integração contínua e o serviço da API no Render; uma revisão independente dos capítulos técnicos levou a 19 correções pontuais (por exemplo: categorias sem exclusão, *views* efetivamente lidas pela API, número de capturas, origem da senha no histórico do Git), além da indicação das funções existentes só na API e da redefinição do achado A-10 |
 | 3 | As informações acadêmicas estão corretas | Conforme, com pendências | Denominação “Centro Universitário dos Guararapes” confirmada em documento acadêmico emitido pela instituição a um dos integrantes; o local da capa foi mantido como Recife, conforme informado pela equipe, embora os documentos institucionais consultados sejam emitidos em Jaboatão dos Guararapes [PENDENTE DE VALIDAÇÃO — confirmar o local da capa com a coordenação]; [PENDENTE DE VALIDAÇÃO — autorização docente para grupo de quatro integrantes, pois o enunciado de GQS limita a três; não encontrada no Drive, no Trello nem nas mensagens de e-mail consultadas]; [PENDENTE DE VALIDAÇÃO — enunciado ou rubrica escrita de Banco de Dados; não encontrada, e a exigência conhecida (banco funcional com SQL e CRUD) está atendida] |
 | 4 | Nomes e registros dos integrantes estão corretos | Conforme, com ressalva | Conferidos com o Manual do projeto v1.0; o RA de Gabriel Sousa Vasconcelos tem 11 dígitos e os demais têm 10, e o Manual, única fonte encontrada, traz o mesmo valor [PENDENTE DE VALIDAÇÃO — confirmação pelo próprio integrante] |
 | 5 | Docentes associados às disciplinas corretas | Conforme | GQS: Paulo Thiago Gomes da Silva e Christian Felix Gbedande Azonyetin; BD: Paulo Thiago Gomes da Silva e Bruno Marciano de Amorim Josino, conforme informado |
@@ -40,7 +40,7 @@ Data: 24/10/2026. Versão analisada: commit `3b0242c` (branch `main`), em produ�
 
 ## 3. Relatório de encerramento
 
-**Fontes consultadas.** Repositório oficial (commit `3b0242c`, 113 commits na `main`, 1.245 arquivos); integração contínua (execução 39668791724 do *workflow* CI e histórico dos *workflows* manuais, pela API do GitHub Actions); aplicação publicada (`https://sbi-app-alpha.vercel.app`, inspeção GET sem credenciais); Vercel (implantação de produção READY do commit `3b0242c`); Render (serviço `sbi-api` e implantação ativa do commit `3b0242c`, sem leitura de variáveis); Neon (consultas somente leitura); pasta oficial do Drive (4 arquivos); quadro do Trello (94 cartões, 448 ações); enunciado de GQS e plano da equipe; documentos locais de planejamento; busca nas mensagens de e-mail do responsável por autorização do grupo, rubrica de BD e modelo institucional.
+**Fontes consultadas.** Repositório oficial (commit `6046904`, 113 commits na `main`, 1.245 arquivos); integração contínua (execução 39668791724 do *workflow* CI e histórico dos *workflows* manuais, pela API do GitHub Actions); aplicação publicada (`https://sbi-app-alpha.vercel.app`, inspeção GET sem credenciais); Vercel (implantação de produção READY do commit `6046904`); Render (serviço `sbi-api` e implantação ativa do commit `6046904`, sem leitura de variáveis); Neon (consultas somente leitura); pasta oficial do Drive (4 arquivos); quadro do Trello (94 cartões, 448 ações); enunciado de GQS e plano da equipe; documentos locais de planejamento; busca nas mensagens de e-mail do responsável por autorização do grupo, rubrica de BD e modelo institucional.
 
 **Funcionalidades documentadas.** Autenticação e sessão, administração de usuários, PDV com cotação e venda idempotente, confirmação e cancelamento, clientes PF e PJ com CNPJ alfanumérico, histórico e resumo do cliente, Meu desempenho, visão geral, produtos e preços, estoque, promoções, alçadas e aprovação de desconto, análises, estorno e metas (estes dois apenas pela API) e rotas legadas.
 
@@ -74,14 +74,14 @@ Depois da análise, oito *pull requests* foram integrados à `main` e publicados
 
 | Item | Situação |
 | --- | --- |
-| *Pull request* nº 50 (identidade visual v2) | Integrado (`a03f6bd`) e publicado; as capturas do relatório são da versão de referência |
-| *Pull request* nº 47 (avatares) | Integrado (`687cfc2`) e publicado; as imagens dos avatares respondem 200 |
-| *Pull request* nº 51 (créditos dos avatares) | Integrado (`daafee0`) |
-| *Pull request* nº 48 (perfil CEO) | Integrado (`e7e5f2c`) e publicado: papel CEO, painel executivo, planejamento de metas |
-| *Pull request* nº 52 (desempenho) | Integrado (`af1f10f`) e publicado: BCrypt de custo 10, painéis pausados após 10 min sem uso, cache de inicialização da API corrigido |
-| *Pull request* nº 53 (endereços do repositório) | Integrado (`2123f8d`) |
-| *Pull request* nº 54 (organização das pastas) | Integrado (`56a1b69`): relatórios brutos fora do Git, saídas de contrato em `target/contrato/`, histórico em `docs/historico/`; caminhos do relatório referem-se à versão de referência |
-| A-03, A-04, A-05, A-12, A-16 | Corrigidos pelo *pull request* nº 49 (`b1e22f0`); cabeçalhos de segurança conferidos no ambiente publicado |
+| *Pull request* nº 50 (identidade visual v2) | Integrado (`9831563`) e publicado; as capturas do relatório são da versão de referência |
+| *Pull request* nº 47 (avatares) | Integrado (`864e0dd`) e publicado; as imagens dos avatares respondem 200 |
+| *Pull request* nº 51 (créditos dos avatares) | Integrado (`137e32a`) |
+| *Pull request* nº 48 (perfil CEO) | Integrado (`5ca3336`) e publicado: papel CEO, painel executivo, planejamento de metas |
+| *Pull request* nº 52 (desempenho) | Integrado (`311bbe9`) e publicado: BCrypt de custo 10, painéis pausados após 10 min sem uso, cache de inicialização da API corrigido |
+| *Pull request* nº 53 (endereços do repositório) | Integrado (`dce92fd`) |
+| *Pull request* nº 54 (organização das pastas) | Integrado (`cba16ba`): relatórios brutos fora do Git, saídas de contrato em `target/contrato/`, histórico em `docs/historico/`; caminhos do relatório referem-se à versão de referência |
+| A-03, A-04, A-05, A-12, A-16 | Corrigidos pelo *pull request* nº 49 (`52a8d34`); cabeçalhos de segurança conferidos no ambiente publicado |
 | A-08 | Contas dos três docentes criadas com o papel CEO pela migração `V12_1`; acesso conferido pela equipe |
 | A-07 | Pasta mantida como “Qualquer pessoa com o link: Editor” por decisão do responsável (risco aceito) |
 | A-02, A-17 | Abertos |

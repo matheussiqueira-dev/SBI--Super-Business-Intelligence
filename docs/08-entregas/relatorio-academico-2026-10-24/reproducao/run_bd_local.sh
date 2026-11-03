@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Variante local do docs/bd/pacote-sql/run_bd.sh (commit 3b0242c): unica diferenca e o psql executado fora de conteiner.
+# Variante local do docs/bd/pacote-sql/run_bd.sh (commit 6046904): unica diferenca e o psql executado fora de conteiner.
 # Job bd: roda 03 (RBAC/RLS), 05 (CRUD), 06a/b/c/d (testes) e a corrida CC-01 sobre um banco que ja
 # recebeu V1-V11 e a massa demo pelo Flyway (perfil demo). Falha em qualquer FAIL ou ERROR.
 # Uso (na pasta docs/bd/pacote-sql): PGHOST=<socket> PGPORT=<porta> DB=<banco> SUPERUSER=<dono> bash run_bd_local.sh

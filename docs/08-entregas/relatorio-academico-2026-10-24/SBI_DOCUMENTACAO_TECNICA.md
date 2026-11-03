@@ -1,8 +1,8 @@
 # SBI — Super Business Intelligence: documentação técnica
 
-Versão de referência: commit `3b0242c477bf7b5401a6eff55ae2b88c74927b1b` (branch `main`, 21/10/2026), em produção em <https://sbi-app-alpha.vercel.app>. Documento complementar ao relatório acadêmico `SBI_RELATORIO_ACADEMICO_COMPLETO_2026`, cujos capítulos e apêndices são indicados entre parênteses. Situação verificada em 24/10/2026.
+Versão de referência: commit `6046904bb93a3f2d2e18e6098458fc8acde80714` (branch `main`, 21/10/2026), em produção em <https://sbi-app-alpha.vercel.app>. Documento complementar ao relatório acadêmico `SBI_RELATORIO_ACADEMICO_COMPLETO_2026`, cujos capítulos e apêndices são indicados entre parênteses. Situação verificada em 24/10/2026.
 
-> **Atualização em 25/10/2026.** Os *pull requests* nº 47 a 54 foram integrados e publicados: avatares (`687cfc2`), correções da auditoria (`b1e22f0`), identidade visual v2 (`a03f6bd`), créditos (`daafee0`), perfil CEO com as contas dos docentes (`e7e5f2c`), desempenho (`af1f10f`), endereços do repositório (`2123f8d`) e organização das pastas (`56a1b69`). Este documento continua a descrever a versão de referência; a situação atual está no Apêndice M do relatório.
+> **Atualização em 25/10/2026.** Os *pull requests* nº 47 a 54 foram integrados e publicados: avatares (`864e0dd`), correções da auditoria (`52a8d34`), identidade visual v2 (`9831563`), créditos (`137e32a`), perfil CEO com as contas dos docentes (`5ca3336`), desempenho (`311bbe9`), endereços do repositório (`dce92fd`) e organização das pastas (`cba16ba`). Este documento continua a descrever a versão de referência; a situação atual está no Apêndice M do relatório.
 
 ## 1. Visão geral
 
@@ -35,7 +35,7 @@ navegador ──HTTPS──> Vercel: Next.js 16 / React 19 (projeto sbi-app)
 
 Diagramas: `diagramas/D01` (contexto), `D03` (implantação), `D04` (componentes), `D08` (sequência da venda) e `D09` (autenticação), com fontes Mermaid em `diagramas/fonte/` (capítulo 5 e Apêndice C).
 
-Implantação verificada em 24/10/2026: interface na Vercel e API no Render (serviço `sbi-api`, Docker, plano gratuito, região Virgínia, verificação de saúde em `/auth/csrf`) no commit `3b0242c`, com implantação automática a cada commit na `main`; a integração contínua do mesmo commit terminou com sucesso nos quatro jobs.
+Implantação verificada em 24/10/2026: interface na Vercel e API no Render (serviço `sbi-api`, Docker, plano gratuito, região Virgínia, verificação de saúde em `/auth/csrf`) no commit `6046904`, com implantação automática a cada commit na `main`; a integração contínua do mesmo commit terminou com sucesso nos quatro jobs.
 
 ## 3. Organização do código
 
@@ -119,7 +119,7 @@ Manual completo de instalação: Apêndice I. Manual do usuário: Apêndice J.
 | Auditoria do contrato v5 | `audit-contract.mjs`, `validate-contract.mjs` | 0 erros; 236 esquemas |
 | Frontend | `npm run typecheck`, `npm test` | tipos aprovados; 41/42 (CT-WEB-124 depende da versão do Node) |
 | Ambiente publicado | GET sem credenciais | 5/5 |
-| Java unitários e integração | `./mvnw -q verify`, `scripts/test.ps1 -Mode Integration` | não reexecutados localmente; aprovados na CI do commit `3b0242c` (execução 39668791724); 233 e 649 documentados |
+| Java unitários e integração | `./mvnw -q verify`, `scripts/test.ps1 -Mode Integration` | não reexecutados localmente; aprovados na CI do commit `6046904` (execução 39668791724); 233 e 649 documentados |
 | Contrato ao vivo, E2E e axe | `scripts/test-contract.ps1 -HttpOnly -Frontend` | não reexecutados localmente; aprovados na mesma execução da CI; 58/58 e 24/24 documentados |
 | Fumaça do ambiente publicado | *workflow* `published-smoke.yml` | sem execução registrada no GitHub Actions; 5/5 documentado em 15/10 |
 
@@ -129,7 +129,7 @@ Casos, rastreabilidade, defeitos e achados: `SBI_PLANO_DE_TESTES.xlsx` e Apêndi
 
 ## 8. Avatares dos usuários (em integração)
 
-Atualização em 25/10/2026: integrado (`687cfc2`) e publicado, junto com as contas dos docentes; ver o Apêndice M do relatório.
+Atualização em 25/10/2026: integrado (`864e0dd`) e publicado, junto com as contas dos docentes; ver o Apêndice M do relatório.
 
 O *pull request* nº 47 (`feat/user-profile-avatars`, commit `a54635d`, aberto em 24/10/2026) acrescenta avatares aos perfis e reações animadas às operações; não está na produção (seção 10.13 do relatório).
 

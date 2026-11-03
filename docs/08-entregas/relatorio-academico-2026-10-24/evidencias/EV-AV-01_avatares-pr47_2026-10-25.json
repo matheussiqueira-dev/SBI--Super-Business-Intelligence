@@ -7,7 +7,7 @@
   "criado_em": "2026-10-25T01:13:27Z",
   "branch": "feat/user-profile-avatars",
   "commit_head": "a54635d4318f65c0a61772e626adbfc501558c2d",
-  "base": "main @ 3b0242c",
+  "base": "main @ 6046904",
   "arquivos_alterados": 33,
   "linhas_adicionadas": 685,
   "linhas_removidas": 23
@@ -48,7 +48,7 @@
    "estado": "ERROR",
    "erro": "BUILD_FAILED: Resource provisioning failed"
   },
-  "producao_vigente": "commit 3b0242c (dpl_ApRPtFqstvaRHnEgkRRG2h2NKe7o)",
+  "producao_vigente": "commit 6046904 (dpl_ApRPtFqstvaRHnEgkRRG2h2NKe7o)",
   "asset_publicado": "GET https://sbi-app-alpha.vercel.app/avatares/avatar-21.webp -> 404"
  },
  "testes_locais": {

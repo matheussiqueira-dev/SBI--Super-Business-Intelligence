@@ -4,7 +4,7 @@
  "workflow": "CI (.github/workflows/ci.yml)",
  "run_id": 39668791724,
  "evento": "push na main",
- "commit": "3b0242c477bf7b5401a6eff55ae2b88c74927b1b",
+ "commit": "6046904bb93a3f2d2e18e6098458fc8acde80714",
  "conclusao": "success",
  "observacao": "Os artefatos (relatórios Surefire, contrato ao vivo, E2E e bd) e os logs não puderam ser baixados no ambiente de análise (armazenamento externo bloqueado); a evidência registra a conclusão de cada job e de cada etapa.",
  "jobs": [
