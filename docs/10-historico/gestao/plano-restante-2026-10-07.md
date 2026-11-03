@@ -174,7 +174,7 @@ Ordem recomendada (caminho crítico): **DOM-02 → BD-02/SEC-01 → ENV-01a → 
 | **16** Defeitos | Registro completo e reteste. | Ver seção 3.2. | Markdown ou GitHub Issues | Allan / Matheus | 15/11 |
 | **17** Regressão | `docs/melhoria-continua.md` com antes/depois. | Mesmo caso antes e depois do fix, com commits. | Git, relatórios | Matheus / Gabriel | 15/11 |
 | **18** Métricas | R0, R1 (após fixes) e R2 (fim do domínio). | `node scripts/quality-metrics.mjs` após `mvnw verify`; acrescentar densidade de defeitos, taxa de reteste, rastreabilidade. | Node, JaCoCo, PMD, SpotBugs | Matheus / Gabriel | 22/11 |
-| **19** Segurança e ética | Ameaças, privacidade, uso de assistentes. | Revisar sessão/CSRF/cookies; mover senha de desenvolvimento do `application.properties` para variável de ambiente; massa sintética; nenhuma credencial em logs/capturas. | OWASP Top 10, `npm audit`, OWASP Dependency-Check (opcional) | Francisco / Allan | 20/11 |
+| **19** Segurança e ética | Ameaças, privacidade e proteção dos dados tratados. | Revisar sessão/CSRF/cookies; mover senha de desenvolvimento do `application.properties` para variável de ambiente; massa sintética; nenhuma credencial em logs/capturas. | OWASP Top 10, `npm audit`, OWASP Dependency-Check (opcional) | Francisco / Allan | 20/11 |
 | **DOC-01** Rubrica e rastreabilidade | Matriz dos 14 critérios + RF → CA → CT → execução → defeito. | `docs/matriz-rubrica.md` e `docs/rastreabilidade.md`. | Markdown | Francisco / Matheus | 25/10 |
 
 ### 3.7 Frente G — Entrega final (P1, 16/11 a 29/11)
