@@ -1,4 +1,4 @@
-# SBI — Rebranding e identidade visual v2.0
+# SBI — Rebranding e identidade visual v2.1
 
 Centro Universitário UNIFG · Projeto Acadêmico A3 — 2026 · Garantia da Qualidade de Software e Banco de Dados.
 
@@ -8,7 +8,7 @@ Integrantes: Allan Gabriel Almeida Barros (RA 1352524052), Gabriel Sousa Vasconc
 
 | Pasta | Conteúdo |
 |---|---|
-| `01-manual/` | Manual de Identidade Visual em PDF (A4 horizontal, navegável) e fonte HTML editável |
+| `01-manual/` | Manual de Identidade Visual v2.1 em PDF (A4 horizontal, navegável), fonte HTML editável e as edições anteriores em `versoes-anteriores/` |
 | `02-documentos/` | Resumo executivo, relatório de diagnóstico e decisões e quadro comparativo antes e depois |
 | `03-marca/` | Logotipos, símbolo, monograma e assinatura em SVG e PNG |
 | `04-favicon-e-icones/` | Favicon, ícones de aplicativo e PWA, manifesto e guia de implementação |
@@ -19,7 +19,7 @@ Integrantes: Allan Gabriel Almeida Barros (RA 1352524052), Gabriel Sousa Vasconc
 
 ## Situação
 
-A identidade v2 está documentada e aplicada ao código no ramo `feat/brand-sbi-v2` do repositório do SBI: tokens claro e escuro, Inter local, símbolo Encaixe, favicon, manifesto e gráficos, com CI aprovada em 25/10/2026 (E2E e axe nos dois temas). O ramo aguarda revisão e merge. Os mockups seguem como layouts propostos, sobre rotas, regras e dados de demonstração do repositório. Os próximos passos estão na seção 39 do manual.
+A identidade v2 está documentada e aplicada a todas as telas da aplicação: tokens claro e escuro, Inter local, símbolo Encaixe, favicon, manifesto e gráficos. O ramo `feat/brand-sbi-v2` foi integrado à `main` pelo pull request nº 50 (`9831563`, 25/10/2026) e publicado na Vercel, com as verificações da integração contínua aprovadas (E2E e axe nos dois temas); os avatares entraram pelo pull request nº 47, adaptados à identidade v2. Os mockups seguem como layouts propostos, sobre rotas, regras e dados de demonstração do repositório. Os próximos passos estão na seção 39 do manual.
 
 ## Fonte editável do manual
 
