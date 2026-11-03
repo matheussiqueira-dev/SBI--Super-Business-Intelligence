@@ -12,7 +12,7 @@ O relatório acadêmico cita os documentos pelos caminhos de antes da organizaç
 
 ## Identificadores de commit citados
 
-O histórico da `main` foi republicado em 03/11/2026 e os commits receberam novos identificadores, com o mesmo conteúdo (a árvore de cada um é idêntica à anterior). Os documentos desta pasta citam os identificadores atuais. Para localizar uma citação feita antes dessa data, em cópias impressas, mensagens ou no quadro da equipe, use a tabela; os identificadores longos de 40 caracteres seguem a mesma correspondência.
+O histórico da `main` foi republicado em 03/11/2026 e os commits receberam novos identificadores, com o mesmo conteúdo (a árvore de cada um é idêntica à anterior). Os documentos em Markdown, as evidências e as planilhas desta pasta citam os identificadores atuais; o relatório acadêmico em DOCX e PDF mantém os anteriores. Use a tabela para converter uma citação nos dois sentidos, inclusive em cópias impressas, mensagens ou no quadro da equipe; os identificadores longos de 40 caracteres seguem a mesma correspondência.
 
 | Antes | Agora |
 | --- | --- |
