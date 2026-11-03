@@ -1,4 +1,4 @@
-# SBI — Rebranding e identidade visual v2.1
+# SBI — Rebranding e identidade visual v2.2
 
 Centro Universitário UNIFG · Projeto Acadêmico A3 — 2026 · Garantia da Qualidade de Software e Banco de Dados.
 
@@ -8,7 +8,7 @@ Integrantes: Allan Gabriel Almeida Barros (RA 1352524052), Gabriel Sousa Vasconc
 
 | Pasta | Conteúdo |
 |---|---|
-| `01-manual/` | Manual de Identidade Visual v2.1 em PDF (A4 horizontal, navegável), fonte HTML editável e as edições anteriores em `versoes-anteriores/` |
+| `01-manual/` | Manual de Identidade Visual v2.2 em PDF (A4 horizontal, navegável), fonte HTML editável e as edições anteriores em `versoes-anteriores/` |
 | `02-documentos/` | Resumo executivo, relatório de diagnóstico e decisões e quadro comparativo antes e depois |
 | `03-marca/` | Logotipos, símbolo, monograma e assinatura em SVG e PNG |
 | `04-favicon-e-icones/` | Favicon, ícones de aplicativo e PWA, manifesto e guia de implementação |
