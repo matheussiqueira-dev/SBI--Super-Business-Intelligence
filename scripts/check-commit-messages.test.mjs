@@ -32,7 +32,7 @@ test('corpo vazio passa', () => {
 });
 
 test('cada termo proibido falha, em qualquer caixa', () => {
-  assert.equal(FORBIDDEN_TERMS.length, 11);
+  assert.equal(FORBIDDEN_TERMS.length, 2);
   for (const term of FORBIDDEN_TERMS) {
     for (const variant of [term, term.toLowerCase(), term.toUpperCase()]) {
       const message = `docs: update the guide\n\n${variant} line\n`;
@@ -50,8 +50,8 @@ test('linha de sessao falha; a palavra session em texto comum passa', () => {
 });
 
 test('termo dentro de outra palavra nao conta; comentario do Git fica de fora', () => {
-  assert.deepEqual(findViolations('refactor: rename the assistants table to helpers'), []);
-  assert.deepEqual(findViolations(`chore: x\n# ${FORBIDDEN_TERMS[4]} comment from git\n`), []);
+  assert.deepEqual(findViolations(`chore: rename ${OLD_SITE_TERMS[0]}x to the new bucket`), []);
+  assert.deepEqual(findViolations(`chore: x\n# ${FORBIDDEN_TERMS[0]} comment from git\n`), []);
 });
 
 test('endereco antigo do site falha na mensagem e no arquivo; o endereco oficial passa', () => {

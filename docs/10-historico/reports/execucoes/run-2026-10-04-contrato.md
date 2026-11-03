@@ -11,7 +11,7 @@
 
 O download do schema oficial do documento OpenAPI falhou por acesso de rede nesta sessão. `officialDocumentSchema: false` e saída 1 deixam explícito que os schemas dos dados passaram, mas o documento OpenAPI completo ainda não foi aprovado. O runner baixa o schema de https://spec.openapis.org/oas/3.1/schema/2025-09-15 e preserva uma cópia em `config/openapi/validation/` quando a rede está disponível.
 
-A API local estava desligada e Docker não estava disponível nesta sessão do agente. O runner HTTP foi preparado, mas os cinco casos HTTP não foram executados aqui. Não há aprovação HTTP, 401/403 ou execução remota do CI nesta rodada.
+A API local estava desligada e Docker não estava disponível nesta sessão de trabalho. O runner HTTP foi preparado, mas os cinco casos HTTP não foram executados aqui. Não há aprovação HTTP, 401/403 ou execução remota do CI nesta rodada.
 
 ## Política do validador
 

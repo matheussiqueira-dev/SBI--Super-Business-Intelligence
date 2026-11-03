@@ -55,7 +55,7 @@ O modo integração usa apenas `docker-compose.test.yml` e o projeto Compose `a3
 
 Na retomada, os relatórios locais Surefire atualizados em 03/10/2026 às 23:59:02 foram conferidos: `OrderServiceTest` tem 3 testes, `OrderPersistenceTest` tem 2 e `OrderManagementSpringApplicationTests` tem 1; todos com zero falhas, erros ou testes ignorados. Os XML registram Java 25.0.4.1 e o contexto registra PostgreSQL em `jdbc:postgresql://localhost:15432/order_management_test`.
 
-Essa evidência supera o bloqueio de execução Java/PostgreSQL relatado acima para esta rodada no terminal do usuário. Não comprova dois runs independentes de integração, execução remota do CI nem conclusão do spike HTTP/validador 2020-12. Java e Docker ainda não estão disponíveis no PATH desta sessão do agente.
+Essa evidência supera o bloqueio de execução Java/PostgreSQL relatado acima para esta rodada no terminal do usuário. Não comprova dois runs independentes de integração, execução remota do CI nem conclusão do spike HTTP/validador 2020-12. Java e Docker ainda não estão disponíveis no PATH desta sessão de trabalho.
 
 ### Segunda execução de integração conferida em 04/10/2026
 

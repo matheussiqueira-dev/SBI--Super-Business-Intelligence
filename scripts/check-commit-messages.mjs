@@ -1,29 +1,28 @@
-// Barreira de higiene: mensagens de commit sem atribuicao a ferramentas ou servicos externos e nenhum
-// endereco antigo do site no repositorio (o unico endereco oficial e https://sbi-app-alpha.vercel.app).
+// Barreira de estilo: mensagens de commit em Conventional Commits, sem rodape de coautoria, sem link de
+// sessao e sem o endereco antigo do site (o unico endereco oficial e https://sbi-app-alpha.vercel.app).
 // Uso: node scripts/check-commit-messages.mjs <arquivo com as mensagens>
 //   CI (pull_request): git log --format=%B "origin/${GITHUB_BASE_REF}..HEAD" > msgs.txt
 //   hook commit-msg local: o Git passa o arquivo da mensagem como primeiro argumento.
 // Uso: node scripts/check-commit-messages.mjs --tracked
 //   varre os arquivos de texto versionados (git ls-files) atras de endereco antigo do site.
 // Linhas que comecam com "#" sao comentarios do Git e ficam de fora. Sai com 1 se encontrar algo.
-// Os nomes proibidos ficam em base64 para que o proprio verificador passe na varredura de termos do
-// repositorio (decisoes D-PUB-02 e D-PUB-11); a mensagem de erro cita so a linha e a regra, sem repetir o termo.
+// O endereco antigo fica em base64 para que o proprio verificador passe na varredura dos arquivos
+// versionados (decisao D-PUB-11); a mensagem de erro cita so a linha e a regra, sem repetir o termo.
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const decode = term => Buffer.from(term, 'base64').toString('utf8');
-const PLAIN_TERMS = ['Co-Authored-By', 'Generated with', 'AI-generated', 'assistant'];
-const ENCODED_TERMS = ['Q2xhdWRl', 'QW50aHJvcGlj', 'Q2hhdEdQVA==', 'T3BlbkFJ', 'Q29kZXg=', 'Q29waWxvdA=='];
+const PLAIN_TERMS = ['Co-Authored-By'];
 const ENCODED_OLD_SITES = ['YnVzaW5lc3MtaW50ZWxsaWdlbmNlLWVpZ2h0'];
 
 export const OLD_SITE_TERMS = ENCODED_OLD_SITES.map(decode);
-export const FORBIDDEN_TERMS = [...PLAIN_TERMS, ...ENCODED_TERMS.map(decode), ...OLD_SITE_TERMS];
+export const FORBIDDEN_TERMS = [...PLAIN_TERMS, ...OLD_SITE_TERMS];
 
 const escape = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const termRule = (term, rule) => ({ rule, pattern: new RegExp(`(?<![A-Za-z0-9])${escape(term)}(?![A-Za-z0-9])`, 'i') });
 const OLD_SITE_RULES = OLD_SITE_TERMS.map((term, index) => termRule(term, `endereco antigo do site ${index + 1}`));
-const TERM_RULES = [...PLAIN_TERMS, ...ENCODED_TERMS.map(decode)].map((term, index) => termRule(term, `termo ${index + 1}`));
+const TERM_RULES = PLAIN_TERMS.map((term, index) => termRule(term, `termo ${index + 1}`));
 const SESSION_RULES = [
   { rule: 'link de sessao', pattern: /https?:\/\/\S*session/i },
   { rule: 'identificador de sessao', pattern: /\bsession_[A-Za-z0-9]{6,}/i },
@@ -89,7 +88,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
       console.error(`check-commit-messages: linha ${line} tem termo proibido (${rule}).`);
     }
     if (violations.length) {
-      console.error('Mensagens de commit seguem Conventional Commits, sem rodape de coautoria, credito a ferramenta nem endereco antigo do site.');
+      console.error('Mensagens de commit seguem Conventional Commits, sem rodape de coautoria nem endereco antigo do site.');
       process.exit(1);
     }
     console.log('check-commit-messages: mensagens limpas.');

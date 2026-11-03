@@ -28,7 +28,7 @@ Os briefings têm arquivos, entradas, dependências, tarefas de até 4 h, cenár
 
 ## GitHub e documentos
 
-Branch de revisão `a3-contract-validation`, repositório https://github.com/matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST. Base publicada antes desta rodada:`4f72c8bfbfd9014b4bfa19519133d2892e58803b`, tree`ee2899027d9cfb7298b2364cfc9197ab2aff7c40`. Nenhum merge em main nesta sincronização. Commit novo com o prefixo do robô de correção; histórico anterior preservado. Autoria dos commits já existentes não foi reescrita.
+Branch de revisão `a3-contract-validation`, repositório https://github.com/matheussiqueira-dev/Conformidade-de-Contrato-da-API-REST. Base publicada antes desta rodada:`4f72c8bfbfd9014b4bfa19519133d2892e58803b`, tree`ee2899027d9cfb7298b2364cfc9197ab2aff7c40`. Nenhum merge em main nesta sincronização. Commit novo fora do padrão de mensagens adotado depois; histórico anterior preservado. Autoria dos commits já existentes não foi reescrita.
 
 64 registros por card e índice, planejamento/requisitos/regras corrigidos e documentos de referência publicados. PDFs originais copiados sem alteração (comparar hashes Git no manifesto): enunciado, plano original, manual e guia visual. Fonte Markdown do manual e direção criativa também publicadas. [Índice da equipe](../../gestao/README.md).
 

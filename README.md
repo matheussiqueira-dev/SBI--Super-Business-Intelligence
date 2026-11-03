@@ -99,7 +99,7 @@ cd frontend; npm run typecheck; npm run api:check; npm test; npm run build
 node scripts\quality-metrics.mjs                                                           # métricas de target/ em reports\metricas\ultima (fora do Git)
 ```
 
-A CI (`.github/workflows/ci.yml`) roda quatro jobs de teste, cada um com seus relatórios como artefato, e, nos pull requests, o job `hygiene`, que barra rodapé de coautoria, crédito a ferramenta e endereço antigo do site nas mensagens de commit e nos arquivos versionados:
+A CI (`.github/workflows/ci.yml`) roda quatro jobs de teste, cada um com seus relatórios como artefato, e, nos pull requests, o job `hygiene`, que barra rodapé de coautoria, link de sessão e endereço antigo do site nas mensagens de commit e nos arquivos versionados:
 - `test (backend)`;
 - `bd`: Flyway, seed demo e pacote SQL com 61 PASS, mais 11 PASS da massa Olist;
 - `contract`: auditoria estática e verificação ao vivo das 61 operações do contrato v6;
@@ -117,7 +117,7 @@ A CI (`.github/workflows/ci.yml`) roda quatro jobs de teste, cada um com seus re
 | Plano de testes, defeitos e métricas | [docs/04-qualidade/plano-testes.md](docs/04-qualidade/plano-testes.md), [docs/04-qualidade/defeitos.md](docs/04-qualidade/defeitos.md), [reports/metricas/comparativo-r0-r1.md](reports/metricas/comparativo-r0-r1.md) |
 | Modelo de dados e pacote SQL | [docs/03-banco-de-dados/modelo-erp-pdv.md](docs/03-banco-de-dados/modelo-erp-pdv.md), [docs/03-banco-de-dados/pacote-sql/](docs/03-banco-de-dados/pacote-sql/) |
 | Decisões | [docs/06-decisoes/](docs/06-decisoes/) (ERP/PDV, evolução D-EVO, matriz de acesso, autenticação, dinheiro, stack) |
-| Histórico | [docs/10-historico/](docs/10-historico/README.md) (Trello e planejamento, sessão de 04/10, rodadas de 03 a 09/10, contratos ao vivo v4 e v5, planos e registros de execução de outubro) |
+| Histórico | [docs/10-historico/](docs/10-historico/README.md) (Trello e planejamento, sessão de 04/10, rodadas de 03 a 09/10, contratos ao vivo v4 e v5) |
 | Identidade visual | Manual, design system, logotipos e mockups da v2 em [docs/07-marca/](docs/07-marca/LEIA-ME.md), aplicados nas telas (decisões D-MAR-01 a D-MAR-15); [reports/marca/](reports/marca/) guarda as capturas da marca v1.0, nos dois papéis anteriores ao perfil CEO |
 | Contrato | [config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json](config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json) e Swagger em `/swagger-ui/index.html` |
 | Rotas legadas (`/orders`, `/payment`, `/address`) | [docs/02-arquitetura/api-legada.md](docs/02-arquitetura/api-legada.md) |

@@ -65,7 +65,7 @@ O CSV lista cada método e caminho em uma linha (85 linhas além do cabeçalho e
 
 Na ETAPA 2C, `GET`/`POST /customers` e `GET`/`PUT /customers/{id}` passaram para o `api/customers` do v4, que mascara o documento para o VENDEDOR, e ficaram liberadas ao VENDEDOR como a matriz prevê (D-NOITE-10); a restrição temporária da D-NOITE-05 e a lista de pendências do `AccessMatrixTest` foram removidas.
 
-## Diferenças em relação ao SBI-EXECUCAO
+## Diferenças em relação à especificação inicial
 
 | Delta | Mudança |
 | --- | --- |
@@ -73,7 +73,7 @@ Na ETAPA 2C, `GET`/`POST /customers` e `GET`/`PUT /customers/{id}` passaram para
 | DELTA-02 | O PDV usa catálogo próprio (`/sales/catalog`, sem custo nem saldo físico); `/products` e `/stock` ficam só com o GERENTE. |
 | DELTA-04 | Vendas do vendedor em `GET /sales/orders`, no lugar de `GET /orders?mine=true`; o `/orders` legado fica intocado e só do GERENTE. |
 | DELTA-06 | Histórico do cliente visível ao VENDEDOR com a exceção controlada da DEC-ERP-02. |
-| DELTA-07 | VENDEDOR cancela a própria venda pendente (DEC-ERP-06); o SBI-EXECUCAO previa "Não". |
+| DELTA-07 | VENDEDOR cancela a própria venda pendente (DEC-ERP-06); a especificação inicial previa "Não". |
 
 ## Testes que usam a matriz
 

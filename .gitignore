@@ -25,5 +25,6 @@ frontend/.npm-cache/
 # Saida padrao de scripts/quality-metrics.mjs; as rodadas versionadas ficam em reports/metricas/r*
 reports/metricas/ultima/
 
-# Arquivo de instrucoes gerado pelo next dev (o frontend/.gitignore cobre os demais da pasta)
-AGENTS.md
+# Arquivos .md gerados na raiz; o README e a pasta docs/ continuam versionados
+/*.md
+!/README.md

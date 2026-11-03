@@ -68,9 +68,9 @@ Gestão: resumo compacto, evolução no período, tabela de vendedores e alerta 
 
 ## Entrega e limites
 
-Imagens geradas pelo recurso nativo de geração de imagens, com referências dos mockups escolhidos. São referências de design, não telas executáveis. Texto, dados e estados apresentados como referência devem ser reproduzidos com componentes e dados determinísticos durante a implementação. Pequenas diferenças de tipografia e texto em imagens geradas não constituem regras do sistema.
+Imagens de referência produzidas a partir dos mockups escolhidos. São referências de design, não telas executáveis. Texto, dados e estados apresentados como referência devem ser reproduzidos com componentes e dados determinísticos durante a implementação. Pequenas diferenças de tipografia e texto nas imagens de referência não constituem regras do sistema.
 
-O quadro interativo do Creative Production não pode ser chamado diretamente com as ferramentas expostas nesta conversa. Os resultados são entregues em arquivos locais e no chat. Nenhuma alteração é feita no backend durante esta etapa criativa.
+Os resultados desta etapa ficam em arquivos locais. Nenhuma alteração é feita no backend durante a etapa criativa.
 
 ## Arquivos entregues e conferência
 
@@ -78,10 +78,9 @@ O quadro interativo do Creative Production não pode ser chamado diretamente com
 - `vendedor.png`: painel individual de Allan, sem resultados da loja ou de colegas. Primeira versão preservada em `vendedor-v1.png`.
 - `venda.png`: atendimento compartilhado com cliente existente, cadastro de novo cliente, total de R$ 5.700 e texto corrigido sobre atualização do realizado. Variante preservada em `venda-variante.png`.
 - `estoque.png`: saldo, reserva e disponível separados; custo não informado, sem inventar preço de compra.
-- `review-board.html`: galeria local gerada pelo renderer compartilhado do Creative Production; não é o sistema funcionando.
-- Prompts finais: `prompt-gestao.txt`, `vendedor-prompt.txt`, `prompt-venda.txt`, `prompt-estoque.txt`.
+- `review-board.html`: galeria local das imagens de referência; não é o sistema funcionando.
 
-As quatro imagens foram abertas para inspeção, e os arquivos existem e têm conteúdo. A dimensão nativa resultante foi 1487 × 1058, na proporção das referências. A resolução proposta de 1440 × 1024 orienta o layout; não foi exigida exportação exata pelo usuário.
+As quatro imagens foram abertas para inspeção, e os arquivos existem e têm conteúdo. A dimensão resultante foi 1487 × 1058, na proporção das referências. A resolução proposta de 1440 × 1024 orienta o layout; não foi exigida exportação exata pelo usuário.
 
 Conferidos: valores e somas demonstrativas, nomes dos perfis, separação visível de áreas, ausência de custo nas telas do vendedor, total da venda e disponibilidade do estoque. Gráficos e barras são ilustrações de layout: suas alturas e preenchimentos aproximados não devem ser extraídos como dados ou reutilizados como imagem na aplicação. A implementação precisa calcular as proporções a partir dos valores, particularmente as barras de atingimento dos vendedores.
 

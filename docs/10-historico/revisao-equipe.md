@@ -14,7 +14,7 @@ O objetivo é que cada integrante consiga revisar, rodar e aceitar a sua área s
 | Frontend | Next.js em TypeScript com schemas Zod gerados do contrato; telas Vender, Vendas, Clientes, Meu desempenho e Gestão (visão geral, estoque, produtos, promoções, análises); axe WCAG 2.2 AA | [#16](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/pull/16) |
 | Testes e CI | CI com quatro jobs (`test (backend)`, `bd`, `contract`, `frontend`), testes de lacuna, métricas R1 e rastreabilidade requisito → teste → evidência | [#17](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/pull/17) |
 | Entrega | Demonstração em um comando, README, arquitetura, roteiro de demonstração, relatório final | [#18](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/pull/18) |
-| Registro | Registro da integração e exceções da varredura de termos | [#19](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/pull/19), [#20](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/pull/20) |
+| Registro | Registro da integração da fase 0 | [#19](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/pull/19), [#20](https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/pull/20) |
 
 ## 2. Como rodar
 

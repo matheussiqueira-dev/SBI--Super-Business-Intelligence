@@ -13,7 +13,7 @@ env:
 
 jobs:
   hygiene:
-    # Mensagens de commit do PR sem rodape de coautoria, credito a ferramenta nem endereco antigo do site
+    # Mensagens de commit do PR sem rodape de coautoria, link de sessao nem endereco antigo do site
     # (D-PUB-02, D-PUB-11); arquivos versionados sem endereco antigo do site.
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest

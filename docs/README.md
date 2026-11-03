@@ -26,7 +26,7 @@ Mapa de toda a documentação do projeto, organizada por tema em pastas numerada
 | [07-marca/](07-marca/) | Identidade visual v2: manual em PDF e HTML, documentos da marca, logotipos, ícones, design system com fontes (licença OFL incluída), mockups, apresentações e pranchas |
 | [08-entregas/](08-entregas/) | O que foi entregue à disciplina: [relatório final](08-entregas/relatorio-final.md), [relatório acadêmico de 24/10](08-entregas/relatorio-academico-2026-10-24/) (DOCX, PDF, planilhas, diagramas, evidências e correções propostas) e o pacote SQL entregue em zip. Ver [08-entregas/README.md](08-entregas/README.md) |
 | [09-referencias/](09-referencias/) | Enunciado, manual do projeto A3, plano original, guia visual e direção criativa. Ver [09-referencias/README.md](09-referencias/README.md) |
-| [10-historico/](10-historico/) | Etapas encerradas: Trello e planejamento da equipe, sessões, rodadas de testes de 03 a 09/10, contratos ao vivo v4 e v5 e os [planos e registros de execução](10-historico/planejamento/) de outubro. Ver [10-historico/README.md](10-historico/README.md) |
+| [10-historico/](10-historico/) | Etapas encerradas: Trello e planejamento da equipe, sessões, rodadas de testes de 03 a 09/10 e contratos ao vivo v4 e v5. Ver [10-historico/README.md](10-historico/README.md) |
 
 Fora de `docs/`, o repositório guarda evidências geradas em [`reports/`](../reports/) (capturas da marca v1, contrato ao vivo do v6, resumos de métricas) e o contrato OpenAPI em [`config/openapi/`](../config/openapi/).
 
@@ -59,7 +59,6 @@ A organização em pastas é de 25/10/2026 (D-EVO-54). Documentos antigos, o rel
 | `docs/historico/` | [10-historico/](10-historico/) |
 | `A3/marca/rebranding-v2/` (fora do repositório) | [07-marca/](07-marca/), sem o `SBI-rebranding-v2.zip`, que repetia os mesmos arquivos |
 | `A3/entregas/` (fora do repositório) | [08-entregas/](08-entregas/) |
-| `A3/planejamento/` (fora do repositório) | [10-historico/planejamento/](10-historico/planejamento/), sem o PDF do roteiro de conclusão, que repetia o `.md` |
 
 ## Convenções
 

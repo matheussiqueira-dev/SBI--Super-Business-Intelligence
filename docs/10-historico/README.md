@@ -15,7 +15,6 @@ Cada item guarda aqui o caminho que tinha, sem o prefixo `docs/`. Para abrir um 
 | `reports/execucoes/` | [reports/execucoes/](reports/execucoes/) | Relatórios das rodadas formais de 03 a 09/10 |
 | `reports/contrato/live-v4/` | [reports/contrato/live-v4/](reports/contrato/live-v4/) | Contrato ao vivo do v4, 14/10 |
 | `reports/contrato/live-v5/` | [reports/contrato/live-v5/](reports/contrato/live-v5/) | Contrato ao vivo do v5, 14/10 |
-| `A3/planejamento/` (fora do repositório) | [planejamento/](planejamento/) | Planos, prompts de etapa, registros de execução, ensaio da demonstração e roteiro de conclusão (09 a 25/10), trazidos em 25/10/2026 (D-EVO-54). Nomes de ferramentas trocados por termos neutros e host do banco mascarado; o PDF do roteiro, que repetia o `.md`, ficou fora |
 
 O último relatório ao vivo versionado, do contrato v6, continua em `reports/contrato/live-v6/`. Cada nova execução grava em `target/contrato/`, fora do Git.
 

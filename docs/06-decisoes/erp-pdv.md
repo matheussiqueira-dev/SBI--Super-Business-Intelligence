@@ -84,7 +84,7 @@ Data: 14/10/2026. Registro das decisões da evolução ERP/PDV (RF-17 a RF-23), 
 | N-06 | O `POST /customers` legado salva o documento como recebido; com os CHECKs da D3, CPF com máscara cairia no handler genérico de integridade com a mensagem "This order already has a payment.". | Normalizar na ETAPA 2A. |
 | N-07 | O `POST /orders` legado não informa `fulfillment`; pedidos com endereço receberiam o padrão `PICKUP`. | Mapear `fulfillment` na entidade na ETAPA 2A. |
 | N-08 | `Order.moment` usa o fuso da JVM, e as views assumem America/Fortaleza. | B-10. |
-| N-09 | O SBI-EXECUCAO cita o rewrite `/api/:path*` e `API_ORIGIN`; o código usa `/api/backend/:path*` e `BACKEND_ORIGIN`. | Vale o código (DELTA já citado no prompt da etapa). |
+| N-09 | A especificação inicial cita o rewrite `/api/:path*` e `API_ORIGIN`; o código usa `/api/backend/:path*` e `BACKEND_ORIGIN`. | Vale o código (DELTA já registrado na etapa). |
 
 ## Respostas para a ETAPA 2A (14/10/2026)
 
