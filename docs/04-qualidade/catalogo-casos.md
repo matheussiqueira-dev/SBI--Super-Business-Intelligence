@@ -861,3 +861,58 @@ Um caso pode ter mais de uma técnica ou nível. As técnicas caixa-preta (parti
 | Status | Passou |
 | Evidência | `DatasourcePasswordGuardTest` |
 | Técnica · Nível · Risco | Testes de casos inválidos · Unitário, Regressão · R10 |
+
+## Casos da demonstração pública (CT-DEMO)
+
+Acrescentados com a demonstração sem login (`/demo`). O desenho, as fórmulas e os limites do módulo estão em
+[01-produto/demonstracao-publica.md](../01-produto/demonstracao-publica.md). Todos são automatizados: nenhum depende de
+execução manual. Execução de referência: **E4** — 17/11/2026, `npm run typecheck && npm test && npm run build` e
+`npm run test:e2e:demo` em `frontend/`, Windows 11, Node 24.19 — 112 testes unitários e 6 E2E, 0 falhas.
+
+| ID | Título | Requisito | Técnica | Nível | Risco | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| CT-DEMO-101 | Base sintética obedece ao contrato de `GET /executive/overview` | RNF-05 | Baseado em requisitos | Unitário, Contrato | R06 | Passou |
+| CT-DEMO-102 | Mesma semente e mesmo dia produzem a mesma loja | RNF-07 | Baseado em requisitos | Unitário | R06 | Passou |
+| CT-DEMO-103 | Nenhuma venda, devolução ou visita depois de hoje | RF-28 | Análise de valor-limite | Unitário | R06 | Passou |
+| CT-DEMO-104 | Período futuro aparece só como meta | RF-29 | Transição de estados | Unitário | R06 | Passou |
+| CT-DEMO-105 | Calendário operacional: sem venda em dia fechado | RF-28 | Particionamento de equivalência | Unitário | R06 | Passou |
+| CT-DEMO-106 | Mês fechado reconcilia com o cenário de referência | RF-28, RF-29 | Baseado em requisitos | Unitário, Integração | R02 | Passou |
+| CT-DEMO-107 | Distribuição por vendedor fecha com o total da loja | RF-29 | Baseado em requisitos | Unitário | R02 | Passou |
+| CT-DEMO-108 | Toda meta mensal distribui exatamente a meta da loja | RF-29 | Análise de valor-limite | Unitário | R06 | Passou |
+| CT-DEMO-109 | Receita líquida dos itens fecha com o total do pedido | RNF-03 | Análise de valor-limite | Unitário | R06 | Passou |
+| CT-DEMO-110 | Variação comercial plausível (meses acima e abaixo da meta) | RF-28 | Baseado em requisitos | Unitário | R06 | Passou |
+| CT-DEMO-111 | Custo ausente nunca vira zero | RF-28 | Particionamento de equivalência | Unitário | R06 | Passou |
+| CT-DEMO-112 | Base de 24 meses com o ano anterior para comparação | RF-28 | Baseado em requisitos | Unitário | R06 | Passou |
+| CT-DEMO-113 | Semana comercial e repartição em centavos sem sobra | RNF-03 | Análise de valor-limite | Unitário | R06 | Passou |
+| CT-DEMO-114 | Visitantes sintéticos sustentam conversão plausível | RF-28 | Particionamento de equivalência | Unitário | R06 | Passou |
+| CT-DEMO-115 | Geração da base rápida o bastante para a apresentação | RNF-01 | Teste de desempenho | Unitário | R07 | Passou |
+| CT-DEMO-121 | Sem meta não há atingimento, desvio nem ritmo | RF-29 | Testes de casos inválidos | Unitário | R06 | Passou |
+| CT-DEMO-122 | Atingimento, desvio e falta por dia de funcionamento | RF-29 | Baseado em requisitos | Unitário | R02 | Passou |
+| CT-DEMO-123 | Estados da meta, com critério configurável | RF-29 | Análise de valor-limite | Unitário | R02 | Passou |
+| CT-DEMO-124 | Rótulo do estado muda com o período em curso ou fechado | RNF-06 | Tabela de decisão | Unitário | R08 | Passou |
+| CT-DEMO-125 | Mês fechado não tem quanto falta por dia | RF-29 | Análise de valor-limite | Unitário | R02 | Passou |
+| CT-DEMO-126 | Metas derivadas saem dos dias de funcionamento | RF-29 | Baseado em requisitos | Unitário | R02 | Passou |
+| CT-DEMO-127 | Mês sem dia de funcionamento não divide por zero | RNF-03 | Testes de casos inválidos | Unitário | R06 | Passou |
+| CT-DEMO-128 | Conversão e itens por venda não inventam zero | RF-28 | Testes de casos inválidos | Unitário | R06 | Passou |
+| CT-DEMO-141 | Venda simulada é uma transação única nos três níveis | RF-07, RF-28 | Baseado em requisitos | Integração | R02 | Passou |
+| CT-DEMO-142 | Venda simulada move meta, atingimento e quadro da equipe | RF-29 | Integração | Integração | R02 | Passou |
+| CT-DEMO-143 | Venda simulada baixa o estoque e respeita o disponível | RF-14 | Transição de estados | Integração | R04 | Passou |
+| CT-DEMO-144 | Venda simulada obedece ao catálogo e à alçada de desconto | RF-26 | Tabela de decisão | Integração | R05 | Passou |
+| CT-DEMO-145 | Desconto do pedido repartido entre itens sem sobra | RNF-03 | Análise de valor-limite | Unitário | R06 | Passou |
+| CT-DEMO-146 | Restaurar devolve o estado inicial | RF-28 | Transição de estados | Integração | R06 | Passou |
+| CT-DEMO-147 | Metas editadas com histórico e valores inválidos recusados | RF-29 | Testes de casos inválidos | Integração | R02 | Passou |
+| CT-DEMO-148 | Recorte de período coerente e nunca adiante de hoje | RF-28 | Análise de valor-limite | Unitário | R06 | Passou |
+| CT-DEMO-149 | Filtro de categoria muda indicadores, nunca a meta | RF-28 | Particionamento de equivalência | Integração | R02 | Passou |
+| CT-DEMO-150 | Estado da aba conferido; conteúdo adulterado é descartado | RNF-04 | Testes de casos inválidos | Integração, Segurança | R10 | Passou |
+| CT-DEMO-151 | Trocar de perfil mantém o recorte e não muda os dados | RF-28 | Transição de estados | Integração | R05 | Passou |
+| CT-DEMO-152 | Visitantes diferentes não compartilham alterações | RNF-04 | Baseado em requisitos | Integração, Segurança | R10 | Passou |
+| CT-DEMO-201 | `/demo` abre sem sessão e não chama a API | RNF-04 | Baseado em requisitos | E2E, Segurança, Acessibilidade | R05 | Passou |
+| CT-DEMO-202 | Venda simulada atualiza vendedor, gerente e CEO | RF-07, RF-28 | Baseado em requisitos | E2E | R02 | Passou |
+| CT-DEMO-203 | Alteração de um visitante não vaza para outro | RNF-04 | Baseado em requisitos | E2E, Segurança | R10 | Passou |
+| CT-DEMO-204 | Seletor de perfil público não libera a área autenticada | RNF-04 | Testes de casos inválidos | E2E, Segurança | R05 | Passou |
+| CT-DEMO-205 | Tela de login leva à demonstração e o fluxo real continua | RF-01 | Baseado em requisitos | E2E | R05 | Passou |
+| CT-DEMO-206 | Filtros, metas e acessibilidade (axe) nos três perfis | RNF-06 | Baseado em requisitos | E2E, Acessibilidade | R08 | Passou |
+
+Evidências: `frontend/tests/demo-ledger.test.ts`, `frontend/tests/demo-targets.test.ts`,
+`frontend/tests/demo-state.test.ts` e `frontend/e2e/demo.spec.ts` (este também roda isolado com
+`npm run test:e2e:demo`, sem banco e sem a API no ar).

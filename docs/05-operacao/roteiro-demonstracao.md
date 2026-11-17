@@ -2,6 +2,10 @@
 
 A apresentação roda no ambiente publicado: <https://sbi-app-alpha.vercel.app> (frontend na Vercel, API no Render, banco no Neon), com a massa Olist já carregada. A stack local fica como [plano B](#plano-b-stack-local).
 
+> **Plano A do bloco prático:** a [demonstração pública](../01-produto/demonstracao-publica.md) em
+> <https://sbi-app-alpha.vercel.app/demo> abre sem login e roda inteira no navegador, então funciona mesmo com a API
+> dormindo. O roteiro de 8 minutos (vendedor → gerente → CEO) está embutido na tela, em "Iniciar apresentação guiada".
+
 ## Antes de começar (10 minutos antes)
 
 1. Aqueça o ambiente, porque o plano gratuito do Render dorme o serviço e o Neon suspende o banco ocioso ([deploy.md, seção 6](deploy.md)):

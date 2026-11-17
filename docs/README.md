@@ -8,6 +8,7 @@ Mapa de toda a documentação do projeto, organizada por tema em pastas numerada
 | --- | --- |
 | Avaliar o projeto | [Relatório final](08-entregas/relatorio-final.md), [relatório acadêmico](08-entregas/relatorio-academico-2026-10-24/) e [roteiro de demonstração](05-operacao/roteiro-demonstracao.md) |
 | Entender o que o sistema faz | [Requisitos](01-produto/requisitos.md) e [critérios de aceitação](01-produto/criterios-aceitacao.md) |
+| Abrir o sistema sem login | [Demonstração pública (`/demo`)](01-produto/demonstracao-publica.md) |
 | Entender como ele é feito | [Arquitetura](02-arquitetura/arquitetura.md), [decisões](06-decisoes/) e [modelo de dados](03-banco-de-dados/modelo-erp-pdv.md) |
 | Ver como ele é testado | [Plano de testes](04-qualidade/plano-testes.md), [catálogo de casos](04-qualidade/catalogo-casos.md), [rastreabilidade](04-qualidade/rastreabilidade.md) e [defeitos](04-qualidade/defeitos.md) |
 | Publicar ou apresentar | [Publicação (Vercel, Render e Neon)](05-operacao/deploy.md) e [roteiro de demonstração](05-operacao/roteiro-demonstracao.md) |
@@ -17,7 +18,7 @@ Mapa de toda a documentação do projeto, organizada por tema em pastas numerada
 
 | Pasta | Conteúdo |
 | --- | --- |
-| [01-produto/](01-produto/) | O que o sistema deve fazer: [requisitos](01-produto/requisitos.md) (RF e RNF), [critérios de aceitação](01-produto/criterios-aceitacao.md), [validação dos requisitos](01-produto/validacao-requisitos.md) e [avatares dos usuários](01-produto/avatares-usuarios.md) |
+| [01-produto/](01-produto/) | O que o sistema deve fazer: [requisitos](01-produto/requisitos.md) (RF e RNF), [critérios de aceitação](01-produto/criterios-aceitacao.md), [validação dos requisitos](01-produto/validacao-requisitos.md), [avatares dos usuários](01-produto/avatares-usuarios.md) e a [demonstração pública](01-produto/demonstracao-publica.md) (rota `/demo`, sem login) |
 | [02-arquitetura/](02-arquitetura/) | Como o sistema é feito: [arquitetura](02-arquitetura/arquitetura.md) (camadas, fluxo de venda, segurança, frontend) e [API legada](02-arquitetura/api-legada.md) (rotas anteriores ao ERP/PDV) |
 | [03-banco-de-dados/](03-banco-de-dados/) | [Modelo ERP/PDV](03-banco-de-dados/modelo-erp-pdv.md), [dicionário de dados](03-banco-de-dados/dicionario-dados.md), [migrações](03-banco-de-dados/migracoes.md), [massa de demonstração](03-banco-de-dados/massa-demonstracao.md) e o [pacote SQL](03-banco-de-dados/pacote-sql/) da disciplina, que o CI executa |
 | [04-qualidade/](04-qualidade/) | [Plano de qualidade](04-qualidade/plano-qualidade.md), [plano de testes](04-qualidade/plano-testes.md), [catálogo de casos](04-qualidade/catalogo-casos.md), [rastreabilidade](04-qualidade/rastreabilidade.md), [análise de risco](04-qualidade/analise-risco.md), [defeitos](04-qualidade/defeitos.md), [relatório de usabilidade](04-qualidade/relatorio-usabilidade.md) e os [modelos de documento](04-qualidade/templates/) |
