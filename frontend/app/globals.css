@@ -353,18 +353,20 @@ td .actions { flex-wrap: nowrap; justify-content: flex-end; }
   padding: 0 12px 4px; color: var(--sbi-text-tertiary); font: var(--sbi-type-overline); letter-spacing: var(--sbi-tracking-overline);
   text-transform: uppercase; font-feature-settings: "case" 1;
 }
-.nav a {
+.nav a, .nav .nav-item {
   position: relative; display: flex; align-items: center; gap: 10px; min-height: var(--sbi-control-md); padding: 0 12px; border-radius: var(--sbi-radius-md);
   color: var(--sbi-text-primary); font: var(--sbi-type-label); letter-spacing: var(--sbi-tracking-label); text-decoration: none;
 }
-.nav a .icon { color: var(--sbi-icon-default); }
-.nav a:hover { background: var(--sbi-bg-hover); color: var(--sbi-text-primary); }
-.nav a:focus-visible { outline-offset: -2px; }
-.nav a[aria-current="page"] { background: var(--sbi-bg-selected); color: var(--sbi-text-selected); font-weight: 600; }
-.nav a[aria-current="page"]::before {
+/* O menu da demonstracao troca de area sem navegar: o item e botao, com o mesmo desenho do link. */
+.nav .nav-item { width: 100%; background: none; border: 0; text-align: left; cursor: pointer; }
+.nav a .icon, .nav .nav-item .icon { color: var(--sbi-icon-default); }
+.nav a:hover, .nav .nav-item:hover { background: var(--sbi-bg-hover); color: var(--sbi-text-primary); }
+.nav a:focus-visible, .nav .nav-item:focus-visible { outline-offset: -2px; }
+.nav a[aria-current="page"], .nav .nav-item[aria-current="page"] { background: var(--sbi-bg-selected); color: var(--sbi-text-selected); font-weight: 600; }
+.nav a[aria-current="page"]::before, .nav .nav-item[aria-current="page"]::before {
   content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--sbi-selected-indicator);
 }
-.nav a[aria-current="page"] .icon { color: currentColor; }
+.nav a[aria-current="page"] .icon, .nav .nav-item[aria-current="page"] .icon { color: currentColor; }
 .account-box {
   margin-top: auto; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px 8px; align-items: center; padding: 12px 4px 0;
   border-top: 1px solid var(--sbi-border-subtle);
@@ -384,6 +386,20 @@ td .actions { flex-wrap: nowrap; justify-content: flex-end; }
 .app-footer p { font: var(--sbi-type-caption); color: var(--sbi-text-tertiary); }
 .app-footer a { color: inherit; }
 .app-footer a:hover { color: var(--sbi-text-link-hover); }
+
+/* ---------- demonstração pública: identificação do ambiente e ficha da loja simulada ---------- */
+.demo-bar {
+  display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between;
+  padding: 10px 14px; border: 1px solid var(--sbi-border-subtle); border-radius: var(--sbi-radius-md);
+  background: var(--sbi-bg-surface);
+}
+.demo-flag { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; margin: 0; color: var(--sbi-text-secondary); font: var(--sbi-type-caption); letter-spacing: var(--sbi-tracking-caption); }
+.demo-flag strong { color: var(--sbi-text-primary); }
+.demo-flag .icon { align-self: center; color: var(--sbi-icon-default); }
+.demo-store { display: grid; gap: 2px; padding: 12px 8px 0; border-top: 1px solid var(--sbi-border-subtle); }
+.demo-store strong { font: var(--sbi-type-label); letter-spacing: var(--sbi-tracking-label); }
+.login-demo { display: grid; gap: 8px; padding-top: 16px; border-top: 1px solid var(--sbi-border-subtle); text-align: center; }
+.login-demo p { color: var(--sbi-text-secondary); font: var(--sbi-type-caption); letter-spacing: var(--sbi-tracking-caption); }
 
 /* ---------- carregamento, página não encontrada e falha: logotipo vertical sobre Névoa, sem animação ---------- */
 .brand-screen { min-height: 100svh; display: grid; place-items: center; align-content: center; gap: 16px; padding: 24px; background: var(--sbi-bg-canvas); text-align: center; }
@@ -588,7 +604,7 @@ td .actions { flex-wrap: nowrap; justify-content: flex-end; }
 
 /* ---------- toque: alvo mínimo de 44 px em menu, botões e seleções ---------- */
 @media (pointer: coarse) {
-  .nav a, .btn, .btn-sm, .btn-compact, .segmented label, .theme-switch label { min-height: var(--sbi-touch-target); }
+  .nav a, .nav .nav-item, .btn, .btn-sm, .btn-compact, .segmented label, .theme-switch label { min-height: var(--sbi-touch-target); }
   .theme-switch label { width: var(--sbi-touch-target); height: var(--sbi-touch-target); }
 }
 
@@ -597,7 +613,7 @@ td .actions { flex-wrap: nowrap; justify-content: flex-end; }
   .pill::before, .notice::before, .field .field-error::before { background: CanvasText; }
   .meter-track, .share-track { border: 1px solid CanvasText; }
   .meter-fill, .share-bar, .stacked span { background: Highlight; forced-color-adjust: none; }
-  .nav a[aria-current="page"] { outline: 2px solid Highlight; }
+  .nav a[aria-current="page"], .nav .nav-item[aria-current="page"] { outline: 2px solid Highlight; }
 }
 
 @media (prefers-reduced-motion: reduce) {

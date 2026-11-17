@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
+import Link from 'next/link';
 import LoginForm from './login-form.tsx';
 import { SbiLogo, SbiSymbol } from '../../components/brand/logo.tsx';
 import ThemeSwitch from '../../components/theme-switch.tsx';
@@ -32,6 +33,10 @@ export default function LoginPage() {
           <Suspense fallback={<p role="status" className="muted">Carregando…</p>}>
             <LoginForm />
           </Suspense>
+          <div className="login-demo">
+            <p>Conheça o SBI e explore os diferentes níveis de gestão de uma loja de varejo.</p>
+            <Link className="btn btn-block" href="/demo">Explorar demonstração</Link>
+          </div>
           <div className="login-tools"><ThemeSwitch /></div>
         </section>
         <AcademicCredits centered />

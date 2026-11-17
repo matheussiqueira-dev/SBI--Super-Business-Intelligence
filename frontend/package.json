@@ -19,6 +19,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.ts",
     "test:e2e": "playwright test",
+    "test:e2e:demo": "playwright test -c playwright.demo.config.mjs",
     "api:generate": "orval --config orval.config.mjs",
     "api:check": "npm run api:generate && git diff --exit-code -- lib/api/generated"
   },
