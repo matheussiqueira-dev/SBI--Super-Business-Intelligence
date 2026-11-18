@@ -11,6 +11,8 @@ playwright-report/
 test-results/
 playwright-report-published/
 test-results-published/
+playwright-report-demo/
+test-results-demo/
 .env
 .env.local
 # Gerados pelo Next.js e pelo TypeScript
