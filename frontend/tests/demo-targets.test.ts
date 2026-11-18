@@ -95,9 +95,9 @@ test('[CT-DEMO-126] metas derivadas saem dos dias de funcionamento, nunca de 30 
     { sellerId: 4, monthly: 20_000, daily: 20_000 / days },
     { sellerId: 5, monthly: 20_000, daily: 20_000 / days },
   ]);
-  assert.equal(targets.requiredOrders, 400);
-  assert.equal(targets.requiredTicket, 150);
-  assert.equal(targets.requiredItems, 640);
+  assert.equal(targets.requiredOrders, 30);
+  assert.equal(targets.requiredTicket, 2_000);
+  assert.equal(targets.requiredItems, 42);
 });
 
 test('[CT-DEMO-127] mes sem dia de funcionamento nao divide por zero', () => {

@@ -6,23 +6,27 @@ import { generateLedger, orderNet, toOverview } from '../lib/demo/ledger.ts';
 import {
   applySession, canEditGoals, createGoalRecord, createSimulatedSale, DEMO_ROLES, goalHistory, initialSession,
   reduceSession, resolveRange, restoreSession, serializeSession, validateGoal, validateSale, visitsIn,
-  type DemoSession, type SaleInput,
+  type DemoRole, type DemoSession, type SaleInput,
 } from '../lib/demo/state.ts';
 import { monthGoalView, periodForRange, sliceOf, teamRows, demoFilters } from '../lib/demo/metrics.ts';
-import { MANAGER_ID, SELLER_IDS } from '../lib/demo/scenario.ts';
+import { PEOPLE_BY_ROLE, SELLER_IDS, SUGGESTED_BASKET_SKUS } from '../lib/demo/scenario.ts';
 
 const TODAY = '2026-11-17';
 const base = generateLedger({ today: TODAY });
 const PERIOD = TODAY.slice(0, 7);
 const MONTH = monthRange(2026, 11);
 const SELLER = SELLER_IDS[0]!;
+const FRANCISCO = SELLER_IDS[1]!;
+const MATHEUS = PEOPLE_BY_ROLE.GERENTE[0]!.id;
+const GABRIEL = PEOPLE_BY_ROLE.GERENTE[1]!.id;
+const asRole = (role: DemoRole): DemoSession => ({ ...initialSession(), role });
 
-/** Sacola do roteiro: calca + vestido + camiseta, R$ 449,70 de preco de tabela. */
+/** iPhone e dois acessórios do catálogo Apple. */
 function scriptBasket(): SaleInput {
   const sku = (code: string) => base.products.find(product => product.sku === code)!.id;
   return {
     sellerId: SELLER, paymentMethod: 'PIX', customerId: base.customers[0]!.id, discountPercent: 0,
-    items: [{ productId: sku('CAL-003'), units: 1 }, { productId: sku('VES-008'), units: 1 }, { productId: sku('CAM-001'), units: 1 }],
+    items: SUGGESTED_BASKET_SKUS.map(code => ({ productId: sku(code), units: 1 })),
   };
 }
 
@@ -38,7 +42,7 @@ test('[CT-DEMO-141] a venda simulada entra como uma transacao unica e os tres ni
   const sellerBefore = before.measures(demoFilters({ sellerId: SELLER }), MONTH);
 
   const { session, amount } = withSale(scriptBasket());
-  assert.equal(amount, 449.7);
+  assert.equal(amount, 11_706);
   const after = new Model(toOverview(applySession(base, session)));
   const storeAfter = after.measures(NO_FILTERS, MONTH);
   const sellerAfter = after.measures(demoFilters({ sellerId: SELLER }), MONTH);
@@ -53,7 +57,7 @@ test('[CT-DEMO-141] a venda simulada entra como uma transacao unica e os tres ni
   assert.equal(storeAfter.orders, storeBefore.orders + 1);
   // Diretoria: custo dos itens vendidos, lucro bruto e margem recalculados a partir da mesma transacao.
   const cost = round(storeAfter.cost - storeBefore.cost);
-  assert.equal(cost, 149.5 + 95.9 + 43.2);
+  assert.equal(cost, 7_896.69);
   assert.equal(round((storeAfter.profit ?? 0) - (storeBefore.profit ?? 0)), round(amount - cost));
   assert.notEqual(storeAfter.margin, storeBefore.margin);
   // Nenhum outro vendedor muda.
@@ -74,7 +78,7 @@ test('[CT-DEMO-142] a venda simulada move meta, atingimento e quadro da equipe d
   const sellerBefore = monthGoalView(before, PERIOD, TODAY, SELLER);
   const sellerAfter = monthGoalView(after, PERIOD, TODAY, SELLER);
   assert.equal(round(sellerAfter.realized - sellerBefore.realized), amount);
-  assert.equal(round((sellerAfter.assessment.remaining ?? 0) - (sellerBefore.assessment.remaining ?? 0)), -amount);
+  assert.equal(round(sellerAfter.assessment.remaining ?? 0), Math.max(round((sellerBefore.assessment.remaining ?? 0) - amount), 0));
   assert.ok((sellerAfter.assessment.achievement ?? 0) > (sellerBefore.assessment.achievement ?? 0));
 
   const storeAfter = monthGoalView(after, PERIOD, TODAY, null);
@@ -84,7 +88,15 @@ test('[CT-DEMO-142] a venda simulada move meta, atingimento e quadro da equipe d
   assert.equal(sum, Math.round(storeAfter.realized * 100));
   assert.equal(rows.find(row => row.sellerId === SELLER)?.realized, sellerAfter.realized);
   // O gerente nao vende: nao entra no quadro de metas individuais.
-  assert.equal(rows.some(row => row.sellerId === MANAGER_ID), false);
+  assert.equal(rows.some(row => row.sellerId === MATHEUS), false);
+  assert.deepEqual(teamRows(after, PERIOD, TODAY, MONTH, MATHEUS).map(row => row.name), ['Allan Barros']);
+  assert.deepEqual(teamRows(after, PERIOD, TODAY, MONTH, GABRIEL).map(row => row.name), ['Francisco Ferreira']);
+  const teamBefore = monthGoalView(before, PERIOD, TODAY, null, MATHEUS);
+  const teamAfter = monthGoalView(after, PERIOD, TODAY, null, MATHEUS);
+  assert.equal(teamAfter.goal, 30_000);
+  assert.equal(round(teamAfter.realized - teamBefore.realized), amount);
+  assert.equal(monthGoalView(after, PERIOD, TODAY, null, GABRIEL).realized,
+    monthGoalView(before, PERIOD, TODAY, null, GABRIEL).realized);
 });
 
 test('[CT-DEMO-143] a venda simulada baixa o estoque e respeita o disponivel', () => {
@@ -95,25 +107,37 @@ test('[CT-DEMO-143] a venda simulada baixa o estoque e respeita o disponivel', (
   const ledger = applySession(base, session);
   assert.equal(ledger.products.find(product => product.id === productId)!.stock, before - 1);
   // Acima do disponivel a venda e recusada.
-  assert.equal(validateSale(base, { ...basket, items: [{ productId, units: before + 1 }] }, 'VENDEDOR', 0), 'ESTOQUE_INSUFICIENTE');
-  assert.equal(validateSale(base, basket, 'VENDEDOR', 0), null);
+  assert.equal(validateSale(base, { ...basket, items: [{ productId, units: before + 1 }] }, initialSession()), 'ESTOQUE_INSUFICIENTE');
+  assert.equal(validateSale(base, basket, initialSession()), null);
 });
 
 test('[CT-DEMO-144] a venda simulada obedece ao catalogo e a alcada de desconto do papel', () => {
   const basket = scriptBasket();
-  const inactive = base.products.find(product => !product.active)!;
-  assert.equal(validateSale(base, { ...basket, items: [{ productId: inactive.id, units: 1 }] }, 'GERENTE', 0), 'PRODUTO_INATIVO');
-  assert.equal(validateSale(base, { ...basket, items: [{ productId: 99_999, units: 1 }] }, 'GERENTE', 0), 'PRODUTO_INEXISTENTE');
-  assert.equal(validateSale(base, { ...basket, items: [{ productId: basket.items[0]!.productId, units: 0 }] }, 'GERENTE', 0), 'QUANTIDADE_INVALIDA');
-  assert.equal(validateSale(base, { ...basket, items: [] }, 'GERENTE', 0), 'SEM_ITEM');
-  assert.equal(validateSale(base, { ...basket, sellerId: MANAGER_ID }, 'GERENTE', 0), 'VENDEDOR_INVALIDO');
+  const productId = basket.items[0]!.productId;
+  const withInactive = { ...base, products: base.products.map(product => product.id === productId ? { ...product, active: false } : product) };
+  assert.equal(validateSale(withInactive, basket, asRole('GERENTE')), 'PRODUTO_INATIVO');
+  assert.equal(validateSale(base, { ...basket, items: [{ productId: 99_999, units: 1 }] }, asRole('GERENTE')), 'PRODUTO_INEXISTENTE');
+  assert.equal(validateSale(base, { ...basket, items: [{ productId: basket.items[0]!.productId, units: 0 }] }, asRole('GERENTE')), 'QUANTIDADE_INVALIDA');
+  assert.equal(validateSale(base, { ...basket, items: [] }, asRole('GERENTE')), 'SEM_ITEM');
+  assert.equal(validateSale(base, { ...basket, sellerId: MATHEUS }, asRole('GERENTE')), 'VENDEDOR_INVALIDO');
   // Vendedor vai ate 5%; gerente e CEO ate 20% (mesmos limites da tabela discount_policy).
-  assert.equal(validateSale(base, { ...basket, discountPercent: 5 }, 'VENDEDOR', 0), null);
-  assert.equal(validateSale(base, { ...basket, discountPercent: 5.01 }, 'VENDEDOR', 0), 'DESCONTO_ACIMA_DA_ALCADA');
-  assert.equal(validateSale(base, { ...basket, discountPercent: 20 }, 'GERENTE', 0), null);
-  assert.equal(validateSale(base, { ...basket, discountPercent: 20.5 }, 'CEO', 0), 'DESCONTO_ACIMA_DA_ALCADA');
-  assert.equal(validateSale(base, { ...basket, discountPercent: -1 }, 'GERENTE', 0), 'DESCONTO_ACIMA_DA_ALCADA');
-  assert.equal(validateSale(base, basket, 'VENDEDOR', 50), 'LIMITE_DE_VENDAS');
+  assert.equal(validateSale(base, { ...basket, discountPercent: 5 }, asRole('VENDEDOR')), null);
+  assert.equal(validateSale(base, { ...basket, discountPercent: 5.01 }, asRole('VENDEDOR')), 'DESCONTO_ACIMA_DA_ALCADA');
+  assert.equal(validateSale(base, { ...basket, discountPercent: 20 }, asRole('GERENTE')), null);
+  assert.equal(validateSale(base, { ...basket, discountPercent: 20.5 }, asRole('CEO')), 'DESCONTO_ACIMA_DA_ALCADA');
+  assert.equal(validateSale(base, { ...basket, discountPercent: -1 }, asRole('GERENTE')), 'DESCONTO_ACIMA_DA_ALCADA');
+  assert.equal(validateSale(base, basket, { ...initialSession(), sales: Array.from({ length: 50 }, () => createSimulatedSale(base, basket)) }), 'LIMITE_DE_VENDAS');
+});
+
+test('[CT-DEMO-153] um vendedor registra a própria venda e o gerente atua pela equipe em exibição', () => {
+  const basket = { ...scriptBasket(), sellerId: FRANCISCO };
+  const francisco = reduceSession(initialSession(), { type: 'person', role: 'VENDEDOR', personId: FRANCISCO });
+  const gabriel = reduceSession(asRole('GERENTE'), { type: 'person', role: 'GERENTE', personId: GABRIEL });
+  assert.equal(validateSale(base, basket, initialSession()), 'VENDEDOR_INVALIDO');
+  assert.equal(validateSale(base, basket, francisco), null);
+  assert.equal(validateSale(base, basket, asRole('GERENTE')), 'VENDEDOR_INVALIDO');
+  assert.equal(validateSale(base, basket, gabriel), null);
+  assert.equal(validateSale(base, basket, asRole('CEO')), null);
 });
 
 test('[CT-DEMO-145] o desconto do pedido e repartido entre os itens sem sobrar centavo', () => {
@@ -131,7 +155,7 @@ test('[CT-DEMO-145] o desconto do pedido e repartido entre os itens sem sobrar c
 test('[CT-DEMO-146] restaurar devolve o estado inicial e nada sobrevive da sessao', () => {
   const { session } = withSale(scriptBasket());
   const edited = reduceSession(session, { type: 'goal', record: createGoalRecord(
-    { period: PERIOD, storeGoal: 90_000, sellers: SELLER_IDS.map(id => ({ sellerId: id, goal: 30_000 })) }, 'GERENTE') });
+    { period: PERIOD, storeGoal: 90_000, sellers: SELLER_IDS.map(id => ({ sellerId: id, goal: 45_000 })) }, asRole('GERENTE')) });
   assert.equal(edited.sales.length, 1);
   assert.equal(edited.goals.length, 1);
   const restored = reduceSession(edited, { type: 'restore' });
@@ -140,7 +164,7 @@ test('[CT-DEMO-146] restaurar devolve o estado inicial e nada sobrevive da sessa
 });
 
 test('[CT-DEMO-147] metas editadas valem para o periodo, preservam o historico e recusam valores invalidos', () => {
-  const input = { period: PERIOD, storeGoal: 72_000, sellers: SELLER_IDS.map(id => ({ sellerId: id, goal: 24_000 })) };
+  const input = { period: PERIOD, storeGoal: 72_000, sellers: SELLER_IDS.map(id => ({ sellerId: id, goal: 36_000 })) };
   assert.equal(validateGoal(input, 'GERENTE'), null);
   assert.equal(validateGoal(input, 'VENDEDOR'), 'SEM_PERMISSAO');
   assert.equal(validateGoal({ ...input, storeGoal: -1 }, 'CEO'), 'META_NEGATIVA');
@@ -150,11 +174,11 @@ test('[CT-DEMO-147] metas editadas valem para o periodo, preservam o historico e
   assert.equal(validateGoal({ ...input, sellers: [{ sellerId: 404, goal: 72_000 }] }, 'CEO'), 'VENDEDOR_INVALIDO');
   assert.equal(canEditGoals('VENDEDOR'), false);
 
-  const session = reduceSession(initialSession(), { type: 'goal', record: createGoalRecord(input, 'CEO') });
+  const session = reduceSession(initialSession(), { type: 'goal', record: createGoalRecord(input, asRole('CEO')) });
   const ledger = applySession(base, session);
   const model = new Model(toOverview(ledger));
   assert.equal(model.monthGoal(11)?.storeGoal.amount, 72_000);
-  assert.equal(model.sellerGoal(11, SELLER), 24_000);
+  assert.equal(model.sellerGoal(11, SELLER), 36_000);
   // A meta do plano continua no historico, com responsavel e data.
   const history = goalHistory(base, session, PERIOD);
   assert.equal(history.length, 2);
@@ -182,8 +206,8 @@ test('[CT-DEMO-148] o recorte de periodo resolve intervalos coerentes e nunca pa
 test('[CT-DEMO-149] o filtro de categoria muda indicadores, mas nunca a meta do mes', () => {
   const model = new Model(toOverview(base));
   const all = sliceOf(model, base, MONTH, demoFilters());
-  const shirts = sliceOf(model, base, MONTH, demoFilters({ categoryId: 1 }));
-  assert.ok(shirts.measures.net > 0 && shirts.measures.net < all.measures.net);
+  const accessories = sliceOf(model, base, MONTH, demoFilters({ categoryId: 1 }));
+  assert.ok(accessories.measures.net > 0 && accessories.measures.net < all.measures.net);
   assert.equal(monthGoalView(model, PERIOD, TODAY, null).goal, 60_000);
   // Conversao e sempre da loja; por vendedor nao existe (o modelo nao tem atendimento por pessoa).
   assert.equal(sliceOf(model, base, MONTH, demoFilters({ sellerId: SELLER })).conversion, null);
@@ -195,7 +219,7 @@ test('[CT-DEMO-150] o estado guardado na aba e conferido: conteudo adulterado e 
   const restored = restoreSession(serializeSession(session), base);
   assert.ok(restored);
   assert.equal(restored.sales.length, 1);
-  assert.equal(orderNet(restored.sales[0]!), 44_970);
+  assert.equal(orderNet(restored.sales[0]!), 1_170_600);
   assert.equal(restored.sales[0]!.simulated, true);
 
   const tampered = (change: (value: Record<string, unknown>) => void) => {
@@ -212,14 +236,14 @@ test('[CT-DEMO-150] o estado guardado na aba e conferido: conteudo adulterado e 
   }), null, 'quantidade negativa');
   assert.equal(tampered(value => {
     const items = (value.sales as { items: Record<string, unknown>[] }[])[0]!.items;
-    items[0]!.discount = 999_999;
+    items[0]!.discount = 9_999_999;
   }), null, 'desconto maior que o item');
-  assert.equal(tampered(value => { value.version = 2; }), null, 'versao desconhecida');
+  assert.equal(tampered(value => { value.version = 1; }), null, 'sessao do catalogo anterior');
   assert.equal(restoreSession('{', base), null, 'JSON invalido');
   assert.equal(restoreSession(null, base), null, 'aba sem estado');
   // Meta adulterada (distribuicao que nao fecha) tambem e descartada.
   const withGoal = reduceSession(session, { type: 'goal', record: createGoalRecord(
-    { period: PERIOD, storeGoal: 60_000, sellers: SELLER_IDS.map(id => ({ sellerId: id, goal: 20_000 })) }, 'CEO') });
+    { period: PERIOD, storeGoal: 60_000, sellers: SELLER_IDS.map(id => ({ sellerId: id, goal: 30_000 })) }, asRole('CEO')) });
   const bad = JSON.parse(serializeSession(withGoal)) as { goals: { sellers: { goal: number }[] }[] };
   bad.goals[0]!.sellers[0]!.goal = 1;
   assert.equal(restoreSession(JSON.stringify(bad), base), null);
@@ -237,7 +261,10 @@ test('[CT-DEMO-151] trocar de perfil mantem o recorte e nao muda os dados da loj
   // Trocar de perfil nao altera o registro: o modelo continua identico.
   assert.deepEqual(toOverview(applySession(base, session)), toOverview(base));
   // Um vendedor fora da equipe nao e aceito no seletor demonstrativo.
-  assert.equal(reduceSession(session, { type: 'seller', sellerId: 404 }).sellerId, session.sellerId);
+  assert.equal(reduceSession(session, { type: 'person', role: 'VENDEDOR', personId: 404 }), session);
+  session = reduceSession(session, { type: 'person', role: 'VENDEDOR', personId: FRANCISCO });
+  session = reduceSession(session, { type: 'person', role: 'GERENTE', personId: GABRIEL });
+  assert.deepEqual(restoreSession(serializeSession(session), base)?.personIds, session.personIds);
 });
 
 test('[CT-DEMO-152] visitantes diferentes nao compartilham alteracoes: cada estado e independente', () => {

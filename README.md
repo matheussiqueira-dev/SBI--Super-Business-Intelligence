@@ -27,18 +27,24 @@ Detalhes em [docs/02-arquitetura/arquitetura.md](docs/02-arquitetura/arquitetura
 
 ## Ambiente publicado
 
-A demonstração publicada roda em <https://sbi-app-alpha.vercel.app> (frontend na Vercel, API no Render, banco no Neon) e abre de qualquer navegador, sem instalar nada. **Os dados são de demonstração:** seed sintético e a massa Olist, com pedidos públicos anonimizados e nomes e documentos sintéticos; nenhuma pessoa real. Lá as contas são as dos integrantes da equipe (dois gerentes e dois vendedores) e as de CEO dos professores avaliadores, com e-mail e senha combinados com a equipe, fora do repositório; a tabela da seção seguinte vale para a stack local. O plano gratuito do Render dorme o serviço sem acesso: a primeira requisição pode levar de 1 a 3 minutos. Publicação, variáveis e manutenção: [docs/05-operacao/deploy.md](docs/05-operacao/deploy.md).
+[Entrar no SBI](https://sbi-app-alpha.vercel.app/entrar) abre o sistema autenticado no navegador, com frontend na Vercel, API no Render e banco no Neon. O banco de apresentação reúne o seed e a massa Olist, com o catálogo Apple e histórico de pedidos públicos anonimizados. Use as contas combinadas com a equipe. O primeiro acesso à API pode demorar quando o serviço gratuito do Render está ocioso. Consulte o [guia de publicação e manutenção](docs/05-operacao/deploy.md).
+
+[Explorar demonstração](https://sbi-app-alpha.vercel.app/demo) abre a simulação pública com o catálogo Apple e os três níveis de gestão. Ela roda no navegador, com vendas e metas simuladas nesta aba. Consulte a [demonstração pública](docs/01-produto/demonstracao-publica.md).
 
 Cada push na `main` publica sozinho a API (Render) e o frontend (Vercel). Cada pull request ganha uma branch própria do banco no Neon, migrada pelo Flyway, que some quando o PR fecha.
 
-## Subir tudo com Docker (um comando)
+## Executar localmente sem Docker
 
-Requisito: Docker Desktop. O ambiente de demonstração usa um banco descartável em memória, separado do banco de desenvolvimento `postgres-order`, e já entra com o seed demo (contas, catálogo e vendas).
+O [guia de execução nativa](docs/05-operacao/execucao-local.md) cobre PowerShell e Bash com JDK 25, Node.js 24 e PostgreSQL 18. Ele mostra como aplicar o Flyway, carregar a massa Apple com `psql` e subir o frontend. Abra [Entrar no SBI local](http://127.0.0.1:3000/entrar) depois que a stack estiver pronta.
+
+## Subir tudo com Docker
+
+Use Docker com Compose. A stack de apresentação sobe PostgreSQL, API e frontend localmente, sem depender da partida a frio do Render. O banco descartável em memória recebe o seed demo com contas, catálogo base e vendas.
 
 ```powershell
 $env:SBI_DEMO_PASSWORD = 'escolha-uma-senha'   # senha das contas demo, de 8 a 72 caracteres
 $env:SBI_DB_PASSWORD = [guid]::NewGuid().ToString('N')
-docker compose -f docker-compose.demo.yml -p sbi-demo up --build
+docker compose -f docker-compose.demo.yml -p sbi-demo up --build --wait
 ```
 
 No Linux ou no macOS:
@@ -46,18 +52,20 @@ No Linux ou no macOS:
 ```bash
 export SBI_DEMO_PASSWORD='escolha-uma-senha'
 export SBI_DB_PASSWORD="$(openssl rand -hex 16)"
-docker compose -f docker-compose.demo.yml -p sbi-demo up --build
+docker compose -f docker-compose.demo.yml -p sbi-demo up --build --wait
 ```
 
-Abra <http://localhost:3000> e entre com uma das contas abaixo. Cada conta usa a senha da sua variável (`SBI_DEMO_PASSWORD_MATHEUS`, `_GABRIEL`, `_ALLAN`, `_FRANCISCO`, `_PAULO`, `_CHRISTIAN` e `_BRUNO`) ou, sem ela, a de `SBI_DEMO_PASSWORD`. As senhas não ficam no repositório: defina-as no terminal ou num `.env` ao lado do `docker-compose.demo.yml` (ignorado pelo git).
+Abra [Entrar no SBI local](http://127.0.0.1:3000/entrar) quando o Compose estiver pronto. Encerre com `docker compose -f docker-compose.demo.yml -p sbi-demo down`. O banco em memória é descartado ao parar o contêiner.
+
+### Contas de demonstração
+
+As contas abaixo valem para os modos locais. Cada conta usa a senha da sua variável (`SBI_DEMO_PASSWORD_MATHEUS`, `_GABRIEL`, `_ALLAN`, `_FRANCISCO`, `_PAULO`, `_CHRISTIAN` e `_BRUNO`) ou, sem ela, a de `SBI_DEMO_PASSWORD`. As senhas não ficam no repositório: defina-as no terminal ou num `.env` ao lado do `docker-compose.demo.yml` (ignorado pelo git).
 
 | Conta | Perfil |
 | --- | --- |
 | `paulo@sbi.tech`, `christian@sbi.tech`, `bruno@sbi.tech` (professores avaliadores) | CEO |
 | `matheussiqueira@sbi.tech`, `gabrielsousa@sbi.tech` | Gerente |
 | `allanbarros@sbi.tech` (equipe de Matheus), `franciscoferreira@sbi.tech` (equipe de Gabriel) | Vendedor |
-
-Para encerrar e apagar tudo: `docker compose -f docker-compose.demo.yml -p sbi-demo down`.
 
 ### Massa de demonstração (Olist) e acesso ao banco por SQL
 
@@ -71,7 +79,7 @@ O banco de demonstração fica acessível só nesta máquina, para o painel Data
 
 ## Desenvolvimento no VS Code (um atalho)
 
-Requisitos: Docker Desktop aberto, JDK 25 e Node. Com **Ctrl+Shift+B** (tarefa "SBI: iniciar tudo", em `.vscode/tasks.json`), o `scripts/dev.ps1` sobe um PostgreSQL descartável em `127.0.0.1:5434`, a API no perfil `demo` em <http://localhost:8080> e o frontend em <http://localhost:3000>, cada um no seu terminal. O banco é recriado a cada início, e o stack `sbi-demo` é parado se estiver ocupando a porta 3000.
+Requisitos: Docker Desktop aberto, JDK 25 e Node. Com **Ctrl+Shift+B** (tarefa "SBI: iniciar tudo", em `.vscode/tasks.json`), o `scripts/dev.ps1` sobe um PostgreSQL descartável em `127.0.0.1:5434`, a API no perfil `demo` em <http://localhost:8080> e o frontend em <http://localhost:3000>, cada um no seu terminal. O banco de desenvolvimento é recriado a cada início. Se a porta 3000 estiver ocupada, o script informa a colisão. Para trocar do Compose para o VS Code, encerre a stack de apresentação explicitamente.
 
 As senhas ficam em `.env.local` (fora do git), gerado na primeira execução: `SBI_DEMO_PASSWORD` é a senha das contas demo da tabela acima. Para encerrar, feche os terminais da tarefa e rode a tarefa "SBI: parar banco".
 

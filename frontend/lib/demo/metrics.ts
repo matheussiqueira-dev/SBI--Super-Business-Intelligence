@@ -2,17 +2,19 @@
 // registro de pedidos, entao vendedor, gerente e CEO nunca mostram numeros diferentes para a mesma medida. Metas sao
 // do mes; indicadores, graficos e rankings seguem o recorte de periodo escolhido (secao 15 do plano de evolucao).
 import {
-  measuresOf, monthRange, NO_FILTERS, type Filters, type Measures, type Model, type ProductRow, type Range,
+  measuresOf, NO_FILTERS, type Filters, type Measures, type Model, type ProductRow, type Range,
 } from '../executive.ts';
 import { daysBetween, operatingDaysBetween, periodOf, periodRange } from './calendar.ts';
 import { assessGoal, conversionPercent, deriveTargets, itemsPerSale, type DerivedTargets, type GoalAssessment } from './targets.ts';
 import { orderNet, orderUnits, type DemoLedger, type DemoOrder, type DemoProduct } from './ledger.ts';
 import { visitsIn } from './state.ts';
-import { SELLER_IDS } from './scenario.ts';
+import { MONTHLY_PLAN, SELLER_IDS } from './scenario.ts';
 
 /** Filtros do modelo a partir das escolhas da demonstracao. */
-export function demoFilters({ sellerId = null, categoryId = null }: { sellerId?: number | null; categoryId?: number | null } = {}): Filters {
-  return { ...NO_FILTERS, seller: sellerId, category: categoryId };
+export function demoFilters({ sellerId = null, categoryId = null, managerId = null }: {
+  sellerId?: number | null; categoryId?: number | null; managerId?: number | null;
+} = {}): Filters {
+  return { ...NO_FILTERS, seller: sellerId, category: categoryId, team: managerId };
 }
 
 export interface DemoSlice {
@@ -31,11 +33,11 @@ export interface DemoSlice {
 export function sliceOf(model: Model, ledger: DemoLedger, range: Range, filters: Filters): DemoSlice {
   const measures = model.measures(filters, range);
   const visits = visitsIn(ledger, range);
-  const storeOrders = filters.seller === null && filters.category === null
-    ? measures.orders : model.measures(NO_FILTERS, range).orders;
+  const storeScope = filters.seller === null && filters.team === null;
+  const storeOrders = filters.category === null ? measures.orders : model.measures(NO_FILTERS, range).orders;
   return {
     measures, visits,
-    conversion: filters.seller === null ? conversionPercent(storeOrders, visits) : null,
+    conversion: storeScope ? conversionPercent(storeOrders, visits) : null,
     itemsPerSale: itemsPerSale(measures.units, measures.orders),
     operatingDays: operatingDaysBetween(range.from, range.to).length,
   };
@@ -88,14 +90,16 @@ export interface GoalView {
   assessment: GoalAssessment;
 }
 
-/** Meta do mes do recorte: da loja (sem vendedor) ou de um vendedor. */
-export function monthGoalView(model: Model, period: string, today: string, sellerId: number | null): GoalView {
-  const [year, month] = period.split('-').map(Number) as [number, number];
-  const range = monthRange(year, month);
-  const goal = sellerId === null
-    ? model.monthGoal(month)?.storeGoal.amount ?? null
-    : model.monthGoal(month) ? model.sellerGoal(month, sellerId) : null;
-  const realized = model.measures(demoFilters({ sellerId }), range).net;
+/** Meta da loja, da equipe ou do vendedor no mês de referência. */
+export function monthGoalView(model: Model, period: string, today: string, sellerId: number | null, managerId: number | null = null): GoalView {
+  const range = periodRange(period);
+  const monthly = model.overview.monthlyGoals.find(record => record.period === period);
+  let goal: number | null = monthly?.storeGoal.amount ?? null;
+  if (monthly && (sellerId !== null || managerId !== null)) {
+    goal = monthly.sellers.filter(row => sellerId !== null ? row.sellerId === sellerId : model.teamOf(row.sellerId) === managerId)
+      .reduce((sum, row) => sum + row.goal.amount, 0);
+  }
+  const realized = model.goalRealized(demoFilters({ sellerId, managerId }), range);
   const label = monthLabel(period);
   return { period, label, goal, realized, assessment: assessGoal({ goal, realized, period, today, label }) };
 }
@@ -108,7 +112,6 @@ export function monthLabel(period: string): string {
 export interface TeamRow {
   sellerId: number;
   name: string;
-  slot: string | null;
   goal: number;
   realized: number;
   achievement: number | null;
@@ -122,18 +125,15 @@ export interface TeamRow {
 }
 
 /** Desempenho da equipe: meta e realizado do mes, mais o faturamento do recorte escolhido. */
-export function teamRows(model: Model, period: string, today: string, range: Range): TeamRow[] {
-  const [year, month] = period.split('-').map(Number) as [number, number];
-  const monthScope = monthRange(year, month);
-  const hasGoal = model.monthGoal(month) !== undefined;
-  return SELLER_IDS.map(sellerId => {
+export function teamRows(model: Model, period: string, today: string, range: Range, managerId: number | null = null): TeamRow[] {
+  const monthScope = periodRange(period);
+  const sellerIds = SELLER_IDS.filter(id => managerId === null || model.teamOf(id) === managerId);
+  return sellerIds.map(sellerId => {
     const filters = demoFilters({ sellerId });
     const monthMeasures = model.measures(filters, monthScope);
-    const goal = hasGoal ? model.sellerGoal(month, sellerId) : 0;
-    const label = `${model.personName(sellerId)} · ${monthLabel(period)}`;
-    const assessment = assessGoal({ goal: hasGoal ? goal : null, realized: monthMeasures.net, period, today, label });
+    const { goal, assessment } = monthGoalView(model, period, today, sellerId);
     return {
-      sellerId, name: model.personName(sellerId), slot: null, goal, realized: monthMeasures.net,
+      sellerId, name: model.personName(sellerId), goal: goal ?? 0, realized: monthMeasures.net,
       achievement: assessment.achievement, remaining: assessment.remaining ?? 0, deviation: assessment.deviation ?? 0,
       orders: monthMeasures.orders, averageTicket: monthMeasures.averageTicket, assessment,
       periodNet: model.measures(filters, range).net,
@@ -142,13 +142,18 @@ export function teamRows(model: Model, period: string, today: string, range: Ran
 }
 
 /** Metas derivadas do mes (diaria, semanal, individual e o que a meta exige em vendas e ticket). */
-export function targetsFor(model: Model, period: string, today: string): DerivedTargets | null {
-  const month = Number(period.slice(5, 7));
-  const goal = model.monthGoal(month);
+export function targetsFor(model: Model, period: string, today: string, managerId: number | null = null): DerivedTargets | null {
+  const goal = model.overview.monthlyGoals.find(record => record.period === period);
   if (!goal) return null;
+  const sellers = goal.sellers.filter(row => managerId === null || model.teamOf(row.sellerId) === managerId);
+  const monthly = managerId === null ? goal.storeGoal.amount : sellers.reduce((sum, row) => sum + row.goal.amount, 0);
+  const plan = {
+    ...MONTHLY_PLAN,
+    salesCount: managerId === null ? MONTHLY_PLAN.salesCount : MONTHLY_PLAN.salesCount * sellers.length / SELLER_IDS.length,
+  };
   return deriveTargets({
-    period, monthly: goal.storeGoal.amount, today,
-    sellerGoals: goal.sellers.map(seller => ({ sellerId: seller.sellerId, goal: seller.goal.amount })),
+    period, monthly, today, plan,
+    sellerGoals: sellers.map(seller => ({ sellerId: seller.sellerId, goal: seller.goal.amount })),
   });
 }
 

@@ -6,9 +6,10 @@ import { addDays, periodOf, periodRange, previousPeriod } from './calendar.ts';
 import {
   cents, orderNet, type DemoGoalRecord, type DemoLedger, type DemoOrder, type DemoOrderItem, type PaymentMethod,
 } from './ledger.ts';
-import { CEO_ID, MANAGER_ID, SELLER_IDS } from './scenario.ts';
+import { CATEGORIES, PEOPLE_BY_ROLE, SELLER_IDS, type DemoRoleName, type ScenarioPerson } from './scenario.ts';
+import { shareOut } from './random.ts';
 
-export type DemoRole = 'VENDEDOR' | 'GERENTE' | 'CEO';
+export type DemoRole = DemoRoleName;
 export const DEMO_ROLES: readonly DemoRole[] = ['VENDEDOR', 'GERENTE', 'CEO'];
 
 export const ROLE_LABEL: Readonly<Record<DemoRole, string>> = { VENDEDOR: 'Vendedor', GERENTE: 'Gerente', CEO: 'CEO' };
@@ -32,10 +33,10 @@ export interface DemoFilters {
 }
 
 export interface DemoSession {
-  version: 1;
+  version: 2;
   role: DemoRole;
-  /** Vendedor observado na visao de vendedor (so para fins demonstrativos). */
-  sellerId: number;
+  /** Seleção de pessoa independente para cada nível da demonstração. */
+  personIds: Record<DemoRole, number>;
   /** Area aberta dentro do perfil. */
   view: string;
   filters: DemoFilters;
@@ -45,7 +46,7 @@ export interface DemoSession {
   goals: DemoGoalRecord[];
 }
 
-export const DEMO_STORAGE_KEY = 'sbi-demo-sessao-v1';
+export const DEMO_STORAGE_KEY = 'sbi-demo-sessao-v2';
 /** Teto de vendas simuladas por visitante, para a aba nao crescer sem limite. */
 export const MAX_SIMULATED_SALES = 50;
 
@@ -55,7 +56,12 @@ export const DEFAULT_VIEW: Readonly<Record<DemoRole, string>> = {
 
 export function initialSession(): DemoSession {
   return {
-    version: 1, role: 'VENDEDOR', sellerId: SELLER_IDS[0] ?? 3, view: DEFAULT_VIEW.VENDEDOR,
+    version: 2, role: 'VENDEDOR', view: DEFAULT_VIEW.VENDEDOR,
+    personIds: {
+      VENDEDOR: PEOPLE_BY_ROLE.VENDEDOR[0]!.id,
+      GERENTE: PEOPLE_BY_ROLE.GERENTE[0]!.id,
+      CEO: PEOPLE_BY_ROLE.CEO[0]!.id,
+    },
     filters: { kind: 'MONTH', from: '', to: '', categoryId: null }, sales: [], goals: [],
   };
 }
@@ -114,17 +120,24 @@ export const SALE_PROBLEM_MESSAGE: Readonly<Record<SaleProblem, string>> = {
   PRODUTO_INATIVO: 'Produto fora de linha não pode ser vendido.',
   ESTOQUE_INSUFICIENTE: 'Estoque disponível insuficiente para a quantidade pedida.',
   DESCONTO_ACIMA_DA_ALCADA: 'Desconto acima da alçada do perfil ativo.',
-  VENDEDOR_INVALIDO: 'Escolha um dos vendedores da loja.',
+  VENDEDOR_INVALIDO: 'Escolha um vendedor disponível para o perfil em exibição.',
   LIMITE_DE_VENDAS: 'A demonstração aceita até 50 vendas simuladas por visitante. Use "Restaurar demonstração".',
 };
 
-/** Confere a venda simulada contra catalogo, estoque e alcada de desconto antes de registrar. */
-export function validateSale(ledger: DemoLedger, input: SaleInput, role: DemoRole, already: number): SaleProblem | null {
-  if (already >= MAX_SIMULATED_SALES) return 'LIMITE_DE_VENDAS';
-  if (!SELLER_IDS.includes(input.sellerId)) return 'VENDEDOR_INVALIDO';
+export function saleSellers({ role, personIds }: DemoSession): readonly ScenarioPerson[] {
+  const sellers = PEOPLE_BY_ROLE.VENDEDOR;
+  if (role === 'VENDEDOR') return sellers.filter(person => person.id === personIds.VENDEDOR);
+  if (role === 'GERENTE') return sellers.filter(person => person.managerId === personIds.GERENTE);
+  return sellers;
+}
+
+/** Confere a venda simulada contra a equipe, o catálogo, o estoque e a alçada de desconto. */
+export function validateSale(ledger: DemoLedger, input: SaleInput, session: DemoSession): SaleProblem | null {
+  if (session.sales.length >= MAX_SIMULATED_SALES) return 'LIMITE_DE_VENDAS';
+  if (!saleSellers(session).some(person => person.id === input.sellerId)) return 'VENDEDOR_INVALIDO';
   if (input.items.length === 0) return 'SEM_ITEM';
   if (!Number.isFinite(input.discountPercent) || input.discountPercent < 0) return 'DESCONTO_ACIMA_DA_ALCADA';
-  if (input.discountPercent > (DISCOUNT_LIMIT[role] ?? 0)) return 'DESCONTO_ACIMA_DA_ALCADA';
+  if (input.discountPercent > DISCOUNT_LIMIT[session.role]) return 'DESCONTO_ACIMA_DA_ALCADA';
   for (const item of input.items) {
     if (!Number.isInteger(item.units) || item.units <= 0) return 'QUANTIDADE_INVALIDA';
     const product = ledger.products.find(candidate => candidate.id === item.productId);
@@ -144,14 +157,10 @@ export function createSimulatedSale(ledger: DemoLedger, input: SaleInput, now: D
     const product = ledger.products.find(candidate => candidate.id === entry.productId)!;
     return { productId: product.id, units: entry.units, unitPrice: product.price, discount: 0, cost: product.cost * entry.units };
   });
-  const gross = items.reduce((sum, item) => sum + item.unitPrice * item.units, 0);
-  const total = Math.round((gross * input.discountPercent) / 100);
-  let left = total;
-  items.forEach((item, index) => {
-    const share = index === items.length - 1 ? left : Math.round((total * item.unitPrice * item.units) / gross);
-    item.discount = Math.min(share, item.unitPrice * item.units);
-    left -= item.discount;
-  });
+  const prices = items.map(item => item.unitPrice * item.units);
+  const gross = prices.reduce((sum, price) => sum + price, 0);
+  const parts = shareOut(Math.round(gross * input.discountPercent / 100), prices);
+  items.forEach((item, index) => { item.discount = parts[index] ?? 0; });
   const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
   return {
     id: ledger.nextOrderId, date: ledger.today, time, sellerId: input.sellerId, customerId: input.customerId,
@@ -192,11 +201,12 @@ export function validateGoal(input: GoalInput, role: DemoRole): GoalProblem | nu
   return null;
 }
 
-export function createGoalRecord(input: GoalInput, role: DemoRole, now: Date = new Date()): DemoGoalRecord {
+export function createGoalRecord(input: GoalInput, { role, personIds }: DemoSession, now: Date = new Date()): DemoGoalRecord {
+  const person = PEOPLE_BY_ROLE[role].find(candidate => candidate.id === personIds[role])!;
   return {
     period: input.period, storeGoal: cents(input.storeGoal),
     sellers: input.sellers.map(seller => ({ sellerId: seller.sellerId, goal: cents(seller.goal) })),
-    updatedBy: `${ROLE_LABEL[role]} (demonstração)`, updatedAt: now.toISOString(), source: 'DEMONSTRACAO',
+    updatedBy: `${person.name} · ${ROLE_LABEL[role]}`, updatedAt: now.toISOString(), source: 'DEMONSTRACAO',
   };
 }
 
@@ -204,7 +214,7 @@ export function createGoalRecord(input: GoalInput, role: DemoRole, now: Date = n
 
 export type DemoAction =
   | { type: 'role'; role: DemoRole }
-  | { type: 'seller'; sellerId: number }
+  | { type: 'person'; role: DemoRole; personId: number }
   | { type: 'view'; view: string }
   | { type: 'period'; kind: DemoPeriodKind }
   | { type: 'custom'; from: string; to: string }
@@ -219,8 +229,9 @@ export function reduceSession(state: DemoSession, action: DemoAction): DemoSessi
     case 'role':
       // Trocar de perfil mantem o recorte de periodo e abre a area inicial do novo perfil.
       return { ...state, role: action.role, view: DEFAULT_VIEW[action.role] ?? state.view };
-    case 'seller':
-      return SELLER_IDS.includes(action.sellerId) ? { ...state, sellerId: action.sellerId } : state;
+    case 'person':
+      if (!PEOPLE_BY_ROLE[action.role].some(person => person.id === action.personId)) return state;
+      return { ...state, personIds: { ...state.personIds, [action.role]: action.personId } };
     case 'view':
       return { ...state, view: action.view };
     case 'period':
@@ -313,24 +324,29 @@ export function restoreSession(raw: string | null, ledger: DemoLedger): DemoSess
   } catch {
     return null;
   }
-  if (!isRecord(parsed) || parsed.version !== 1) return null;
+  if (!isRecord(parsed) || parsed.version !== 2) return null;
   const fresh = initialSession();
   const role = DEMO_ROLES.includes(parsed.role as DemoRole) ? (parsed.role as DemoRole) : fresh.role;
-  const sellerId = SELLER_IDS.includes(Number(parsed.sellerId)) ? Number(parsed.sellerId) : fresh.sellerId;
+  const rawIds = isRecord(parsed.personIds) ? parsed.personIds : {};
+  const personIds = { ...fresh.personIds };
+  for (const profile of DEMO_ROLES) {
+    const id = Number(rawIds[profile]);
+    if (PEOPLE_BY_ROLE[profile].some(person => person.id === id)) personIds[profile] = id;
+  }
   const view = typeof parsed.view === 'string' && parsed.view.length <= 40 ? parsed.view : DEFAULT_VIEW[role]!;
   const filtersRaw = isRecord(parsed.filters) ? parsed.filters : {};
   const kind = (['TODAY', 'D7', 'MONTH', 'PREV_MONTH', 'CUSTOM'] as const).includes(filtersRaw.kind as DemoPeriodKind)
     ? (filtersRaw.kind as DemoPeriodKind) : fresh.filters.kind;
   const first = periodRange(ledger.periods[0] ?? periodOf(ledger.today)).from;
   const inWindow = (value: unknown): string => typeof value === 'string' && DATE.test(value) && value >= first && value <= ledger.today ? value : '';
-  const categoryId = Number.isInteger(filtersRaw.categoryId) ? Number(filtersRaw.categoryId) : null;
+  const categoryId = CATEGORIES.find(category => category.id === filtersRaw.categoryId)?.id ?? null;
 
   const products = new Map(ledger.products.map(product => [product.id, product]));
   const customers = new Set(ledger.customers.map(customer => customer.id));
   const sales: DemoOrder[] = [];
   if (Array.isArray(parsed.sales)) {
     for (const entry of parsed.sales.slice(0, MAX_SIMULATED_SALES)) {
-      if (!isRecord(entry) || !Array.isArray(entry.items) || entry.items.length === 0 || entry.items.length > 20) return null;
+      if (!isRecord(entry) || !Array.isArray(entry.items) || entry.items.length === 0 || entry.items.length > ledger.products.length) return null;
       if (!SELLER_IDS.includes(Number(entry.sellerId)) || !PAYMENTS.includes(entry.paymentMethod as PaymentMethod)) return null;
       if (typeof entry.date !== 'string' || !DATE.test(entry.date) || entry.date < first || entry.date > ledger.today) return null;
       if (!customers.has(Number(entry.customerId))) return null;
@@ -379,7 +395,7 @@ export function restoreSession(raw: string | null, ledger: DemoLedger): DemoSess
   }
 
   return {
-    version: 1, role, sellerId, view,
+    version: 2, role, personIds, view,
     filters: { kind, from: inWindow(filtersRaw.from), to: inWindow(filtersRaw.to), categoryId },
     sales, goals,
   };
@@ -388,7 +404,7 @@ export function restoreSession(raw: string | null, ledger: DemoLedger): DemoSess
 /** Só o que o visitante mudou vai para a aba; a base sintetica volta da semente a cada carregamento. */
 export function serializeSession(session: DemoSession): string {
   return JSON.stringify({
-    version: 1, role: session.role, sellerId: session.sellerId, view: session.view, filters: session.filters,
+    version: session.version, role: session.role, personIds: session.personIds, view: session.view, filters: session.filters,
     sales: session.sales.map(order => ({
       date: order.date, time: order.time, sellerId: order.sellerId, customerId: order.customerId,
       paymentMethod: order.paymentMethod,
@@ -403,7 +419,6 @@ export function orderTotal(order: DemoOrder): number {
   return orderNet(order) / 100;
 }
 
-export const DEMO_PEOPLE_IDS = { ceo: CEO_ID, manager: MANAGER_ID, sellers: SELLER_IDS } as const;
 export const TODAY_ISO = (now: Date = new Date()): string =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Fortaleza', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);
 export { iso };

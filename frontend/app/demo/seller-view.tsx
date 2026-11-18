@@ -14,7 +14,7 @@ import { DailyEvolutionPanel, GoalPanel, KpiGrid, OrderHistoryPanel, TopProducts
 
 export default function SellerView({ onNewSale }: { onNewSale: () => void }) {
   const { ledger, model, session, range, today } = useDemo();
-  const sellerId = session.sellerId;
+  const sellerId = session.personIds.VENDEDOR;
   const filters = useMemo(() => demoFilters({ sellerId, categoryId: session.filters.categoryId }), [sellerId, session.filters.categoryId]);
   const period = periodForRange(range);
   const slice = useMemo(() => sliceOf(model, ledger, range, filters), [model, ledger, range, filters]);
@@ -28,7 +28,7 @@ export default function SellerView({ onNewSale }: { onNewSale: () => void }) {
   return (
     <div className="stack">
       <PageHeader section="Meu espaço · Vendedor" title="Meu desempenho"
-        description={<>{person?.name}{person?.slot ? ` · ${person.slot}` : ''} · {rangeLabel.toLowerCase()} · suas vendas pagas, descontadas as devoluções</>}
+        description={<>{person?.name} · {rangeLabel.toLowerCase()} · suas vendas pagas, descontadas as devoluções</>}
         actions={<button type="button" className="btn btn-primary" onClick={onNewSale}><Icon name="mais" />Registrar venda simulada</button>} />
 
       {session.view === 'minhas-vendas' ? (

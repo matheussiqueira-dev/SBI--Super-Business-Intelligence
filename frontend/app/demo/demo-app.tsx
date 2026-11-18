@@ -10,7 +10,7 @@ import ConfirmDialog from '../../components/confirm-dialog.tsx';
 import AcademicCredits from '../../components/academic-credits.tsx';
 import { Icon, type IconName } from '../../components/brand/icons.tsx';
 import { formatDate } from '../../lib/format.ts';
-import { CATEGORIES, DEMO_NOTICE, SELLER_IDS, STORE } from '../../lib/demo/scenario.ts';
+import { CATEGORIES, DEMO_NOTICE, PEOPLE_BY_ROLE, STORE } from '../../lib/demo/scenario.ts';
 import { PERIOD_LABEL, ROLE_LABEL, DEMO_ROLES, type DemoPeriodKind, type DemoRole } from '../../lib/demo/state.ts';
 import { useDemo } from '../../lib/demo/store.tsx';
 import SellerView from './seller-view.tsx';
@@ -42,7 +42,7 @@ const AREAS: Readonly<Record<DemoRole, readonly Area[]>> = {
 const PERIODS: readonly DemoPeriodKind[] = ['TODAY', 'D7', 'MONTH', 'PREV_MONTH', 'CUSTOM'];
 
 export default function DemoApp() {
-  const { ledger, session, dispatch, range, today, announcement, announce } = useDemo();
+  const { session, dispatch, range, today, announcement, announce } = useDemo();
   const [sale, setSale] = useState(false);
   const [goals, setGoals] = useState(false);
   const [tour, setTour] = useState(false);
@@ -50,7 +50,8 @@ export default function DemoApp() {
 
   const areas = AREAS[session.role];
   const area = areas.find(item => item.id === session.view) ?? areas[0]!;
-  const sellerName = ledger.people.find(person => person.id === session.sellerId)?.name ?? '';
+  const personId = session.personIds[session.role];
+  const people = PEOPLE_BY_ROLE[session.role];
 
   function changeRole(role: DemoRole) {
     dispatch({ type: 'role', role });
@@ -93,7 +94,7 @@ export default function DemoApp() {
         <div className="content stack">
           <div className="demo-bar">
             <p className="demo-flag"><Icon name="info" size={16} /><strong>{DEMO_NOTICE}</strong>
-              <span>Nenhum dado real é lido ou alterado. As operações valem apenas nesta aba.</span></p>
+              <span>As operações simuladas valem apenas nesta aba.</span></p>
             <div className="actions">
               <Link className="btn btn-ghost btn-compact" href="/entrar">Entrar no sistema real</Link>
             </div>
@@ -130,23 +131,17 @@ export default function DemoApp() {
             </div>
 
             <div className="filters">
-              {session.role === 'VENDEDOR' && (
-                <div className="field">
-                  <label htmlFor="demo-vendedor">Vendedor em exibição</label>
-                  <select id="demo-vendedor" className="select" value={session.sellerId}
-                          onChange={event => {
-                            const sellerId = Number(event.target.value);
-                            dispatch({ type: 'seller', sellerId });
-                            announce(`Visão do vendedor ${ledger.people.find(person => person.id === sellerId)?.name ?? ''}.`);
-                          }}>
-                    {SELLER_IDS.map(id => {
-                      const person = ledger.people.find(entry => entry.id === id);
-                      return <option key={id} value={id}>{person?.slot ? `${person.slot} · ${person.name}` : person?.name ?? id}</option>;
-                    })}
-                  </select>
-                  <p className="caption">Escolha demonstrativa: na aplicação autenticada cada vendedor vê só os próprios dados.</p>
-                </div>
-              )}
+              <div className="field">
+                <label htmlFor="demo-pessoa">{ROLE_LABEL[session.role]} em exibição</label>
+                <select id="demo-pessoa" className="select" value={personId}
+                        onChange={event => {
+                          const selectedId = Number(event.target.value);
+                          dispatch({ type: 'person', role: session.role, personId: selectedId });
+                          announce(`Visualizando ${people.find(person => person.id === selectedId)?.name ?? ''}.`);
+                        }}>
+                  {people.map(person => <option key={person.id} value={person.id}>{person.name}</option>)}
+                </select>
+              </div>
               <div className="field">
                 <label htmlFor="demo-periodo">Período</label>
                 <select id="demo-periodo" className="select" value={session.filters.kind}
@@ -202,14 +197,14 @@ export default function DemoApp() {
           {session.role === 'CEO' && <CeoView onNewSale={() => setSale(true)} onEditGoals={() => setGoals(true)} />}
 
           <footer className="app-footer">
-            <p>{DEMO_NOTICE} · {STORE.name} · valores fictícios · Projeto A3 · UNIFG 2026</p>
+            <p>{DEMO_NOTICE} · {STORE.name} · Projeto A3 · UNIFG 2026</p>
             <p><Link href="/entrar">Entrar no sistema</Link> · <Link href="/demo/creditos">Créditos das imagens</Link></p>
             <AcademicCredits />
           </footer>
         </div>
       </main>
 
-      <SaleDialog open={sale} onClose={() => setSale(false)} role={session.role} sellerId={session.sellerId} />
+      <SaleDialog key={personId} open={sale} onClose={() => setSale(false)} />
       <GoalsDialog open={goals} onClose={() => setGoals(false)} role={session.role} />
       <GuidedTour open={tour} onClose={() => setTour(false)} />
       <ConfirmDialog open={confirmReset} title="Restaurar a demonstração?" confirmLabel="Restaurar" cancelLabel="Manter como está"

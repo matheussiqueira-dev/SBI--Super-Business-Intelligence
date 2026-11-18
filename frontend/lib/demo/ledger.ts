@@ -1,13 +1,14 @@
 // Base sintetica da demonstracao (secao 4 do plano de evolucao). Um registro de pedidos e a unica fonte: os fatos do
 // painel (itens vendidos e estornos) sao derivados dele, entao vendedor, gerente e CEO leem sempre a mesma transacao.
 // Dinheiro circula em centavos inteiros e so vira reais na saida, para a soma das partes fechar com o total.
+import { APPLE_PRODUCTS } from './apple-catalog.ts';
 import {
-  ADD_ON_CATEGORY_IDS, ADD_ON_CHANCE, ANNUAL_GOAL, CATEGORIES, CLEARANCE_SKUS, CONVERSION_RANGE, CUSTOMER_COUNT,
-  CUSTOMER_FIRST_NAMES, CUSTOMER_LAST_NAMES, DEMO_SEED, GROSS_OVER_NET, GROSS_OVER_NET_RANGE, HISTORY_MONTHS,
-  INACTIVE_SKUS, LOW_STOCK_SKUS, MANAGER_ID, MAX_ORDER_DISCOUNT_RATE, MISSING_COST_SKU, PAYMENT_MIX, PEOPLE,
-  PREVIOUS_YEAR_GOAL_FACTOR, PRODUCT_ROWS, REFERENCE_MONTH, SELLER_IDS, STORE_GOAL_BY_MONTH, WEEKDAY_WEIGHT,
+  ADD_ON_CATEGORY_ID, ADD_ON_CHANCE, ANNUAL_GOAL, CATEGORIES, CONVERSION_RANGE, CUSTOMER_COUNT,
+  CUSTOMER_FIRST_NAMES, CUSTOMER_LAST_NAMES, DEMO_SEED, HISTORY_MONTHS, LOW_STOCK_SKUS,
+  MAX_ORDER_DISCOUNT_RATE, MONTHLY_PLAN, PAYMENT_MIX, PEOPLE, PEOPLE_BY_ROLE,
+  PREVIOUS_YEAR_GOAL_FACTOR, REFERENCE_MONTH, SELLER_IDS, STORE_GOAL_BY_MONTH, WEEKDAY_WEIGHT,
 } from './scenario.ts';
-import { chance, int, mulberry32, pick, real, seedFrom, shareOut, weighted, type Random } from './random.ts';
+import { int, mulberry32, pick, real, seedFrom, shareOut, weighted, type Random } from './random.ts';
 import {
   lastCompletePeriod, operatingDaysElapsed, operatingDaysIn, periodOf, periodRange, periodsUntil, weekdayOf,
 } from './calendar.ts';
@@ -109,13 +110,15 @@ export const orderUnits = (order: DemoOrder): number => order.items.reduce((sum,
 // ---------------------------------------------------------------- cadastros
 
 function buildProducts(): DemoProduct[] {
-  return PRODUCT_ROWS.map(([sku, name, categoryId, price, cost, turnover], index) => {
+  return APPLE_PRODUCTS.map(([sku, name, source, price, cost], index) => {
+    const category = CATEGORIES.find(item => item.source === source);
+    if (!category) throw new Error(`Categoria Olist sem configuração: ${source}`);
     const low = LOW_STOCK_SKUS.includes(sku);
-    const minStock = Math.max(3, Math.min(14, Math.round(turnover * 1.1)));
+    const turnover = Math.max(1, Math.round(10 / (1 + price / cents(1_000))));
+    const minStock = Math.max(3, Math.round(turnover * 1.1));
     return {
-      id: index + 1, sku, name, categoryId, price: cents(price), cost: cents(cost),
-      active: !INACTIVE_SKUS.includes(sku), turnover,
-      stock: low ? Math.max(0, minStock - 1 - (index % 2)) : minStock + 6 + ((index * 7) % 46),
+      id: index + 1, sku, name, categoryId: category.id, price, cost, active: true, turnover,
+      stock: low ? minStock - 1 - (index % 2) : minStock + 6 + ((index * 7) % 46),
       minStock,
     };
   });
@@ -141,12 +144,12 @@ export function plannedStoreGoal(period: string, year: number): number {
  * centavos (como o servidor exige). Alem dos meses com historico, entram os meses que faltam do ano corrente: periodo
  * futuro aparece so como meta, nunca como venda realizada.
  */
-function buildGoals(periods: readonly string[], year: number): DemoGoalRecord[] {
+function buildGoals(periods: readonly string[], year: number, referencePeriod: string): DemoGoalRecord[] {
   const planned = [...new Set([...periods, ...Array.from({ length: 12 }, (_, index) => `${year}-${String(index + 1).padStart(2, '0')}`)])]
     .filter(period => Number(period.slice(0, 4)) <= year)
     .sort();
   return planned.map(period => {
-    const storeGoal = plannedStoreGoal(period, year);
+    const storeGoal = period === referencePeriod ? cents(REFERENCE_MONTH.storeGoal) : plannedStoreGoal(period, year);
     const parts = shareOut(storeGoal, SELLER_IDS.map(() => 1));
     return {
       period, storeGoal,
@@ -197,7 +200,7 @@ function monthPlan(period: string, ledger: Pick<DemoLedger, 'today' | 'year' | '
   // Estorno ocasional (devolucao): nunca no mes de referencia nem no mes corrente com poucos dias.
   const refundRate = !current && rng() < 0.3 ? real(rng, 0.004, 0.016) : 0;
   const sales = Math.round(net / (1 - refundRate));
-  const ticket = cents(real(rng, 138, 162));
+  const ticket = cents(MONTHLY_PLAN.averageTicket * real(rng, 0.9, 1.1));
   const weights = SELLER_IDS.map(sellerId => real(mulberry32(seedFrom(`peso:${period}:${sellerId}`, seed)), 0.8, 1.25));
   const parts = shareOut(sales, weights);
   return {
@@ -212,40 +215,60 @@ function monthPlan(period: string, ledger: Pick<DemoLedger, 'today' | 'year' | '
 
 // ---------------------------------------------------------------- sacolas
 
-interface Catalog { sellable: DemoProduct[]; byCategory: Map<number, DemoProduct[]>; addOns: DemoProduct[]; byId: Map<number, DemoProduct> }
+interface Basket { products: readonly DemoProduct[]; gross: number; weight: number }
+
+interface Catalog { byCategory: Map<number, DemoProduct[]>; baskets: Basket[] }
 
 function catalogOf(products: readonly DemoProduct[]): Catalog {
-  const sellable = products.filter(product => product.active);
   const byCategory = new Map<number, DemoProduct[]>();
-  for (const product of sellable) {
+  for (const product of products) {
     const list = byCategory.get(product.categoryId) ?? [];
     list.push(product);
     byCategory.set(product.categoryId, list);
   }
-  const addOns = sellable.filter(product => ADD_ON_CATEGORY_IDS.includes(product.categoryId))
-    .sort((a, b) => a.price - b.price);
-  return { sellable, byCategory, addOns, byId: new Map(products.map(product => [product.id, product])) };
+  const accessories = byCategory.get(ADD_ON_CATEGORY_ID) ?? [];
+  const baskets = products.flatMap(product => [
+    { products: [product], gross: product.price, weight: product.turnover * (1 - ADD_ON_CHANCE) },
+    ...accessories.map(accessory => ({
+      products: [product, accessory], gross: product.price + accessory.price,
+      weight: product.turnover * ADD_ON_CHANCE / accessories.length,
+    })),
+  ]);
+  return { byCategory, baskets };
 }
 
 function pickProduct(rng: Random, catalog: Catalog): DemoProduct {
   const category = weighted(rng, CATEGORIES, item => item.orderWeight);
-  const list = catalog.byCategory.get(category.id) ?? catalog.sellable;
-  return weighted(rng, list, product => product.turnover);
+  return weighted(rng, catalog.byCategory.get(category.id)!, product => product.turnover);
 }
 
-function addItem(items: DemoOrderItem[], product: DemoProduct, units: number): void {
+function addItem(items: DemoOrderItem[], product: DemoProduct): void {
   const existing = items.find(item => item.productId === product.id);
-  if (existing) existing.units += units;
-  else items.push({ productId: product.id, units, unitPrice: product.price, discount: 0, cost: product.cost * units });
+  if (existing) {
+    existing.units += 1;
+    existing.cost = product.cost * existing.units;
+  } else {
+    items.push({ productId: product.id, units: 1, unitPrice: product.price, discount: 0, cost: product.cost });
+  }
 }
 
-function removeUnit(items: DemoOrderItem[], productId: number): boolean {
-  const index = items.findIndex(item => item.productId === productId);
-  const item = items[index];
-  if (!item) return false;
-  if (item.units > 1) item.units -= 1;
-  else items.splice(index, 1);
-  return true;
+function discountCap(gross: number): number {
+  return Math.floor(gross * MAX_ORDER_DISCOUNT_RATE);
+}
+
+function itemsForTicket(rng: Random, catalog: Catalog, net: number): DemoOrderItem[] {
+  const eligible = catalog.baskets.filter(basket => basket.gross >= net && basket.gross - net <= discountCap(basket.gross));
+  // Prefere descontos de até 10%, com o teto comercial de 20% para o restante do catálogo.
+  const near = eligible.filter(basket => basket.gross * 0.9 <= net);
+  const choices = near.length > 0 ? near : eligible;
+  const basket = choices.length > 0 ? weighted(rng, choices, option => option.weight)
+    : catalog.baskets.reduce((best, option) => Math.abs(option.gross - net) < Math.abs(best.gross - net) ? option : best);
+  const items: DemoOrderItem[] = [];
+  for (const product of basket.products) addItem(items, product);
+  const discount = Math.max(0, Math.min(basket.gross - net, discountCap(basket.gross)));
+  const parts = shareOut(discount, items.map(itemGross));
+  items.forEach((item, index) => { item.discount = parts[index] ?? 0; });
+  return items;
 }
 
 /** Hora de atendimento: a loja abre as 9h e fecha as 19h (20h no sabado). */
@@ -255,10 +278,7 @@ function saleTime(rng: Random, date: string): string {
   return `${String(hour).padStart(2, '0')}:${String(int(rng, 0, 59)).padStart(2, '0')}`;
 }
 
-/**
- * Pedidos de um vendedor no mes, calibrados para somar exatamente a receita liquida planejada: as sacolas saem do mix
- * da loja, a receita de tabela e ajustada com itens adicionais para a faixa alvo e a diferenca vira desconto comercial.
- */
+/** Pedidos pagos do vendedor no mês, com o mix e os preços de tabela do catálogo Apple. */
 function buildSellerOrders(plan: SellerPlan, period: string, days: readonly string[], catalog: Catalog,
                            customers: readonly DemoCustomer[], seed: number): DemoOrder[] {
   if (plan.orders <= 0 || plan.sales <= 0 || days.length === 0) return [];
@@ -266,80 +286,23 @@ function buildSellerOrders(plan: SellerPlan, period: string, days: readonly stri
   const dayWeights = days.map(day => (WEEKDAY_WEIGHT[weekdayOf(day)] ?? 1) * real(rng, 0.72, 1.34));
   const perDay = shareOut(plan.orders, dayWeights);
 
+  // Uma parte uniforme evita que uma venda cara absorva o mês. O restante acompanha o mix do catálogo.
+  const baseSales = Math.round(plan.sales * 0.6);
+  const baseTickets = shareOut(baseSales, Array<number>(plan.orders).fill(1));
+  const mix = baseTickets.map(() => pickProduct(rng, catalog).price);
+  const extras = shareOut(plan.sales - baseSales, mix);
+  const tickets = baseTickets.map((base, index) => base + (extras[index] ?? 0));
   const orders: DemoOrder[] = [];
   days.forEach((day, index) => {
-    for (let i = 0; i < (perDay[index] ?? 0); i++) {
-      const items: DemoOrderItem[] = [];
-      const primary = pickProduct(rng, catalog);
-      addItem(items, primary, chance(rng, 0.1) ? 2 : 1);
-      if (chance(rng, ADD_ON_CHANCE)) addItem(items, weighted(rng, catalog.addOns, product => product.turnover), 1);
+    for (let count = 0; count < (perDay[index] ?? 0); count++) {
       orders.push({
         id: 0, date: day, time: saleTime(rng, day), sellerId: plan.sellerId,
         customerId: pick(rng, customers).id, paymentMethod: weighted(rng, PAYMENT_MIX, item => item.weight).method,
-        status: 'PAID', items, refund: null, simulated: false,
+        status: 'PAID', items: itemsForTicket(rng, catalog, tickets[orders.length]!), refund: null, simulated: false,
       });
     }
   });
-  if (orders.length === 0) return [];
-
-  // Receita de tabela na faixa alvo: itens adicionais entram ou saem ate a sobra caber no desconto.
-  const target = plan.sales;
-  const lower = Math.round(target * GROSS_OVER_NET_RANGE.min);
-  const upper = Math.round(target * GROSS_OVER_NET_RANGE.max);
-  let gross = orders.reduce((sum, order) => sum + orderGross(order), 0);
-  for (let guard = 0; gross < lower && guard < orders.length * 6; guard++) {
-    const order = orders[int(rng, 0, orders.length - 1)]!;
-    const product = weighted(rng, catalog.addOns, p => p.turnover);
-    addItem(order.items, product, 1);
-    gross += product.price;
-  }
-  for (let guard = 0; gross > upper && guard < orders.length * 6; guard++) {
-    const order = orders[int(rng, 0, orders.length - 1)]!;
-    const spare = order.items.filter(item => item.units > 1 || order.items.length > 1);
-    const item = spare[int(rng, 0, Math.max(0, spare.length - 1))];
-    if (!item) continue;
-    const unitPrice = item.unitPrice;
-    if (!removeUnit(order.items, item.productId)) continue;
-    gross -= unitPrice;
-  }
-  // Custo acompanha a quantidade final do item.
-  for (const order of orders) {
-    for (const item of order.items) {
-      const product = catalog.byId.get(item.productId);
-      item.cost = product ? product.cost * item.units : item.cost;
-    }
-  }
-
-  distributeDiscount(orders, gross - target, rng);
   return orders;
-}
-
-/** Reparte o desconto total entre os pedidos (propensao sorteada, teto por pedido) e, dentro deles, entre os itens. */
-function distributeDiscount(orders: readonly DemoOrder[], total: number, rng: Random): void {
-  if (total <= 0) return;
-  const grossOf = orders.map(orderGross);
-  const caps = grossOf.map(value => Math.floor(value * MAX_ORDER_DISCOUNT_RATE));
-  const propensity = orders.map(() => pick(rng, [0, 0, 1, 1, 2, 3]));
-  let parts = shareOut(total, grossOf.map((value, index) => value * (propensity[index] ?? 0)));
-  for (let pass = 0; pass < 8; pass++) {
-    let overflow = 0;
-    parts = parts.map((value, index) => {
-      const cap = caps[index] ?? 0;
-      if (value <= cap) return value;
-      overflow += value - cap;
-      return cap;
-    });
-    if (overflow === 0) break;
-    const room = parts.map((value, index) => Math.max(0, (caps[index] ?? 0) - value));
-    const extra = shareOut(overflow, room);
-    parts = parts.map((value, index) => value + (extra[index] ?? 0));
-  }
-  orders.forEach((order, index) => {
-    const amount = parts[index] ?? 0;
-    if (amount <= 0) return;
-    const itemShares = shareOut(amount, order.items.map(itemGross));
-    order.items.forEach((item, position) => { item.discount = itemShares[position] ?? 0; });
-  });
 }
 
 // ---------------------------------------------------------------- estornos, cancelamentos e visitantes
@@ -381,7 +344,7 @@ function buildCanceled(plan: MonthPlan, days: readonly string[], catalog: Catalo
   return Array.from({ length: plan.canceled }, () => {
     const day = pick(rng, days);
     const items: DemoOrderItem[] = [];
-    addItem(items, pickProduct(rng, catalog), 1);
+    addItem(items, pickProduct(rng, catalog));
     return {
       id: 0, date: day, time: saleTime(rng, day), sellerId: pick(rng, SELLER_IDS),
       customerId: pick(rng, customers).id, paymentMethod: weighted(rng, PAYMENT_MIX, item => item.weight).method,
@@ -404,7 +367,7 @@ function buildVisitors(orders: readonly DemoOrder[], periods: readonly string[],
       const rng = mulberry32(seedFrom(`visitas:${day}`, seed));
       const converted = buyers.get(day)?.size ?? 0;
       const rate = real(rng, CONVERSION_RANGE.min, CONVERSION_RANGE.max);
-      visitors[day] = converted > 0 ? Math.max(converted, Math.round(converted / rate)) : int(rng, 14, 38);
+      visitors[day] = converted > 0 ? Math.max(converted, Math.round(converted / rate)) : int(rng, 1, 3);
     }
   }
   return visitors;
@@ -419,10 +382,9 @@ export function generateLedger({ today, seed = DEMO_SEED, months = HISTORY_MONTH
   const periods = periodsUntil(today, months);
   const referencePeriod = lastCompletePeriod(today);
   const products = buildProducts();
-  for (const product of products) if (CLEARANCE_SKUS.includes(product.sku)) product.turnover = Math.max(1, product.turnover - 2);
   const catalog = catalogOf(products);
   const customers = buildCustomers(mulberry32(seedFrom('clientes', seed)));
-  const goals = buildGoals(periods, year);
+  const goals = buildGoals(periods, year, referencePeriod);
 
   const orders: DemoOrder[] = [];
   for (const period of periods) {
@@ -441,15 +403,10 @@ export function generateLedger({ today, seed = DEMO_SEED, months = HISTORY_MONTH
   // Id cronologico: o historico da loja fica na ordem em que atendeu, e o proximo id continua a sequencia.
   orders.forEach((order, index) => { order.id = index + 1; });
 
-  // Um produto do mes mais antigo entrou sem custo informado: o lucro daquele recorte fica "Nao informado".
-  const missing = products.find(product => product.sku === MISSING_COST_SKU);
+  // O histórico mais antigo tem uma entrada sem custo contabilizado, sem mudar o custo atual do catálogo.
   const oldest = periods[0];
-  if (missing && oldest) {
-    for (const order of orders) {
-      if (!order.date.startsWith(oldest)) continue;
-      for (const item of order.items) if (item.productId === missing.id) item.cost = null;
-    }
-  }
+  const oldItem = oldest ? orders.find(order => order.status === 'PAID' && order.date.startsWith(oldest))?.items[0] : undefined;
+  if (oldItem) oldItem.cost = null;
 
   return {
     today, year, periods, referencePeriod, people: PEOPLE, products, customers, orders, goals,
@@ -478,11 +435,12 @@ export function toOverview(ledger: DemoLedger, options: { year?: number; generat
     amount: brl(order.refund!.amount),
   }));
   const first = ledger.periods[0] ?? periodOf(ledger.today);
+  const ceo = PEOPLE_BY_ROLE.CEO[0]!;
   return {
     year, today: ledger.today, from: periodRange(first).from, to: `${year}-12-31`,
     annualGoal: {
       year, amount: brl(ledger.annualGoal),
-      updatedBy: { id: 1, name: ledger.people.find(person => person.role === 'CEO')?.name ?? 'CEO' },
+      updatedBy: { id: ceo.id, name: ceo.name },
       updatedAt: `${year}-01-05T09:00:00-03:00`,
     },
     monthlyGoals: ledger.goals.map(goal => ({
@@ -505,11 +463,3 @@ export function toOverview(ledger: DemoLedger, options: { year?: number; generat
 export function ledgerYears(ledger: DemoLedger): number[] {
   return [...new Set(ledger.periods.map(period => Number(period.slice(0, 4))))].sort((a, b) => b - a);
 }
-
-/** Pessoa da equipe por id. */
-export function personOf(ledger: DemoLedger, id: number): (typeof PEOPLE)[number] | undefined {
-  return ledger.people.find(person => person.id === id);
-}
-
-export const MANAGER = MANAGER_ID;
-export const GROSS_RATIO = GROSS_OVER_NET;

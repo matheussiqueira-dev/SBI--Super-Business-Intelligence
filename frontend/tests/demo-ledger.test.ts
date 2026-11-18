@@ -4,7 +4,8 @@ import { GetExecutiveOverviewResponse } from '../lib/api/generated/sbi.zod.ts';
 import { Model, NO_FILTERS, monthRange, type Filters } from '../lib/executive.ts';
 import { generateLedger, orderGross, orderNet, toOverview, type DemoLedger } from '../lib/demo/ledger.ts';
 import { operatingDaysIn, isOperating, lastCompletePeriod, periodsUntil, commercialWeek } from '../lib/demo/calendar.ts';
-import { REFERENCE_MONTH, SELLER_IDS, MANAGER_ID, CEO_ID, LOW_STOCK_SKUS, CLEARANCE_SKUS } from '../lib/demo/scenario.ts';
+import { APPLE_PRODUCTS } from '../lib/demo/apple-catalog.ts';
+import { CATEGORIES, REFERENCE_MONTH, SELLER_IDS, PEOPLE_BY_ROLE, LOW_STOCK_SKUS } from '../lib/demo/scenario.ts';
 import { shareOut } from '../lib/demo/random.ts';
 
 /** Dia fixo da loja: a base e os testes sao reproduzidos sempre iguais. */
@@ -58,8 +59,8 @@ test('[CT-DEMO-106] o mes fechado reconcilia com o cenario de referencia da seca
   assert.equal(model.monthGoal(referenceMonth)?.storeGoal.amount, REFERENCE_MONTH.storeGoal);
   const achievement = (measures.net * 100) / REFERENCE_MONTH.storeGoal;
   assert.equal(Math.round(achievement * 10) / 10, REFERENCE_MONTH.achievementPercent);
-  // Margem bruta proxima dos 34% do cenario (o mix de produtos decide o custo exato).
-  assert.ok(measures.margin !== null && measures.margin > 33.4 && measures.margin < 34.6, `margem ${measures.margin}`);
+  assert.ok(measures.profit !== null && measures.profit > 0);
+  assert.equal(Math.round((measures.cost + measures.profit) * 100), measures.net * 100);
 });
 
 test('[CT-DEMO-107] a distribuicao por vendedor do mes fechado fecha com o total da loja', () => {
@@ -71,9 +72,9 @@ test('[CT-DEMO-107] a distribuicao por vendedor do mes fechado fecha com o total
     total += measures.net;
   }
   assert.equal(total, REFERENCE_MONTH.netRevenue);
-  // O gerente e a CEO nao vendem na demonstracao: o realizado da loja e so dos vendedores.
-  assert.equal(model.measures({ ...REF, seller: MANAGER_ID }, refRange).orders, 0);
-  assert.equal(model.measures({ ...REF, seller: CEO_ID }, refRange).orders, 0);
+  for (const person of [...PEOPLE_BY_ROLE.GERENTE, ...PEOPLE_BY_ROLE.CEO]) {
+    assert.equal(model.measures({ ...REF, seller: person.id }, refRange).orders, 0, person.name);
+  }
 });
 
 test('[CT-DEMO-108] cada meta mensal distribui exatamente a meta da loja entre os vendedores', () => {
@@ -89,7 +90,9 @@ test('[CT-DEMO-109] a receita liquida de cada item fecha com o total do pedido, 
   for (const order of ledger.orders) {
     const items = order.items.reduce((sum, item) => sum + item.unitPrice * item.units - item.discount, 0);
     assert.equal(items, orderNet(order), `pedido ${order.id}`);
-    assert.ok(orderNet(order) <= orderGross(order));
+    const gross = orderGross(order);
+    assert.ok(orderNet(order) <= gross);
+    assert.ok(gross - orderNet(order) <= Math.floor(gross * 0.2));
     assert.ok(order.items.every(item => item.discount >= 0 && item.discount <= item.unitPrice * item.units));
     assert.ok(order.items.every(item => Number.isInteger(item.units) && item.units > 0));
   }
@@ -112,11 +115,6 @@ test('[CT-DEMO-110] a base tem variacao comercial plausivel, com meses acima e a
   assert.ok(overview.refunds.length > 0);
   assert.ok(ledger.orders.some(order => order.status === 'CANCELED'));
   assert.equal(ledger.products.filter(product => product.active && product.stock < product.minStock).length, LOW_STOCK_SKUS.length);
-  // Produtos de ponta de estoque ficam com margem unitaria abaixo de 10%.
-  for (const sku of CLEARANCE_SKUS) {
-    const product = ledger.products.find(item => item.sku === sku)!;
-    assert.ok(((product.price - product.cost) * 100) / product.price < 10, sku);
-  }
 });
 
 test('[CT-DEMO-111] custo ausente nunca vira zero: o mes mais antigo tem item sem custo', () => {
@@ -158,6 +156,17 @@ test('[CT-DEMO-114] visitantes sinteticos sustentam uma conversao plausivel', ()
   const conversion = (REFERENCE_MONTH.orders * 100) / visits;
   assert.ok(conversion > 18 && conversion < 32, `conversao ${conversion}`);
   for (const day of days) assert.ok((ledger.visitors[day] ?? 0) > 0, day);
+});
+
+test('[CT-DEMO-116] os 42 SKUs usam nome, categoria, preço e custo do catálogo Apple', () => {
+  assert.equal(ledger.products.length, 42);
+  assert.equal(new Set(ledger.products.map(product => product.categoryId)).size, 7);
+  assert.deepEqual(ledger.products.map(product => [
+    product.sku, product.name, CATEGORIES.find(category => category.id === product.categoryId)?.source, product.price, product.cost,
+  ]), APPLE_PRODUCTS);
+  assert.equal(ledger.products.find(product => product.sku === 'OL-IP18P-256')?.price, 1_079_900);
+  assert.equal(ledger.products.find(product => product.sku === 'OL-AIRPODS-PRO3')?.price, 199_900);
+  assert.equal(ledger.products.find(product => product.sku === 'OL-MBP14-M5')?.price, 2_159_900);
 });
 
 test('[CT-DEMO-115] a geracao da base e rapida o bastante para a demonstracao', () => {

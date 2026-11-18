@@ -303,6 +303,9 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Check demo catalog against the Olist CSV
+        run: python3 scripts/demo-catalog.py --check
+
       - name: Typecheck, generated schemas, unit tests and build
         working-directory: frontend
         run: |
