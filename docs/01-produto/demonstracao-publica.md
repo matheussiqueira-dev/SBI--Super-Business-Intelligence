@@ -156,6 +156,7 @@ As contas vivem em dois lugares, sem duplicação:
 | Meta individual diária | `meta individual ÷ dias de abertura do mês` |
 | Vendas necessárias | `meta ÷ ticket médio de referência` |
 | Ticket necessário | `meta ÷ quantidade de vendas do plano` |
+| Itens exigidos | `(meta ÷ ticket médio de referência) × itens por venda do plano`, arredondado |
 
 ### Estados da meta
 
@@ -230,7 +231,8 @@ Escopos explicitamente diferentes, sinalizados na tela:
 - indicadores, gráficos e rankings seguem o recorte;
 - **metas são sempre do mês de referência do recorte** (o mês em que o recorte termina);
 - o filtro de categoria muda indicadores, mas **não muda metas** (meta é da venda total);
-- o cartão "mês atual × mês anterior" compara meses fechados, independentemente do recorte.
+- o cartão "mês × mês anterior" compara o mês de referência do recorte com o mês imediatamente anterior, então
+  trocar o recorte troca o par de meses comparado.
 
 ## 9. Restaurar e isolamento entre visitantes
 
