@@ -137,6 +137,12 @@ As contas vivem em dois lugares, sem duplicação:
 | Falta por dia | `falta ÷ dias de funcionamento restantes` | Usa o calendário operacional (a loja fecha no domingo), não 30 dias nem 4 semanas. |
 | Conversão comercial | `(vendas pagas ÷ visitantes) × 100` | Só da loja: o modelo não tem atendimento por vendedor. Nula sem visitante no recorte. |
 
+> **Duas bases de dias, duas finalidades.** Ritmo esperado, ritmo cumprido e projeção medem o *andamento do mês* e usam
+> dias de calendário: saem da mesma `goalStatus` de `lib/executive.ts` nos três perfis, portanto vendedor, gerente e CEO
+> mostram o mesmo ritmo, igual ao painel autenticado. Falta por dia e metas derivadas medem o *esforço exigido* e usam
+> dias de funcionamento, porque a loja fecha no domingo. Não é o mesmo indicador calculado de dois jeitos: são
+> indicadores diferentes, e a tela nomeia a base de cada um ("dias do mês" contra "dias de funcionamento").
+
 ### Metas derivadas
 
 | Meta derivada | Cálculo |
@@ -253,6 +259,28 @@ cd frontend && npm run test:e2e:demo
 `npm run test:e2e:demo` usa `playwright.demo.config.mjs` e **não precisa de banco nem da API no ar**, porque `/demo`
 não chama o backend. O arquivo também entra no `npm run test:e2e` do CI.
 
+### Resultados verificados (17/11/2026)
+
+| Verificação | Onde | Resultado |
+| --- | --- | --- |
+| `npm run typecheck` | local | sem erro |
+| `npm test` | local | 112 testes, 0 falhas |
+| `npm run build` | local | conclui; `/demo` sai como rota dinâmica |
+| `npm run api:check` | local | sem diferença no contrato gerado |
+| `npm run test:e2e:demo` | local | 6 testes, inclui axe WCAG 2.2 AA nos três perfis e em `/entrar` |
+| `npm run test:e2e` (suíte completa) | CI, job `frontend` | 44 testes, 44 aprovados — cobre o painel executivo autenticado |
+| Testes do backend, banco e contrato | CI, jobs `test (backend)`, `bd`, `contract` | aprovados |
+| Auditoria manual de `/demo` sem sessão | navegador, build de produção local | venda de R$ 449,70 refletida nos três níveis, restauração, isolamento entre abas, estado adulterado rejeitado, sem erro de console, sem requisição ao backend, sem rolagem horizontal a 375 px |
+
+### Nota de segurança da dependência
+
+O Next.js 16.4.3 é alcançado por dois alertas de divulgação de informação entre *root params*
+(GHSA-mfr8-8qww-v76h e GHSA-vc7v-qv4w-wrv8, ambos CWE-362, corrigidos em 16.4.5). Os dois exigem `'use cache'`
+chamado por `unstable_cache()` ou `'use cache'` aninhado com `next/root-params`, recursos que este projeto não usa, e
+nenhum deles alcança `/demo`, que roda sem cache de servidor. A atualização para 16.4.5 foi validada com a
+demonstração: build, verificação de tipos, 112 testes, contrato e os 6 testes ponta a ponta passam, e
+`npm audit --omit=dev` não aponta vulnerabilidade.
+
 ## 11. Arquivos
 
 | Arquivo | Para quê |
@@ -291,7 +319,8 @@ A demonstração traz o roteiro embutido em **Iniciar apresentação guiada**: c
   descarta. Não há persistência entre dispositivos, por desenho.
 - A conversão comercial é da loja; não há atendimento por vendedor no modelo.
 - Não há lucro líquido, porque não há despesas, impostos nem folha na simulação.
-- O painel executivo da demonstração é o mesmo da área autenticada: o ritmo esperado que ele mostra segue a regra
-  linear por dias de calendário já em produção, enquanto o "falta por dia" dos painéis de vendedor e gerente usa dias
-  de funcionamento. Os dois estão rotulados na tela.
+- Duas bases de dias convivem, de propósito. O ritmo esperado, o ritmo cumprido e a projeção usam dias de calendário
+  nos três perfis, pela mesma `goalStatus` de `lib/executive.ts` que o painel autenticado já usa, de modo que vendedor,
+  gerente e CEO leem o mesmo ritmo. A falta por dia e as metas derivadas usam dias de funcionamento, porque não se vende
+  com a loja fechada. O painel do CEO não exibe falta por dia por reaproveitar o componente de produção sem alteração.
 - A loja simulada tem uma unidade. Não há consolidação de filiais nem multiempresa.
