@@ -203,7 +203,7 @@ export default function DemoApp() {
 
           <footer className="app-footer">
             <p>{DEMO_NOTICE} · {STORE.name} · valores fictícios · Projeto A3 · UNIFG 2026</p>
-            <p><Link href="/entrar">Entrar no sistema</Link> · <Link href="/creditos">Créditos das imagens</Link></p>
+            <p><Link href="/entrar">Entrar no sistema</Link> · <Link href="/demo/creditos">Créditos das imagens</Link></p>
             <AcademicCredits />
           </footer>
         </div>

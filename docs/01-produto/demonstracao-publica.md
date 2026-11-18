@@ -134,14 +134,17 @@ As contas vivem em dois lugares, sem duplicação:
 | Ritmo esperado hoje | `meta × dias decorridos ÷ dias do mês` | Regra linear por dias de calendário, a mesma já usada no painel autenticado. |
 | Ritmo cumprido | `(realizado ÷ ritmo esperado) × 100` | Base do estado da meta durante o mês. |
 | Projeção de fechamento | `(realizado ÷ dias decorridos) × dias do mês` | **Estimativa**, sempre identificada como tal na tela; nunca aparece como resultado realizado. |
-| Falta por dia | `falta ÷ dias de funcionamento restantes` | Usa o calendário operacional (a loja fecha no domingo), não 30 dias nem 4 semanas. |
+| Falta por dia (vendedor e gerente) | `falta ÷ dias de funcionamento restantes` | Usa o calendário operacional (a loja fecha no domingo), não 30 dias nem 4 semanas. |
+| Falta por dia (CEO) | `falta ÷ dias de calendário restantes` | Vem dos destaques de `lib/executive.ts`, reaproveitados do painel autenticado sem alteração; a tela escreve "dias restantes". |
 | Conversão comercial | `(vendas pagas ÷ visitantes) × 100` | Só da loja: o modelo não tem atendimento por vendedor. Nula sem visitante no recorte. |
 
 > **Duas bases de dias, duas finalidades.** Ritmo esperado, ritmo cumprido e projeção medem o *andamento do mês* e usam
 > dias de calendário: saem da mesma `goalStatus` de `lib/executive.ts` nos três perfis, portanto vendedor, gerente e CEO
-> mostram o mesmo ritmo, igual ao painel autenticado. Falta por dia e metas derivadas medem o *esforço exigido* e usam
-> dias de funcionamento, porque a loja fecha no domingo. Não é o mesmo indicador calculado de dois jeitos: são
-> indicadores diferentes, e a tela nomeia a base de cada um ("dias do mês" contra "dias de funcionamento").
+> mostram o mesmo ritmo, igual ao painel autenticado. A falta por dia e as metas derivadas medem o *esforço exigido*
+> e saem em duas bases: nos painéis de vendedor e gerente usam dias de funcionamento, porque a loja fecha no
+> domingo; nos destaques do painel do CEO a falta por dia usa dias de calendário, porque ali o componente de
+> produção entra sem alteração. Não é o mesmo indicador calculado de dois jeitos: são indicadores diferentes, e a
+> tela nomeia a base de cada número ("dias do mês", "dias de funcionamento" e "dias restantes").
 
 ### Metas derivadas
 
@@ -153,6 +156,7 @@ As contas vivem em dois lugares, sem duplicação:
 | Meta individual diária | `meta individual ÷ dias de abertura do mês` |
 | Vendas necessárias | `meta ÷ ticket médio de referência` |
 | Ticket necessário | `meta ÷ quantidade de vendas do plano` |
+| Itens exigidos | `(meta ÷ ticket médio de referência) × itens por venda do plano`, arredondado |
 
 ### Estados da meta
 
@@ -227,7 +231,8 @@ Escopos explicitamente diferentes, sinalizados na tela:
 - indicadores, gráficos e rankings seguem o recorte;
 - **metas são sempre do mês de referência do recorte** (o mês em que o recorte termina);
 - o filtro de categoria muda indicadores, mas **não muda metas** (meta é da venda total);
-- o cartão "mês atual × mês anterior" compara meses fechados, independentemente do recorte.
+- o cartão "mês × mês anterior" compara o mês de referência do recorte com o mês imediatamente anterior, então
+  trocar o recorte troca o par de meses comparado.
 
 ## 9. Restaurar e isolamento entre visitantes
 
@@ -321,6 +326,8 @@ A demonstração traz o roteiro embutido em **Iniciar apresentação guiada**: c
 - Não há lucro líquido, porque não há despesas, impostos nem folha na simulação.
 - Duas bases de dias convivem, de propósito. O ritmo esperado, o ritmo cumprido e a projeção usam dias de calendário
   nos três perfis, pela mesma `goalStatus` de `lib/executive.ts` que o painel autenticado já usa, de modo que vendedor,
-  gerente e CEO leem o mesmo ritmo. A falta por dia e as metas derivadas usam dias de funcionamento, porque não se vende
-  com a loja fechada. O painel do CEO não exibe falta por dia por reaproveitar o componente de produção sem alteração.
+  gerente e CEO leem o mesmo ritmo. A falta por dia e as metas derivadas usam dias de funcionamento nos painéis de
+  vendedor e gerente, porque não se vende com a loja fechada, e dias de calendário nos destaques do painel do CEO,
+  que é o componente de produção reaproveitado sem alteração. Unificar as duas bases mexeria na regra do sistema
+  autenticado, o que está fora do escopo da demonstração.
 - A loja simulada tem uma unidade. Não há consolidação de filiais nem multiempresa.

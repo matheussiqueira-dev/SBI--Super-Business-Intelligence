@@ -14,7 +14,16 @@ test-results-published/
 playwright-report-demo/
 test-results-demo/
 .env
-.env.local
+.env.*
+!.env.example
+# Material de chave e certificado: nunca versionado
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa*
 # Gerados pelo Next.js e pelo TypeScript
 next-env.d.ts
 *.tsbuildinfo
