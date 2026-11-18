@@ -57,7 +57,7 @@ export default function SellerView({ onNewSale }: { onNewSale: () => void }) {
             <TopProductsPanel rows={products} titleId="meus-produtos" showMargin={false} title="Meus produtos mais vendidos"
               subtitle="Por faturamento confirmado no recorte" />
             <OrderHistoryPanel rows={history.slice(0, 8)} title="Minhas últimas vendas" titleId="minhas-ultimas"
-              subtitle="As cinco mais recentes do recorte; a lista completa fica em Minhas vendas"
+              subtitle="As oito mais recentes do recorte; a lista completa fica em Minhas vendas"
               action={<button type="button" className="btn btn-ghost btn-compact" onClick={onNewSale}>Nova venda</button>} />
           </div>
         </>
