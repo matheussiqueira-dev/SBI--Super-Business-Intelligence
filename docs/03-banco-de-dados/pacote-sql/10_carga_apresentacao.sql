@@ -2,7 +2,8 @@
 -- Cenario de apresentacao do SBI: metas do ano de referencia, operacao em andamento e dias fortes e fracos.
 -- Executar DEPOIS do Flyway (perfil demo) e, quando houver, depois de 07_carga_olist.sql, nesta pasta:
 --   psql -U <superusuario> -d <banco> -v ON_ERROR_STOP=1 -f 10_carga_apresentacao.sql
---   psql ... -v ref=2026-11-25 -f 10_carga_apresentacao.sql   -- data de referencia explicita
+--   psql ... -v ref=2026-11-18 -f 10_carga_apresentacao.sql   -- referencia explicita, nunca no futuro
+--      (a carga recusa referencia futura: o painel compararia com dias sem dado)
 -- Sem -v ref, a referencia e a data de hoje em America/Fortaleza (fuso da loja, StoreTime.ZONE).
 --
 -- Reproduzivel: tudo que varia vem de hashtext() da chave do registro, nunca de random().
