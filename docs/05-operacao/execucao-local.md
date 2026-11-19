@@ -130,10 +130,14 @@ E:\pg18-ensaio\pgsql\bin\psql.exe -h 127.0.0.1 -p 5436 -U postgres -d postgres -
 
 ### Carga e prova pelo psql nativo
 
-Os três runners do pacote aceitam o modo nativo: **sem `CONTAINER`**, eles usam o `psql` do `PATH` e as variáveis `PGHOST`, `PGPORT` e `PGPASSWORD` do ambiente, em vez de `docker exec`.
+**Dois** dos três runners aceitam o modo nativo: `run_olist_bd.sh` e `run_apresentacao.sh`. Sem `CONTAINER`, eles usam o `psql` do `PATH` e as variáveis `PGHOST`, `PGPORT` e `PGPASSWORD` do ambiente, em vez de `docker exec`. O `run_bd.sh` continua só no contêiner, pelo motivo da última linha da tabela abaixo.
+
+Os binários extraídos não entram no `PATH` sozinhos, e a API embutida que o `run_olist_bd.sh` sobe para o CT-DEMO-05 entra no banco pelo JDBC, com a senha em `SPRING_DATASOURCE_PASSWORD` — `PGPASSWORD` não serve para ela. No Git Bash:
 
 ```bash
+export PATH="/e/pg18-ensaio/pgsql/bin:$PATH"
 export PGHOST=127.0.0.1 PGPORT=5436 PGPASSWORD=<senha do superusuário>
+export SPRING_DATASOURCE_PASSWORD="$PGPASSWORD"
 ```
 
 ```bash
@@ -146,12 +150,25 @@ DB=sbi_demo SUPERUSER=postgres bash docs/03-banco-de-dados/pacote-sql/run_aprese
 
 | Etapa | Resultado medido |
 | --- | --- |
-| `run_olist_bd.sh` (07 duas vezes, 08, 09 e CT-DEMO-05 pela API nativa) | **11 PASS, 0 FAIL, 0 ERROS** |
+| `run_olist_bd.sh` (07 duas vezes, 08, 09 e CT-DEMO-05 pela API nativa, que ele mesmo sobe na porta **18081**) | **11 PASS, 0 FAIL, 0 ERROS** |
 | `run_apresentacao.sh` (10 duas vezes, 12 e a prova 11), `ref=2026-11-19` | **17 PASS, 0 FAIL, 0 ERROS** |
 | Prova de banco 11 | rodou inteira, com as cinco recusas esperadas na ordem |
-| `run_bd.sh` | **não roda nativo**: ele entra como os papéis de banco `vendedor_allan` e `gerente_matheus`, criados sem senha. No contêiner isso funciona pelo socket local em `trust`; no Windows não há socket local e o `pg_hba` pede `scram-sha-256` em `127.0.0.1`. Para demonstrar RLS no modo nativo, aplique a `03_rbac.sql` e use `SET ROLE` (abaixo). |
+| `run_bd.sh` | **não roda nativo**: ele entra como os papéis de banco `vendedor_allan`, `vendedor_francisco` e `gerente_matheus`, criados sem senha. No contêiner isso funciona pelo socket local em `trust`; no Windows não há socket local e o `pg_hba` pede `scram-sha-256` em `127.0.0.1`. Para demonstrar RLS no modo nativo, aplique a `03_rbac.sql` e use `SET ROLE`, como abaixo. |
 
-RLS e `GRANT` por coluna, medidos no banco nativo depois da `03_rbac.sql`: `SELECT count(*) FROM orders` devolveu **317** para o dono `postgres`, **317** com `SET ROLE gerente_matheus` e **95** com `SET ROLE vendedor_allan` (um único vendedor, e zero linhas ao pedir pelo id um pedido de outro vendedor); `SET ROLE vendedor_allan; SELECT unit_cost FROM stock_entry` devolveu `ERROR: permission denied for table stock_entry`.
+RLS e `GRANT` por coluna no modo nativo, depois de aplicar a `03_rbac.sql`. O `set_config` é parte do teste, não enfeite: a política do vendedor compara `seller_id` com `app_current_user_id()`, que lê `app.user_id`.
+
+```sql
+SELECT count(*) FROM orders;                                   -- dono postgres
+SET ROLE gerente_matheus;  SELECT count(*) FROM orders;         -- política USING (true)
+RESET ROLE;
+SELECT set_config('app.user_id',
+                  (SELECT id::text FROM app_users WHERE email = 'allanbarros@sbi.tech'), false);
+SET ROLE vendedor_allan;   SELECT count(*) FROM orders;         -- só os pedidos dele
+SELECT unit_cost FROM stock_entry LIMIT 1;                      -- ERROR: permission denied for table stock_entry
+RESET ROLE;
+```
+
+Medido no banco nativo: **317**, **317** e **95**, com um único vendedor distinto, zero linhas ao pedir pelo id um pedido de outro vendedor, e a recusa de permissão na última linha. O mesmo bloco roda no banco em contêiner — é o que o [roteiro da apresentação](roteiro-banco-de-dados.md) usa no passo 3, lá com os números daquele banco.
 
 ### Estado do banco nativo e fluxo autenticado
 

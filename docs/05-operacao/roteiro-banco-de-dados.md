@@ -17,15 +17,21 @@ Deixe estes quatro itens prontos e abertos, nesta ordem, **antes** de a banca en
 | 3. Interface | Navegador em `http://127.0.0.1:3000/entrar` | A tela de entrada aparece |
 | 4. Roteiro SQL | `docs/03-banco-de-dados/pacote-sql/11_prova_banco.sql` aberto no cliente SQL | Os blocos `-- PASSO n` estão visíveis |
 
-A preparação completa do ambiente está em [preparar a apresentação](../03-banco-de-dados/preparar-apresentacao.md). O caminho curto, já validado:
+A preparação completa do ambiente está em [preparar a apresentação](../03-banco-de-dados/preparar-apresentacao.md). O caminho curto muda com o lugar onde o banco está. `DB` e `SUPERUSER` são sempre obrigatórias — sem elas o script para antes de tocar no banco. `REF` fixa a data de referência: sem ela a referência é **hoje**, e os valores citados neste roteiro mudam.
+
+Com o PostgreSQL nativo, exportando antes `PGHOST`, `PGPORT` e `PGPASSWORD`:
 
 ```bash
-CONTAINER=sbi-apresentacao-db DB=sbi_apresentacao SUPERUSER=sbi REF=2026-11-18 bash docs/03-banco-de-dados/pacote-sql/run_apresentacao.sh
+DB=sbi_demo SUPERUSER=postgres REF=2026-11-18 bash docs/03-banco-de-dados/pacote-sql/run_apresentacao.sh
 ```
 
-`DB` e `SUPERUSER` são obrigatórias — sem elas o script para na primeira linha. `REF` fixa a data de
-referência: sem ela a referência é **hoje**, e os valores citados neste roteiro mudam. Numa instalação
-nativa, deixe `CONTAINER` de fora e exporte `PGHOST`, `PGPORT` e `PGPASSWORD`.
+Com o banco em contêiner do `docker-compose.demo.yml`, subido como `-p sbi-demo` (daí o contêiner `sbi-demo-db-1`, banco `sbi_demo`, usuário `sbi`):
+
+```bash
+CONTAINER=sbi-demo-db-1 DB=sbi_demo SUPERUSER=sbi REF=2026-11-18 bash docs/03-banco-de-dados/pacote-sql/run_apresentacao.sh
+```
+
+Se o seu banco de apresentação foi criado à mão, fora do Compose — como o contêiner `sbi-apresentacao-db` com o banco `sbi_apresentacao` das medições de 18/11 —, troque os três valores pelos seus: nada no repositório cria esse par, e um nome de contêiner errado falha com `No such container` antes de qualquer SQL.
 
 **Plano local se a internet falhar:** nada deste roteiro depende de internet. Banco, API e interface rodam em `127.0.0.1`; as fotos do catálogo são servidas da pasta `frontend/public/produtos`; o ambiente publicado não é usado. A única etapa que precisou de rede foi a primeira instalação de dependências (`npm ci` e o build do Maven), já feita. Se o PostgreSQL nativo não subir, o mesmo banco sobe em contêiner com `docker compose -f docker-compose.demo.yml -p sbi-demo up --build` e a porta de consulta passa a ser `127.0.0.1:5433`.
 
@@ -99,18 +105,23 @@ Diga: *"se o banco tivesse **aceitado** qualquer um desses, o script falharia na
 
 O `03_rbac.sql` já está aplicado neste banco — é o `run_bd.sh` que o aplica —, então a resposta é a
 **mesma consulta com três papéis de banco diferentes**. No cliente SQL que já está aberto, sem trocar
-de conexão (o id do Allan é 2 neste cenário):
+de conexão:
 
 ```sql
 SELECT count(*) FROM orders;                                   -- dono do esquema: 315
 SET ROLE gerente_matheus;  SELECT count(*) FROM orders;         -- gerente: 315
 RESET ROLE;
-SELECT set_config('app.user_id', '2', false);
+SELECT set_config('app.user_id',
+                  (SELECT id::text FROM app_users WHERE email = 'allanbarros@sbi.tech'), false);
 SET ROLE vendedor_allan;   SELECT count(*) FROM orders;         -- vendedor: 95
 SELECT count(*) FROM orders WHERE id = 5;                       -- pedido de outro vendedor: 0 linhas
 SELECT unit_cost FROM stock_entry LIMIT 1;                      -- ERROR: permission denied for table stock_entry
 RESET ROLE;
 ```
+
+O `set_config` resolve o id pelo e-mail, como o resto do pacote SQL faz, e roda antes do `SET ROLE`
+porque só o dono do esquema lê `app_users`. Nesta massa o id do Allan é 2; o `SELECT` evita depender
+disso.
 
 **Saída esperada: 315, 315 e 95**, depois zero linhas e a recusa de permissão. O dono do esquema não
 passa pela política; o gerente tem `USING (true)`; o vendedor tem
@@ -219,7 +230,7 @@ Abra o arquivo e aponte:
 - aba **Vendas**: o grão está escrito no topo (item de pedido, com uma linha por estorno); somar a coluna *Receita líquida* dá o mesmo faturamento confirmado;
 - aba **Metas**: plano da loja e distribuição por vendedor, com realizado e atingimento.
 
-Reconciliação medida nesta preparação, para 01/11 a 18/11/2026 e para a equipe de Matheus Siqueira (vendedor Allan Barros), no estado canônico — **10 indicadores, todos iguais** nos três lugares:
+Reconciliação medida nesta preparação, para 01/11 a 18/11/2026 e para a equipe de Matheus Siqueira (vendedor Allan Barros), no estado canônico — **10 indicadores, iguais em cada fonte que os publica** (o traço marca onde aquela fonte não traz o indicador):
 
 | indicador | PostgreSQL | painel | planilha |
 | --- | --- | --- | --- |
