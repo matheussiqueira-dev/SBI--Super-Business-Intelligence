@@ -20,8 +20,12 @@ Deixe estes quatro itens prontos e abertos, nesta ordem, **antes** de a banca en
 A preparação completa do ambiente está em [preparar a apresentação](../03-banco-de-dados/preparar-apresentacao.md). O caminho curto, já validado:
 
 ```bash
-bash docs/03-banco-de-dados/pacote-sql/run_apresentacao.sh
+CONTAINER=sbi-apresentacao-db DB=sbi_apresentacao SUPERUSER=sbi REF=2026-11-18 bash docs/03-banco-de-dados/pacote-sql/run_apresentacao.sh
 ```
+
+`DB` e `SUPERUSER` são obrigatórias — sem elas o script para na primeira linha. `REF` fixa a data de
+referência: sem ela a referência é **hoje**, e os valores citados neste roteiro mudam. Numa instalação
+nativa, deixe `CONTAINER` de fora e exporte `PGHOST`, `PGPORT` e `PGPASSWORD`.
 
 **Plano local se a internet falhar:** nada deste roteiro depende de internet. Banco, API e interface rodam em `127.0.0.1`; as fotos do catálogo são servidas da pasta `frontend/public/produtos`; o ambiente publicado não é usado. A única etapa que precisou de rede foi a primeira instalação de dependências (`npm ci` e o build do Maven), já feita. Se o PostgreSQL nativo não subir, o mesmo banco sobe em contêiner com `docker compose -f docker-compose.demo.yml -p sbi-demo up --build` e a porta de consulta passa a ser `127.0.0.1:5433`.
 
@@ -215,7 +219,7 @@ Abra o arquivo e aponte:
 - aba **Vendas**: o grão está escrito no topo (item de pedido, com uma linha por estorno); somar a coluna *Receita líquida* dá o mesmo faturamento confirmado;
 - aba **Metas**: plano da loja e distribuição por vendedor, com realizado e atingimento.
 
-Reconciliação medida nesta preparação, para 01/11 a 18/11/2026 e para a equipe de Matheus Siqueira (vendedor Allan Barros), no estado canônico — **13 indicadores, todos iguais** nos três lugares:
+Reconciliação medida nesta preparação, para 01/11 a 18/11/2026 e para a equipe de Matheus Siqueira (vendedor Allan Barros), no estado canônico — **10 indicadores, todos iguais** nos três lugares:
 
 | indicador | PostgreSQL | painel | planilha |
 | --- | --- | --- | --- |

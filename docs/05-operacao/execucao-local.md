@@ -56,7 +56,7 @@ Em seguida, para a apresentação, carregue o cenário com as metas do ano, a op
 psql -X -h 127.0.0.1 -p 5432 -U postgres -d sbi_demo -W -v ON_ERROR_STOP=1 -f 10_carga_apresentacao.sql
 ```
 
-Sem `-v ref`, a data de referência é hoje em `America/Fortaleza`; para fixar um dia, use `-v ref=2026-11-25`. O [guia de preparação](../03-banco-de-dados/preparar-apresentacao.md) detalha o que o cenário grava e como conferir tudo de uma vez.
+Sem `-v ref`, a data de referência é hoje em `America/Fortaleza`; para fixar um dia, use `-v ref=2026-11-18` — a data tem de ser passada ou hoje, porque a carga recusa referência no futuro. O [guia de preparação](../03-banco-de-dados/preparar-apresentacao.md) detalha o que o cenário grava e como conferir tudo de uma vez.
 
 A carga registra 42 SKUs Apple, 60 clientes, 219 pedidos pagos e 237 itens. Ela recria os registros da massa, inclusive pedidos associados aos SKUs `OL-*`. Use-a em um banco de demonstração dedicado e descarte os dados do ensaio somente quando decidir reiniciar esse banco. O [guia da massa](../03-banco-de-dados/massa-demonstracao.md) detalha o pacote SQL.
 

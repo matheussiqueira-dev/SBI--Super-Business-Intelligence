@@ -45,7 +45,7 @@ A carga Olist imprime `clientes=60 produtos=42 categorias=7 pedidos=219 itens=23
 Sem `-v ref`, a referência é **hoje** no fuso da loja (`America/Fortaleza`). Para fixar um dia — ensaiar com a data da apresentação, por exemplo:
 
 ```bash
-psql -X -U postgres -d sbi_demo -v ON_ERROR_STOP=1 -v ref=2026-11-25 -f 10_carga_apresentacao.sql
+psql -X -U postgres -d sbi_demo -v ON_ERROR_STOP=1 -v ref=2026-11-18 -f 10_carga_apresentacao.sql
 ```
 
 A carga recusa referência no futuro: o painel compararia com dias sem dado. Como as datas da massa Olist são relativas ao dia da carga (`dias_atras`), o histórico nunca envelhece — o mês corrente sempre tem movimento.
@@ -217,7 +217,7 @@ A guarda vale **só para texto vindo do banco**. Valor que o servidor mesmo gero
 
 ### Quando a planilha não compara com a meta
 
-A meta é sempre do **mês inteiro** e, fora o filtro de vendedor, da **loja inteira**. Comparar com ela um realizado que cobre parte do mês, ou que um filtro reduziu, daria um atingimento falso: o numerador encolhe e o denominador não. Nesses casos o Resumo não escreve percentual — escreve o motivo e aponta a aba Metas. Só com período de meses fechados e sem filtro é que aparecem "Plano da loja no período" e "Atingimento do plano". A aba Metas diz, no próprio cabeçalho, que não segue o recorte parcial nem os filtros de categoria e pagamento.
+A meta é sempre do **mês inteiro** e, fora o filtro de vendedor, da **loja inteira**. Comparar com ela um realizado que cobre parte do mês, ou que um filtro reduziu, daria um atingimento falso: o numerador encolhe e o denominador não. Nesses casos o Resumo não escreve percentual — escreve o motivo e aponta a aba Metas. Só com período de **meses inteiros** — do dia 1 ao último dia do mês, mesmo que o mês ainda esteja em curso — e sem filtro é que aparecem "Plano da loja no período" e "Atingimento do plano". A aba Metas diz, no próprio cabeçalho, que não segue o recorte parcial nem os filtros de categoria e pagamento.
 
 ### Verificações feitas na exportação
 
@@ -262,7 +262,7 @@ Conferida em 18/11/2026, para o recorte 01/11 a 18/11/2026 e para a equipe de Ma
 
 São os números do estado canônico, isto é, logo depois de seguir a montagem e **antes** da venda de teste do roteiro. Depois dela, tudo sobe pelo valor da venda — a seção 9 mostra o antes e o depois.
 
-Os números batem porque há **uma** definição de faturamento confirmado, na view `v_lancamento_realizado` (pagamento aprovado menos estorno, pela data do pagamento), e tanto o painel quanto a planilha a leem — nenhum dos dois recalcula a regra por conta própria.
+Os números batem porque há **uma** definição de faturamento confirmado — pagamento aprovado menos estorno, pela data do pagamento — e ela vive no banco, nas views, não no código de tela. O painel lê `v_lancamento_realizado`. A planilha monta o detalhe a partir de `v_fato_venda_item` e `v_fato_estorno`, que aplicam a mesma regra, soma essas linhas no servidor, e usa `v_lancamento_realizado` para o realizado da loja na aba Metas (`ExportService`). Nenhum dos dois reescreve a regra por conta própria; é por isso que os totais coincidem.
 
 ---
 
