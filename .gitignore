@@ -39,3 +39,10 @@ reports/metricas/ultima/
 # Arquivos .md gerados na raiz; o README e a pasta docs/ continuam versionados
 /*.md
 !/README.md
+
+# Saida das execucoes locais dos runners do pacote SQL; na CI elas vao para target/ e viram artefato.
+# A execucao historica versionada e resultado_testes_2026-10-12.txt, que fica.
+docs/03-banco-de-dados/pacote-sql/resultado_bd.txt
+docs/03-banco-de-dados/pacote-sql/resultado_olist.txt
+docs/03-banco-de-dados/pacote-sql/resultado_apresentacao.txt
+docs/03-banco-de-dados/pacote-sql/resultado_prova_banco.txt

@@ -84,3 +84,9 @@ O banco está em `tmpfs`: cada `up` começa limpo e reproduzível. Para recarreg
 | CT-DEMO-07 | `09_testes_olist.sql` | catálogo só Apple: produtos da massa nas 7 categorias Apple, com nome e preço do CSV, e nenhuma categoria do catálogo diverso de cargas anteriores |
 
 Na CI, o job `bd` roda essa etapa (`docs/03-banco-de-dados/pacote-sql/run_olist_bd.sh`) depois dos testes 06*, então nenhum número do BD-01 ao BD-32 muda. Os perfis padrão, `integration` e `contract` não recebem a massa.
+
+## Cenário da apresentação
+
+A massa acima dá o histórico, mas não dá metas, estorno nem pedido em aberto: o seed do perfil demo grava meta apenas para setembro de 2026 e nenhuma meta anual. O cenário da apresentação entra por cima dela, com `10_carga_apresentacao.sql` (D-EVO-56): metas do ano de referência com a distribuição reconciliada em centavos, meta anual assinada por um CEO, operação em andamento pelas funções reais do banco e dias fortes e fracos no mês corrente. A data de referência é configurável e o cenário é reproduzível, identificável (schema `apresentacao`) e idempotente. Os testes são CT-APR-00 a CT-APR-16, pelo runner `run_apresentacao.sh` (17 PASS), que roda **depois** de `run_bd.sh` e `run_olist_bd.sh`.
+
+O passo a passo, o que o cenário grava e a reconciliação entre PostgreSQL, painel e planilha estão em [preparar a apresentação](preparar-apresentacao.md); o que mostrar à banca, em [roteiro da apresentação de Banco de Dados](../05-operacao/roteiro-banco-de-dados.md).

@@ -19,6 +19,28 @@ export function monthPace(period: string, now: Date = new Date()): number | null
   return Number(today.slice(8, 10)) / daysIn(period);
 }
 
+/**
+ * Dias que ainda restam no mes, contando hoje, na hora da loja (America/Fortaleza).
+ * Retorna null quando o periodo nao e o mes corrente: um mes fechado nao tem dia restante, e um mes
+ * futuro ainda nao comecou, entao nao existe "quanto falta por dia" para nenhum dos dois.
+ */
+export function daysLeftInMonth(period: string, now: Date = new Date()): number | null {
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Fortaleza', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);
+  if (today.slice(0, 7) !== period) return null;
+  return daysIn(period) - Number(today.slice(8, 10)) + 1;
+}
+
+/**
+ * Quanto falta por dia restante para fechar a meta: falta dividida pelos dias que sobram, incluindo hoje.
+ * null quando nao ha meta, quando a meta ja foi batida ou quando o mes nao e o corrente (sem denominador
+ * valido nao se calcula nada; a tela mostra o motivo em vez de um numero inventado).
+ */
+export function remainingPerDay(remaining: number, period: string, now: Date = new Date()): number | null {
+  const left = daysLeftInMonth(period, now);
+  if (left === null || left <= 0 || remaining <= 0) return null;
+  return Math.round((remaining * 100) / left) / 100;
+}
+
 /** Meta do periodo = meta mensal proporcional aos dias do periodo dentro do mes, em centavos arredondados. */
 export function periodGoal(monthGoal: number, month: string, start: string, end: string): number {
   const days = Math.round((Date.parse(`${end}T00:00:00Z`) - Date.parse(`${start}T00:00:00Z`)) / 86_400_000) + 1;

@@ -9,7 +9,7 @@ Trabalho A3 · SBI — Super Business Intelligence, feito pelos alunos Allan Gab
 - **PDV**: busca por SKU ou nome, carrinho com preço e desconto calculados no servidor, Pix, cartão (só os 4 últimos dígitos) ou boleto, retirada ou entrega, reserva de estoque na venda e baixa na confirmação do pagamento.
 - **Clientes**: pessoa física e jurídica com dígito verificador (CNPJ numérico ou alfanumérico), documento mascarado para o vendedor, histórico de pedidos e perfil com indicadores de compra.
 - **Backoffice do gerente**: produtos e insumos, categorias, preço com motivo e histórico, entradas com custo médio, ajustes com motivo, estoque mínimo e extrato.
-- **Gestão**: faturamento, lucro e margem ("Não informado" quando falta custo), metas da loja e da equipe, Meu desempenho, estornos, promoções, desconto manual com alçada (vendedor 5%, gerente 20%) e análises.
+- **Gestão**: faturamento, lucro e margem ("Não informado" quando falta custo), metas da loja e da equipe, Meu desempenho, estornos, promoções, desconto manual com alçada (vendedor 5%, gerente 20%) e análises, com exportação do recorte em Excel (`.xlsx` e `.xls`) e CSV — abas Resumo, Vendas e Metas geradas no servidor, a partir das mesmas views dos indicadores, com período inicial e final, atalhos de data e os filtros da tela.
 - **Usuários**: cadastro pelo gerente com senha provisória, papel, situação, equipe do vendedor, desbloqueio e redefinição de senha; a sessão do usuário cai na requisição seguinte a qualquer mudança de papel, situação ou senha, e sempre existe um gerente ativo. Conta de CEO só é criada ou alterada por outro CEO.
 - **Visão do CEO**: painel executivo com filtros cruzados e drill-down (ano > mês > dia) — faturamento, lucro e preço de compra, mês atual × mês anterior, ano × ano anterior, ranking de vendedores e de produtos, categorias, formas de pagamento, curva ABC, destaques automáticos e exportação CSV — e metas em quatro níveis: anual da loja, mensal, por gerente (soma da equipe) e por vendedor.
 - **Segurança**: sessão HttpOnly + CSRF, hierarquia CEO > GERENTE > VENDEDOR em três barreiras (URL, método e dono do dado), bloqueio após 5 falhas de login (contador atômico) e matriz de acesso executável.
@@ -75,7 +75,18 @@ Para mostrar um histórico de clientes volumoso (60 clientes, 219 pedidos, recor
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\demo-olist.ps1 -Check
 ```
 
-O banco de demonstração fica acessível só nesta máquina, para o painel Database do IntelliJ, o DBeaver ou o `psql`: `jdbc:postgresql://127.0.0.1:5433/sbi_demo`, usuário `sbi`, senha de `SBI_DB_PASSWORD`. O roteiro de CRUD da apresentação é `docs/03-banco-de-dados/pacote-sql/08_crud_clientes_olist.sql`. Detalhes em [docs/03-banco-de-dados/massa-demonstracao.md](docs/03-banco-de-dados/massa-demonstracao.md).
+O banco de demonstração fica acessível só nesta máquina, para o painel Database do IntelliJ, o DBeaver ou o `psql`: `jdbc:postgresql://127.0.0.1:5433/sbi_demo`, usuário `sbi`, senha de `SBI_DB_PASSWORD`. Detalhes em [docs/03-banco-de-dados/massa-demonstracao.md](docs/03-banco-de-dados/massa-demonstracao.md).
+
+Para a apresentação de Banco de Dados, carregue também o cenário com as metas do ano, a operação em andamento e os dias fortes e fracos (`10_carga_apresentacao.sql`, aditivo e com data de referência configurável) e use os roteiros do pacote:
+
+| Arquivo | Para que serve |
+| --- | --- |
+| `10_carga_apresentacao.sql` | grava o cenário: metas do ano com distribuição reconciliada em centavos, meta anual de CEO, pedidos pendentes, cancelado e estorno pelas funções do banco |
+| `11_prova_banco.sql` | prova de banco em cinco passos: versão e dicionário, CRUD em transação com `ROLLBACK`, cinco recusas de integridade e as consultas analíticas com controle do grão do `JOIN` |
+| `08_crud_clientes_olist.sql` | roteiro de CRUD e consultas sobre a massa Olist |
+| `run_apresentacao.sh` | confere tudo: carga duas vezes, fotografia igual, testes do cenário e a prova completa (17 PASS) |
+
+O passo a passo está em [preparar a apresentação](docs/03-banco-de-dados/preparar-apresentacao.md) e o que mostrar à banca em [roteiro da apresentação de Banco de Dados](docs/05-operacao/roteiro-banco-de-dados.md).
 
 ## Desenvolvimento no VS Code (um atalho)
 
@@ -88,7 +99,7 @@ As senhas ficam em `.env.local` (fora do git), gerado na primeira execução: `S
 | Perfil | Uso |
 | --- | --- |
 | padrão | Desenvolvimento com o banco `postgres-order` (`docker compose up -d postgres`) e a senha em `SPRING_DATASOURCE_PASSWORD`. |
-| `demo` | Aplica também `db/demo` (V6_1, contas da equipe com BCrypt de `SBI_DEMO_PASSWORD_<NOME>` ou `SBI_DEMO_PASSWORD`; V6_2, massa sintética; V11_1, promoção de Acessórios até dezembro; V11_2, custo da carga inicial de iPhone e AirPods; V12_1, contas de CEO dos professores e equipes de venda). Precisa estar ativo desde a primeira migração do banco. |
+| `demo` | Aplica também `db/demo` (V6_1, contas da equipe com BCrypt de `SBI_DEMO_PASSWORD_<NOME>` ou `SBI_DEMO_PASSWORD`; V6_2, massa sintética; V11_1, promoção de Acessórios até dezembro; V11_2, custo da carga inicial de iPhone e AirPods; V12_1, contas de CEO dos professores e equipes de venda; V12_2, telefone e endereço completos dos clientes do seed). Precisa estar ativo desde a primeira migração do banco. |
 | `integration` (testes) | PostgreSQL descartável da porta 15432 (`docker-compose.test.yml`), com as tabelas de negócio esvaziadas por `TRUNCATE`. |
 | `contract` | API isolada dos testes HTTP de contrato, com contas sintéticas e senha gerada por execução. |
 
@@ -109,8 +120,8 @@ node scripts\quality-metrics.mjs                                                
 
 A CI (`.github/workflows/ci.yml`) roda quatro jobs de teste, cada um com seus relatórios como artefato, e, nos pull requests, o job `hygiene`, que barra rodapé de coautoria, link de sessão e endereço antigo do site nas mensagens de commit e nos arquivos versionados:
 - `test (backend)`;
-- `bd`: Flyway, seed demo e pacote SQL com 61 PASS, mais 11 PASS da massa Olist;
-- `contract`: auditoria estática e verificação ao vivo das 61 operações do contrato v6;
+- `bd`: Flyway, seed demo e pacote SQL com 61 PASS, mais 11 PASS da massa Olist e 17 PASS do cenário da apresentação (`run_apresentacao.sh`);
+- `contract`: auditoria estática e verificação ao vivo das operações do contrato v6;
 - `frontend`: typecheck, schemas sem diff, testes unitários, build, E2E e axe.
 
 ## Documentação

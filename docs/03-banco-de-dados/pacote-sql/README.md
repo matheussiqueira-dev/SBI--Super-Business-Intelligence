@@ -10,13 +10,17 @@ Versão de 12/10/2026, trazida para o repositório na ETAPA 2A (14/10/2026). Dec
 | `05_crud_exemplos.sql`, `06a/06b/06c_testes_*.sql` | Executados por `psql`; os testes 06 não dependem dos CPFs do seed. |
 | `06d_testes_evolucao.sql` | Testes da evolução: CT-BD-30 (o gatilho `keep_one_active_manager` da V8 impede rebaixar ou desativar o último GERENTE ativo; cada caso reverte a própria alteração) BD-31 (a view `v_cliente_resumo` da V9 confere com o seed demo e com o faturamento) e BD-32 (alçadas iniciais e CHECKs do desconto manual da V11). |
 | `run_all.sh`, `resultado_testes_2026-10-12.txt` | Execução original de 12/10 (51 PASS), sobre o pacote aplicado direto por `psql`. |
-| `run_bd.sh` | Execução atual: sobre um banco que já recebeu as migrações (V1–V12) e a massa demo pelo Flyway, roda 03, 05, 06a/b/c/d e a corrida CC-01; falha em qualquer FAIL, ERROR ou contagem de PASS diferente de 60 (51 do pacote original + 3 do CT-BD-30 + 3 do BD-31 + 3 do BD-32). É o job `bd` da CI. |
+| `run_bd.sh` | Execução atual: sobre um banco que já recebeu as migrações (V1–V12) e a massa demo pelo Flyway, roda 03, 05, 06a/b/c/d e a corrida CC-01; falha em qualquer FAIL, ERROR ou contagem de PASS diferente do `EXPECTED_PASS` do proprio runner, hoje **61** (51 do pacote original de 12/10 mais os casos acrescentados depois). É o job `bd` da CI. |
 | `olist/` | Massa de demonstração do histórico de clientes (recorte do Brazilian E-Commerce Public Dataset by Olist, CC BY-NC-SA 4.0): 4 CSVs, `montar_recorte.py` e `NOTICE.md` com fonte, licença e adaptações. |
 | `07_carga_olist.sql` | Carga da massa Olist por SQL puro (`\copy` para `stg_olist`, limpeza idempotente, `INSERT ... SELECT`, conferência), em uma transação. Rodar como superusuário, depois do Flyway, a partir desta pasta. |
 | `08_crud_clientes_olist.sql` | Roteiro de CRUD e consultas da apresentação sobre a massa Olist, em `BEGIN ... ROLLBACK`; mostra três recusas de integridade. |
 | `09_testes_olist.sql` | Testes CT-DEMO-01 a 04 (contagens e soma, cliente com 14 pedidos, idempotência, estoque). |
 | `run_demo_olist.sh` | Sobe a stack demo e carrega a massa Olist (`--check`: carga repetida, testes 09 e CT-DEMO-05 pela API). Equivalente PowerShell: `scripts/demo-olist.ps1`. |
-| `run_olist_bd.sh` | Etapa separada do job `bd`, depois de `run_bd.sh`: carga duas vezes, roteiro 08 (CT-DEMO-06), testes 09 e CT-DEMO-05 com a API no perfil demo; espera 10 PASS. Detalhes em `docs/03-banco-de-dados/massa-demonstracao.md`. |
+| `run_olist_bd.sh` | Etapa separada do job `bd`, depois de `run_bd.sh`: carga duas vezes, roteiro 08 (CT-DEMO-06), testes 09 e CT-DEMO-05 com a API no perfil demo; espera **11 PASS** com a API no ar (7 sem ela). Detalhes em `docs/03-banco-de-dados/massa-demonstracao.md`. |
+| `10_carga_apresentacao.sql` | Cenário da apresentação por cima da massa (D-EVO-56): metas do ano de referência, operação em andamento (pendentes, cancelado e estorno pelas funções reais) e dias fortes e fracos. Data de referência configurável (`-v ref=AAAA-MM-DD`, padrão hoje em `America/Fortaleza`); reproduzível (`hashtext`, nunca `random()`), identificável e idempotente pelo registro no schema `apresentacao`, em uma transação com conferência. |
+| `11_prova_banco.sql` | Prova de Banco de Dados para a banca (D-EVO-57), nos cinco passos do enunciado: banco e versão, inventário e dicionário, CRUD completo em transação terminada em `ROLLBACK`, cinco recusas de integridade em blocos com `EXCEPTION` e as consultas analíticas com o controle do grão do `JOIN`. Com `ON_ERROR_STOP=1` falha em erro inesperado. |
+| `12_testes_apresentacao.sql` | Testes do cenário (CT-APR-00 a CT-APR-14), na convenção `pg_temp.ok`: metas, reconciliação em centavos, equipes, ritmo, estoque, grão do `JOIN` e completude da carteira. |
+| `run_apresentacao.sh` | Etapa do cenário, depois de `run_bd.sh` e `run_olist_bd.sh`: carga duas vezes com a mesma referência, comparação da fotografia do banco (CT-APR-15), testes 12 e a prova 11 completa (CT-APR-16); espera 17 PASS. Detalhes em [preparar a apresentação](../preparar-apresentacao.md). |
 
 Reprodução local (Docker ativo, Git Bash):
 
@@ -24,7 +28,7 @@ Reprodução local (Docker ativo, Git Bash):
 export TEST_DB_PASSWORD="$(openssl rand -hex 12)"
 docker compose -f docker-compose.test.yml -p a3-bd up -d --wait
 ./mvnw -q -DskipTests package
-SPRING_DATASOURCE_PASSWORD="$TEST_DB_PASSWORD" SBI_DEMO_PASSWORD="<12 ou mais caracteres>" \
+SPRING_DATASOURCE_PASSWORD="$TEST_DB_PASSWORD" SBI_DEMO_PASSWORD="<8 ou mais caracteres>" \
   java -jar target/order-management-spring-0.0.1-SNAPSHOT.jar --spring.profiles.active=demo \
   --spring.main.web-application-type=none \
   --spring.datasource.url=jdbc:postgresql://localhost:15432/order_management_test --spring.datasource.username=postgres_test
