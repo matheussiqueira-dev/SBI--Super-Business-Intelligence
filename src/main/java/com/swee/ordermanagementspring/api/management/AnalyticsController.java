@@ -23,6 +23,12 @@ public class AnalyticsController {
         return service.sales(month);
     }
 
+    /** Produtos com margem pressionada no mes, com o limiar na margem da propria loja. */
+    @GetMapping("/margin-alerts")
+    public ManagementDtos.MarginAlert marginAlerts(@RequestParam @Pattern(regexp = ManagementDtos.MONTH) String month) {
+        return service.marginAlerts(month);
+    }
+
     @GetMapping("/stock")
     public StockAnalytics stock() {
         return service.stock();

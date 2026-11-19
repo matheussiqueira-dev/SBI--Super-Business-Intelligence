@@ -106,6 +106,29 @@
   --sbi-data-6: #DDA317;
   --sbi-data-7: #0B9CC0;
   --sbi-data-8: #D03833;
+  /* visualizacao de dados: escalas de magnitude, de desvio e de estado (manual v2.1, secao 29).
+     Sequencial e divergente sao escalas ORDENADAS: o lugar na escala e o dado, nao a entidade.
+     O meio da divergente e o neutro do tema (no claro, o #DEE3E9 que o manual declara; no escuro,
+     o neutro escuro equivalente, porque o valor literal do manual nao se le sobre superficie escura). */
+  --sbi-data-seq-1: #D5ECF9;
+  --sbi-data-seq-2: #AED8EF;
+  --sbi-data-seq-3: #82C1E2;
+  --sbi-data-seq-4: #5CA9CF;
+  --sbi-data-seq-5: #3791BA;
+  --sbi-data-seq-6: #1378A1;
+  --sbi-data-seq-7: #066082;
+  --sbi-data-seq-8: #034964;
+  --sbi-data-div-1: #C95B0A;
+  --sbi-data-div-2: #E68A58;
+  --sbi-data-div-3: #F4BCA0;
+  --sbi-data-div-4: var(--sbi-border-subtle);
+  --sbi-data-div-5: #A4D2EB;
+  --sbi-data-div-6: #5CA9CF;
+  --sbi-data-div-7: #04729B;
+  --sbi-data-state-good: #2E9E52;
+  --sbi-data-state-warn: #F0AD15;
+  --sbi-data-state-severe: #EB7C33;
+  --sbi-data-state-critical: #D33B36;
 
   /* tipografia: Inter variável (next/font) com eixo de tamanho óptico; o desenho Display entra sozinho a partir de 22 px */
   --sbi-font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -240,6 +263,29 @@
     --sbi-data-6: #BF8B00;
     --sbi-data-7: #2DA1C2;
     --sbi-data-8: #DE4F46;
+    /* visualizacao de dados: escalas de magnitude, de desvio e de estado (manual v2.1, secao 29).
+       Sequencial e divergente sao escalas ORDENADAS: o lugar na escala e o dado, nao a entidade.
+       O meio da divergente e o neutro do tema (no claro, o #DEE3E9 que o manual declara; no escuro,
+       o neutro escuro equivalente, porque o valor literal do manual nao se le sobre superficie escura). */
+    --sbi-data-seq-1: #D5ECF9;
+    --sbi-data-seq-2: #AED8EF;
+    --sbi-data-seq-3: #82C1E2;
+    --sbi-data-seq-4: #5CA9CF;
+    --sbi-data-seq-5: #3791BA;
+    --sbi-data-seq-6: #1378A1;
+    --sbi-data-seq-7: #066082;
+    --sbi-data-seq-8: #034964;
+    --sbi-data-div-1: #C95B0A;
+    --sbi-data-div-2: #E68A58;
+    --sbi-data-div-3: #F4BCA0;
+    --sbi-data-div-4: var(--sbi-border-subtle);
+    --sbi-data-div-5: #A4D2EB;
+    --sbi-data-div-6: #5CA9CF;
+    --sbi-data-div-7: #04729B;
+    --sbi-data-state-good: #2E9E52;
+    --sbi-data-state-warn: #F0AD15;
+    --sbi-data-state-severe: #EB7C33;
+    --sbi-data-state-critical: #D33B36;
     --sbi-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.40);
     --sbi-shadow-2: 0 6px 16px -4px rgba(0, 0, 0, 0.55);
     --sbi-shadow-3: 0 20px 48px -8px rgba(0, 0, 0, 0.65);
@@ -308,6 +354,29 @@
   --sbi-data-6: #BF8B00;
   --sbi-data-7: #2DA1C2;
   --sbi-data-8: #DE4F46;
+  /* visualizacao de dados: escalas de magnitude, de desvio e de estado (manual v2.1, secao 29).
+     Sequencial e divergente sao escalas ORDENADAS: o lugar na escala e o dado, nao a entidade.
+     O meio da divergente e o neutro do tema (no claro, o #DEE3E9 que o manual declara; no escuro,
+     o neutro escuro equivalente, porque o valor literal do manual nao se le sobre superficie escura). */
+  --sbi-data-seq-1: #D5ECF9;
+  --sbi-data-seq-2: #AED8EF;
+  --sbi-data-seq-3: #82C1E2;
+  --sbi-data-seq-4: #5CA9CF;
+  --sbi-data-seq-5: #3791BA;
+  --sbi-data-seq-6: #1378A1;
+  --sbi-data-seq-7: #066082;
+  --sbi-data-seq-8: #034964;
+  --sbi-data-div-1: #C95B0A;
+  --sbi-data-div-2: #E68A58;
+  --sbi-data-div-3: #F4BCA0;
+  --sbi-data-div-4: var(--sbi-border-subtle);
+  --sbi-data-div-5: #A4D2EB;
+  --sbi-data-div-6: #5CA9CF;
+  --sbi-data-div-7: #04729B;
+  --sbi-data-state-good: #2E9E52;
+  --sbi-data-state-warn: #F0AD15;
+  --sbi-data-state-severe: #EB7C33;
+  --sbi-data-state-critical: #D33B36;
   --sbi-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.40);
   --sbi-shadow-2: 0 6px 16px -4px rgba(0, 0, 0, 0.55);
   --sbi-shadow-3: 0 20px 48px -8px rgba(0, 0, 0, 0.65);
