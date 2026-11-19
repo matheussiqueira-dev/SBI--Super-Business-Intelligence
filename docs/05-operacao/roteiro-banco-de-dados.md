@@ -55,7 +55,7 @@ Execute o bloco **PASSO 1** de `11_prova_banco.sql`.
    - produto ↔ estoque: `stock_balance.product_id → product.id`, `stock_entry`, `stock_movement`
    - metas: `seller_goal.monthly_goal_id → monthly_goal.id` (com `ON DELETE CASCADE`) e `annual_goal.updated_by → app_users.id`
 4. **Restrições** (1.6): mostre `ck_customer_document_type` (pessoa física exige CPF, jurídica exige CNPJ), `ck_customer_cpf` (onze dígitos) e `payment_order_id_key` (um pagamento por pedido). Diga: *"o banco recusa dado inválido; não é a tela que decide"*.
-5. **Gatilhos** (1.7): `annual_goal_only_ceo`, `monthly_goal_sum` e `seller_goal_sum` (adiados para o `COMMIT`), `trg_product_price_history`, `trg_stock_entry_apply`.
+5. **Gatilhos** (1.7): `annual_goal_only_ceo`, `monthly_goal_sum` e `seller_goal_sum` (adiados para o `COMMIT`), `product_price_history`, `stock_entry_apply`. Os nomes com prefixo `trg_` na coluna vizinha são as funções que esses gatilhos executam.
 
 **Saída esperada:** 20 tabelas, nenhuma com zero linhas nas cinco principais; a última migração do Flyway é a `12.2`.
 
@@ -275,11 +275,11 @@ O `.xls` sai do mesmo recorte, para quem precisar do formato antigo. O CSV é a 
 | "O que é faturamento confirmado?" | Pagamento aprovado menos estorno, cada perna na sua data: a venda pela data do pagamento, o estorno pelo dia em que foi registrado. | `v_lancamento_realizado`, passo 4.3 |
 | "E se o `JOIN` duplicar a receita?" | Os dois grãos dão o mesmo total; é a prova 4.3. | passo 4.3 |
 | "Quem pode definir a meta anual?" | Só CEO, por gatilho no banco (`annual_goal_only_ceo`), não por regra de tela. | passo 1.7 e passo 3 |
-| "A soma das metas dos vendedores pode não fechar?" | Não: `trg_goal_sum_check`, adiado para o `COMMIT`. | passo 3, recusa 5/5 |
+| "A soma das metas dos vendedores pode não fechar?" | Não: dois gatilhos de constraint, `seller_goal_sum` e `monthly_goal_sum`, pela mesma função `trg_goal_sum_check` e os dois adiados para o `COMMIT`. | passo 3, recusa 5/5 |
 | "Posso excluir um cliente com histórico?" | Não: a chave estrangeira recusa. | passo 3, recusa 4/4 |
 | "Por que a margem às vezes diz 'Não informado'?" | Produto sem custo informado não vira margem zero; o sistema diz que não sabe. | Análises, coluna Margem |
 | "Esses dados são reais?" | Não. Catálogo Apple com preços de mercado pesquisados, carteira sintética, e-mails em `.test`, CPF e CNPJ fictícios com dígito verificador válido. Base pública Olist como origem do histórico, creditada em `olist/NOTICE.md`. | [massa de demonstração](../03-banco-de-dados/massa-demonstracao.md) |
-| "Dá para refazer o cenário?" | Sim: `10_carga_apresentacao.sql` com a mesma data de referência deixa exatamente as mesmas contagens, metas e totais. | `run_apresentacao.sh` |
+| "Dá para refazer o cenário?" | Sim, **antes da venda do passo 6**: a mesma data de referência deixa as mesmas contagens, metas e totais. A limpeza desfaz só o que a carga criou, e a meta do mês nasce do realizado de cada vendedor — então refazer depois da venda de teste sobe a meta do Allan, o plano da loja, os meses futuros e a meta anual. | `run_apresentacao.sh` |
 
 ---
 

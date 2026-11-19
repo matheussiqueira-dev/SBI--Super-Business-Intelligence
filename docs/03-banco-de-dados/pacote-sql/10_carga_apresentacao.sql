@@ -311,7 +311,7 @@ END $$;
 
 -- ---------------------------------------------------------------------
 -- 3. Metas do ano de referencia.
---    Meta mensal = soma das metas dos vendedores (regra do gatilho trg_goal_sum_check), reconciliada em centavos:
+--    Meta mensal = soma das metas dos vendedores (regra dos gatilhos seller_goal_sum e monthly_goal_sum, pela funcao trg_goal_sum_check), reconciliada em centavos:
 --    o ultimo vendedor recebe a diferenca, para a soma fechar exatamente com o plano da loja.
 --    Mes de referencia: Allan acima do ritmo (meta 15% abaixo do projetado) e Francisco abaixo (25% acima).
 --    Meses fechados: o plano da LOJA acompanha o realizado da loja com fator alternado 0,95 / 1,05 (mes

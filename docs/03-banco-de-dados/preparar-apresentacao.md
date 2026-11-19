@@ -116,10 +116,10 @@ Estado canônico (Flyway → `07` → `10` com `ref=2026-11-18`, sem venda extra
 
 - **Meta anual** do ano de referência, igual à soma exata das doze mensais, assinada por um CEO (`ceo_paulo`). O gatilho `annual_goal_only_ceo` recusa qualquer outro papel.
 - **Doze metas mensais** do ano, uma por mês.
-- **Distribuição por vendedor**: os dois VENDEDOR (Allan Barros e Francisco Ferreira). O segundo recebe a diferença, para a soma fechar com o plano da loja ao centavo — o gatilho `trg_goal_sum_check` recusa qualquer desencontro, e a verificação é adiada para o `COMMIT`.
+- **Distribuição por vendedor**: os dois VENDEDOR (Allan Barros e Francisco Ferreira). O segundo recebe a diferença, para a soma fechar com o plano da loja ao centavo — dois gatilhos de constraint, `seller_goal_sum` e `monthly_goal_sum`, recusam qualquer desencontro pela mesma função `trg_goal_sum_check`, com a verificação adiada para o `COMMIT`.
 - **Equipes**: Allan responde a Matheus Siqueira e Francisco a Gabriel Sousa (`V12_1`, pelo `db_role`). A meta da equipe é a meta do seu vendedor.
 
-Como a meta individual é só de VENDEDOR (regra da `V5`, gatilho `trg_seller_goal_is_seller`), a venda do **gerente** Gabriel soma no realizado da loja e não tem meta própria. Por isso o realizado da loja é maior que a soma dos dois vendedores. Isso está escrito na aba Metas da planilha e no roteiro.
+Como a meta individual é só de VENDEDOR (regra da `V5`, gatilho `seller_goal_is_seller`), a venda do **gerente** Gabriel soma no realizado da loja e não tem meta própria. Por isso o realizado da loja é maior que a soma dos dois vendedores. Isso está escrito na aba Metas da planilha e no roteiro.
 
 ### Ritmo do mês de referência
 

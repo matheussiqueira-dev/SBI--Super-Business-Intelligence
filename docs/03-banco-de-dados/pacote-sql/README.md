@@ -28,7 +28,7 @@ Reprodução local (Docker ativo, Git Bash):
 export TEST_DB_PASSWORD="$(openssl rand -hex 12)"
 docker compose -f docker-compose.test.yml -p a3-bd up -d --wait
 ./mvnw -q -DskipTests package
-SPRING_DATASOURCE_PASSWORD="$TEST_DB_PASSWORD" SBI_DEMO_PASSWORD="<12 ou mais caracteres>" \
+SPRING_DATASOURCE_PASSWORD="$TEST_DB_PASSWORD" SBI_DEMO_PASSWORD="<8 ou mais caracteres>" \
   java -jar target/order-management-spring-0.0.1-SNAPSHOT.jar --spring.profiles.active=demo \
   --spring.main.web-application-type=none \
   --spring.datasource.url=jdbc:postgresql://localhost:15432/order_management_test --spring.datasource.username=postgres_test

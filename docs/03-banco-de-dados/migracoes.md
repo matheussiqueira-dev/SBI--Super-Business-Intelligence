@@ -18,7 +18,7 @@ Desde a ETAPA 2A (14/10/2026), o Flyway é a única fonte do esquema em todos os
 | V11_2 (`db/demo`) | Só no perfil `demo`: iPhone e AirPods da V6_2 passam a ter custo na carga inicial (60% do preço), gravado na entrada de 25/08, no custo médio e no custo histórico dos itens vendidos; saldos e reservas não mudam (D-PUB-04). |
 | V11_1 (`db/demo`) | Só no perfil `demo`: a promoção de Acessórios da V6_2 passa a valer até 31/12/2026 (cobre a apresentação de 29/11). Altera só a linha original do seed. |
 
-**Perfil `demo` (A2A-4).** Ele precisa estar ativo desde a primeira migração do banco. Com `out-of-order` desligado, ativá-lo num banco já migrado além da V6 faz o Flyway recusar as versões 6.1 e 6.2; nesse caso o banco é recriado, não completado. Sem `SBI_DEMO_PASSWORD` (12 a 72 bytes), a V6_1 falha e o banco não sobe.
+**Perfil `demo` (A2A-4).** Ele precisa estar ativo desde a primeira migração do banco. Com `out-of-order` desligado, ativá-lo num banco já migrado além da V6 faz o Flyway recusar as versões 6.1 e 6.2; nesse caso o banco é recriado, não completado. Sem `SBI_DEMO_PASSWORD` (mínimo 8 caracteres, máximo 72 bytes), a V6_1 falha e o banco não sobe.
 
 **Testes.** O perfil `integration` usa o mesmo esquema do Flyway. Testes com transação confirmada (`ConcurrencyTest`) e o runner de contrato começam com `TRUNCATE ... RESTART IDENTITY CASCADE` das tabelas de negócio listadas em `config/BusinessTables.java`, nunca de `role` nem de `flyway_schema_history`. As contas sintéticas do contrato exigem `A3_CONTRACT_ISOLATED=1`, `--a3.contract.disposable-database=true` e o banco da porta 15432.
 

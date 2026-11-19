@@ -182,7 +182,7 @@ SELECT count(*) AS clientes_apos_delete,
        count(*) FILTER (WHERE cpf = '52998224725') AS com_este_cpf_apos_delete
   FROM customer;
 
--- 2.7 Mudanca de preco com motivo, autoria e historico (gatilho trg_product_price_history).
+-- 2.7 Mudanca de preco com motivo, autoria e historico (gatilho product_price_history, funcao trg_product_price_history).
 SET LOCAL app.reason = 'Reajuste de tabela demonstrado na banca';
 UPDATE product SET price = price + 10.00
  WHERE id = (SELECT id FROM product WHERE active ORDER BY sku LIMIT 1)

@@ -1,5 +1,5 @@
 -- =====================================================================
--- Testes do cenario de apresentacao (CT-APR-01 a CT-APR-10). Cada caso imprime PASS ou FAIL.
+-- Testes do cenario de apresentacao (CT-APR-00 a CT-APR-14). Cada caso imprime PASS ou FAIL.
 -- Rodar como superusuario DEPOIS de 10_carga_apresentacao.sql executado DUAS vezes (CT-APR-03).
 --   psql -X -U <usuario> -d <banco> -f 12_testes_apresentacao.sql
 -- Nao altera dado nenhum: so le.

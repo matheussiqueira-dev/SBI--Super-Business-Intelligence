@@ -138,7 +138,7 @@ public class ExportService {
     /**
      * Aba Metas: cada vendedor nos meses que o periodo toca, pela view do projeto, mais a linha do plano da
      * loja por mes. O realizado da loja inclui a venda do gerente, que soma na loja e nao tem meta individual
-     * (nao existe seller_goal para GERENTE: gatilho trg_seller_goal_is_seller).
+     * (nao existe seller_goal para GERENTE: gatilho seller_goal_is_seller).
      */
     private List<GoalRow> goals(DateRange period, ExportFilters f) {
         // monthly_goal.period e sempre o dia 1 (CHECK monthly_goal_period_check), entao a janela de meses
