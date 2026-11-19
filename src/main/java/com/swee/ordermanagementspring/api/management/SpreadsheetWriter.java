@@ -30,7 +30,8 @@ import java.util.List;
  *
  * Decisoes que a banca pode conferir abrindo o arquivo:
  *  - data vai como CELULA DE DATA (formato dd/mm/aaaa), nao como texto;
- *  - dinheiro e percentual vao como NUMERO com formato (R$ #.##0,00 e 0,0%), nao como texto;
+ *  - dinheiro e percentual vao como NUMERO com formato do Excel ("#,##0.00" e "0.0%"), nao como texto,
+ *    e SEM simbolo de moeda: o que decide como os separadores aparecem e o locale de quem abre o arquivo;
  *  - texto vai como celula de texto: no formato Excel uma celula de texto nunca e avaliada como formula,
  *    entao nome de produto ou de cliente comecando com "=", "+", "-" ou "@" nao executa nada. No CSV,
  *    que e texto puro, esses valores recebem um apostrofo de guarda e escape de aspas;

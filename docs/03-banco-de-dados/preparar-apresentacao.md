@@ -57,8 +57,10 @@ A carga recusa referência no futuro: o painel compararia com dias sem dado. Com
 O runner faz a carga duas vezes com a mesma referência, compara a fotografia do banco, roda os testes do cenário e exige a prova de banco completa:
 
 ```bash
-CONTAINER=<id do PostgreSQL> DB=sbi_demo SUPERUSER=postgres bash docs/03-banco-de-dados/pacote-sql/run_apresentacao.sh
+CONTAINER=sbi-demo-db-1 DB=sbi_demo SUPERUSER=sbi bash docs/03-banco-de-dados/pacote-sql/run_apresentacao.sh
 ```
+
+Os três valores são os do `docker-compose.demo.yml` subido como `-p sbi-demo`: lá o dono do `sbi_demo` é `sbi` (`POSTGRES_USER`), não `postgres`. Troque-os pelos do seu ambiente — num PostgreSQL nativo, omita `CONTAINER` e informe o dono do seu banco.
 
 Esperado: **17 PASS, 0 FAIL, 0 ERROS**. Rode-o **depois** de `run_bd.sh` (61 PASS) e `run_olist_bd.sh` (7 PASS sem a API, 11 com), para nenhum número daqueles mudar.
 

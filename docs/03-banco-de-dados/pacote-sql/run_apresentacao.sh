@@ -66,13 +66,16 @@ psql_in -f 12_testes_apresentacao.sql >> "$OUT" 2>&1 || true
 # Prova de banco: tem de terminar sem erro inesperado (as recusas esperadas ficam em blocos com EXCEPTION).
 if psql_in -v ON_ERROR_STOP=1 -f 11_prova_banco.sql > "$PROVA_OUT" 2>&1; then
   echo "NOTICE:  PASS CT-APR-16 prova de banco 11 completa, sem erro inesperado" >> "$OUT"
-  grep -E "^NOTICE:  OK " "$PROVA_OUT" | sed 's/^/NOTICE:  /' >> "$OUT" || true
+  # O psql prefixa todo NOTICE com "psql:<arquivo>:<linha>: ", entao ancorar em "^NOTICE:" nunca casava e
+  # as cinco recusas de integridade ficavam de fora do resumo, em silencio (o || true engole o grep vazio).
+  # O sed tira o prefixo do psql e deixa a linha no mesmo formato "NOTICE:  ..." do resto do arquivo.
+  grep -E "^psql:[^:]+:[0-9]+: NOTICE:  OK [0-9]+/[0-9]+ - " "$PROVA_OUT" | sed 's/^psql:[^:]*:[0-9]*: //' >> "$OUT" || true
 else
   echo "NOTICE:  FAIL CT-APR-16 prova de banco 11 abortou" >> "$OUT"
   tail -20 "$PROVA_OUT" >> "$OUT"
 fi
 
-grep -E "PASS|FAIL|ERROR" "$OUT" | sed 's/^.*NOTICE:  //'
+grep -E "PASS|FAIL|ERROR|OK [0-9]+/[0-9]+ - " "$OUT" | sed 's/^.*NOTICE:  //'
 PASS=$(grep -c "PASS" "$OUT" || true)
 FAIL=$(grep -c "FAIL" "$OUT" || true)
 ERRORS=$(grep -c "ERROR" "$OUT" || true)

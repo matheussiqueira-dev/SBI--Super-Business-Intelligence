@@ -1,15 +1,24 @@
 -- =====================================================================
 -- Prova de Banco de Dados do SBI para a banca: banco funcional, dados armazenados, SQL e CRUD.
--- Segue os cinco passos do enunciado, nesta ordem. Executar depois do Flyway (perfil demo),
+-- Cobre os passos 1 a 4 do enunciado, nesta ordem; o passo 5 esta em
+-- docs/05-operacao/roteiro-banco-de-dados.md. Executar depois do Flyway (perfil demo),
 -- de 07_carga_olist.sql e de 10_carga_apresentacao.sql, a partir desta pasta:
 --   psql -X -U <usuario> -d <banco> -v ON_ERROR_STOP=1 -f 11_prova_banco.sql
--- Tambem roda passo a passo no painel Database do IntelliJ ou no DBeaver: cada passo esta marcado
--- com "-- PASSO n" e pode ser selecionado e executado sozinho.
 --
--- Nada e alterado em definitivo: o passo 2 (CRUD) e o passo 3 (integridade) rodam em transacao
--- terminada em ROLLBACK. As rejeicoes do passo 3 sao ESPERADAS e ficam dentro de blocos com
--- EXCEPTION que reconhecem so o erro previsto; qualquer outro erro aborta o script (ON_ERROR_STOP),
--- entao o caminho automatizado devolve falha quando aparece erro inesperado.
+-- O arquivo e escrito para o psql: cada passo se anuncia numa linha \echo 'PASSO n - ...' entre
+-- barras de '=', e NAO existe comentario "-- PASSO n". As linhas de meta-comando (\set, \pset,
+-- \timing, \echo) sao do cliente psql e nao sao SQL; para rodar passo a passo no painel Database
+-- do IntelliJ ou no DBeaver, selecione so as linhas SQL do passo e leve junto o BEGIN dele. Sem
+-- o BEGIN, em autocommit, o CRUD do passo 2 nao grava o cliente ficticio: ele quebra, porque a
+-- primeira instrucao e uma TEMP TABLE ON COMMIT DROP que some antes do INSERT seguinte. Mas o
+-- reajuste de preco de 2.7 grava de verdade, e o SET LOCAL do motivo vira so um WARNING.
+--
+-- Pelo caminho automatizado nada fica alterado em definitivo: o passo 2 e as quatro primeiras
+-- recusas do passo 3 rodam em transacao terminada em ROLLBACK, e a quinta recusa roda fora de
+-- transacao explicita mas se desfaz sozinha, pela subtransacao do bloco EXCEPTION - a conferencia
+-- logo depois dela mostra que nada ficou. As cinco rejeicoes do passo 3 sao ESPERADAS e ficam em
+-- blocos com EXCEPTION que reconhecem so o erro previsto; qualquer outro erro aborta o script
+-- (ON_ERROR_STOP), entao o caminho automatizado devolve falha quando aparece erro inesperado.
 -- =====================================================================
 \set ON_ERROR_STOP on
 \pset pager off
@@ -214,7 +223,7 @@ BEGIN
         VALUES ('INDIVIDUAL', 'CPF repetido', v_cpf, 'repetido@example.com');
         RAISE EXCEPTION 'prova de integridade FALHOU: o banco aceitou CPF duplicado (%)', v_cpf;
     EXCEPTION WHEN unique_violation THEN
-        RAISE NOTICE 'OK 1/4 - CPF duplicado recusado (client_cpf_key): %', SQLERRM;
+        RAISE NOTICE 'OK 1/5 - CPF duplicado recusado (client_cpf_key): %', SQLERRM;
     END;
 END $$;
 
@@ -226,7 +235,7 @@ BEGIN
         VALUES ('INDIVIDUAL', 'PF com CNPJ', '11222333000181', 'incompativel@example.com');
         RAISE EXCEPTION 'prova de integridade FALHOU: o banco aceitou pessoa fisica com CNPJ';
     EXCEPTION WHEN check_violation THEN
-        RAISE NOTICE 'OK 2/4 - documento incompativel com o tipo recusado (ck_customer_document_type): %', SQLERRM;
+        RAISE NOTICE 'OK 2/5 - documento incompativel com o tipo recusado (ck_customer_document_type): %', SQLERRM;
     END;
 END $$;
 
@@ -238,7 +247,7 @@ BEGIN
         VALUES ('INDIVIDUAL', 'CPF com mascara', '529.982.247-25', 'mascara@example.com');
         RAISE EXCEPTION 'prova de integridade FALHOU: o banco aceitou CPF com mascara';
     EXCEPTION WHEN check_violation THEN
-        RAISE NOTICE 'OK 3/4 - CPF fora do formato recusado (ck_customer_cpf): %', SQLERRM;
+        RAISE NOTICE 'OK 3/5 - CPF fora do formato recusado (ck_customer_cpf): %', SQLERRM;
     END;
 END $$;
 
@@ -253,7 +262,7 @@ BEGIN
         DELETE FROM customer WHERE id = v_id;
         RAISE EXCEPTION 'prova de integridade FALHOU: o banco excluiu o cliente % com % pedido(s)', v_nome, v_pedidos;
     EXCEPTION WHEN foreign_key_violation THEN
-        RAISE NOTICE 'OK 4/4 - exclusao de cliente com % pedido(s) recusada (orders_client_id_fkey): %', v_pedidos, SQLERRM;
+        RAISE NOTICE 'OK 4/5 - exclusao de cliente com % pedido(s) recusada (orders_client_id_fkey): %', v_pedidos, SQLERRM;
     END;
 END $$;
 
@@ -421,7 +430,7 @@ SELECT to_char(date_trunc('month', c.ref_date), 'YYYY-MM') AS mes_de_referencia,
 
 \echo ''
 \echo '==================================================================='
-\echo 'FIM - os cinco passos rodaram sem erro inesperado.'
+\echo 'FIM - os quatro passos deste arquivo rodaram sem erro inesperado.'
 \echo 'O passo 5 (ordem de execucao, o que apontar na tela e o plano local)'
 \echo 'esta em docs/05-operacao/roteiro-banco-de-dados.md'
 \echo '==================================================================='

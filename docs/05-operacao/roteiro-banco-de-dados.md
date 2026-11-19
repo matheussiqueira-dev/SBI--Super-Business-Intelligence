@@ -13,9 +13,9 @@ Deixe estes quatro itens prontos e abertos, nesta ordem, **antes** de a banca en
 | Item | O que abrir | Confirmação |
 | --- | --- | --- |
 | 1. Banco | Cliente SQL (IntelliJ Database, DBeaver ou `psql`) conectado ao banco de apresentação | `SELECT version();` responde |
-| 2. API | Terminal com a API no perfil `demo` | `http://127.0.0.1:8080/auth/csrf` responde HTTP 200 |
+| 2. API | Terminal com a API no perfil `demo` | Nativa: `http://127.0.0.1:8080/auth/csrf` responde HTTP 200. No Compose a API não publica porta no host — confira por `http://127.0.0.1:3000/api/backend/auth/csrf` |
 | 3. Interface | Navegador em `http://127.0.0.1:3000/entrar` | A tela de entrada aparece |
-| 4. Roteiro SQL | `docs/03-banco-de-dados/pacote-sql/11_prova_banco.sql` aberto no cliente SQL | Os blocos `-- PASSO n` estão visíveis |
+| 4. Roteiro SQL | `docs/03-banco-de-dados/pacote-sql/11_prova_banco.sql` aberto no cliente SQL | Cada passo se anuncia numa linha `\echo 'PASSO n - ...'`, entre barras de `=`; não existe comentário `-- PASSO n` |
 
 A preparação completa do ambiente está em [preparar a apresentação](../03-banco-de-dados/preparar-apresentacao.md). O caminho curto abaixo **recarrega o cenário num banco que já tem o esquema e a massa Olist**: ele roda a `10`, os testes `12` e a prova `11`, nada mais. Banco novo precisa da bateria na ordem — `run_bd.sh`, depois `run_olist_bd.sh`, depois `run_apresentacao.sh` —, que é o que o guia de preparação descreve.
 
@@ -37,7 +37,7 @@ O banco do Compose, porém, monta `tmpfs` em `/var/lib/postgresql`: ele nasce **
 
 Se o seu banco de apresentação foi criado à mão, fora do Compose — como o contêiner `sbi-apresentacao-db` com o banco `sbi_apresentacao` das medições de 18/11 —, troque os três valores pelos seus: nada no repositório cria esse par, e um nome de contêiner errado falha com `No such container` antes de qualquer SQL.
 
-**Plano local se a internet falhar:** nada deste roteiro depende de internet. Banco, API e interface rodam em `127.0.0.1`; as fotos do catálogo são servidas da pasta `frontend/public/produtos`; o ambiente publicado não é usado. A única etapa que precisou de rede foi a primeira instalação de dependências (`npm ci` e o build do Maven), já feita. Se o PostgreSQL nativo não subir, o mesmo banco sobe em contêiner, com as duas senhas no ambiente antes — `export SBI_DEMO_PASSWORD='escolha-uma-senha' SBI_DB_PASSWORD="$(openssl rand -hex 16)"` — e então `docker compose -f docker-compose.demo.yml -p sbi-demo up --build --wait`. Sem a segunda o Compose recusa antes de criar o contêiner; sem a primeira o login do Allan não funciona. A porta de consulta passa a ser `127.0.0.1:5433`, com o usuário `sbi`.
+**Plano local se a internet falhar:** nada deste roteiro depende de internet. Banco, API e interface rodam em `127.0.0.1`; as fotos do catálogo são servidas da pasta `frontend/public/produtos`; o ambiente publicado não é usado. A única etapa que precisou de rede foi a primeira instalação de dependências (`npm ci` e o build do Maven), já feita. Se o PostgreSQL nativo não subir, o mesmo banco sobe em contêiner, com as duas senhas no ambiente antes — `export SBI_DEMO_PASSWORD='escolha-uma-senha' SBI_DB_PASSWORD="$(openssl rand -hex 16)"` — e então `docker compose -f docker-compose.demo.yml -p sbi-demo up --wait`. Sem a segunda o Compose recusa antes de criar o contêiner; sem a primeira a migração `V6_1` falha já na primeira conta e a API não sobe. O `--build` fica de fora de propósito: ele refaz dentro das imagens o `dependency:go-offline` e o `npm ci`, que são justamente os passos que baixam dependência, enquanto sem ele o Compose reaproveita as imagens `sbi-demo-api` e `sbi-demo-web` já construídas nesta máquina. Em troca, se o código mudou desde a última construção, sobe a imagem antiga. A porta de consulta passa a ser `127.0.0.1:5433`, com o usuário `sbi`.
 
 ---
 
@@ -59,7 +59,7 @@ Execute o bloco **PASSO 1** de `11_prova_banco.sql`.
 
 **Saída esperada:** 20 tabelas, nenhuma com zero linhas nas cinco principais; a última migração do Flyway é a `12.2`.
 
-> O diagrama e o dicionário completos estão em [modelo ERP/PDV](../03-banco-de-dados/modelo-erp-pdv.md) e [dicionário de dados](../03-banco-de-dados/dicionario-dados.md). Tenha o diagrama aberto numa aba, para a pergunta "mostre o modelo".
+> O diagrama está em [modelo ERP/PDV](../03-banco-de-dados/modelo-erp-pdv.md) — tenha-o aberto numa aba, para a pergunta "mostre o modelo". O [dicionário de dados](../03-banco-de-dados/dicionario-dados.md) é o **mínimo** de 04/10/2026: descreve sete tabelas de `V1`/`V2` e ainda chama de `client` a tabela que a `V3` renomeou para `customer`. Não há dicionário escrito das 20 tabelas de hoje; o que a banca vê é o próprio banco — 1.2 lista as 20 com a contagem, e 1.8 dá as colunas dos quatro grupos, que são oito tabelas.
 
 ---
 
@@ -96,10 +96,10 @@ Execute o bloco **PASSO 3**. Cada tentativa inválida está dentro de um bloco c
 **Saída esperada — cinco linhas `NOTICE`, nesta ordem:**
 
 ```
-OK 1/4 - CPF duplicado recusado (client_cpf_key)
-OK 2/4 - documento incompativel com o tipo recusado (ck_customer_document_type)
-OK 3/4 - CPF fora do formato recusado (ck_customer_cpf)
-OK 4/4 - exclusao de cliente com N pedido(s) recusada (orders_client_id_fkey)
+OK 1/5 - CPF duplicado recusado (client_cpf_key)
+OK 2/5 - documento incompativel com o tipo recusado (ck_customer_document_type)
+OK 3/5 - CPF fora do formato recusado (ck_customer_cpf)
+OK 4/5 - exclusao de cliente com N pedido(s) recusada (orders_client_id_fkey)
 OK 5/5 - distribuicao fora do plano da loja recusada (trg_goal_sum_check)
 ```
 
@@ -272,7 +272,7 @@ O `.xls` sai do mesmo recorte, para quem precisar do formato antigo. O CSV é a 
 | Pergunta | Resposta curta | Onde mostrar |
 | --- | --- | --- |
 | "Como você garante que o dado não está inventado na tela?" | A tela não calcula faturamento: o número sai da view `v_lancamento_realizado`, e a planilha sai das mesmas views, no servidor. | passo 4.3 e passo 7 |
-| "O que é faturamento confirmado?" | Pagamento aprovado menos estorno, pela data do pagamento. Uma definição só, numa view só. | `v_lancamento_realizado`, passo 4.3 |
+| "O que é faturamento confirmado?" | Pagamento aprovado menos estorno, cada perna na sua data: a venda pela data do pagamento, o estorno pelo dia em que foi registrado. | `v_lancamento_realizado`, passo 4.3 |
 | "E se o `JOIN` duplicar a receita?" | Os dois grãos dão o mesmo total; é a prova 4.3. | passo 4.3 |
 | "Quem pode definir a meta anual?" | Só CEO, por gatilho no banco (`annual_goal_only_ceo`), não por regra de tela. | passo 1.7 e passo 3 |
 | "A soma das metas dos vendedores pode não fechar?" | Não: `trg_goal_sum_check`, adiado para o `COMMIT`. | passo 3, recusa 5/5 |
@@ -289,7 +289,7 @@ O `.xls` sai do mesmo recorte, para quem precisar do formato antigo. O CSV é a 
 | --- | --- |
 | A interface não carrega | Os passos 1 a 4 são no cliente SQL e não dependem dela. Siga no SQL e volte à tela depois. |
 | A API não sobe | O banco continua consultável. O passo 5 e o 6 ficam para o fim; os passos 1 a 4 e o 7 (pela planilha já gerada) seguem. |
-| O banco não sobe | O Compose exige as duas senhas no ambiente: `export SBI_DEMO_PASSWORD='escolha-uma-senha' SBI_DB_PASSWORD="$(openssl rand -hex 16)"` e então `docker compose -f docker-compose.demo.yml -p sbi-demo up --build --wait`. Sem a segunda ele recusa antes de criar o contêiner; sem a primeira o login do Allan não funciona. Conecte em `127.0.0.1:5433`, usuário `sbi`. |
+| O banco não sobe | O Compose exige as duas senhas no ambiente: `export SBI_DEMO_PASSWORD='escolha-uma-senha' SBI_DB_PASSWORD="$(openssl rand -hex 16)"` e então `docker compose -f docker-compose.demo.yml -p sbi-demo up --wait`. Sem a segunda ele recusa antes de criar o contêiner; sem a primeira a `V6_1` falha na primeira conta e a API não sobe. Sem `--build` ele reaproveita a imagem já construída, que é o que mantém este plano sem rede. Conecte em `127.0.0.1:5433`, usuário `sbi`. |
 | Um número na tela não bate com o SQL | Confira se o recorte é o mesmo: mês, fuso (`America/Fortaleza`) e perfil. O faturamento confirmado desconta estorno; a receita bruta não. |
 | A venda de teste falha por estoque | Escolha outro produto: a tela mostra o saldo disponível. Pedido pendente reserva saldo sem dar baixa. |
 
