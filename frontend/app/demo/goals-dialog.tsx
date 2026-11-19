@@ -58,7 +58,7 @@ export default function GoalsDialog({ open, onClose, role }: { open: boolean; on
     };
     const invalid = validateGoal(input, role);
     if (invalid) { setProblem(GOAL_PROBLEM_MESSAGE[invalid]); return; }
-    dispatch({ type: 'goal', record: createGoalRecord(input, role) });
+    dispatch({ type: 'goal', record: createGoalRecord(input, session) });
     setProblem('');
     setSaved(`Meta de ${monthLabel(period)} salva na demonstração: ${money(input.storeGoal)}.`);
     announce(`Meta de ${monthLabel(period)} alterada para ${money(input.storeGoal)} na demonstração.`);

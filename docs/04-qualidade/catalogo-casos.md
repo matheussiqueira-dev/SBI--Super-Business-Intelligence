@@ -866,8 +866,8 @@ Um caso pode ter mais de uma técnica ou nível. As técnicas caixa-preta (parti
 
 Acrescentados com a demonstração sem login (`/demo`). O desenho, as fórmulas e os limites do módulo estão em
 [01-produto/demonstracao-publica.md](../01-produto/demonstracao-publica.md). Todos são automatizados: nenhum depende de
-execução manual. Execução de referência: **E4** — 17/11/2026, `npm run typecheck && npm test && npm run build` e
-`npm run test:e2e:demo` em `frontend/`, Windows 11, Node 24.19 — 112 testes unitários e 6 E2E, 0 falhas.
+execução manual. Execução de referência: **E5** — 18/11/2026, `npm run typecheck && npm test && npm run build` e
+`npm run test:e2e:demo` em `frontend/`, Windows 11, Node 24.19 — 114 testes unitários e 7 E2E, 0 falhas.
 
 | ID | Título | Requisito | Técnica | Nível | Risco | Status |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -886,6 +886,7 @@ execução manual. Execução de referência: **E4** — 17/11/2026, `npm run ty
 | CT-DEMO-113 | Semana comercial e repartição em centavos sem sobra | RNF-03 | Análise de valor-limite | Unitário | R06 | Passou |
 | CT-DEMO-114 | Visitantes sintéticos sustentam conversão plausível | RF-28 | Particionamento de equivalência | Unitário | R06 | Passou |
 | CT-DEMO-115 | Geração da base rápida o bastante para a apresentação | RNF-01 | Teste de desempenho | Unitário | R07 | Passou |
+| CT-DEMO-116 | Os 42 SKUs Apple preservam nome, categoria, preço e custo do CSV | RF-28, RNF-03 | Baseado em requisitos | Unitário | R06 | Passou |
 | CT-DEMO-121 | Sem meta não há atingimento, desvio nem ritmo | RF-29 | Testes de casos inválidos | Unitário | R06 | Passou |
 | CT-DEMO-122 | Atingimento, desvio e falta por dia de funcionamento | RF-29 | Baseado em requisitos | Unitário | R02 | Passou |
 | CT-DEMO-123 | Estados da meta, com critério configurável | RF-29 | Análise de valor-limite | Unitário | R02 | Passou |
@@ -906,12 +907,14 @@ execução manual. Execução de referência: **E4** — 17/11/2026, `npm run ty
 | CT-DEMO-150 | Estado da aba conferido; conteúdo adulterado é descartado | RNF-04 | Testes de casos inválidos | Integração, Segurança | R10 | Passou |
 | CT-DEMO-151 | Trocar de perfil mantém o recorte e não muda os dados | RF-28 | Transição de estados | Integração | R05 | Passou |
 | CT-DEMO-152 | Visitantes diferentes não compartilham alterações | RNF-04 | Baseado em requisitos | Integração, Segurança | R10 | Passou |
+| CT-DEMO-153 | Vendedor e gerente registram vendas no escopo da pessoa em exibição | RF-07, RF-28 | Particionamento de equivalência | Unitário | R06 | Passou |
 | CT-DEMO-201 | `/demo` abre sem sessão e não chama a API | RNF-04 | Baseado em requisitos | E2E, Segurança, Acessibilidade | R05 | Passou |
 | CT-DEMO-202 | Venda simulada atualiza vendedor, gerente e CEO | RF-07, RF-28 | Baseado em requisitos | E2E | R02 | Passou |
 | CT-DEMO-203 | Alteração de um visitante não vaza para outro | RNF-04 | Baseado em requisitos | E2E, Segurança | R10 | Passou |
 | CT-DEMO-204 | Seletor de perfil público não libera a área autenticada | RNF-04 | Testes de casos inválidos | E2E, Segurança | R05 | Passou |
 | CT-DEMO-205 | Tela de login leva à demonstração e o fluxo real continua | RF-01 | Baseado em requisitos | E2E | R05 | Passou |
 | CT-DEMO-206 | Filtros, metas e acessibilidade (axe) nos três perfis | RNF-06 | Baseado em requisitos | E2E, Acessibilidade | R08 | Passou |
+| CT-DEMO-207 | Catálogo Apple e quadro da equipe acompanham o perfil selecionado | RF-07, RF-28 | Baseado em requisitos | E2E | R08 | Passou |
 
 Evidências: `frontend/tests/demo-ledger.test.ts`, `frontend/tests/demo-targets.test.ts`,
 `frontend/tests/demo-state.test.ts` e `frontend/e2e/demo.spec.ts` (este também roda isolado com

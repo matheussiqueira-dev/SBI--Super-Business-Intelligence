@@ -125,7 +125,7 @@ export interface DerivedTargets {
  */
 export function deriveTargets({ period, monthly, sellerGoals, today, plan = MONTHLY_PLAN }: {
   period: string; monthly: number; sellerGoals: readonly { sellerId: number; goal: number }[]; today: string;
-  plan?: typeof MONTHLY_PLAN;
+  plan?: { operatingDays: number; salesCount: number; averageTicket: number; itemsPerSale: number };
 }): DerivedTargets {
   const operatingDays = operatingDaysIn(period).length;
   const { from, to } = periodRange(period);

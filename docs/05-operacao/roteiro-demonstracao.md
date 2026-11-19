@@ -1,6 +1,6 @@
 # Roteiro de demonstração (12 minutos)
 
-A apresentação roda no ambiente publicado: <https://sbi-app-alpha.vercel.app> (frontend na Vercel, API no Render, banco no Neon), com a massa Olist já carregada. A stack local fica como [plano B](#plano-b-stack-local).
+A apresentação autenticada começa na [tela de login](https://sbi-app-alpha.vercel.app/entrar) (frontend na Vercel, API no Render, banco no Neon), com a massa Olist já carregada. A stack local fica como [plano B](#plano-b-stack-local).
 
 > **Plano A do bloco prático:** a [demonstração pública](../01-produto/demonstracao-publica.md) em
 > <https://sbi-app-alpha.vercel.app/demo> abre sem login e roda inteira no navegador, então funciona mesmo com a API
@@ -13,12 +13,12 @@ A apresentação roda no ambiente publicado: <https://sbi-app-alpha.vercel.app> 
    - entre como Matheus e visite Visão geral e Clientes;
    - deixe uma aba em Visão geral e role ou clique nela a cada poucos minutos: o painel consulta a API a cada 15 segundos enquanto a tela está em uso e impede o serviço de dormir; 10 minutos parada, a consulta pausa até a próxima interação.
 2. Confira, como Matheus:
-   - em Usuários, as quatro contas ativas (se um ensaio anterior parou no passo 8, ative o Francisco);
+   - em Usuários, as sete contas ativas e os vínculos de Allan a Matheus e Francisco a Gabriel. Confirme o login do vendedor escolhido e, se precisar, use o [procedimento de recuperação](deploy.md#recuperar-uma-conta-existente);
    - em Promoções, "Acessorios 10% - outubro a dezembro" vigente;
    - em Estoque, `CG-20W` com saldo para duas unidades (cada ensaio do passo 2 baixa duas).
 
 Deixe abertas:
-- três janelas do navegador em <https://sbi-app-alpha.vercel.app>: uma normal, uma anônima e uma de outro perfil do navegador;
+- três janelas na [tela de login](https://sbi-app-alpha.vercel.app/entrar), uma normal, uma anônima e uma de outro perfil do navegador;
 - o IntelliJ com o painel Database ligado ao Neon (URL JDBC do painel do Neon com o host **sem** `-pooler` e `sslmode=require`, usuário e senha do painel) e o arquivo `docs/03-banco-de-dados/pacote-sql/08_crud_clientes_olist.sql` aberto;
 - um terminal na raiz do repositório, com o `gh` autenticado.
 
@@ -51,7 +51,7 @@ O banco publicado guarda o que foi feito ao vivo:
 
 ## Plano B: stack local
 
-Use quando o ambiente publicado não responder (rede do laboratório, Render fora do ar).
+Para executar a apresentação localmente sem depender da rede do laboratório, escolha a [stack nativa](execucao-local.md) ou a stack Docker abaixo. Use um ambiente local para ensaios que cadastram vendas, mudam preços ou alteram usuários.
 
 ```powershell
 $env:SBI_DEMO_PASSWORD = '<senha comum das contas demo>'   # ou SBI_DEMO_PASSWORD_MATHEUS etc., uma por conta
@@ -63,7 +63,7 @@ O script sobe a stack (`docker-compose.demo.yml`), espera a API aplicar o Flyway
 
 O roteiro é o mesmo, com estas trocas:
 - **Endereço:** <http://localhost:3000> no lugar do site publicado.
-- **Contas:** as mesmas quatro, com as senhas definidas em `SBI_DEMO_PASSWORD_<NOME>` (ou `SBI_DEMO_PASSWORD`) ao subir a stack.
+- **Contas:** as mesmas sete, com as senhas definidas em `SBI_DEMO_PASSWORD_<NOME>` (ou `SBI_DEMO_PASSWORD`) ao subir a stack.
 - **Banco:** IntelliJ ligado a `jdbc:postgresql://127.0.0.1:5433/sbi_demo` (usuário `sbi`, senha de `SBI_DB_PASSWORD`).
 - **Passo 11:** pode rodar o contrato ao vivo com `powershell -NoProfile -ExecutionPolicy Bypass -File scripts\test-contract.ps1 -HttpOnly`.
 
@@ -71,5 +71,5 @@ Para encerrar: `docker compose -f docker-compose.demo.yml -p sbi-demo down`. O b
 
 Outros imprevistos:
 - **Sem rede no laboratório:** para os passos 11 e 12, use o relatório gerado antes e o artefato baixado da CI.
-- **Docker também não sobe:** apresente as capturas de `reports/marca/` (todas as telas dos dois papéis) e o relatório da CI.
+- **Stack autenticada indisponível:** abra a `/demo` com apenas o frontend local. Para o bloco SQL, mostre os resultados e os artefatos da CI baixados antes do ensaio.
 - **Massa Olist não carregou:** os passos 4 e 10 usam um cliente do seed demo (por exemplo, Marina Costa) e os blocos de `docs/03-banco-de-dados/pacote-sql/05_crud_exemplos.sql`.

@@ -273,7 +273,7 @@ export function SellerRankingPanel({ items, rangeLabel, titleId = 'ranking' }: {
     <section className="card stack-md" aria-labelledby={titleId}>
       <div>
         <h2 id={titleId}>Ranking comercial</h2>
-        <p className="card-sub">Faturamento confirmado de cada vendedor no recorte ({rangeLabel})</p>
+        <p className="card-sub">Faturamento confirmado dos vendedores da equipe no recorte ({rangeLabel})</p>
       </div>
       <RankingBars label="Vendedores do maior para o menor faturamento" items={items} />
     </section>

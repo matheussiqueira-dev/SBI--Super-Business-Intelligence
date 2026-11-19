@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import Drawer from '../../components/drawer.tsx';
 import { Icon } from '../../components/brand/icons.tsx';
-import { REFERENCE_MONTH } from '../../lib/demo/scenario.ts';
+import { PEOPLE_BY_ROLE, REFERENCE_MONTH } from '../../lib/demo/scenario.ts';
 import { ROLE_LABEL, type DemoPeriodKind, type DemoRole } from '../../lib/demo/state.ts';
 import { useDemo } from '../../lib/demo/store.tsx';
 import { money } from '../../lib/format.ts';
@@ -23,7 +23,7 @@ const STEPS: readonly Step[] = [
   {
     title: 'Momento 1 — Entrada pública',
     role: 'GERENTE', view: 'visao-geral', period: 'PREV_MONTH',
-    say: 'Abrimos o SBI sem login, pela rota /demo. A loja simulada é uma varejista de moda casual com um gerente e três vendedores, e a meta do mês fechado é de R$ 60.000.',
+    say: 'Abrimos o SBI sem login, pela rota /demo. A loja simula vendas de produtos Apple, com duas equipes comerciais. A meta da loja no mês fechado é de R$ 60.000.',
     check: 'Mostre o aviso de ambiente de demonstração, a meta da loja e o atingimento do mês fechado.',
   },
   {
@@ -35,7 +35,7 @@ const STEPS: readonly Step[] = [
   {
     title: 'Momento 3 — Gerente',
     role: 'GERENTE', view: 'visao-geral', period: 'MONTH',
-    say: 'Trocando para o gerente, a mesma venda já está no consolidado da loja: receita, meta, ticket médio e o ranking da equipe mudaram juntos.',
+    say: 'A mesma venda aparece no consolidado da loja e no ranking da equipe que atende o vendedor.',
     check: 'Compare o faturamento da loja com o valor anterior: a diferença é exatamente o valor da venda registrada.',
   },
   {
@@ -53,7 +53,7 @@ const STEPS: readonly Step[] = [
 ];
 
 export default function GuidedTour({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { dispatch, announce } = useDemo();
+  const { session, dispatch, announce } = useDemo();
   const [index, setIndex] = useState(0);
   const step = STEPS[Math.min(index, STEPS.length - 1)]!;
 
@@ -62,6 +62,10 @@ export default function GuidedTour({ open, onClose }: { open: boolean; onClose: 
     if (!target) return;
     setIndex(position);
     dispatch({ type: 'role', role: target.role });
+    if (target.role === 'GERENTE') {
+      const selectedSeller = PEOPLE_BY_ROLE.VENDEDOR.find(person => person.id === session.personIds.VENDEDOR);
+      if (selectedSeller?.managerId) dispatch({ type: 'person', role: 'GERENTE', personId: selectedSeller.managerId });
+    }
     dispatch({ type: 'view', view: target.view });
     dispatch({ type: 'period', kind: target.period });
     announce(`${target.title}. Perfil ${ROLE_LABEL[target.role]}.`);

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { APPLE_PRODUCTS } from '../../../lib/demo/apple-catalog.ts';
 import { PRODUCT_PHOTOS } from '../../../lib/product-photos.ts';
 import { DEMO_NOTICE, STORE } from '../../../lib/demo/scenario.ts';
 import PageHeader from '../../../components/page-header.tsx';
@@ -7,31 +8,31 @@ import TableWrap from '../../../components/table-wrap.tsx';
 
 export const metadata: Metadata = {
   title: 'Créditos das imagens · Demonstração',
-  description: 'Fontes e licenças das fotos de produto e dos avatares que aparecem na demonstração pública do SBI.',
+  description: 'Fonte do catálogo e licenças das fotos de produto na demonstração pública do SBI.',
 };
 
-/**
- * Creditos das imagens para quem chega pela demonstracao publica. A pagina equivalente da area autenticada vive sob
- * /creditos, que exige sessao: o visitante anonimo ve as mesmas fotos, entao a atribuicao precisa estar ao alcance
- * dele. Mesma fonte de dados da pagina interna (lib/product-photos.ts), sem chamar a API e sem ler cookie.
- */
+const APPLE_NAMES = new Map(APPLE_PRODUCTS.map(([sku, name]) => [sku, name]));
+const APPLE_PHOTOS = PRODUCT_PHOTOS.flatMap(photo => {
+  const names = photo.skus.flatMap(sku => APPLE_NAMES.get(sku) ?? []);
+  return names.length > 0 ? [{ ...photo, names }] : [];
+});
 export default function DemoCreditosPage() {
   return (
     <main className="main" id="conteudo">
       <div className="content stack">
         <PageHeader section={<Link href="/demo">Demonstração</Link>} title="Créditos das imagens"
           description="Fotos de produto do Wikimedia Commons, reduzidas e recortadas para miniatura. Produto sem foto livre mostra o ícone da linha." />
-        <section className="card stack-sm" aria-label="Avatares da equipe">
-          <h2>Avatares da equipe</h2>
-          <p>Avatares do arquivo <a href="https://www.figma.com/design/khzxuhK7C7U7UnlzkKufqT/Memoji-Avatars--Community-?node-id=0-1" rel="noreferrer">Memoji Avatars (Community), no Figma</a>, selecionados para os perfis da equipe.</p>
-          <p>As expressões faciais são versões derivadas desses avatares.</p>
+        <section className="card stack-sm" aria-labelledby="demo-catalogo-fonte">
+          <h2 id="demo-catalogo-fonte">Catálogo e preços de referência</h2>
+          <p>O catálogo vem da massa acadêmica do SBI, baseada no conjunto público da Olist.
+            Consulte a <a href="https://github.com/matheussiqueira-dev/SBI--Super-Business-Intelligence/blob/main/docs/03-banco-de-dados/pacote-sql/olist/NOTICE.md">atribuição da massa Olist</a>.</p>
         </section>
         <section className="card">
           <TableWrap label="Créditos das imagens">
             <table>
               <caption className="sr-only">Créditos das imagens</caption>
               <thead><tr><th scope="col">Imagem</th><th scope="col">Usada em</th><th scope="col">Autor</th><th scope="col">Licença</th></tr></thead>
-              <tbody>{PRODUCT_PHOTOS.map(photo => (
+              <tbody>{APPLE_PHOTOS.map(photo => (
                 <tr key={photo.file}>
                   <td><div className="product-cell">
                     <img className="thumb" src={`/produtos/${photo.file}`} alt="" width={40} height={40} loading="lazy" decoding="async" />
@@ -45,7 +46,7 @@ export default function DemoCreditosPage() {
           </TableWrap>
         </section>
         <footer className="app-footer">
-          <p>{DEMO_NOTICE} · {STORE.name} · valores fictícios · Projeto A3 · UNIFG 2026</p>
+          <p>{DEMO_NOTICE} · {STORE.name} · Projeto A3 · UNIFG 2026</p>
           <p><Link href="/demo">Voltar para a demonstração</Link> · <Link href="/entrar">Entrar no sistema</Link></p>
         </footer>
       </div>

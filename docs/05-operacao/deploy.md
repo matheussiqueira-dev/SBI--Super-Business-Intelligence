@@ -14,7 +14,7 @@ Ordem: Neon → Render (o Flyway cria o esquema e as contas) → carga Olist →
 
 | Peça | Onde | Endereço / identificação | Região |
 | --- | --- | --- | --- |
-| Frontend | Vercel, projeto `sbi-app` (raiz `frontend`, produção a partir da `main`) | <https://sbi-app-alpha.vercel.app> (endereço oficial da demonstração) | funções em `iad1` (Washington, D.C.); a borda é a mais próxima de quem acessa (ex.: `gru1`, São Paulo) |
+| Frontend | Vercel, projeto `sbi-app` (raiz `frontend`, produção a partir da `main`) | [Sistema autenticado](https://sbi-app-alpha.vercel.app/entrar) e [demonstração pública](https://sbi-app-alpha.vercel.app/demo) | funções em `iad1` (Washington, D.C.); a borda é a mais próxima de quem acessa (ex.: `gru1`, São Paulo) |
 | API | Render, serviço `sbi-api` (Docker, plano gratuito, deploy automático a cada push na `main`, health check `/auth/csrf`) | <https://sbi-api-puk8.onrender.com> | Virginia (US East) |
 | Banco | Neon, projeto `wispy-glade-88962628`, branch `production`, banco `neondb`, PostgreSQL 18 | host direto (sem `-pooler`) no painel do Neon | AWS US East 2 (Ohio) |
 
@@ -62,13 +62,21 @@ Variáveis de ambiente (os valores reais ficam só no painel do Render):
 | `PORT` | `8080` (opcional: `application.properties` usa `server.port=${PORT:8080}`, então a porta que o Render informar também funciona) |
 | `JAVA_TOOL_OPTIONS` | `-XX:MaxRAMPercentage=70 -XX:+UseSerialGC -Xss512k` |
 
-**As senhas das contas só valem na primeira migração.** A `V6_1__DemoAccounts` grava o BCrypt das contas `matheussiqueira@sbi.tech`, `allanbarros@sbi.tech`, `franciscoferreira@sbi.tech` e `gabrielsousa@sbi.tech` uma única vez, quando o Flyway aplica o perfil `demo` num banco vazio. Trocar a variável depois não muda a senha: para isso, apague e recrie o banco `sbi` no Neon (e rode a carga Olist de novo) ou troque a senha pela tela de usuários. Como o ambiente é público e os e-mails do seed são conhecidos, prefira senhas fortes e exclusivas.
+**As senhas das contas só valem na primeira migração.** A `V6_1__DemoAccounts` grava o BCrypt das contas `matheussiqueira@sbi.tech`, `allanbarros@sbi.tech`, `franciscoferreira@sbi.tech` e `gabrielsousa@sbi.tech` uma única vez, quando o Flyway aplica o perfil `demo` num banco vazio. Para uma conta existente, redefina a senha na tela de usuários. As variáveis de seed são lidas apenas quando o Flyway aplica a migração. Use senhas fortes e exclusivas.
 
-**Contas de CEO dos professores (V12 e V12_1, 24/10/2026).** No primeiro deploy depois da V12, o Flyway aplica a V12 (papel CEO, equipes, meta anual e views do painel executivo) e a demo `V12_1__ExecutiveAccounts`, que cria `paulo@sbi.tech`, `christian@sbi.tech` e `bruno@sbi.tech` com o BCrypt de `SBI_DEMO_PASSWORD_PAULO`, `_CHRISTIAN` e `_BRUNO` (ou, sem elas, de `SBI_DEMO_PASSWORD`) e põe Allan na equipe de Matheus e Francisco na de Gabriel, achando as contas pelo `db_role`. Para cada professor entrar com a própria senha, defina as três variáveis no Render **antes** do deploy que leva a V12_1; depois disso, a troca é pela tela de usuários (por outro CEO) ou por `UPDATE` do hash no Neon. A meta anual não é semeada: o CEO a define na tela Metas.
+**Contas de CEO dos professores (V12 e V12_1, 24/10/2026).** No primeiro deploy depois da V12, o Flyway aplica a V12 (papel CEO, equipes, meta anual e views do painel executivo) e a demo `V12_1__ExecutiveAccounts`, que cria `paulo@sbi.tech`, `christian@sbi.tech` e `bruno@sbi.tech` com o BCrypt de `SBI_DEMO_PASSWORD_PAULO`, `_CHRISTIAN` e `_BRUNO` (ou, sem elas, de `SBI_DEMO_PASSWORD`) e põe Allan na equipe de Matheus e Francisco na de Gabriel, achando as contas pelo `db_role`. Para cada professor entrar com a própria senha, defina as três variáveis no Render **antes** do deploy que leva a V12_1; depois disso, outro CEO pode redefinir a credencial pela tela de usuários. A meta anual não é semeada: o CEO a define na tela Metas.
+
+### Recuperar uma conta existente
+
+1. Entre com uma conta autorizada e abra **Gestão → Usuários**. Busque pelo e-mail e confirme a situação e o cargo. Para um vendedor, confirme a equipe.
+2. Se o usuário precisar de nova credencial, use **Redefinir senha** e entregue a senha provisória por um canal privado. Para redefinir uma conta de CEO, use outra conta de CEO.
+3. A pessoa entra com a senha provisória e define a própria senha. Confira a área inicial após a troca. A redefinição limpa bloqueio e tentativas anteriores, revoga sessões existentes e registra `PASSWORD_RESET` na auditoria.
 
 No primeiro deploy, o log do Render deve mostrar o Flyway aplicando V1 a V12 e as migrações `db/demo`. Conferência: `https://sbi-api-puk8.onrender.com/auth/csrf` responde 200 com o token. Cada chamada a `/auth/csrf` abre uma sessão de até 30 minutos (o token CSRF fica na sessão), então o health check mantém algumas centenas de sessões pequenas em memória, o que cabe na instância.
 
 ## 3. Carga Olist no Neon
+
+A carga reconstrói os registros da massa e os pedidos associados a SKUs `OL-*`. Use primeiro em um banco de demonstração dedicado ou numa branch de teste. Para recarregar um banco persistente de apresentação, confirme a manutenção e a recuperação a partir de backup.
 
 Depois que a API subiu (esquema criado pelo Flyway), a forma mais simples é pelo GitHub: *Actions → Neon Olist dataset → Run workflow* (`.github/workflows/neon-olist.yml`). O workflow pega a URL sem pooler com a `NEON_API_KEY`, roda `07_carga_olist.sql` duas vezes e os testes `09_testes_olist.sql`, sem nada instalado na máquina de quem dispara. A carga é idempotente, então rodar de novo não duplica dados.
 

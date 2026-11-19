@@ -5,8 +5,8 @@ import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
-/** Sacola sugerida do roteiro: calca + vestido + camiseta, R$ 449,70 de preco de tabela. */
-const SALE = 449.7;
+/** iPhone 18 Pro, capa e carregador MagSafe. */
+const SALE = 11_706;
 
 const brl = (value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -48,7 +48,7 @@ test('[CT-DEMO-201] /demo abre sem sessao, identifica o ambiente e nao chama a A
 test('[CT-DEMO-202] venda simulada atualiza vendedor, gerente e CEO a partir da mesma transacao', async ({ page }) => {
   await page.goto('/demo');
 
-  // Etapa 1: vendedor 01 e seus indicadores atuais.
+  // Etapa 1: Allan e seus indicadores atuais.
   await role(page, 'Vendedor');
   await expect(page.getByRole('combobox', { name: 'Vendedor em exibição' })).toHaveValue('3');
   await expect(page.getByRole('heading', { name: 'Meu desempenho' })).toBeVisible();
@@ -76,6 +76,7 @@ test('[CT-DEMO-202] venda simulada atualiza vendedor, gerente e CEO a partir da 
   const storeAfter = await kpi(page, 'Faturamento confirmado');
   await expect(page.getByRole('table', { name: 'Meta, realizado e atingimento por vendedor' }).first())
     .toContainText(brl(sellerAfter));
+  await expect(page.getByRole('combobox', { name: 'Gerente em exibição' })).toHaveValue('2');
 
   // Etapa 4: CEO ve o impacto no resultado financeiro, com custo e margem recalculados.
   await role(page, 'CEO');
@@ -92,6 +93,39 @@ test('[CT-DEMO-202] venda simulada atualiza vendedor, gerente e CEO a partir da 
   await expect(page.getByRole('heading', { name: 'Meu desempenho' })).toBeVisible();
   expect(await kpi(page, 'Faturamento confirmado')).toBeCloseTo(sellerBefore, 2);
   expect(storeAfter).toBeGreaterThan(sellerAfter);
+});
+
+test('[CT-DEMO-207] o catálogo Apple e as duas equipes seguem a pessoa em exibição', async ({ page }) => {
+  await page.goto('/demo');
+  await page.getByLabel('Vendedor em exibição').selectOption({ label: 'Francisco Ferreira' });
+  await page.getByRole('button', { name: 'Registrar venda simulada' }).first().click();
+  const drawer = page.getByRole('dialog', { name: 'Registrar venda simulada' });
+  await expect(drawer.getByLabel('Vendedor', { exact: true })).toHaveValue('4');
+  const options = drawer.getByLabel('Produto', { exact: true }).locator('option');
+  await expect(options).toHaveCount(43);
+  await expect(options.filter({ hasText: /OL-IP18P-256.*10\.799,00/ })).toHaveCount(1);
+  await expect(options.filter({ hasText: /OL-MBP14-M5.*21\.599,00/ })).toHaveCount(1);
+  await drawer.getByRole('button', { name: 'Cancelar' }).click();
+
+  await role(page, 'Gerente');
+  const team = page.getByRole('table', { name: 'Meta, realizado e atingimento por vendedor' }).first();
+  await expect(team).toContainText('Allan Barros');
+  await expect(team).not.toContainText('Francisco Ferreira');
+  await page.getByLabel('Gerente em exibição').selectOption({ label: 'Gabriel Sousa' });
+  await expect(team).toContainText('Francisco Ferreira');
+  await expect(team).not.toContainText('Allan Barros');
+  await page.getByRole('button', { name: 'Registrar venda simulada' }).first().click();
+  await expect(drawer.getByLabel('Vendedor', { exact: true }).locator('option')).toHaveCount(1);
+  await expect(drawer.getByLabel('Vendedor', { exact: true })).toHaveValue('4');
+  await drawer.getByRole('button', { name: 'Cancelar' }).click();
+
+  await role(page, 'CEO');
+  const executive = page.getByLabel('CEO em exibição');
+  await expect(executive.locator('option')).toHaveText([
+    'Paulo Thiago Gomes Da Silva', 'Christian Felix Gbedande Azonyetin', 'Bruno Marciano De Amorim Josino',
+  ]);
+  await executive.selectOption({ label: 'Christian Felix Gbedande Azonyetin' });
+  await expect(page.getByRole('heading', { name: 'Painel executivo' })).toBeVisible();
 });
 
 test('[CT-DEMO-203] a alteracao de um visitante nao vaza para outro', async ({ page, browser }) => {
@@ -163,7 +197,7 @@ test('[CT-DEMO-206] filtros, metas e acessibilidade nos tres perfis', async ({ p
   await expect(goals).toBeHidden();
 
   // Filtro de categoria muda indicadores, nunca a meta.
-  await page.getByLabel('Categoria').selectOption({ label: 'Camisetas' });
+  await page.getByLabel('Categoria').selectOption({ label: 'Áudio' });
   expect(await kpi(page, 'Faturamento confirmado')).toBeLessThan(56_700);
 
   await role(page, 'CEO');

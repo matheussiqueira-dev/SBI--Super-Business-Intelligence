@@ -1,7 +1,5 @@
 'use client';
-// Painel do gerente na demonstracao (secao 7 do plano de evolucao): visao consolidada da loja, comparacao entre os
-// vendedores, metas da equipe, estoque e alertas. O gerente ve o consolidado e o individual necessarios a gestao, mas
-// nao recebe as acoes exclusivas do CEO (meta anual e visao executiva do negocio).
+// A visão geral e o estoque são da loja. O quadro comercial e as metas da equipe seguem o gerente em exibição.
 import { useMemo } from 'react';
 import PageHeader from '../../components/page-header.tsx';
 import { Icon } from '../../components/brand/icons.tsx';
@@ -15,6 +13,7 @@ import {
 } from '../../lib/demo/metrics.ts';
 import { PERIOD_LABEL } from '../../lib/demo/state.ts';
 import { useDemo } from '../../lib/demo/store.tsx';
+import { MONTHLY_PLAN } from '../../lib/demo/scenario.ts';
 import {
   AlertsPanel, DailyEvolutionPanel, DerivedTargetsPanel, GoalPanel, KpiGrid, OrderHistoryPanel, PaymentPanel,
   SellerRankingPanel, StateBadge, TeamGoalChart, TeamTablePanel, TopProductsPanel,
@@ -23,16 +22,18 @@ import {
 export default function ManagerView({ onNewSale, onEditGoals }: { onNewSale: () => void; onEditGoals: () => void }) {
   const { ledger, model, session, range, today } = useDemo();
   const filters = useMemo(() => demoFilters({ categoryId: session.filters.categoryId }), [session.filters.categoryId]);
+  const managerId = session.personIds.GERENTE;
   const period = periodForRange(range);
   const rangeLabel = PERIOD_LABEL[session.filters.kind];
   const rangeText = formatPeriod(range.from, range.to);
 
   const slice = useMemo(() => sliceOf(model, ledger, range, filters), [model, ledger, range, filters]);
   const storeGoal = useMemo(() => monthGoalView(model, period, today, null), [model, period, today]);
-  const team = useMemo(() => teamRows(model, period, today, range), [model, period, today, range]);
+  const teamGoal = useMemo(() => monthGoalView(model, period, today, null, managerId), [model, period, today, managerId]);
+  const team = useMemo(() => teamRows(model, period, today, range, managerId), [model, period, today, range, managerId]);
   const daily = useMemo(() => dailySeries(model, filters, range), [model, filters, range]);
   const products = useMemo(() => topProducts(model, filters, range), [model, filters, range]);
-  const targets = useMemo(() => targetsFor(model, period, today), [model, period, today]);
+  const targets = useMemo(() => targetsFor(model, period, today, managerId), [model, period, today, managerId]);
   const low = useMemo(() => lowStock(ledger), [ledger]);
   const canceled = useMemo(() => canceledIn(ledger, range), [ledger, range]);
   const refunds = useMemo(() => refundsIn(ledger, range), [ledger, range]);
@@ -43,9 +44,10 @@ export default function ManagerView({ onNewSale, onEditGoals }: { onNewSale: () 
     return { range: previousRange, measures: model.measures(filters, previousRange) };
   }, [model, filters, period]);
 
-  const payments = useMemo(() => model.ranking('payment', filters).map(row => ({
-    key: String(row.key), label: PAYMENT_LABEL[row.key as PaymentMethod] ?? String(row.label), value: row.net, orders: row.orders,
-  })), [model, filters]);
+  const payments = useMemo(() => (Object.keys(PAYMENT_LABEL) as PaymentMethod[]).map(payment => {
+    const { net, orders } = model.measures({ ...filters, payment }, range);
+    return { key: payment, label: PAYMENT_LABEL[payment], value: net, orders };
+  }).filter(row => row.orders > 0), [model, filters, range]);
   const ranking = useMemo(() => team.map(row => ({
     key: row.sellerId, label: row.name, value: row.periodNet,
     detail: `${plural(model.measures(demoFilters({ sellerId: row.sellerId }), range).orders, 'venda')}`,
@@ -57,7 +59,7 @@ export default function ManagerView({ onNewSale, onEditGoals }: { onNewSale: () 
   const turnoverLow = [...products].sort((a, b) => a.units - b.units).slice(0, 5);
 
   const header = (
-    <PageHeader section="Gestão · Gerente"
+    <PageHeader section={`Gestão · ${model.personName(managerId)}`}
       title={session.view === 'equipe-metas' ? 'Equipe e metas' : session.view === 'estoque' ? 'Estoque e giro' : 'Visão geral da loja'}
       description={<>{rangeLabel} ({rangeText}) · somente pagamentos confirmados, descontadas as devoluções</>}
       actions={<>
@@ -89,8 +91,8 @@ export default function ManagerView({ onNewSale, onEditGoals }: { onNewSale: () 
           </ul>
         </section>
         <div className="grid-2">
-          <GoalPanel titleId="meta-loja-equipe" title={`Meta da loja · ${monthLabel(period)}`} view={storeGoal}
-            subtitle="Meta coletiva; a soma das metas individuais fecha com ela" />
+          <GoalPanel titleId="meta-loja-equipe" title={`Meta da equipe · ${monthLabel(period)}`} view={teamGoal}
+            subtitle="Soma das metas dos vendedores desta equipe" />
           <TeamGoalChart rows={team} periodLabel={monthLabel(period)} />
         </div>
         <TeamTablePanel rows={team} periodLabel={monthLabel(period)} rangeLabel={rangeText} />
@@ -163,7 +165,7 @@ export default function ManagerView({ onNewSale, onEditGoals }: { onNewSale: () 
     <div className="stack">
       {header}
       <KpiGrid slice={slice} label="Indicadores da loja no recorte"
-        conversionNote={`${slice.measures.orders} vendas em ${plural(slice.visits, 'visita')} sintéticas · meta de 25%`} />
+        conversionNote={`${slice.measures.orders} vendas em ${plural(slice.visits, 'visita')} sintéticas · meta de ${MONTHLY_PLAN.conversionPercent}%`} />
 
       <div className="grid-main">
         <GoalPanel titleId="meta-loja" title={`Meta da loja · ${monthLabel(period)}`} view={storeGoal}

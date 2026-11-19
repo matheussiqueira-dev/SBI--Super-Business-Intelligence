@@ -19,22 +19,12 @@ function Import-LocalEnv {
             "SBI_DB_PASSWORD=$([guid]::NewGuid().ToString('N'))"
             "SBI_DEMO_PASSWORD=$demoPassword"
         ) | Set-Content -Path $envFile -Encoding ascii
-        Write-Host "Criado .env.local com a senha das contas demo: $demoPassword" -ForegroundColor Yellow
+        Write-Host 'Criado .env.local com a configuracao da demonstracao local.' -ForegroundColor Yellow
     }
     foreach ($line in Get-Content $envFile) {
         if ($line -match '^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$') {
             Set-Item -Path "env:$($Matches[1])" -Value $Matches[2]
         }
-    }
-}
-
-# O stack de demonstracao (docker-compose.demo.yml) usa a porta 3000 e responde com outra senha; ele e descartavel.
-function Stop-DemoStack {
-    $demoContainers = & docker ps -q --filter 'label=com.docker.compose.project=sbi-demo'
-    if ($demoContainers) {
-        Write-Host 'Parando o stack de demonstracao sbi-demo, que ocupa a porta 3000...' -ForegroundColor Yellow
-        & docker rm -f $demoContainers 2>$null | Out-Null
-        Start-Sleep -Seconds 1
     }
 }
 
@@ -46,10 +36,9 @@ function Assert-PortFree([int]$port, [string]$service) {
 
 Push-Location $projectDirectory
 try {
-    Import-LocalEnv
     switch ($Part) {
         'Db' {
-            Stop-DemoStack
+            Import-LocalEnv
             & docker rm -f $dbContainer 2>$null | Out-Null
             & docker run -d --name $dbContainer `
                 -e POSTGRES_DB=sbi_dev -e POSTGRES_USER=sbi -e "POSTGRES_PASSWORD=$env:SBI_DB_PASSWORD" `
@@ -69,6 +58,7 @@ try {
         }
         'Api' {
             Assert-PortFree 8080 'API'
+            Import-LocalEnv
             $env:SPRING_PROFILES_ACTIVE = 'demo'
             $env:SPRING_DATASOURCE_URL = "jdbc:postgresql://127.0.0.1:$dbPort/sbi_dev"
             $env:SPRING_DATASOURCE_USERNAME = 'sbi'
@@ -77,7 +67,6 @@ try {
             & .\mvnw.cmd spring-boot:run
         }
         'Web' {
-            Stop-DemoStack
             Assert-PortFree 3000 'frontend'
             Set-Location frontend
             if (-not (Test-Path node_modules)) { & npm ci; if ($LASTEXITCODE -ne 0) { throw 'npm ci falhou.' } }

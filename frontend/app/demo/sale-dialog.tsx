@@ -5,26 +5,24 @@
 import { useMemo, useState } from 'react';
 import Drawer from '../../components/drawer.tsx';
 import TableWrap from '../../components/table-wrap.tsx';
+import ProductThumb from '../../components/product-thumb.tsx';
 import { Icon } from '../../components/brand/icons.tsx';
 import { discountMoney, money, parseDecimal, plural } from '../../lib/format.ts';
 import { PAYMENT_LABEL } from '../../lib/executive.ts';
 import type { PaymentMethod } from '../../lib/demo/ledger.ts';
 import {
-  DISCOUNT_LIMIT, SALE_PROBLEM_MESSAGE, createSimulatedSale, validateSale, type DemoRole, type SaleInput,
+  DISCOUNT_LIMIT, SALE_PROBLEM_MESSAGE, createSimulatedSale, saleSellers, validateSale, type SaleInput,
 } from '../../lib/demo/state.ts';
-import { SELLER_IDS } from '../../lib/demo/scenario.ts';
+import { SUGGESTED_BASKET_SKUS } from '../../lib/demo/scenario.ts';
 import { useDemo } from '../../lib/demo/store.tsx';
-
-/** Sacola do roteiro da apresentacao: a sacola coerente mais proxima de R$ 450 no catalogo da loja. */
-const SCRIPT_BASKET: readonly string[] = ['CAL-003', 'VES-008', 'CAM-001'];
 
 interface Line { productId: number; units: number }
 
-export default function SaleDialog({ open, onClose, role, sellerId }: {
-  open: boolean; onClose: () => void; role: DemoRole; sellerId: number;
-}) {
+export default function SaleDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { ledger, session, dispatch, announce } = useDemo();
-  const [seller, setSeller] = useState(sellerId);
+  const { role } = session;
+  const sellers = saleSellers(session);
+  const [seller, setSeller] = useState(() => sellers[0]!.id);
   const [lines, setLines] = useState<Line[]>([]);
   const [choice, setChoice] = useState('');
   const [units, setUnits] = useState('1');
@@ -74,7 +72,7 @@ export default function SaleDialog({ open, onClose, role, sellerId }: {
   }
 
   function fillScript() {
-    const chosen = SCRIPT_BASKET
+    const chosen = SUGGESTED_BASKET_SKUS
       .map(sku => ledger.products.find(product => product.sku === sku))
       .filter((product): product is NonNullable<typeof product> => product !== undefined && product.active && product.stock > 0);
     setLines(chosen.map(product => ({ productId: product.id, units: 1 })));
@@ -87,7 +85,7 @@ export default function SaleDialog({ open, onClose, role, sellerId }: {
       sellerId: seller, items: lines, paymentMethod: payment, customerId: Number(customer),
       discountPercent: Number.isFinite(percent) ? percent : -1,
     };
-    const invalid = validateSale(ledger, input, role, session.sales.length);
+    const invalid = validateSale(ledger, input, session);
     if (invalid) { setProblem(SALE_PROBLEM_MESSAGE[invalid]); return; }
     const order = createSimulatedSale(ledger, input);
     dispatch({ type: 'sale', order });
@@ -108,8 +106,8 @@ export default function SaleDialog({ open, onClose, role, sellerId }: {
           <div className="field">
             <label htmlFor="demo-venda-vendedor">Vendedor</label>
             <select id="demo-venda-vendedor" className="select" value={seller} onChange={event => setSeller(Number(event.target.value))}
-                    disabled={role === 'VENDEDOR'}>
-              {SELLER_IDS.map(id => <option key={id} value={id}>{ledger.people.find(person => person.id === id)?.name ?? id}</option>)}
+                    disabled={sellers.length === 1}>
+              {sellers.map(person => <option key={person.id} value={person.id}>{person.name}</option>)}
             </select>
             {role === 'VENDEDOR' && <p className="caption">O vendedor registra apenas as próprias vendas.</p>}
           </div>
@@ -128,7 +126,7 @@ export default function SaleDialog({ open, onClose, role, sellerId }: {
               <option value="">Escolha um produto</option>
               {sellable.map(product => (
                 <option key={product.id} value={product.id} disabled={product.stock <= 0}>
-                  {product.name} · {money(product.price / 100)}{product.stock <= 0 ? ' · sem estoque' : ` · ${product.stock} em estoque`}
+                  {product.name} · {product.sku} · {money(product.price / 100)}{product.stock <= 0 ? ' · sem estoque' : ` · ${product.stock} em estoque`}
                 </option>
               ))}
             </select>
@@ -155,7 +153,10 @@ export default function SaleDialog({ open, onClose, role, sellerId }: {
               const product = byId.get(line.productId);
               return (
                 <tr key={line.productId}>
-                  <td>{product?.name ?? line.productId}</td>
+                  <td><div className="product-cell">
+                    {product && <ProductThumb sku={product.sku} name={product.name} size={32} />}
+                    <span>{product?.name ?? line.productId}</span>
+                  </div></td>
                   <td className="num right">{line.units}</td>
                   <td className="num right">{money((product?.price ?? 0) / 100)}</td>
                   <td className="num right">{money(((product?.price ?? 0) * line.units) / 100)}</td>
