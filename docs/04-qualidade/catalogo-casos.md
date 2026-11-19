@@ -924,7 +924,8 @@ Evidências: `frontend/tests/demo-ledger.test.ts`, `frontend/tests/demo-targets.
 
 Acrescentados com a carga de apresentação e a prova de banco (D-EVO-56 a D-EVO-58). Todos automatizados. CT-APR-00 a
 CT-APR-16 rodam em SQL, pelo runner `docs/03-banco-de-dados/pacote-sql/run_apresentacao.sh`, que roda **depois** de
-`run_bd.sh` e `run_olist_bd.sh` para nenhum número daqueles mudar; CT-APR-17 roda no `npm test` do frontend.
+`run_bd.sh` e `run_olist_bd.sh` para nenhum número daqueles mudar; CT-APR-17 roda no `npm test` do frontend
+e CT-APR-18 e CT-APR-19 na suíte de integração do backend (`ExportApiTest`).
 Execuções de referência: **E6** — 18/11/2026, PostgreSQL 18.6 em contêiner, banco de apresentação dedicado,
 `REF=2026-11-18` — 17 PASS, 0 FAIL, 0 erros; e o `npm test` em `frontend/` do mesmo dia — **117 testes unitários,
 0 falhas**.
@@ -949,6 +950,8 @@ Execuções de referência: **E6** — 18/11/2026, PostgreSQL 18.6 em contêiner
 | CT-APR-15 | Duas execuções com a mesma referência deixam a mesma fotografia do banco | RNF-07 | Análise de valor-limite | Integração, Regressão | R06 | Passou |
 | CT-APR-16 | A prova de banco roda inteira, sem erro inesperado | RNF-04 | Baseado em requisitos | Integração | R10 | Passou |
 | CT-APR-17 | Dias restantes do mês e quanto falta por dia só saem com denominador válido | RF-29 | Análise de valor-limite | Unitário | R02 | Passou |
+| CT-APR-18 | A planilha fecha com o painel no mesmo recorte, inclusive o ticket médio | RNF-03 | Baseado em requisitos | Integração | R06 | Passou |
+| CT-APR-19 | Recorte filtrado diz por que não compara com a meta, em vez de negar meta que existe | RF-29 | Tabela de decisão | Integração | R02 | Passou |
 
 A fotografia comparada em CT-APR-15 são dez números: pedidos, itens, pagamentos, estornos, metas mensais, metas por
 vendedor, meta anual, faturamento confirmado, saldo e reserva de estoque. Comparar só contagens não bastaria: a
@@ -959,5 +962,5 @@ exclusão de cliente com pedido e distribuição fora do plano da loja) ficam em
 o erro previsto: se o banco **aceitar** o que deveria recusar, o bloco levanta exceção e o script falha.
 
 Evidências: `docs/03-banco-de-dados/pacote-sql/12_testes_apresentacao.sql`, `11_prova_banco.sql` e
-`run_apresentacao.sh`; CT-APR-17 em `frontend/tests/goals.test.ts`; preparação e reconciliação em
+`run_apresentacao.sh`; CT-APR-17 em `frontend/tests/goals.test.ts`; CT-APR-18 e CT-APR-19 em `src/test/java/com/swee/ordermanagementspring/api/management/ExportApiTest.java`; preparação e reconciliação em
 [preparar a apresentação](../03-banco-de-dados/preparar-apresentacao.md).

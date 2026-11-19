@@ -196,8 +196,11 @@ public class ExportService {
         BigDecimal discounts = sum(sales.stream().filter(r -> "VENDA".equals(r.kind())).map(SaleRow::discount));
         BigDecimal refunds = sum(sales.stream().filter(r -> "ESTORNO".equals(r.kind())).map(SaleRow::netRevenue)).negate();
         BigDecimal net = gross.subtract(refunds);
+        // Ticket medio pela MESMA definicao do painel (ManagementService: gross / ordersPaid). Dividir o
+        // liquido daria outro numero para o mesmo recorte sempre que houvesse estorno, e a planilha deixaria
+        // de fechar com a tela: em novembro/2026 seriam 3.861,22 aqui contra 3.989,11 na tela.
         BigDecimal ticket = paidOrders == 0 ? null
-                : net.divide(BigDecimal.valueOf(paidOrders), 2, RoundingMode.HALF_UP);
+                : gross.divide(BigDecimal.valueOf(paidOrders), 2, RoundingMode.HALF_UP);
         // Custo e margem ficam nulos quando algum item vendido nao tem custo informado (C-20).
         long withoutCost = sales.stream().filter(r -> "VENDA".equals(r.kind()) && r.cost() == null).count();
         BigDecimal cost = withoutCost > 0 ? null : sum(sales.stream().filter(r -> "VENDA".equals(r.kind())).map(SaleRow::cost));
@@ -215,11 +218,14 @@ public class ExportService {
         String goalNote = null;
         boolean mesesInteiros = period.from().getDayOfMonth() == 1
                 && period.to().equals(period.to().withDayOfMonth(period.to().lengthOfMonth()));
-        if (periodGoal.signum() == 0) {
-            goalNote = "Nenhum mes do periodo tem meta cadastrada.";
-        } else if (filters.any()) {
+        // A ordem importa: o filtro de vendedor nao traz as linhas de escopo "Loja" (goals(), abaixo), entao
+        // periodGoal fica zero e, se a primeira pergunta fosse "tem meta?", a planilha afirmaria que nenhum mes
+        // tem meta cadastrada enquanto a aba Metas do mesmo arquivo mostra as metas do vendedor.
+        if (filters.any()) {
             goalNote = "Nao comparavel: a meta e da loja inteira e o recorte esta filtrado ("
                     + filters.describe() + "). Veja a aba Metas para o mes inteiro e sem filtro.";
+        } else if (periodGoal.signum() == 0) {
+            goalNote = "Nenhum mes do periodo tem meta cadastrada.";
         } else if (!mesesInteiros) {
             goalNote = "Nao comparavel: a meta e do mes inteiro e o periodo cobre so parte dele ("
                     + period.from() + " a " + period.to() + "). Veja a aba Metas para o mes fechado.";

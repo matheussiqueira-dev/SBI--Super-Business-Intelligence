@@ -127,6 +127,8 @@ DECLARE
     v_cust bigint[]; v_prod bigint[]; v_pay text;
     v_forte boolean; v_hora time; v_moment timestamp; v_qtd int; v_itens int; v_j int; v_pid bigint;
     v_last4 char(4); v_parc int;
+    -- Sorteio com saldo: indice sorteado, candidato da caminhada e saldo livre do candidato.
+    v_idx int; v_cand bigint; v_livre int;
     -- Ultimo instante que pode ser gravado: a carga nunca escreve venda nem pagamento no futuro.
     v_agora timestamp; v_tem_dia_util boolean;
 BEGIN
@@ -179,12 +181,36 @@ BEGIN
             v_itens := CASE WHEN v_forte THEN 2 ELSE 1 END;
             FOR v_j IN 1 .. v_itens LOOP
                 IF v_forte AND v_j = 1 THEN
-                    v_pid := v_prod[1 + (array_length(v_prod, 1) / 2)
-                                    + (abs(hashtext(v_chave || ':a')) % greatest(array_length(v_prod, 1) - array_length(v_prod, 1) / 2, 1))];
+                    v_idx := 1 + (array_length(v_prod, 1) / 2)
+                             + (abs(hashtext(v_chave || ':a')) % greatest(array_length(v_prod, 1) - array_length(v_prod, 1) / 2, 1));
                     v_qtd := 1;
                 ELSE
-                    v_pid := v_prod[1 + (abs(hashtext(v_chave || ':b' || v_j)) % greatest(array_length(v_prod, 1) / 2, 1))];
+                    v_idx := 1 + (abs(hashtext(v_chave || ':b' || v_j)) % greatest(array_length(v_prod, 1) / 2, 1));
                     v_qtd := 1 + (abs(hashtext(v_chave || ':q' || v_j)) % 2);
+                END IF;
+                -- O catalogo e montado uma vez, so exigindo uma unidade livre, e a baixa adiante nao tem
+                -- guarda: um produto sorteado mais vezes do que o saldo (ha SKU com duas unidades) levaria
+                -- on_hand a negativo e o CHECK do V5 abortaria a carga inteira. Medido: com ref=2026-01-20 o
+                -- OL-AIRPODS-5 era vendido 7 vezes contra 6 em estoque. Entao a quantidade e limitada ao saldo
+                -- livre do momento (descontando o que este mesmo pedido ja leva) e, se nao sobrou nenhuma
+                -- unidade, a escolha caminha para o proximo produto do array. Deterministico: a mesma
+                -- referencia, no mesmo estado inicial, da sempre o mesmo resultado.
+                v_pid := NULL;
+                FOR v_k IN 0 .. array_length(v_prod, 1) - 1 LOOP
+                    v_cand := v_prod[1 + ((v_idx - 1 + v_k) % array_length(v_prod, 1))];
+                    SELECT b.on_hand - b.reserved
+                           - coalesce((SELECT sum(oi.quantity) FROM order_item oi
+                                        WHERE oi.order_id = v_order AND oi.product_id = v_cand), 0)
+                      INTO v_livre
+                      FROM stock_balance b WHERE b.product_id = v_cand;
+                    IF coalesce(v_livre, 0) > 0 THEN
+                        v_pid := v_cand;
+                        v_qtd := least(v_qtd, v_livre);
+                        EXIT;
+                    END IF;
+                END LOOP;
+                IF v_pid IS NULL THEN
+                    RAISE EXCEPTION 'cenario de apresentacao: nenhum produto do catalogo tem saldo livre para o pedido %', v_order;
                 END IF;
                 INSERT INTO order_item(quantity, price, order_id, product_id, unit_cost)
                 SELECT v_qtd, p.price, v_order, p.id, b.avg_cost
