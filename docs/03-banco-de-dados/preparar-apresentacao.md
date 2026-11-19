@@ -187,7 +187,7 @@ Os arquivos são servidos localmente, de `frontend/public/produtos`: a apresenta
 
 Nenhuma referência de foto é persistida no PostgreSQL (decisão D-PUB-13: a miniatura é do frontend, pelo SKU que a API já devolve). Um produto criado pela tela de CRUD mostra o ícone da família, não uma foto — e a cobertura acima não é reproduzível por SQL, só pelo manifesto do frontend.
 
-**Pendência registrada:** várias fotos são de geração ou cor diferentes do modelo nomeado no SKU (por exemplo `OL-AIRPODS-5` usa foto de AirPods 4; `OL-IP17-256` é "Azul" e a foto é lavanda; `OL-AW-S12-42` usa Apple Watch S10). Não foi corrigido nesta preparação: trocar exige procurar e creditar novas imagens de licença livre do modelo exato. A banca de Banco de Dados avalia banco, SQL e CRUD; a foto do catálogo é ilustrativa.
+**Pendência registrada, agora com a lista fechada:** **18 dos 36** SKUs fotografados mostram geração, cor ou produto diferentes do nomeado no SKU. A [auditoria de imagem por SKU](auditoria-fotos-catalogo.md) tem a tabela completa e separa os dois casos: **12** nomeiam gerações que não existem (AirPods 5, Apple Watch Series 12, Mac mini M6, iPhone 18 Pro Max e outras), para as quais foto de licença livre do modelo exato **não pode** existir — a escolha ali é entre o ícone de família e declarar no crédito qual modelo aparece; e **6** têm o produto exato disponível e só precisam de imagem nova, com busca e verificação de licença uma a uma. Nenhuma troca de arquivo foi feita. A banca de Banco de Dados avalia banco, SQL e CRUD; a foto do catálogo é ilustrativa.
 
 ---
 
