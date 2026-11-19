@@ -97,7 +97,7 @@ Esta seção registra um ensaio real deste modo, com as versões, os comandos, a
 | Locale do cluster | `UTF8`, provedor **ICU** com `en-US`; as categorias de libc ficam no padrão do Windows (`Portuguese_Brazil.1252`) |
 | Autenticação | `scram-sha-256` para `127.0.0.1`, senha do superusuário gerada e guardada fora do repositório |
 | Serviço do Windows | **nenhum** — `Get-Service *postgre*` devolve 0; o servidor roda em primeiro plano num terminal |
-| JDK | Temurin **25.0.4.1+1** portátil em `E:\Programação\A3\tmp\tools\jdk-25` |
+| JDK | Temurin **25.0.4.1+1** portátil; o `JAVA_HOME` é `E:\Programação\A3\tmp\tools\jdk-25\jdk-25.0.4.1+1`, não a pasta `jdk-25` que o contém — apontar para a de cima faz o `mvnw` parar com "JAVA_HOME ... is not defined correctly". É o caminho que o `scripts/test.ps1` monta sozinho |
 | Node | **24.19.0** |
 | API nativa | porta **8081**, perfil `demo`, jar `target/order-management-spring-0.0.1-SNAPSHOT.jar` |
 | Frontend nativo | porta **3001**, build de produção (`next start`), `BACKEND_ORIGIN=http://127.0.0.1:8081` |
