@@ -196,7 +196,18 @@ jobs:
           SUPERUSER: postgres_test
           OUT: target/resultado_apresentacao.txt
           PROVA_OUT: target/resultado_prova_banco.txt
-        run: bash docs/03-banco-de-dados/pacote-sql/run_apresentacao.sh
+        # Referencia fixa no dia 18. Sem REF o cenario nasce do dia corrente, e a execucao de ontem nao se
+        # reproduz hoje: um defeito que depende da data fica latente ate o calendario cair nele. Data
+        # absoluta tambem nao serve, porque a massa Olist e relativa ao dia da carga e um mes fixo acabaria
+        # sem movimento. O dia 18 do mes corrente - ou do anterior, se o mes ainda nao chegou la - e sempre
+        # passado (a carga recusa referencia futura), sempre dentro dos 365 dias da massa, e fora dos
+        # primeiros dias do mes, onde a projecao da meta fica absurda.
+        run: |
+          HOJE="$(TZ=America/Fortaleza date +%Y-%m-%d)"
+          REF="${HOJE%-*}-18"
+          if [ "$REF" \> "$HOJE" ]; then REF="$(date -d "$REF -1 month" +%Y-%m-%d)"; fi
+          echo "data de referencia do cenario: $REF"
+          REF="$REF" bash docs/03-banco-de-dados/pacote-sql/run_apresentacao.sh
 
       - name: Preserve database reports
         if: always()
