@@ -13,11 +13,19 @@ SUPERUSER="${SUPERUSER:?informe SUPERUSER}"
 OUT="${OUT:-$DIR/resultado_olist.txt}"
 EXPECTED_PASS=11
 
-docker exec "$CONTAINER" rm -rf /tmp/pacote-sql
-# No Windows (Git Bash) o docker.exe precisa do caminho no formato do Windows.
+# O caminho vai dentro de uma string para o shell do container: no Git Bash o docker.exe converteria
+# /tmp/... para um caminho do Windows se ele fosse um argumento solto.
+docker exec "$CONTAINER" sh -lc 'rm -rf /tmp/pacote-sql'
+# No Windows (Git Bash) o docker.exe precisa do caminho de origem no formato do Windows.
 SRC="$DIR"; if command -v cygpath > /dev/null 2>&1; then SRC="$(cygpath -w "$DIR")"; fi
 docker cp "$SRC" "$CONTAINER:/tmp/pacote-sql"
-psql_in() { docker exec -i -w /tmp/pacote-sql "$CONTAINER" psql -X -q -U "$SUPERUSER" -d "$DB" "$@"; }
+# O cd vai dentro do script do shell (POSIX, com shift) em vez de -w /tmp/pacote-sql: no Git Bash o docker.exe
+# converteria o -w para um caminho do Windows e o exec falharia com "Cwd must be an absolute path".
+psql_in() {
+  docker exec -i "$CONTAINER" sh -c \
+    'cd /tmp/pacote-sql && u=$1 && d=$2 && shift 2 && exec psql -X -q -U "$u" -d "$d" "$@"' \
+    sh "$SUPERUSER" "$DB" "$@"
+}
 
 : > "$OUT"
 psql_in -v ON_ERROR_STOP=1 -f 07_carga_olist.sql >> "$OUT" 2>&1

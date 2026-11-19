@@ -592,18 +592,40 @@ const capitalize = (text: string) => text.charAt(0).toLocaleUpperCase('pt-BR') +
 
 // ---------------- exportacao ----------------
 
+/** Escape do CSV, sem guarda: para o que a propria tela gerou (data, numero, rotulo fixo). */
+export function csvFixed(value: string): string {
+  if (!value) return '';
+  return /[";\n\r]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+}
+
+/**
+ * Guarda contra formula em campo livre: o Excel avalia uma celula de texto que comeca com "=", "+", "-",
+ * "@", TAB ou CR como formula ao abrir um arquivo de TEXTO (CSV). Nome de produto, de cliente, de categoria
+ * e de pessoa vem do banco e pode comecar com qualquer um deles, entao o valor recebe um apostrofo na
+ * frente antes do escape normal. No .xlsx e no .xls isso nao e necessario: celula de texto nunca e formula.
+ *
+ * So para texto do banco. Em cima de um numero negativo ("-1234,56") a guarda transformaria o valor em
+ * texto e a planilha deixaria de soma-lo; para esses, csvFixed.
+ */
+export function csvCell(value: string): string {
+  if (!value) return '';
+  return csvFixed(/^[=+\-@\t\r]/.test(value) ? `'${value}` : value);
+}
+
 /** CSV do recorte (separador ";" e virgula decimal, como o Excel em portugues abre direto). */
 export function toCsv(model: Model, filters: Filters): string {
   const decimal = (value: number | null) => value === null ? '' : value.toFixed(2).replace('.', ',');
-  const cell = (value: string) => /[";\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
   const header = ['data', 'pedido', 'vendedor', 'equipe', 'categoria', 'produto', 'sku', 'pagamento', 'unidades', 'receita_liquida',
     'desconto', 'custo', 'lucro'];
   const rows = model.sales(filters, model.scope(filters)).map(s => {
     const cost = s.cost?.amount ?? null;
-    return [s.date, String(s.orderId), model.personName(s.sellerId), model.teamName(model.teamOf(s.sellerId)),
-      model.categoryName(model.categoryOf(s.productId)), model.productName(s.productId), model.products.get(s.productId)?.sku ?? '',
-      PAYMENT_LABEL[s.paymentMethod], String(s.units), decimal(s.netRevenue.amount), decimal(s.discount.amount), decimal(cost),
-      decimal(cost === null ? null : s.netRevenue.amount - cost)].map(cell).join(';');
+    // csvCell no que vem do banco (pessoa, equipe, categoria, produto, SKU); csvFixed no que a tela gerou.
+    return [csvFixed(s.date), csvFixed(String(s.orderId)), csvCell(model.personName(s.sellerId)),
+      csvCell(model.teamName(model.teamOf(s.sellerId))), csvCell(model.categoryName(model.categoryOf(s.productId))),
+      csvCell(model.productName(s.productId)), csvCell(model.products.get(s.productId)?.sku ?? ''),
+      csvFixed(PAYMENT_LABEL[s.paymentMethod] ?? ''), csvFixed(String(s.units)),
+      csvFixed(decimal(s.netRevenue.amount)), csvFixed(decimal(s.discount.amount)), csvFixed(decimal(cost)),
+      csvFixed(decimal(cost === null ? null : s.netRevenue.amount - cost))].join(';');
   });
   return [header.join(';'), ...rows].join('\r\n') + '\r\n';
 }

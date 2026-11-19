@@ -919,3 +919,45 @@ execução manual. Execução de referência: **E5** — 18/11/2026, `npm run ty
 Evidências: `frontend/tests/demo-ledger.test.ts`, `frontend/tests/demo-targets.test.ts`,
 `frontend/tests/demo-state.test.ts` e `frontend/e2e/demo.spec.ts` (este também roda isolado com
 `npm run test:e2e:demo`, sem banco e sem a API no ar).
+
+## Casos do cenário de apresentação (CT-APR)
+
+Acrescentados com a carga de apresentação e a prova de banco (D-EVO-56 a D-EVO-58). Todos automatizados. CT-APR-00 a
+CT-APR-16 rodam em SQL, pelo runner `docs/03-banco-de-dados/pacote-sql/run_apresentacao.sh`, que roda **depois** de
+`run_bd.sh` e `run_olist_bd.sh` para nenhum número daqueles mudar; CT-APR-17 roda no `npm test` do frontend.
+Execuções de referência: **E6** — 18/11/2026, PostgreSQL 18.6 em contêiner, banco de apresentação dedicado,
+`REF=2026-11-18` — 17 PASS, 0 FAIL, 0 erros; e o `npm test` em `frontend/` do mesmo dia — **117 testes unitários,
+0 falhas**.
+
+| ID | Título | Requisito | Técnica | Nível | Risco | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| CT-APR-00 | A carga registra a data de referência resolvida | RNF-07 | Baseado em requisitos | Integração | R06 | Passou |
+| CT-APR-01 | Cenário completo e identificável (pagas, 2 pendentes, 1 cancelado, 1 estorno) | RF-28 | Baseado em requisitos | Integração | R06 | Passou |
+| CT-APR-02 | 12 metas mensais, 24 metas por vendedor e meta anual igual à soma | RF-29 | Baseado em requisitos | Integração | R02 | Passou |
+| CT-APR-03 | Carga repetida não duplica pedido, meta nem distribuição | RNF-07 | Particionamento de equivalência | Integração | R06 | Passou |
+| CT-APR-04 | Distribuição por vendedor fecha com o plano da loja em centavos | RF-29 | Análise de valor-limite | Integração | R02 | Passou |
+| CT-APR-05 | Meta de cada equipe igual à soma dos seus vendedores | RF-29 | Baseado em requisitos | Integração | R02 | Passou |
+| CT-APR-06 | Meta anual assinada por um CEO (gatilho do banco) | RF-29 | Tabela de decisão | Integração, Segurança | R05 | Passou |
+| CT-APR-07 | Nenhum pedido nem pagamento com data no futuro | RF-28 | Análise de valor-limite | Integração | R06 | Passou |
+| CT-APR-08 | Mês de referência com um vendedor acima e um abaixo do ritmo | RF-28 | Particionamento de equivalência | Integração | R06 | Passou |
+| CT-APR-09 | Reserva viva só nos pendentes; saldo e reserva nunca negativos | RF-13 | Transição de estados | Integração | R03 | Passou |
+| CT-APR-10 | Grão de item e de pedido dão o mesmo total; a view difere só pelos estornos | RNF-03 | Análise de valor-limite | Integração | R06 | Passou |
+| CT-APR-11 | Pessoa física com nome, e-mail, telefone, CPF e endereço completo | RF-03 | Baseado em requisitos | Integração | R06 | Passou |
+| CT-APR-12 | Pessoa jurídica com CNPJ e sem CPF; nenhum documento repetido | RF-03 | Tabela de decisão | Integração | R06 | Passou |
+| CT-APR-13 | 42 SKUs `OL-*` com preço positivo e custo médio informado | RF-11 | Baseado em requisitos | Integração | R06 | Passou |
+| CT-APR-14 | Carteira com cliente de compra única e cliente recorrente | RF-03 | Particionamento de equivalência | Integração | R06 | Passou |
+| CT-APR-15 | Duas execuções com a mesma referência deixam a mesma fotografia do banco | RNF-07 | Análise de valor-limite | Integração, Regressão | R06 | Passou |
+| CT-APR-16 | A prova de banco roda inteira, sem erro inesperado | RNF-04 | Baseado em requisitos | Integração | R10 | Passou |
+| CT-APR-17 | Dias restantes do mês e quanto falta por dia só saem com denominador válido | RF-29 | Análise de valor-limite | Unitário | R02 | Passou |
+
+A fotografia comparada em CT-APR-15 são dez números: pedidos, itens, pagamentos, estornos, metas mensais, metas por
+vendedor, meta anual, faturamento confirmado, saldo e reserva de estoque. Comparar só contagens não bastaria: a
+primeira versão da carga deixava as contagens iguais e o saldo diferente, porque a limpeza não devolvia o estoque.
+
+As cinco recusas de integridade de CT-APR-16 (CPF duplicado, documento incompatível com o tipo, CPF fora do formato,
+exclusão de cliente com pedido e distribuição fora do plano da loja) ficam em blocos com `EXCEPTION` que reconhecem só
+o erro previsto: se o banco **aceitar** o que deveria recusar, o bloco levanta exceção e o script falha.
+
+Evidências: `docs/03-banco-de-dados/pacote-sql/12_testes_apresentacao.sql`, `11_prova_banco.sql` e
+`run_apresentacao.sh`; CT-APR-17 em `frontend/tests/goals.test.ts`; preparação e reconciliação em
+[preparar a apresentação](../03-banco-de-dados/preparar-apresentacao.md).

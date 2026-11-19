@@ -111,8 +111,9 @@ jobs:
 
   bd:
     # Entrega de Banco de Dados: Flyway + massa demo (perfil demo), depois RBAC/RLS, CRUD,
-    # testes 06a/b/c/d e a corrida CC-01 por psql. Em etapa separada, a massa Olist (07, 08, 09 e CT-DEMO-05
-    # pela API), sem alterar os numeros dos testes 06*. Falha em qualquer FAIL ou ERROR.
+    # testes 06a/b/c/d e a corrida CC-01 por psql. Em etapas separadas, a massa Olist (07, 08, 09 e CT-DEMO-05
+    # pela API) e o cenario da apresentacao (10 duas vezes, 12 e a prova 11), sem alterar os numeros dos
+    # testes 06* nem dos CT-DEMO. Falha em qualquer FAIL ou ERROR.
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -187,6 +188,16 @@ jobs:
           OUT: target/resultado_olist.txt
         run: bash docs/03-banco-de-dados/pacote-sql/run_olist_bd.sh
 
+      - name: Presentation scenario by psql (10 twice, 12, 11) - CT-APR
+        shell: bash
+        env:
+          CONTAINER: ${{ job.services.postgres.id }}
+          DB: order_management_test
+          SUPERUSER: postgres_test
+          OUT: target/resultado_apresentacao.txt
+          PROVA_OUT: target/resultado_prova_banco.txt
+        run: bash docs/03-banco-de-dados/pacote-sql/run_apresentacao.sh
+
       - name: Preserve database reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -196,6 +207,8 @@ jobs:
             target/bd-demo.log
             target/resultado_bd.txt
             target/resultado_olist.txt
+            target/resultado_apresentacao.txt
+            target/resultado_prova_banco.txt
 
   contract:
     # Auditoria estatica do contrato e verificacao ao vivo (CT-CONTRACT-102) contra a API isolada.

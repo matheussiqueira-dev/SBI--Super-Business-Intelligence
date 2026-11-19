@@ -82,6 +82,26 @@
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.8.5</version>
         </dependency>
+        <!--
+          Exportacao Excel de /analytics/export (D-EVO-55). O enunciado pede .xlsx como formato principal
+          e .xls REAL para compatibilidade. O .xlsx e um zip de XML e daria para escrever com a JDK, mas o
+          .xls e o formato binario BIFF8 dentro de um container OLE2/CFB: escrever esse container a mao
+          seria codigo binario proprio, sem teste de interoperabilidade com leitores de planilha reais.
+          O Apache POI escreve os dois formatos (HSSF para .xls, XSSF para .xlsx) e e a biblioteca padrao
+          do ecossistema Java para isso. Linha 5.x (nao a 6.0.0, recem-lancada) pela maturidade.
+          Celula de texto no POI e sempre texto, nunca formula: isso tambem resolve a protecao contra
+          formula em campo livre que o CSV precisa tratar com escape proprio.
+        -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>5.5.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.5.1</version>
+        </dependency>
     </dependencies>
 
     <build>

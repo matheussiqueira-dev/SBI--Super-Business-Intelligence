@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { filterChips, measuresOf, Model, NO_FILTERS, NO_TEAM, toCsv, variation, without, type Filters, type Overview } from '../lib/executive.ts';
+import { csvCell, csvFixed, filterChips, measuresOf, Model, NO_FILTERS, NO_TEAM, toCsv, variation, without, type Filters, type Overview } from '../lib/executive.ts';
 import { GetExecutiveOverviewResponse } from '../lib/api/generated/sbi.zod.ts';
 
 const brl = (amount: number) => ({ amount, currency: 'BRL' as const });
@@ -179,4 +179,25 @@ test('[CT-EXEC-119] destaques, filtros ativos e exportacao CSV do recorte', () =
   assert.equal(csv.length, 4);
   assert.equal(csv[1], '2026-10-05;3;Allan;Equipe Matheus;iPhone;iPhone 17;IP-17;Pix;1;4800,00;200,00;3000,00;1800,00');
   assert.ok(csv[3]!.endsWith(';300,00;0,00;;'));
+});
+
+// Protecao contra formula no CSV (D-EVO-55): guarda so no texto do banco, nunca no numero gerado.
+test('[CT-EXEC-121] campo livre do banco recebe guarda; valor gerado nao', () => {
+  // O Excel avalia estes prefixos como formula ao abrir um arquivo de texto.
+  assert.equal(csvCell('=1+1'), "'=1+1");
+  assert.equal(csvCell('+SOMA(A1)'), "'+SOMA(A1)");
+  assert.equal(csvCell('@dde'), "'@dde");
+  assert.equal(csvCell('-cmd'), "'-cmd");
+  // Aspas e separador continuam escapados, com a guarda dentro das aspas.
+  assert.equal(csvCell('=a"b;c'), '"\'=a""b;c"');
+  // Texto comum passa intacto.
+  assert.equal(csvCell('iPhone 17'), 'iPhone 17');
+  assert.equal(csvCell(''), '');
+
+  // Numero negativo gerado pela tela NAO leva guarda: com ela o Excel leria texto e nao somaria a coluna.
+  assert.equal(csvFixed('-1234,56'), '-1234,56');
+  assert.equal(csvFixed('2026-11-18'), '2026-11-18');
+  // csvFixed ainda escapa separador e aspas.
+  assert.equal(csvFixed('a;b'), '"a;b"');
+  assert.equal(csvFixed('a"b'), '"a""b"');
 });

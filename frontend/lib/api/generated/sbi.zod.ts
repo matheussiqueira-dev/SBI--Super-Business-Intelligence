@@ -3048,6 +3048,26 @@ export const GetStockAnalyticsResponse = zod.strictObject({
 
 
 /**
+ * Abas Resumo, Vendas e Metas geradas no servidor a partir das mesmas views que alimentam os indicadores (v_fato_venda_item, v_fato_estorno, v_desempenho_vendedor e monthly_goal), numa unica transacao REPEATABLE READ. A aba Vendas esta no grao do item de pedido, com uma linha por estorno: somar a coluna de receita liquida da exatamente o faturamento confirmado do Resumo. O escopo e o do papel da sessao e a tela nao consegue amplia-lo. O formato .xls e BIFF8 real e tem limite de 65.000 linhas de detalhe; acima disso a resposta e 400 informando a alternativa compativel.
+ * @summary Exporta o recorte de analises em Excel (.xlsx e .xls) ou CSV
+ */
+export const exportAnalyticsQueryFormatDefault = `XLSX`;
+
+
+
+export const ExportAnalyticsQueryParams = zod.strictObject({
+  "from": zod.iso.date().describe('Primeiro dia do periodo, em America/Fortaleza.'),
+  "to": zod.iso.date().describe('Ultimo dia do periodo, em America/Fortaleza. Nao pode ser anterior a from, nem abrir janela maior que 732 dias.'),
+  "format": zod.enum(['XLSX', 'XLS', 'CSV']).default(exportAnalyticsQueryFormatDefault).describe('Formato do arquivo: XLSX e o Excel principal, XLS e BIFF8 real e CSV e complementar.'),
+  "seller": zod.int().min(1).optional().describe('Filtra por vendedor; sem este filtro o arquivo traz a loja.'),
+  "category": zod.int().min(1).optional().describe('Filtra por categoria do produto. Com este filtro os estornos ficam fora, porque estorno nao pertence a uma categoria.'),
+  "payment": zod.enum(['CARD', 'PIX', 'BOLETO']).optional().describe('Filtra por forma de pagamento.')
+})
+
+export const ExportAnalyticsResponse = zod.unknown()
+
+
+/**
  * @summary Lista usuarios com filtros
  */
 export const listUsersQueryQMin = 0;

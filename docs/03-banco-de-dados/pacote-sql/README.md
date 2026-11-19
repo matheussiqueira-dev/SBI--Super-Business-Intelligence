@@ -17,6 +17,10 @@ Versão de 12/10/2026, trazida para o repositório na ETAPA 2A (14/10/2026). Dec
 | `09_testes_olist.sql` | Testes CT-DEMO-01 a 04 (contagens e soma, cliente com 14 pedidos, idempotência, estoque). |
 | `run_demo_olist.sh` | Sobe a stack demo e carrega a massa Olist (`--check`: carga repetida, testes 09 e CT-DEMO-05 pela API). Equivalente PowerShell: `scripts/demo-olist.ps1`. |
 | `run_olist_bd.sh` | Etapa separada do job `bd`, depois de `run_bd.sh`: carga duas vezes, roteiro 08 (CT-DEMO-06), testes 09 e CT-DEMO-05 com a API no perfil demo; espera 10 PASS. Detalhes em `docs/03-banco-de-dados/massa-demonstracao.md`. |
+| `10_carga_apresentacao.sql` | Cenário da apresentação por cima da massa (D-EVO-56): metas do ano de referência, operação em andamento (pendentes, cancelado e estorno pelas funções reais) e dias fortes e fracos. Data de referência configurável (`-v ref=AAAA-MM-DD`, padrão hoje em `America/Fortaleza`); reproduzível (`hashtext`, nunca `random()`), identificável e idempotente pelo registro no schema `apresentacao`, em uma transação com conferência. |
+| `11_prova_banco.sql` | Prova de Banco de Dados para a banca (D-EVO-57), nos cinco passos do enunciado: banco e versão, inventário e dicionário, CRUD completo em transação terminada em `ROLLBACK`, cinco recusas de integridade em blocos com `EXCEPTION` e as consultas analíticas com o controle do grão do `JOIN`. Com `ON_ERROR_STOP=1` falha em erro inesperado. |
+| `12_testes_apresentacao.sql` | Testes do cenário (CT-APR-00 a CT-APR-14), na convenção `pg_temp.ok`: metas, reconciliação em centavos, equipes, ritmo, estoque, grão do `JOIN` e completude da carteira. |
+| `run_apresentacao.sh` | Etapa do cenário, depois de `run_bd.sh` e `run_olist_bd.sh`: carga duas vezes com a mesma referência, comparação da fotografia do banco (CT-APR-15), testes 12 e a prova 11 completa (CT-APR-16); espera 17 PASS. Detalhes em [preparar a apresentação](../preparar-apresentacao.md). |
 
 Reprodução local (Docker ativo, Git Bash):
 

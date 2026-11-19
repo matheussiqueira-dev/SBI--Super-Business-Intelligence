@@ -6,10 +6,10 @@ import Link from 'next/link';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { GetMyPerformanceResponse, ListSalesOrdersResponse } from '../../../lib/api/generated/sbi.zod.ts';
 import { api } from '../../../lib/api/http.ts';
-import { formatDay, formatMonth, formatPercent, label, money, ORDER_STATUS, sentence, statusPill } from '../../../lib/format.ts';
+import { formatDay, formatMonth, formatPercent, label, money, ORDER_STATUS, plural, sentence, statusPill } from '../../../lib/format.ts';
 import { ErrorNotice, Loading } from '../../../components/feedback.tsx';
 import { Kpi, MoneyValue } from '../../../components/kpi.tsx';
-import { monthPace } from '../../../lib/goals.ts';
+import { daysLeftInMonth, monthPace, remainingPerDay } from '../../../lib/goals.ts';
 import { Meter } from '../../../components/meter.tsx';
 import { Icon } from '../../../components/brand/icons.tsx';
 import EmptyState from '../../../components/empty-state.tsx';
@@ -78,6 +78,32 @@ export default function MyPerformance({ manager = false }: { manager?: boolean }
                      legend={<><span className="num">Realizado {money(data.realized)}</span>
                        {monthPace(month) !== null && <span>Marca = ritmo esperado hoje</span>}
                        <span className="num">Meta {money(data.goal)}</span></>} />}
+          {/* O que fazer hoje: a falta repartida pelos dias que ainda restam, contando hoje. So no mes
+              corrente e so com meta em aberto; fora disso a tela diz o motivo em vez de mostrar um numero. */}
+          {!noGoal && (() => {
+            const left = daysLeftInMonth(month);
+            const perDay = remainingPerDay(data.remaining.amount, month);
+            if (data.state === 'META_ATINGIDA') {
+              return <p className="muted">Meta batida: o que vender agora passa de <strong className="num">{money(data.goal)}</strong>.</p>;
+            }
+            if (left === null) {
+              // Mês fora do corrente: não há "dia restante" nem para trás (já fechou) nem para frente
+              // (ainda não começou). A tela diz qual dos dois é, em vez de chamar os dois de "fechado".
+              const futuro = month > thisMonth();
+              return <p className="muted">{futuro
+                ? 'Mês ainda não começado: a falta só se divide por dia restante dentro do mês em curso.'
+                : 'Mês fechado: a falta não se divide por dia restante.'}</p>;
+            }
+            if (perDay === null) return null;
+            return (
+              <p className="notice notice-ok">
+                <strong>Para fechar a meta:</strong>{' '}
+                <span className="num">{money(perDay)}</span> por dia {left === 1 ? 'no' : 'nos'}{' '}
+                {plural(left, 'dia restante', 'dias restantes')} do mês
+                (falta <span className="num">{money(data.remaining)}</span> ÷ {left}, contando hoje).
+              </p>
+            );
+          })()}
         </section>
         {!manager && <RecentSales />}
       </>}

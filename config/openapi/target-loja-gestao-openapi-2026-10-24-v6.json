@@ -2524,6 +2524,142 @@
         }
       }
     },
+    "/analytics/export": {
+      "get": {
+        "summary": "Exporta o recorte de analises em Excel (.xlsx e .xls) ou CSV",
+        "description": "Abas Resumo, Vendas e Metas geradas no servidor a partir das mesmas views que alimentam os indicadores (v_fato_venda_item, v_fato_estorno, v_desempenho_vendedor e monthly_goal), numa unica transacao REPEATABLE READ. A aba Vendas esta no grao do item de pedido, com uma linha por estorno: somar a coluna de receita liquida da exatamente o faturamento confirmado do Resumo. O escopo e o do papel da sessao e a tela nao consegue amplia-lo. O formato .xls e BIFF8 real e tem limite de 65.000 linhas de detalhe; acima disso a resposta e 400 informando a alternativa compativel.",
+        "operationId": "exportAnalytics",
+        "x-rf": [
+          "RF-12",
+          "RF-14"
+        ],
+        "x-status": "implemented",
+        "x-roles": [
+          "CEO",
+          "GERENTE"
+        ],
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "description": "Primeiro dia do periodo, em America/Fortaleza.",
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "examples": [
+                "2026-11-01"
+              ]
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "description": "Ultimo dia do periodo, em America/Fortaleza. Nao pode ser anterior a from, nem abrir janela maior que 732 dias.",
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "examples": [
+                "2026-11-18"
+              ]
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "description": "Formato do arquivo: XLSX e o Excel principal, XLS e BIFF8 real e CSV e complementar.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "XLSX",
+                "XLS",
+                "CSV"
+              ],
+              "default": "XLSX"
+            }
+          },
+          {
+            "name": "seller",
+            "in": "query",
+            "required": false,
+            "description": "Filtra por vendedor; sem este filtro o arquivo traz a loja.",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "description": "Filtra por categoria do produto. Com este filtro os estornos ficam fora, porque estorno nao pertence a uma categoria.",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "payment",
+            "in": "query",
+            "required": false,
+            "description": "Filtra por forma de pagamento.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CARD",
+                "PIX",
+                "BOLETO"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Arquivo do recorte, entregue como anexo.",
+            "headers": {
+              "Content-Disposition": {
+                "description": "attachment com o nome sbi-analises-<from>-a-<to>.<extensao>",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/vnd.ms-excel": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
     "/users": {
       "get": {
         "summary": "Lista usuarios com filtros",

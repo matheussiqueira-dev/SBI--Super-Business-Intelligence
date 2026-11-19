@@ -119,8 +119,30 @@ export function createClient({ fetcher = (input, init) => fetch(input, init), on
     return data as T;
   }
 
+  /**
+   * Baixa um arquivo da API (exportacao). Passa pelo mesmo tratamento de erro do request: codigo do
+   * contrato traduzido para pt-BR e 401 levando ao login. A tela nunca mostra a mensagem interna do
+   * servidor nem o numero do status.
+   */
+  async function download(path: string): Promise<Blob> {
+    const response = await raw(path, { method: 'GET' });
+    if (!response.ok) {
+      const body: unknown = await response.json().catch(() => null);
+      const { code, details } = errorDetails(body);
+      if (response.status === 401) onUnauthorized?.(code);
+      // 400 de regra (periodo invertido, janela longa demais, recorte grande demais para .xls) traz uma
+      // explicacao util escrita para quem usa: essa passa adiante; as demais viram a mensagem do codigo.
+      const fromServer = typeof (body as { message?: unknown })?.message === 'string'
+        ? (body as { message: string }).message : '';
+      const useServerMessage = response.status === 400 && fromServer.length > 0 && fromServer.length <= 300;
+      throw new ApiError(response.status, code, useServerMessage ? fromServer : messageFor(code, response.status), details);
+    }
+    return response.blob();
+  }
+
   return {
     request,
+    download,
     refreshCsrf,
     /** Depois de login e logout o token anterior deixa de valer. */
     resetCsrf: () => { csrf = null; },

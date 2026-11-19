@@ -50,6 +50,14 @@ cd docs/03-banco-de-dados/pacote-sql
 psql -X -h 127.0.0.1 -p 5432 -U postgres -d sbi_demo -W -v ON_ERROR_STOP=1 -f 07_carga_olist.sql
 ```
 
+Em seguida, para a apresentação, carregue o cenário com as metas do ano, a operação em andamento e os dias fortes e fracos (aditivo: preserva a massa e refaz só o que ele mesmo criou):
+
+```sh
+psql -X -h 127.0.0.1 -p 5432 -U postgres -d sbi_demo -W -v ON_ERROR_STOP=1 -f 10_carga_apresentacao.sql
+```
+
+Sem `-v ref`, a data de referência é hoje em `America/Fortaleza`; para fixar um dia, use `-v ref=2026-11-25`. O [guia de preparação](../03-banco-de-dados/preparar-apresentacao.md) detalha o que o cenário grava e como conferir tudo de uma vez.
+
 A carga registra 42 SKUs Apple, 60 clientes, 219 pedidos pagos e 237 itens. Ela recria os registros da massa, inclusive pedidos associados aos SKUs `OL-*`. Use-a em um banco de demonstração dedicado e descarte os dados do ensaio somente quando decidir reiniciar esse banco. O [guia da massa](../03-banco-de-dados/massa-demonstracao.md) detalha o pacote SQL.
 
 ## 3. Iniciar o frontend e conferir

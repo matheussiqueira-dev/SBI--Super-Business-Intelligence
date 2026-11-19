@@ -5,7 +5,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import { GetManagementSummaryResponse, GetSalesAnalyticsResponse, GetStockAnalyticsResponse } from '../../../../lib/api/generated/sbi.zod.ts';
+import {
+  GetManagementSummaryResponse, GetSalesAnalyticsResponse, GetStockAnalyticsResponse, ListCategoriesResponse,
+  ListUsersResponse,
+} from '../../../../lib/api/generated/sbi.zod.ts';
 import { api } from '../../../../lib/api/http.ts';
 import { formatMonth, formatPercent, formatShortRange, label, money, PAYMENT_TYPE, plural, sentence } from '../../../../lib/format.ts';
 import { ErrorNotice, Loading } from '../../../../components/feedback.tsx';
@@ -14,12 +17,26 @@ import { ColumnChart, StackedBar } from '../../../../components/charts.tsx';
 import { Kpi, MoneyValue } from '../../../../components/kpi.tsx';
 import PageHeader from '../../../../components/page-header.tsx';
 import TableWrap from '../../../../components/table-wrap.tsx';
+import ExportPanel from '../../../../components/export-panel.tsx';
 
 const PAYMENT_COLORS: Readonly<Record<string, string>> = { PIX: 'var(--sbi-data-1)', CARD: 'var(--sbi-data-2)', BOLETO: 'var(--sbi-data-3)' };
 const PAYMENT_ORDER = ['PIX', 'CARD', 'BOLETO'];
 
 function thisMonth(): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Fortaleza', year: 'numeric', month: '2-digit' }).format(new Date());
+}
+
+/** Hoje na loja (America/Fortaleza): limite do recorte da exportacao, para nao pedir dia no futuro. */
+function todayInStore(): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Fortaleza', year: 'numeric', month: '2-digit', day: '2-digit' })
+    .format(new Date());
+}
+
+/** Primeiro e ultimo dia do mes YYYY-MM; o fim nunca passa de hoje na loja. */
+function monthRange(month: string, today: string): { from: string; to: string } {
+  const last = new Date(Date.UTC(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0)).getUTCDate();
+  const to = `${month}-${String(last).padStart(2, '0')}`;
+  return { from: `${month}-01`, to: to > today ? today : to };
 }
 
 export default function Analytics() {
@@ -40,9 +57,29 @@ export default function Analytics() {
     queryKey: ['analytics-stock'],
     queryFn: ({ signal }) => api.request('/analytics/stock', { signal, schema: GetStockAnalyticsResponse }),
   });
+  // Mesma chave de Produtos e Promocoes: a lista ja vem do cache quando a sessao passou por elas.
+  const categories = useQuery({
+    queryKey: ['categories'],
+    queryFn: ({ signal }) => api.request('/categories', { signal, schema: ListCategoriesResponse }),
+  });
+  // Quem pode constar como vendedor de um pedido. Vem de /users, nao da equipe com meta: o gerente tambem
+  // vende (e nao tem meta individual), e sem ele o filtro esconderia parte do faturamento da loja.
+  const people = useQuery({
+    queryKey: ['users', 'ativos'],
+    queryFn: ({ signal }) => api.request(`/users?${new URLSearchParams({ active: 'true', size: '100' })}`,
+      { signal, schema: ListUsersResponse }),
+  });
   const data = sales.data;
   const monthGoal = goals.data && goals.data.state !== 'SEM_META' ? goals.data.storeGoal.amount : 0;
   const payments = data ? [...data.byPaymentMethod].sort((a, b) => PAYMENT_ORDER.indexOf(a.method) - PAYMENT_ORDER.indexOf(b.method)) : [];
+  const today = todayInStore();
+  // O recorte sugerido da exportacao e exatamente o mes que a tela mostra: o arquivo nasce igual a tela.
+  const exportRange = valid ? monthRange(month, today) : monthRange(thisMonth(), today);
+  const sellerOptions = (people.data?.content ?? [])
+    .filter(person => person.role !== 'CEO')
+    .map(person => ({ id: person.id, name: person.name }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+  const categoryOptions = (categories.data ?? []).map(category => ({ id: category.id, name: category.name }));
   return (
     <div className="stack">
       <PageHeader section="Gestão" title="Análises"
@@ -123,6 +160,23 @@ export default function Analytics() {
           <p className="page-desc">Saldo físico de todos os produtos ativos, pelo custo médio e pelo preço atual</p>
         </div>
         <ErrorNotice error={stock.error} />
+        {stock.data && stock.data.belowMin.length > 0 && (() => {
+          // Acao operacional do gerente: item de bom giro abaixo do minimo. "Bom giro" = teve venda no mes;
+          // o limiar e o minimo cadastrado do proprio produto, nao um numero escolhido aqui. Sem venda no
+          // mes o item ainda aparece na contagem de "Abaixo do minimo", mas nao entra nesta recomendacao.
+          const soldThisMonth = new Set((data?.productMargins ?? []).filter(m => m.units > 0).map(m => m.productId));
+          const urgent = stock.data.belowMin.filter(p => soldThisMonth.has(p.productId));
+          if (urgent.length === 0) return null;
+          return (
+            <p className="notice notice-warn">
+              <strong>Repor primeiro:</strong>{' '}
+              {urgent.slice(0, 3).map(p => `${p.name} (${p.available} de ${p.minLevel})`).join(', ')}
+              {urgent.length > 3 ? ` e mais ${urgent.length - 3}` : ''}.{' '}
+              {plural(urgent.length, 'item vendeu', 'itens venderam')} em {formatMonth(month)} e está abaixo do mínimo.{' '}
+              <Link href="/gestao/estoque?abaixo=1">Abrir estoque abaixo do mínimo</Link>
+            </p>
+          );
+        })()}
         {stock.data && <div className="kpis">
           <Kpi label="Produtos ativos" value={<span className="value">{stock.data.products}</span>} note={plural(stock.data.units, 'unidade')} />
           <Kpi label="Valor a custo" value={<MoneyValue value={stock.data.valueAtCost} />}
@@ -132,6 +186,8 @@ export default function Analytics() {
                note={stock.data.belowMin.length > 0 ? <Link href="/gestao/estoque?abaixo=1">{stock.data.belowMin.map(p => p.name).slice(0, 2).join(', ')}{stock.data.belowMin.length > 2 ? '…' : ''}</Link> : 'Nenhum produto abaixo do mínimo'} />
         </div>}
       </section>
+      <ExportPanel defaultFrom={exportRange.from} defaultTo={exportRange.to} today={today}
+                   sellers={sellerOptions} categories={categoryOptions} />
     </div>
   );
 }

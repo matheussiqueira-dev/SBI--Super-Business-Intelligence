@@ -53,6 +53,7 @@ GET,/management/summary,401,403,PERMIT,PERMIT
 GET,/management/revenue,401,403,PERMIT,PERMIT
 GET,/analytics/sales,401,403,PERMIT,PERMIT
 GET,/analytics/stock,401,403,PERMIT,PERMIT
+GET,/analytics/export,401,403,PERMIT,PERMIT
 POST,/payment/{id}/refund,401,403,PERMIT,PERMIT
 GET,/orders,401,403,PERMIT,PERMIT
 POST,/orders,401,403,PERMIT,PERMIT
