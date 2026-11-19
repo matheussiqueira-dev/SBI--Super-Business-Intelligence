@@ -4,28 +4,34 @@
 # esperadas), os testes 09 (CT-DEMO-01 a 04 e 07) e, com a API no perfil demo, a verificacao CT-DEMO-05.
 # Uso: CONTAINER=<id do PostgreSQL> DB=<banco> SUPERUSER=<dono> JAR=<jar da API> JDBC_URL=<url> \
 #      SPRING_DATASOURCE_PASSWORD=<senha> SBI_DEMO_PASSWORD=<senha das contas> ./run_olist_bd.sh
+# Sem CONTAINER: PostgreSQL nativo, com o psql do PATH e PGHOST/PGPORT/PGPASSWORD do ambiente.
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$DIR/../../.." && pwd)"
-CONTAINER="${CONTAINER:?informe CONTAINER}"
+CONTAINER="${CONTAINER:-}"
 DB="${DB:?informe DB}"
 SUPERUSER="${SUPERUSER:?informe SUPERUSER}"
 OUT="${OUT:-$DIR/resultado_olist.txt}"
 EXPECTED_PASS=11
 
-# O caminho vai dentro de uma string para o shell do container: no Git Bash o docker.exe converteria
-# /tmp/... para um caminho do Windows se ele fosse um argumento solto.
-docker exec "$CONTAINER" sh -lc 'rm -rf /tmp/pacote-sql'
-# No Windows (Git Bash) o docker.exe precisa do caminho de origem no formato do Windows.
-SRC="$DIR"; if command -v cygpath > /dev/null 2>&1; then SRC="$(cygpath -w "$DIR")"; fi
-docker cp "$SRC" "$CONTAINER:/tmp/pacote-sql"
-# O cd vai dentro do script do shell (POSIX, com shift) em vez de -w /tmp/pacote-sql: no Git Bash o docker.exe
-# converteria o -w para um caminho do Windows e o exec falharia com "Cwd must be an absolute path".
-psql_in() {
-  docker exec -i "$CONTAINER" sh -c \
-    'cd /tmp/pacote-sql && u=$1 && d=$2 && shift 2 && exec psql -X -q -U "$u" -d "$d" "$@"' \
-    sh "$SUPERUSER" "$DB" "$@"
-}
+if [ -n "$CONTAINER" ]; then
+  # O caminho vai dentro de uma string para o shell do container: no Git Bash o docker.exe converteria
+  # /tmp/... para um caminho do Windows se ele fosse um argumento solto.
+  docker exec "$CONTAINER" sh -lc 'rm -rf /tmp/pacote-sql'
+  # No Windows (Git Bash) o docker.exe precisa do caminho de origem no formato do Windows.
+  SRC="$DIR"; if command -v cygpath > /dev/null 2>&1; then SRC="$(cygpath -w "$DIR")"; fi
+  docker cp "$SRC" "$CONTAINER:/tmp/pacote-sql"
+  # O cd vai dentro do script do shell (POSIX, com shift) em vez de -w /tmp/pacote-sql: no Git Bash o docker.exe
+  # converteria o -w para um caminho do Windows e o exec falharia com "Cwd must be an absolute path".
+  psql_in() {
+    docker exec -i "$CONTAINER" sh -c \
+      'cd /tmp/pacote-sql && u=$1 && d=$2 && shift 2 && exec psql -X -q -U "$u" -d "$d" "$@"' \
+      sh "$SUPERUSER" "$DB" "$@"
+  }
+else
+  # Instalacao nativa: o psql roda na maquina e os caminhos relativos (olist/*.csv) saem deste diretorio.
+  psql_in() { (cd "$DIR" && psql -X -q -w -U "$SUPERUSER" -d "$DB" "$@"); }
+fi
 
 : > "$OUT"
 psql_in -v ON_ERROR_STOP=1 -f 07_carga_olist.sql >> "$OUT" 2>&1

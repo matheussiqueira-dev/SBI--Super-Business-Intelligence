@@ -91,6 +91,44 @@ OK 5/5 - distribuicao fora do plano da loja recusada (trg_goal_sum_check)
 
 Diga: *"se o banco tivesse **aceitado** qualquer um desses, o script falharia na hora — a prova é que ele recusa, não que ele não reclama"*. A quinta é a mais interessante: a soma das metas dos vendedores tem de fechar com o plano da loja, e a verificação é adiada para o `COMMIT`, o que permite trocar a distribuição inteira dentro de uma transação.
 
+### Se a banca perguntar por RLS ou por permissão de coluna
+
+O `03_rbac.sql` já está aplicado neste banco — é o `run_bd.sh` que o aplica —, então a resposta é a
+**mesma consulta com três papéis de banco diferentes**. No cliente SQL que já está aberto, sem trocar
+de conexão (o id do Allan é 2 neste cenário):
+
+```sql
+SELECT count(*) FROM orders;                                   -- dono do esquema: 315
+SET ROLE gerente_matheus;  SELECT count(*) FROM orders;         -- gerente: 315
+RESET ROLE;
+SELECT set_config('app.user_id', '2', false);
+SET ROLE vendedor_allan;   SELECT count(*) FROM orders;         -- vendedor: 95
+SELECT count(*) FROM orders WHERE id = 5;                       -- pedido de outro vendedor: 0 linhas
+SELECT unit_cost FROM stock_entry LIMIT 1;                      -- ERROR: permission denied for table stock_entry
+RESET ROLE;
+```
+
+**Saída esperada: 315, 315 e 95**, depois zero linhas e a recusa de permissão. O dono do esquema não
+passa pela política; o gerente tem `USING (true)`; o vendedor tem
+`USING (seller_id = app_current_user_id())` e vê só os pedidos dele — pedir pelo id um pedido de outro
+vendedor devolve **zero linhas**, não erro. A última linha é o `GRANT` por coluna: o vendedor não
+alcança o custo.
+
+Quem preferir mostrar a entrada de verdade, com um login por papel, consegue isso no contêiner de
+apresentação (o `pg_hba` de dentro dele aceita o socket local sem senha). Ajuste o nome do contêiner,
+o banco e o usuário se o seu ambiente for outro:
+
+```bash
+docker exec sbi-apresentacao-db psql -X -At -U vendedor_allan -d sbi_apresentacao -c "SELECT set_config('app.user_id','2',false); SELECT count(*) FROM orders"
+```
+
+Numa instalação nativa esse login por papel não funciona: não há socket local no Windows e o `pg_hba`
+pede senha em `127.0.0.1`, e os papéis da `03_rbac.sql` nascem sem senha. É por isso que a forma com
+`SET ROLE` acima é a que vale nos dois ambientes.
+
+Diga: *"no ambiente autenticado quem restringe é a API, porque a aplicação conecta com um usuário de
+banco só; a RLS está aqui para mostrar que o banco também faz isso, por política e por coluna"*.
+
 ---
 
 ## Passo 4 — Consulta analítica e meta × realizado
