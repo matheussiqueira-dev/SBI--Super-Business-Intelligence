@@ -137,8 +137,12 @@ class ManualDiscountApiTest {
         String items = "[{\"productId\":%d,\"quantity\":3}]".formatted(cheap);
         MvcResult rejected = order(fx.allan, items, "{\"percent\":5,\"reason\":\"Pedido do cliente\"}");
         assertError(rejected, 409, "BELOW_COST");
-        String text = rejected.getResponse().getContentAsString();
+        // O corpo sem o timestamp: o instante do servidor traz digitos arbitrarios e um
+        // "...:39.826..." casa com "9.8" sem custo nenhum ter vazado. Foi assim que a CI falhou em
+        // 19/11/2026 (timestamp 2026-11-19T00:40:39.826654429-03:00), com o corpo correto.
+        String text = rejected.getResponse().getContentAsString().replaceAll("\"timestamp\":\"[^\"]*\",?", "");
         assertThat(text).doesNotContain("9.8", "9,8", "29.4", "avg", "Cost\":");
+        assertThat(text).contains("BELOW_COST");
         assertThat(body(rejected).get("details").toString()).contains("productId=" + cheap);
 
         assertThat(send(put("/discount-policy/VENDEDOR"), fx.manager,
