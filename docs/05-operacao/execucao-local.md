@@ -106,8 +106,10 @@ Esta seção registra um ensaio real deste modo, com as versões, os comandos, a
 
 Os binários oficiais em `.zip` não instalam nada: basta extrair. A configuração vai toda na linha de comando, então o `postgresql.conf` do cluster fica como o `initdb` o deixou.
 
+O `--pwfile` aponta para um arquivo de uma linha só com a senha do superusuário: crie-o antes e apague-o depois do `initdb`. Assim a senha não entra no comando nem no histórico do terminal.
+
 ```powershell
-E:\pg18-ensaio\pgsql\bin\initdb.exe -D E:\pg18-ensaio\data -U postgres --pwfile=<arquivo com a senha> --auth-host=scram-sha-256 --encoding=UTF8 --locale-provider=icu --icu-locale=en-US
+E:\pg18-ensaio\pgsql\bin\initdb.exe -D E:\pg18-ensaio\data -U postgres --pwfile=E:\pg18-ensaio\senha-postgres.txt --auth-host=scram-sha-256 --encoding=UTF8 --locale-provider=icu --icu-locale=en-US
 ```
 
 ```powershell
@@ -136,7 +138,9 @@ Os binários extraídos não entram no `PATH` sozinhos, e a API embutida que o `
 
 ```bash
 export PATH="/e/pg18-ensaio/pgsql/bin:$PATH"
-export PGHOST=127.0.0.1 PGPORT=5436 PGPASSWORD=<senha do superusuário>
+read -rsp 'Senha do superusuário do cluster nativo: ' PGPASSWORD
+printf '\n'
+export PGHOST=127.0.0.1 PGPORT=5436 PGPASSWORD
 export SPRING_DATASOURCE_PASSWORD="$PGPASSWORD"
 ```
 

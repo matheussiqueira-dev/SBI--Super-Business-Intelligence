@@ -144,11 +144,11 @@ vendedor devolve **zero linhas**, não erro. A última linha é o `GRANT` por co
 alcança o custo.
 
 Quem preferir mostrar a entrada de verdade, com um login por papel, consegue isso **dentro do contêiner
-onde a `03_rbac.sql` foi aplicada** — o `pg_hba` de lá aceita o socket local sem senha. Troque o nome do
-contêiner, o banco e o usuário pelos do seu ambiente:
+onde a `03_rbac.sql` foi aplicada** — o `pg_hba` de lá aceita o socket local sem senha. O exemplo usa o
+par do Compose; se o seu ambiente for outro, troque o contêiner e o banco:
 
 ```bash
-docker exec <contêiner> psql -X -At -U vendedor_allan -d <banco> -c "SELECT count(*) FROM orders"
+docker exec sbi-demo-db-1 psql -X -At -U vendedor_allan -d sbi_demo -c "SELECT count(*) FROM orders"
 ```
 
 Aqui o `set_config` não entra, e por um motivo que vale contar se perguntarem: entrando **como**
