@@ -17,7 +17,9 @@ Deixe estes quatro itens prontos e abertos, nesta ordem, **antes** de a banca en
 | 3. Interface | Navegador em `http://127.0.0.1:3000/entrar` | A tela de entrada aparece |
 | 4. Roteiro SQL | `docs/03-banco-de-dados/pacote-sql/11_prova_banco.sql` aberto no cliente SQL | Os blocos `-- PASSO n` estão visíveis |
 
-A preparação completa do ambiente está em [preparar a apresentação](../03-banco-de-dados/preparar-apresentacao.md). O caminho curto muda com o lugar onde o banco está. `DB` e `SUPERUSER` são sempre obrigatórias — sem elas o script para antes de tocar no banco. `REF` fixa a data de referência: sem ela a referência é **hoje**, e os valores citados neste roteiro mudam.
+A preparação completa do ambiente está em [preparar a apresentação](../03-banco-de-dados/preparar-apresentacao.md). O caminho curto abaixo **recarrega o cenário num banco que já tem o esquema e a massa Olist**: ele roda a `10`, os testes `12` e a prova `11`, nada mais. Banco novo precisa da bateria na ordem — `run_bd.sh`, depois `run_olist_bd.sh`, depois `run_apresentacao.sh` —, que é o que o guia de preparação descreve.
+
+O comando muda com o lugar onde o banco está. `DB` e `SUPERUSER` são sempre obrigatórias — sem elas o script para antes de tocar no banco. `REF` fixa a data de referência: sem ela a referência é **hoje**, e os valores citados neste roteiro mudam.
 
 Com o PostgreSQL nativo, exportando antes `PGHOST`, `PGPORT` e `PGPASSWORD`:
 
@@ -30,6 +32,8 @@ Com o banco em contêiner do `docker-compose.demo.yml`, subido como `-p sbi-demo
 ```bash
 CONTAINER=sbi-demo-db-1 DB=sbi_demo SUPERUSER=sbi REF=2026-11-18 bash docs/03-banco-de-dados/pacote-sql/run_apresentacao.sh
 ```
+
+O banco do Compose, porém, monta `tmpfs` em `/var/lib/postgresql`: ele nasce **vazio a cada subida**, e o Compose aplica só o Flyway, com as contas e a massa do seed — a massa Olist fica de fora, por opção do próprio arquivo. Carregue a `07` antes (o `run_olist_bd.sh` faz isso), senão o cenário entra num banco sem os 42 SKUs `OL-*`, o CT-APR-13 reclama e os números deste roteiro não saem.
 
 Se o seu banco de apresentação foi criado à mão, fora do Compose — como o contêiner `sbi-apresentacao-db` com o banco `sbi_apresentacao` das medições de 18/11 —, troque os três valores pelos seus: nada no repositório cria esse par, e um nome de contêiner errado falha com `No such container` antes de qualquer SQL.
 
@@ -103,9 +107,17 @@ Diga: *"se o banco tivesse **aceitado** qualquer um desses, o script falharia na
 
 ### Se a banca perguntar por RLS ou por permissão de coluna
 
-O `03_rbac.sql` já está aplicado neste banco — é o `run_bd.sh` que o aplica —, então a resposta é a
-**mesma consulta com três papéis de banco diferentes**. No cliente SQL que já está aberto, sem trocar
-de conexão:
+Os papéis de banco e as políticas vêm da `03_rbac.sql`, que o Flyway **não** aplica. No contêiner, quem
+a aplica é o `run_bd.sh`. Num banco nativo ele não roda — exige contêiner —, então aplique a `03` à mão
+antes, uma vez:
+
+```bash
+psql -X -U postgres -d sbi_demo -v ON_ERROR_STOP=1 -f docs/03-banco-de-dados/pacote-sql/03_rbac.sql
+```
+
+Sem ela, o `SET ROLE gerente_matheus` abaixo para com `role "gerente_matheus" does not exist`. Com ela
+no lugar, a resposta é a **mesma consulta com três papéis de banco diferentes**, no cliente SQL que já
+está aberto, sem trocar de conexão:
 
 ```sql
 SELECT count(*) FROM orders;                                   -- dono do esquema: 315
@@ -121,7 +133,9 @@ RESET ROLE;
 
 O `set_config` resolve o id pelo e-mail, como o resto do pacote SQL faz, e roda antes do `SET ROLE`
 porque só o dono do esquema lê `app_users`. Nesta massa o id do Allan é 2; o `SELECT` evita depender
-disso.
+disso. Ele é indispensável nesta forma: `SET ROLE` troca o `current_user` e **não** o `session_user`, e
+`app_current_user_id()` procura primeiro um usuário com `db_role = session_user` — que aqui não existe
+—, caindo então em `app.user_id`.
 
 **Saída esperada: 315, 315 e 95**, depois zero linhas e a recusa de permissão. O dono do esquema não
 passa pela política; o gerente tem `USING (true)`; o vendedor tem
@@ -129,16 +143,20 @@ passa pela política; o gerente tem `USING (true)`; o vendedor tem
 vendedor devolve **zero linhas**, não erro. A última linha é o `GRANT` por coluna: o vendedor não
 alcança o custo.
 
-Quem preferir mostrar a entrada de verdade, com um login por papel, consegue isso no contêiner de
-apresentação (o `pg_hba` de dentro dele aceita o socket local sem senha). Ajuste o nome do contêiner,
-o banco e o usuário se o seu ambiente for outro:
+Quem preferir mostrar a entrada de verdade, com um login por papel, consegue isso **dentro do contêiner
+onde a `03_rbac.sql` foi aplicada** — o `pg_hba` de lá aceita o socket local sem senha. Troque o nome do
+contêiner, o banco e o usuário pelos do seu ambiente:
 
 ```bash
-docker exec sbi-apresentacao-db psql -X -At -U vendedor_allan -d sbi_apresentacao -c "SELECT set_config('app.user_id','2',false); SELECT count(*) FROM orders"
+docker exec <contêiner> psql -X -At -U vendedor_allan -d <banco> -c "SELECT count(*) FROM orders"
 ```
 
-Numa instalação nativa esse login por papel não funciona: não há socket local no Windows e o `pg_hba`
-pede senha em `127.0.0.1`, e os papéis da `03_rbac.sql` nascem sem senha. É por isso que a forma com
+Aqui o `set_config` não entra, e por um motivo que vale contar se perguntarem: entrando **como**
+`vendedor_allan`, o `session_user` é ele, então `app_current_user_id()` já o encontra por
+`db_role = session_user` e nem olha o `app.user_id`.
+
+Numa instalação nativa esse login por papel não funciona: não há socket local no Windows, o `pg_hba`
+pede senha em `127.0.0.1` e os papéis da `03_rbac.sql` nascem sem senha. É por isso que a forma com
 `SET ROLE` acima é a que vale nos dois ambientes.
 
 Diga: *"no ambiente autenticado quem restringe é a API, porque a aplicação conecta com um usuário de
