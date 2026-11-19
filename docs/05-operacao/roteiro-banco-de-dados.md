@@ -37,7 +37,7 @@ O banco do Compose, porém, monta `tmpfs` em `/var/lib/postgresql`: ele nasce **
 
 Se o seu banco de apresentação foi criado à mão, fora do Compose — como o contêiner `sbi-apresentacao-db` com o banco `sbi_apresentacao` das medições de 18/11 —, troque os três valores pelos seus: nada no repositório cria esse par, e um nome de contêiner errado falha com `No such container` antes de qualquer SQL.
 
-**Plano local se a internet falhar:** nada deste roteiro depende de internet. Banco, API e interface rodam em `127.0.0.1`; as fotos do catálogo são servidas da pasta `frontend/public/produtos`; o ambiente publicado não é usado. A única etapa que precisou de rede foi a primeira instalação de dependências (`npm ci` e o build do Maven), já feita. Se o PostgreSQL nativo não subir, o mesmo banco sobe em contêiner com `docker compose -f docker-compose.demo.yml -p sbi-demo up --build` e a porta de consulta passa a ser `127.0.0.1:5433`.
+**Plano local se a internet falhar:** nada deste roteiro depende de internet. Banco, API e interface rodam em `127.0.0.1`; as fotos do catálogo são servidas da pasta `frontend/public/produtos`; o ambiente publicado não é usado. A única etapa que precisou de rede foi a primeira instalação de dependências (`npm ci` e o build do Maven), já feita. Se o PostgreSQL nativo não subir, o mesmo banco sobe em contêiner, com as duas senhas no ambiente antes — `export SBI_DEMO_PASSWORD='escolha-uma-senha' SBI_DB_PASSWORD="$(openssl rand -hex 16)"` — e então `docker compose -f docker-compose.demo.yml -p sbi-demo up --build --wait`. Sem a segunda o Compose recusa antes de criar o contêiner; sem a primeira o login do Allan não funciona. A porta de consulta passa a ser `127.0.0.1:5433`, com o usuário `sbi`.
 
 ---
 
@@ -289,7 +289,7 @@ O `.xls` sai do mesmo recorte, para quem precisar do formato antigo. O CSV é a 
 | --- | --- |
 | A interface não carrega | Os passos 1 a 4 são no cliente SQL e não dependem dela. Siga no SQL e volte à tela depois. |
 | A API não sobe | O banco continua consultável. O passo 5 e o 6 ficam para o fim; os passos 1 a 4 e o 7 (pela planilha já gerada) seguem. |
-| O banco não sobe | Suba o contêiner: `docker compose -f docker-compose.demo.yml -p sbi-demo up --build`, e conecte em `127.0.0.1:5433`. |
+| O banco não sobe | O Compose exige as duas senhas no ambiente: `export SBI_DEMO_PASSWORD='escolha-uma-senha' SBI_DB_PASSWORD="$(openssl rand -hex 16)"` e então `docker compose -f docker-compose.demo.yml -p sbi-demo up --build --wait`. Sem a segunda ele recusa antes de criar o contêiner; sem a primeira o login do Allan não funciona. Conecte em `127.0.0.1:5433`, usuário `sbi`. |
 | Um número na tela não bate com o SQL | Confira se o recorte é o mesmo: mês, fuso (`America/Fortaleza`) e perfil. O faturamento confirmado desconta estorno; a receita bruta não. |
 | A venda de teste falha por estoque | Escolha outro produto: a tela mostra o saldo disponível. Pedido pendente reserva saldo sem dar baixa. |
 

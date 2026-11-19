@@ -134,13 +134,17 @@ E:\pg18-ensaio\pgsql\bin\psql.exe -h 127.0.0.1 -p 5436 -U postgres -d postgres -
 
 **Dois** dos três runners aceitam o modo nativo: `run_olist_bd.sh` e `run_apresentacao.sh`. Sem `CONTAINER`, eles usam o `psql` do `PATH` e as variáveis `PGHOST`, `PGPORT` e `PGPASSWORD` do ambiente, em vez de `docker exec`. O `run_bd.sh` continua só no contêiner, pelo motivo da última linha da tabela abaixo.
 
-Os binários extraídos não entram no `PATH` sozinhos, e a API embutida que o `run_olist_bd.sh` sobe para o CT-DEMO-05 entra no banco pelo JDBC, com a senha em `SPRING_DATASOURCE_PASSWORD` — `PGPASSWORD` não serve para ela. No Git Bash:
+Os binários extraídos não entram no `PATH` sozinhos, e a API embutida que o `run_olist_bd.sh` sobe para o CT-DEMO-05 entra no banco pelo JDBC, com a senha em `SPRING_DATASOURCE_PASSWORD` — `PGPASSWORD` não serve para ela.
+
+O CT-DEMO-05 também **entra como Allan e como Matheus** pela API, então precisa de `SBI_DEMO_PASSWORD`, e tem de ser a mesma senha de quando o Flyway criou as contas neste banco: a `V6_1__DemoAccounts` grava o BCrypt dela na migração. Sem a variável, o `scripts/demo-olist-api.mjs` para antes da primeira requisição (`Defina SBI_DEMO_PASSWORD`) e a bateria fecha em **7 PASS**, não 11 — com o `run_olist_bd.sh` saindo com código 1. No Git Bash:
 
 ```bash
 export PATH="/e/pg18-ensaio/pgsql/bin:$PATH"
 read -rsp 'Senha do superusuário do cluster nativo: ' PGPASSWORD
 printf '\n'
-export PGHOST=127.0.0.1 PGPORT=5436 PGPASSWORD
+read -rsp 'Senha das contas demo locais: ' SBI_DEMO_PASSWORD
+printf '\n'
+export PGHOST=127.0.0.1 PGPORT=5436 PGPASSWORD SBI_DEMO_PASSWORD
 export SPRING_DATASOURCE_PASSWORD="$PGPASSWORD"
 ```
 
