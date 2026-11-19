@@ -3,7 +3,7 @@ export function sessionClient(origin) {
   const cookies = new Map();
   let csrf;
   let lastSetCookies = [];
-  async function request(path, method = 'GET', body, { sendCsrf = true, headers: extra = {} } = {}) {
+  async function request(path, method = 'GET', body, { sendCsrf = true, headers: extra = {}, raw = false } = {}) {
     const headers = { 'Content-Type': 'application/json', ...extra };
     if (cookies.size) headers.Cookie = [...cookies].map(([key, value]) => `${key}=${value}`).join('; ');
     if (sendCsrf && csrf && !['GET', 'HEAD'].includes(method)) headers[csrf.headerName] = csrf.token;
@@ -14,6 +14,13 @@ export function sessionClient(origin) {
       const [name, ...parts] = cookie.split(';')[0].split('=');
       const value = parts.join('=');
       if (value) cookies.set(name, value); else cookies.delete(name);
+    }
+    // Operacao que devolve arquivo (planilha, CSV): o corpo nao e JSON. Devolve os bytes e os cabecalhos
+    // que o contrato declara, para quem chamou conferir tipo, assinatura e download como anexo.
+    if (raw) {
+      return { status: response.status, location: response.headers.get('location'),
+        contentType: response.headers.get('content-type'), disposition: response.headers.get('content-disposition'),
+        bytes: new Uint8Array(await response.arrayBuffer()), body: null };
     }
     return { status: response.status, location: response.headers.get('location'),
       body: response.status === 204 ? null : await response.json() };

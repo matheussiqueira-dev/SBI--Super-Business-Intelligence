@@ -200,6 +200,44 @@ record('/executive/goals/annual', 'put', await ceo.request('/executive/goals/ann
 record('/executive/goals/annual', 'put', await ceo.request('/executive/goals/annual', 'PUT', { year, amount: brl(-1) }), 400);
 record('/executive/goals/annual', 'put', await manager.request('/executive/goals/annual', 'PUT', { year, amount: brl(1) }), 403);
 
+// Exportacao do recorte em Excel e CSV (contrato v6, D-EVO-55). O corpo do 200 e arquivo, nao JSON, entao a
+// conferencia e a que o contrato declara: content type entre os do 200, assinatura do formato e download como
+// anexo. Os codigos de erro (401, 403, 400) continuam JSON e vao pelo record normal, validados com Ajv.
+const ARQUIVO = {
+  XLSX: { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', magic: [0x50, 0x4b, 0x03, 0x04] },
+  XLS: { type: 'application/vnd.ms-excel', magic: [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1] },
+  CSV: { type: 'text/csv', magic: [0xef, 0xbb, 0xbf] },
+};
+function recordFile(path, method, response, format) {
+  const name = `${method.toUpperCase()} ${path}`;
+  const { type, magic } = ARQUIVO[format];
+  if (response.status !== 200) {
+    findings.push(`${name} ${format}: expected 200, got ${response.status}`);
+    return response;
+  }
+  const declared = Object.keys(v4.paths[path][method].responses['200'].content ?? {});
+  if (!declared.includes(type)) findings.push(`${name} ${format}: ${type} is not in the contract (${declared.join(', ')})`);
+  const served = (response.contentType ?? '').split(';')[0].trim();
+  if (served !== type) findings.push(`${name} ${format}: content type ${served}, contract declares ${type}`);
+  const head = [...response.bytes.slice(0, magic.length)];
+  if (head.join(',') !== magic.join(',')) {
+    findings.push(`${name} ${format}: signature ${head.map(byte => byte.toString(16).padStart(2, '0')).join('')}`);
+  }
+  if (!/^attachment/i.test(response.disposition ?? '')) findings.push(`${name} ${format}: not served as an attachment`);
+  exercised.set(name, [...(exercised.get(name) ?? []), response.status]);
+  return response;
+}
+const exportFrom = `${month}-01`;
+const exportTo = new Date(Date.UTC(year, Number(month.slice(5, 7)), 0)).toISOString().slice(0, 10);
+const exportRange = `from=${exportFrom}&to=${exportTo}`;
+record('/analytics/export', 'get', await anonymous.request(`/analytics/export?${exportRange}`), 401);
+record('/analytics/export', 'get', await seller.request(`/analytics/export?${exportRange}`), 403);
+record('/analytics/export', 'get', await manager.request(`/analytics/export?from=${exportTo}&to=${exportFrom}`), 400);
+for (const format of Object.keys(ARQUIVO)) {
+  recordFile('/analytics/export', 'get',
+    await manager.request(`/analytics/export?${exportRange}&format=${format}`, 'GET', undefined, { raw: true }), format);
+}
+
 // Usuarios (GERENTE) e troca da propria senha (contrato v5, G-01/G-03)
 const managerId = (await manager.request('/auth/me')).body.id;
 const email = `usuario${stamp}@contrato.test`;
