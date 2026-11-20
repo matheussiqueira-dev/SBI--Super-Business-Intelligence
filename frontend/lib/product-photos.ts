@@ -1,6 +1,6 @@
 // Gerado por scripts/product-thumbnails.py a partir de scripts/product-thumbnails.json; nao editar a mao.
 export interface ProductPhoto { file: string; skus: string[]; names: string[]; title: string; page: string;
-  author: string; license: string; licenseUrl: string }
+  author: string; license: string; licenseUrl: string; modelDepicted?: string }
 
 export const PRODUCT_PHOTOS: ProductPhoto[] = [
   {
@@ -15,7 +15,8 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
     "page": "https://commons.wikimedia.org/wiki/File:Apple_Lightning_to_3.5_mm_Headphone_Jack_Adapter_(4927).jpg",
     "author": "Gregory Varnum",
     "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "modelDepicted": "adaptador Lightning para P2"
   },
   {
     "file": "cabo-usbc.webp",
@@ -75,7 +76,8 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
     "page": "https://commons.wikimedia.org/wiki/File:Apple_Watch_SE_2_(GPS_%2B_Cellular,_40mm,_Midnight)_with_Anchor_Blue_Sport_Loop.jpg",
     "author": "AzureSaturn",
     "license": "CC0",
-    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "modelDepicted": "Apple Watch SE 2 de 40 mm"
   },
   {
     "file": "capa-transparente.webp",
@@ -89,7 +91,8 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
     "page": "https://commons.wikimedia.org/wiki/File:IPhone_16_Pro_Max_in_a_Glossy_Clear_Case.jpg",
     "author": "Woofstarcat",
     "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "modelDepicted": "capa transparente em um iPhone 16 Pro Max"
   },
   {
     "file": "magsafe.webp",
@@ -136,18 +139,17 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
   {
     "file": "apple-pencil.webp",
     "skus": [
-      "OL-PENCIL-USBC",
-      "OL-PENCIL-PRO"
+      "OL-PENCIL-USBC"
     ],
     "names": [
-      "Apple Pencil (USB-C)",
-      "Apple Pencil Pro"
+      "Apple Pencil (USB-C)"
     ],
     "title": "Apple Pencil Second Generation.jpg",
     "page": "https://commons.wikimedia.org/wiki/File:Apple_Pencil_Second_Generation.jpg",
     "author": "KKPCW",
     "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "modelDepicted": "Apple Pencil de 2a geracao"
   },
   {
     "file": "airpods.webp",
@@ -165,7 +167,8 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
     "page": "https://commons.wikimedia.org/wiki/File:Airpods_4.jpg",
     "author": "AppleFans 1",
     "license": "CC0",
-    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "modelDepicted": "AirPods 4"
   },
   {
     "file": "airpods-pro.webp",
@@ -193,7 +196,8 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
     "page": "https://commons.wikimedia.org/wiki/File:Apple_AirPods_Max.jpg",
     "author": "SimonWaldherr",
     "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "modelDepicted": "AirPods Max de 1a geracao"
   },
   {
     "file": "homepod-mini.webp",
@@ -237,7 +241,8 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
     "page": "https://commons.wikimedia.org/wiki/File:Apple_Watch_S10._(54037613714).jpg",
     "author": "MIKI Yoshihito",
     "license": "CC BY 2.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "modelDepicted": "Apple Watch Series 10"
   },
   {
     "file": "apple-watch-ultra.webp",
@@ -251,7 +256,8 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
     "page": "https://commons.wikimedia.org/wiki/File:Apple_Watch_Ultra_3_Ti_Ocean_Band_(2026)_01.jpg",
     "author": "Gpkp",
     "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "modelDepicted": "Apple Watch Ultra 3"
   },
   {
     "file": "ipad.webp",
@@ -293,7 +299,8 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
     "page": "https://commons.wikimedia.org/wiki/File:IPad_Air_11-inch_(M3).jpg",
     "author": "茅野ふたば",
     "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "modelDepicted": "iPad Air de 11 pol. (M3)"
   },
   {
     "file": "ipad-pro.webp",
@@ -321,7 +328,8 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
     "page": "https://commons.wikimedia.org/wiki/File:Mac_mini_2024_(cropped).jpg",
     "author": "Seasider53",
     "license": "CC BY 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "modelDepicted": "Mac mini (M4, 2024)"
   },
   {
     "file": "macbook-air-13.webp",
@@ -349,7 +357,8 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
     "page": "https://commons.wikimedia.org/wiki/File:MacBook_Air_(15-inch,_M4,_Silver).jpg",
     "author": "AzureSaturn",
     "license": "CC0",
-    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "modelDepicted": "MacBook Air de 15 pol. (M4)"
   },
   {
     "file": "macbook-pro.webp",
@@ -405,7 +414,8 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
     "page": "https://commons.wikimedia.org/wiki/File:IPhone_16_Ultramarine_Rear.png",
     "author": "Padgriffin",
     "license": "CC BY 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "modelDepicted": "iPhone 16 na cor Ultramarine"
   },
   {
     "file": "iphone-17.webp",
@@ -419,7 +429,8 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
     "page": "https://commons.wikimedia.org/wiki/File:IPhone_17_(Lavender)_-_Backside.jpg",
     "author": "AzureSaturn",
     "license": "CC0",
-    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "modelDepicted": "iPhone 17 na cor Lavender"
   },
   {
     "file": "iphone-air.webp",
@@ -449,7 +460,8 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
     "page": "https://commons.wikimedia.org/wiki/File:IPhone_18_Pro_rear.jpg",
     "author": "茅野ふたば",
     "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "modelDepicted": "iPhone 18 Pro (sem a variante Max)"
   },
   {
     "file": "iphone-preto.webp",
@@ -464,5 +476,50 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
     "author": "Ahmad Ali Karim",
     "license": "CC0",
     "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+    "file": "apple-pencil-pro.webp",
+    "skus": [
+      "OL-PENCIL-PRO"
+    ],
+    "names": [
+      "Apple Pencil Pro"
+    ],
+    "title": "ApplePencilPro.png",
+    "page": "https://commons.wikimedia.org/wiki/File:ApplePencilPro.png",
+    "author": "Jtosman",
+    "license": "CC0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+    "file": "airtag.webp",
+    "skus": [
+      "OL-AIRTAG-1",
+      "OL-AIRTAG-4"
+    ],
+    "names": [
+      "AirTag (2ª geração)",
+      "AirTag (2ª geração, 4 unidades)"
+    ],
+    "title": "Apple AirTag (51334123725).jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Apple_AirTag_(51334123725).jpg",
+    "author": "ajay_suresh",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  {
+    "file": "capa-silicone-ip17.webp",
+    "skus": [
+      "OL-CAPA-SIL-IP18P"
+    ],
+    "names": [
+      "Capa de silicone com MagSafe para iPhone 18 Pro"
+    ],
+    "title": "Apple iPhone 17 Silicone Case (Black) rear.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Apple_iPhone_17_Silicone_Case_(Black)_rear.jpg",
+    "author": "茅野ふたば",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "modelDepicted": "capa de silicone do iPhone 17, na cor preta"
   }
 ];
