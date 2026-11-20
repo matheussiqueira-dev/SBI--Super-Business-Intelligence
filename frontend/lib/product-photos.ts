@@ -185,21 +185,6 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
   },
   {
-    "file": "airpods-max.webp",
-    "skus": [
-      "OL-AIRPODS-MAX2"
-    ],
-    "names": [
-      "AirPods Max 2"
-    ],
-    "title": "Apple AirPods Max.jpg",
-    "page": "https://commons.wikimedia.org/wiki/File:Apple_AirPods_Max.jpg",
-    "author": "SimonWaldherr",
-    "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-    "modelDepicted": "AirPods Max de 1a geracao"
-  },
-  {
     "file": "homepod-mini.webp",
     "skus": [
       "OL-HOMEPOD-MINI"
@@ -226,23 +211,6 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
     "author": "AzureSaturn",
     "license": "CC0",
     "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
-  },
-  {
-    "file": "apple-watch-series.webp",
-    "skus": [
-      "OL-AW-S12-42",
-      "OL-AW-S12-46-CEL"
-    ],
-    "names": [
-      "Apple Watch Series 12 42 mm GPS",
-      "Apple Watch Series 12 46 mm GPS + Cellular"
-    ],
-    "title": "Apple Watch S10. (54037613714).jpg",
-    "page": "https://commons.wikimedia.org/wiki/File:Apple_Watch_S10._(54037613714).jpg",
-    "author": "MIKI Yoshihito",
-    "license": "CC BY 2.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-    "modelDepicted": "Apple Watch Series 10"
   },
   {
     "file": "apple-watch-ultra.webp",
@@ -286,21 +254,6 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
     "author": "AzureSaturn",
     "license": "CC0",
     "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
-  },
-  {
-    "file": "ipad-air.webp",
-    "skus": [
-      "OL-IPAD-AIR-11"
-    ],
-    "names": [
-      "iPad Air 11 pol. M4 Wi-Fi 128 GB"
-    ],
-    "title": "IPad Air 11-inch (M3).jpg",
-    "page": "https://commons.wikimedia.org/wiki/File:IPad_Air_11-inch_(M3).jpg",
-    "author": "茅野ふたば",
-    "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-    "modelDepicted": "iPad Air de 11 pol. (M3)"
   },
   {
     "file": "ipad-pro.webp",
@@ -449,19 +402,16 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
   {
     "file": "iphone-18-pro.webp",
     "skus": [
-      "OL-IP18P-256",
-      "OL-IP18PM-256"
+      "OL-IP18P-256"
     ],
     "names": [
-      "iPhone 18 Pro 256 GB",
-      "iPhone 18 Pro Max 256 GB"
+      "iPhone 18 Pro 256 GB"
     ],
     "title": "IPhone 18 Pro rear.jpg",
     "page": "https://commons.wikimedia.org/wiki/File:IPhone_18_Pro_rear.jpg",
     "author": "茅野ふたば",
     "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-    "modelDepicted": "iPhone 18 Pro (sem a variante Max)"
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
   },
   {
     "file": "iphone-preto.webp",
@@ -521,5 +471,64 @@ export const PRODUCT_PHOTOS: ProductPhoto[] = [
     "license": "CC BY-SA 4.0",
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
     "modelDepicted": "capa de silicone do iPhone 17, na cor preta"
+  },
+  {
+    "file": "apple-watch-series-12.webp",
+    "skus": [
+      "OL-AW-S12-42",
+      "OL-AW-S12-46-CEL"
+    ],
+    "names": [
+      "Apple Watch Series 12 42 mm GPS",
+      "Apple Watch Series 12 46 mm GPS + Cellular"
+    ],
+    "title": "AppleWatchSeries12.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:AppleWatchSeries12.jpg",
+    "author": "Piperpet",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "modelDepicted": "Apple Watch Series 12; a fonte nao informa o tamanho da caixa"
+  },
+  {
+    "file": "ipad-air-m4.webp",
+    "skus": [
+      "OL-IPAD-AIR-11"
+    ],
+    "names": [
+      "iPad Air 11 pol. M4 Wi-Fi 128 GB"
+    ],
+    "title": "IPad Air 8th 2026.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:IPad_Air_8th_2026.jpg",
+    "author": "Wncallmethat",
+    "license": "CC0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+    "file": "iphone-18-pro-max.webp",
+    "skus": [
+      "OL-IP18PM-256"
+    ],
+    "names": [
+      "iPhone 18 Pro Max 256 GB"
+    ],
+    "title": "IPhone 18 Pro Max rear.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:IPhone_18_Pro_Max_rear.jpg",
+    "author": "茅野ふたば",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  {
+    "file": "airpods-max-2.webp",
+    "skus": [
+      "OL-AIRPODS-MAX2"
+    ],
+    "names": [
+      "AirPods Max 2"
+    ],
+    "title": "AirPods Max 2 Midnight model.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:AirPods_Max_2_Midnight_model.jpg",
+    "author": "Kyu3a",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
   }
 ];
