@@ -160,6 +160,12 @@ strong, b { font-weight: 600; }
 }
 .pill-margem-bom::before, .pill-margem-atencao::before, .pill-margem-serio::before, .pill-margem-critico::before {
   content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--pill-dot); flex: none;
+  /* O contraste do ponto esta no CONTORNO, nao no preenchimento, como na marca do ano anterior do grafico
+     (.colchart-compare). Medido: o ambar e o laranja da escala de estado ficam em 1,96:1 e 2,81:1 contra a
+     superficie clara, abaixo dos 3:1 da WCAG 2.2 para objeto grafico; o contorno em text-secondary da
+     7,63:1 no claro e 8,86:1 no escuro contra o fundo da pilula. O nivel segue escrito ao lado, entao a
+     cor nunca carrega a informacao sozinha. */
+  border: 1px solid var(--sbi-text-secondary);
 }
 .pill-margem-bom { --pill-dot: var(--sbi-data-state-good); background: var(--sbi-success-bg); color: var(--sbi-success-text); }
 .pill-margem-atencao { --pill-dot: var(--sbi-data-state-warn); background: var(--sbi-warning-bg); color: var(--sbi-warning-text); }

@@ -133,6 +133,12 @@
   /* tipografia: Inter variável (next/font) com eixo de tamanho óptico; o desenho Display entra sozinho a partir de 22 px */
   --sbi-font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --sbi-font-display: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* IBM Plex Mono (manual v2.1, secao 23) NAO e carregada, por decisao medida: o manual a reserva para
+     "codigo, logs e documentacao tecnica", e o produto nao tem nenhuma dessas superficies (zero <pre>,
+     <code> ou <samp> em app/ e components/). O caso que parecia pedir mono - identificador de maquina
+     como o SKU - o manual resolve por outro caminho, a desambiguacao ss02 da Inter, e `.id` ja faz isso
+     em oito telas. Este token fica reservado: a primeira superficie de codigo que aparecer carrega a
+     fonte e troca o valor aqui. Enquanto isso ele cai no monoespacado do sistema e nao e usado. */
   --sbi-font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --sbi-type-display: 600 40px/48px var(--sbi-font-display);
   --sbi-tracking-display: -0.022em;
@@ -176,6 +182,11 @@
   --sbi-space-10: 40px;
   --sbi-space-12: 48px;
   --sbi-space-16: 64px;
+  /* A escala do manual (secao 28) vai a 80 px, e diz que 64 e 80 "so em paginas de apresentacao". O
+     produto nao tem pagina de apresentacao: medido, nem o 64 px tem uso (zero referencias a
+     --sbi-space-16 em globals.css). Por isso o 80 px nao entrou - token sem uso e peso morto, e
+     acrescenta-lo daria a impressao de que ha um contexto que nao existe. Entra junto com a primeira
+     pagina de apresentacao, se houver. */
   --sbi-radius-xs: 4px;
   --sbi-radius-sm: 6px;
   --sbi-radius-md: 8px;
