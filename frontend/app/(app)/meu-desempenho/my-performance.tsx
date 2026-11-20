@@ -4,9 +4,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { GetMyPerformanceResponse, ListSalesOrdersResponse } from '../../../lib/api/generated/sbi.zod.ts';
+import { GetMyPerformanceResponse, GetMySuggestionsResponse, ListSalesOrdersResponse } from '../../../lib/api/generated/sbi.zod.ts';
 import { api } from '../../../lib/api/http.ts';
-import { SellerSuggestionsResponse } from '../../../lib/api/extras.ts';
 import { formatDay, formatMonth, formatPercent, label, money, ORDER_STATUS, plural, sentence, statusPill } from '../../../lib/format.ts';
 import { ErrorNotice, Loading } from '../../../components/feedback.tsx';
 import { Kpi, MoneyValue } from '../../../components/kpi.tsx';
@@ -122,7 +121,7 @@ function Suggestions({ month }: { month: string }) {
   const query = useQuery({
     queryKey: ['performance-suggestions', month],
     queryFn: ({ signal }) => api.request(`/performance/me/suggestions?period=${month}`,
-      { signal, schema: SellerSuggestionsResponse }),
+      { signal, schema: GetMySuggestionsResponse }),
     placeholderData: keepPreviousData,
   });
   if (query.isPending) return <Loading label="Carregando as sugestões…" />;

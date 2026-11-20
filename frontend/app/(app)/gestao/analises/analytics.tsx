@@ -6,11 +6,10 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import {
-  GetManagementSummaryResponse, GetSalesAnalyticsResponse, GetStockAnalyticsResponse, ListCategoriesResponse,
-  ListUsersResponse,
+  GetManagementProjectionResponse, GetManagementSummaryResponse, GetMarginAlertsResponse,
+  GetSalesAnalyticsResponse, GetStockAnalyticsResponse, ListCategoriesResponse, ListUsersResponse,
 } from '../../../../lib/api/generated/sbi.zod.ts';
 import { api } from '../../../../lib/api/http.ts';
-import { MarginAlertResponse, MonthProjectionResponse } from '../../../../lib/api/extras.ts';
 import { formatMonth, formatPercent, formatShortRange, label, money, PAYMENT_TYPE, plural, sentence } from '../../../../lib/format.ts';
 import { ErrorNotice, Loading } from '../../../../components/feedback.tsx';
 import { periodGoal } from '../../../../lib/goals.ts';
@@ -61,12 +60,12 @@ export default function Analytics() {
   });
   const projection = useQuery({
     queryKey: ['management-projection', month],
-    queryFn: ({ signal }) => api.request(`/management/projection?period=${month}`, { signal, schema: MonthProjectionResponse }),
+    queryFn: ({ signal }) => api.request(`/management/projection?period=${month}`, { signal, schema: GetManagementProjectionResponse }),
     enabled: valid,
   });
   const marginAlert = useQuery({
     queryKey: ['analytics-margin-alerts', month],
-    queryFn: ({ signal }) => api.request(`/analytics/margin-alerts?month=${month}`, { signal, schema: MarginAlertResponse }),
+    queryFn: ({ signal }) => api.request(`/analytics/margin-alerts?month=${month}`, { signal, schema: GetMarginAlertsResponse }),
     enabled: valid,
   });
   const stock = useQuery({
