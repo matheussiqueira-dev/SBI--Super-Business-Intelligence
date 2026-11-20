@@ -151,6 +151,21 @@ strong, b { font-weight: 600; }
 .pill-info { --pill-icon: var(--sbi-icon-info); background: var(--sbi-info-bg); color: var(--sbi-info-text); }
 .pill-promo { --pill-icon: var(--sbi-icon-promocao); background: var(--sbi-success-bg); color: var(--sbi-success-text); }
 
+/* Niveis do alerta de margem. A cor de estado do manual (secao 29) e cor de MARCA DE DADO: como texto
+   sobre superficie clara o ambar nao alcanca o contraste de texto da WCAG. Entao ela entra como ponto,
+   e o nivel vem sempre escrito ao lado - que e a propria regra do manual para ambar e ceu ("exigem
+   rotulo"). Fundo e texto seguem os pares de feedback, que ja passam no contraste nos dois temas. */
+.pill-margem-bom, .pill-margem-atencao, .pill-margem-serio, .pill-margem-critico {
+  padding-left: 6px; display: inline-flex; align-items: center; gap: 6px;
+}
+.pill-margem-bom::before, .pill-margem-atencao::before, .pill-margem-serio::before, .pill-margem-critico::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--pill-dot); flex: none;
+}
+.pill-margem-bom { --pill-dot: var(--sbi-data-state-good); background: var(--sbi-success-bg); color: var(--sbi-success-text); }
+.pill-margem-atencao { --pill-dot: var(--sbi-data-state-warn); background: var(--sbi-warning-bg); color: var(--sbi-warning-text); }
+.pill-margem-serio { --pill-dot: var(--sbi-data-state-severe); background: var(--sbi-warning-bg); color: var(--sbi-warning-text); }
+.pill-margem-critico { --pill-dot: var(--sbi-data-state-critical); background: var(--sbi-danger-bg); color: var(--sbi-danger-text); }
+
 /* ---------- avisos: ícone, borda e fundo do estado; o que houve + o que fazer ---------- */
 .notice {
   --notice-icon: var(--sbi-icon-info); --notice-tone: var(--sbi-info-text);

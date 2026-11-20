@@ -10,6 +10,7 @@ import {
   ListUsersResponse,
 } from '../../../../lib/api/generated/sbi.zod.ts';
 import { api } from '../../../../lib/api/http.ts';
+import { MarginAlertResponse, MonthProjectionResponse } from '../../../../lib/api/extras.ts';
 import { formatMonth, formatPercent, formatShortRange, label, money, PAYMENT_TYPE, plural, sentence } from '../../../../lib/format.ts';
 import { ErrorNotice, Loading } from '../../../../components/feedback.tsx';
 import { periodGoal } from '../../../../lib/goals.ts';
@@ -21,6 +22,11 @@ import ExportPanel from '../../../../components/export-panel.tsx';
 
 const PAYMENT_COLORS: Readonly<Record<string, string>> = { PIX: 'var(--sbi-data-1)', CARD: 'var(--sbi-data-2)', BOLETO: 'var(--sbi-data-3)' };
 const PAYMENT_ORDER = ['PIX', 'CARD', 'BOLETO'];
+
+/** Rotulo dos niveis do alerta de margem (escala de estado em graficos do manual v2.1). */
+const MARGIN_LABEL: Readonly<Record<string, string>> = {
+  BOM: 'Bom', ATENCAO: 'Atenção', SERIO: 'Sério', CRITICO: 'Crítico',
+};
 
 function thisMonth(): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Fortaleza', year: 'numeric', month: '2-digit' }).format(new Date());
@@ -51,6 +57,16 @@ export default function Analytics() {
   const goals = useQuery({
     queryKey: ['summary', month],
     queryFn: ({ signal }) => api.request(`/management/summary?period=${month}`, { signal, schema: GetManagementSummaryResponse }),
+    enabled: valid,
+  });
+  const projection = useQuery({
+    queryKey: ['management-projection', month],
+    queryFn: ({ signal }) => api.request(`/management/projection?period=${month}`, { signal, schema: MonthProjectionResponse }),
+    enabled: valid,
+  });
+  const marginAlert = useQuery({
+    queryKey: ['analytics-margin-alerts', month],
+    queryFn: ({ signal }) => api.request(`/analytics/margin-alerts?month=${month}`, { signal, schema: MarginAlertResponse }),
     enabled: valid,
   });
   const stock = useQuery({
@@ -108,6 +124,74 @@ export default function Analytics() {
                         items={payments.map(m => ({ key: m.method, label: label(PAYMENT_TYPE, m.method), value: m.netRevenue.amount, orders: m.ordersPaid }))} />
           </section>
         </div>
+        {projection.data && <section className="card stack-md" aria-labelledby="projecao-titulo">
+          <div className="stack-xs">
+            <h2 id="projecao-titulo">Projeção do fechamento</h2>
+            <p className="card-sub">
+              Ritmo de {money(projection.data.dailyAverage)} por dia em {projection.data.elapsedDays}{' '}
+              {plural(projection.data.elapsedDays, 'dia corrido', 'dias corridos')} de {projection.data.daysInMonth}
+              {projection.data.anchoredOnPreviousMonth
+                ? '; mês recém-começado, então o ritmo entra ponderado com o do mês anterior'
+                : ''}
+            </p>
+          </div>
+          <div className="kpis kpis-3">
+            <Kpi label="Projetado para o mês" value={<MoneyValue value={projection.data.projected} />}
+                 note={`Realizado ${money(projection.data.realized)} até agora`} />
+            <Kpi label="Atingimento projetado"
+                 value={<span className="value">{projection.data.projectedAchievementPercent === null
+                   ? 'Sem meta' : formatPercent(projection.data.projectedAchievementPercent)}</span>}
+                 note={`Plano da loja ${money(projection.data.storeGoal)}`} />
+            <Kpi label="Por dia restante" value={<MoneyValue value={projection.data.neededPerRemainingDay} />}
+                 note={projection.data.remainingDays === 0
+                   ? 'Mês fechado'
+                   : `Para fechar a meta nos ${projection.data.remainingDays} dias que faltam`} />
+          </div>
+          <p className="muted">
+            {projection.data.projectedState === 'META_ATINGIDA'
+              ? `No ritmo de agora o mês fecha ${money(projection.data.gapToGoal)} acima do plano.`
+              : projection.data.projectedAchievementPercent === null
+                ? 'Mês sem meta definida: a projeção fica sem percentual.'
+                : `No ritmo de agora o mês fecha abaixo do plano. A diferença é de ${money({ ...projection.data.gapToGoal, amount: Math.abs(projection.data.gapToGoal.amount) })}.`}
+          </p>
+        </section>}
+        {marginAlert.data && marginAlert.data.storeMarginPercent !== null
+          && <section className="card stack-md" aria-labelledby="alerta-margem-titulo">
+          <div className="stack-xs">
+            <h2 id="alerta-margem-titulo">Margem pressionada</h2>
+            <p className="card-sub">
+              Produtos abaixo da margem da própria loja no mês ({formatPercent(marginAlert.data.storeMarginPercent)}).
+              O limiar é a loja, não um número fixo: atenção abaixo dela, sério abaixo de dois terços, crítico abaixo de um terço.
+            </p>
+          </div>
+          {marginAlert.data.pressured.length === 0
+            ? <p className="notice notice-ok">Nenhum produto abaixo da margem da loja neste mês.</p>
+            : <TableWrap label="Produtos com margem pressionada"><table>
+                <caption className="sr-only">Produtos com margem abaixo da margem da loja</caption>
+                <thead><tr>
+                  <th scope="col">Produto</th><th scope="col">Nível</th>
+                  <th scope="col" className="right">Margem</th><th scope="col" className="right">Abaixo da loja</th>
+                  <th scope="col" className="right">Faturamento</th><th scope="col" className="right">Unidades</th>
+                </tr></thead>
+                <tbody>
+                  {marginAlert.data.pressured.map(linha => (
+                    <tr key={linha.productId}>
+                      <th scope="row">{linha.name}</th>
+                      <td><span className={`pill pill-margem-${linha.level.toLowerCase()}`}>{MARGIN_LABEL[linha.level]}</span></td>
+                      <td className="num right">{formatPercent(linha.marginPercent)}</td>
+                      <td className="num right">−{formatPercent(linha.pointsBelowStore)} p.p.</td>
+                      <td className="num right">{money(linha.netRevenue)}</td>
+                      <td className="num right">{linha.units}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table></TableWrap>}
+          {marginAlert.data.productsWithoutCost > 0 && <p className="muted">
+            {marginAlert.data.productsWithoutCost}{' '}
+            {plural(marginAlert.data.productsWithoutCost, 'produto', 'produtos')} sem custo informado{' '}
+            {marginAlert.data.productsWithoutCost === 1 ? 'ficou' : 'ficaram'} fora da conta: sem custo não há margem, e margem zero seria invenção.
+          </p>}
+        </section>}
         <section className="card stack-md" aria-labelledby="margem-titulo">
           <div>
             <h2 id="margem-titulo">Margem por produto</h2>

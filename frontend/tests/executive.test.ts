@@ -101,9 +101,19 @@ test('[CT-EXEC-115] comparacao: mes corrente contra o mesmo trecho do mes anteri
   assert.equal(month.label, 'setembro até o dia 24');
   assert.equal(model.measures(OCTOBER, month.previous).net, 5600);
   assert.equal(Math.round((variation(4800, 5600) ?? 0) * 10) / 10, -14.3);
+  // Periodos EQUIVALENTES: o ano anterior do recorte cobre so outubro (uma venda em 2025-10-10), entao os
+  // dois lados comecam em outubro. Comparar 2026 inteiro com um 2025 de um mes so inflava a variacao.
   const year = model.comparison(NO_FILTERS);
-  assert.deepEqual(year.previous, { from: '2025-01-01', to: '2025-10-24' });
+  assert.equal(model.previousYearFirstMonth(), 10);
+  assert.deepEqual(year.previous, { from: '2025-10-01', to: '2025-10-24' });
+  assert.deepEqual(year.current, { from: '2026-10-01', to: '2026-10-24' });
+  assert.equal(year.label, 'outubro a 24/10 de 2025');
   assert.equal(model.measures(NO_FILTERS, year.previous).net, 4500);
+  // Mes sem dado nenhum no ano anterior nao ganha marca no zero: ele fica sem marca.
+  const serie = model.timeSeries(NO_FILTERS);
+  assert.equal(serie[9]?.previousNet, 4500);
+  assert.equal(serie[0]?.previousNet, null);
+  assert.equal(serie.filter(p => p.previousNet === null).length, 11);
   const september = model.comparison({ ...NO_FILTERS, month: 9 });
   assert.equal(september.label, 'agosto');
   assert.deepEqual(model.comparison({ ...OCTOBER, day: '2026-10-20' }).previous, { from: '2026-10-13', to: '2026-10-13' });
