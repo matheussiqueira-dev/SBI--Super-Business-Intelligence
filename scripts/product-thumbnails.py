@@ -1,6 +1,7 @@
 """Gera as miniaturas de produto do frontend a partir de fotos de licenca livre do Wikimedia Commons.
 
-Le scripts/product-thumbnails.json (arquivo do Commons, autor e licenca de cada foto), baixa a miniatura de 330 px
+Le scripts/product-thumbnails.json (arquivo do Commons, autor, licenca e, quando a foto nao e do modelo
+nomeado no SKU, o campo modelDepicted dizendo QUAL modelo aparece nela), baixa a miniatura de 330 px
 pela API do Commons, recorta o quadrado central em 96 px e grava frontend/public/produtos/<file>.
 Escreve frontend/lib/product-photos.ts com SKUs, nomes e creditos (pagina /creditos do frontend).
 Uso, com Pillow num ambiente virtual: python scripts/product-thumbnails.py <pasta vazia para os downloads>
@@ -54,13 +55,18 @@ def main():
         lado = min(img.size)  # recorte quadrado central: o produto preenche a miniatura
         x, y = (img.width - lado) // 2, (img.height - lado) // 2
         img.crop((x, y, x + lado, y + lado)).resize((SIZE, SIZE), Image.LANCZOS).save(os.path.join(OUT, foto["file"]), "WEBP", quality=82, method=6)
-        linhas.append({"file": foto["file"], "skus": foto["skus"], "names": [nomes[s] for s in foto["skus"]],
-                       "title": foto["title"], "page": info["descriptionurl"], "author": foto["author"],
-                       "license": foto["license"], "licenseUrl": foto["licenseUrl"]})
+        linha = {"file": foto["file"], "skus": foto["skus"], "names": [nomes[s] for s in foto["skus"]],
+                 "title": foto["title"], "page": info["descriptionurl"], "author": foto["author"],
+                 "license": foto["license"], "licenseUrl": foto["licenseUrl"]}
+        # Foto de geracao, cor ou produto diferente do nomeado no SKU: a pagina de creditos diz qual
+        # modelo aparece, em vez de deixar a legenda implicar que e o do SKU.
+        if foto.get("modelDepicted"):
+            linha["modelDepicted"] = foto["modelDepicted"]
+        linhas.append(linha)
     with open(LIB, "w", encoding="utf-8", newline="\n") as f:
         f.write("// Gerado por scripts/product-thumbnails.py a partir de scripts/product-thumbnails.json; nao editar a mao.\n")
         f.write("export interface ProductPhoto { file: string; skus: string[]; names: string[]; title: string; page: string;\n")
-        f.write("  author: string; license: string; licenseUrl: string }\n\n")
+        f.write("  author: string; license: string; licenseUrl: string; modelDepicted?: string }\n\n")
         f.write("export const PRODUCT_PHOTOS: ProductPhoto[] = " + json.dumps(linhas, ensure_ascii=False, indent=2) + ";\n")
     print(f"{len(linhas)} fotos, {sum(len(l['skus']) for l in linhas)} SKUs com foto")
 

@@ -12,7 +12,7 @@ if (process.env.A3_CONTRACT_ISOLATED !== '1' || !process.env.A3_TEST_PASSWORD) {
   throw new Error('Run scripts/test-contract.ps1: live checks require the disposable database runner.');
 }
 const origin = 'http://127.0.0.1:18080';
-const v4 = JSON.parse(readFileSync(new URL('../config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json', import.meta.url), 'utf8'));
+const v4 = JSON.parse(readFileSync(new URL('../config/openapi/target-loja-gestao-openapi-2026-11-20-v7.json', import.meta.url), 'utf8'));
 const METHODS = ['get', 'post', 'put', 'patch', 'delete'];
 const findings = [];
 const exercised = new Map();
@@ -187,6 +187,88 @@ record('/management/summary', 'get', await manager.request(`/management/summary?
 record('/management/revenue', 'get', await manager.request('/management/revenue?period=D30'), 200);
 record('/analytics/sales', 'get', await manager.request(`/analytics/sales?month=${month}`), 200);
 record('/analytics/stock', 'get', await manager.request('/analytics/stock'), 200);
+
+// ---------------- contrato v7: projecao, alerta de margem e sugestao do proprio vendedor ----------------
+// A sugestao e por USUARIO, nao por loja. Para provar isso e preciso mais de um historico no mesmo
+// periodo: o vendedor da sessao ja vendeu o `product`, e aqui entra um segundo vendedor com um produto
+// proprio. Se a consulta vazasse o historico da loja, cada um veria o produto do outro.
+const produtoB = record('/products', 'post', await manager.request('/products', 'POST', { type: 'PHYSICAL',
+  sku: `v7-${stamp}`, name: 'Produto do contrato v7', categoryId: category.id, sellable: true,
+  price: brl(70), weightKg: 0.3, minLevel: 1 }), 201).body;
+record('/stock/products/{id}/entries', 'post',
+  await manager.request(`/stock/products/${produtoB.id}/entries`, 'POST', { quantity: 15, unitCost: brl(40) }), 201);
+const email2 = `vendedor2-${stamp}@contrato.test`;
+const provisoria2 = `Provisoria2-${stamp}`;
+const definitiva2 = `Definitiva2-${stamp}`;
+const vendedor2Id = record('/users', 'post', await manager.request('/users', 'POST', { name: 'Vendedor dois do contrato',
+  email: email2, role: 'VENDEDOR', temporaryPassword: provisoria2 }), 201).body.id;
+const vendedor2 = sessionClient(origin);
+if ((await vendedor2.login(email2, provisoria2)).status !== 200) findings.push('second seller could not log in');
+record('/auth/password', 'put', await vendedor2.request('/auth/password', 'PUT',
+  { currentPassword: provisoria2, newPassword: definitiva2 }), 204);
+if ((await vendedor2.login(email2, definitiva2)).status !== 200) findings.push('second seller could not log in again');
+const vendaB = record('/sales/orders', 'post', await vendedor2.request('/sales/orders', 'POST',
+  { customerId: customer.id, items: [{ productId: produtoB.id, quantity: 2 }], payment: { type: 'PIX' },
+    fulfillment: 'PICKUP' }, { headers: { 'Idempotency-Key': randomUUID() } }), 201).body;
+record('/sales/orders/{id}/payment', 'post',
+  await vendedor2.request(`/sales/orders/${vendaB.id}/payment`, 'POST', {}), 200);
+
+// Acessos autorizados; record() ja valida o corpo contra o schema do contrato.
+const projecao = record('/management/projection', 'get',
+  await manager.request(`/management/projection?period=${month}`), 200).body;
+record('/management/projection', 'get', await ceo.request(`/management/projection?period=${month}`), 200);
+const alerta = record('/analytics/margin-alerts', 'get',
+  await manager.request(`/analytics/margin-alerts?month=${month}`), 200).body;
+record('/analytics/margin-alerts', 'get', await ceo.request(`/analytics/margin-alerts?month=${month}`), 200);
+const sugestao1 = record('/performance/me/suggestions', 'get',
+  await seller.request(`/performance/me/suggestions?period=${month}`), 200).body;
+const sugestao2 = record('/performance/me/suggestions', 'get',
+  await vendedor2.request(`/performance/me/suggestions?period=${month}`), 200).body;
+record('/performance/me/suggestions', 'get', await manager.request(`/performance/me/suggestions?period=${month}`), 200);
+record('/performance/me/suggestions', 'get', await ceo.request(`/performance/me/suggestions?period=${month}`), 200);
+
+// 401 anonimo, 403 do vendedor no que e gerencial e 400 de periodo invalido.
+record('/management/projection', 'get', await anonymous.request(`/management/projection?period=${month}`), 401);
+record('/analytics/margin-alerts', 'get', await anonymous.request(`/analytics/margin-alerts?month=${month}`), 401);
+record('/performance/me/suggestions', 'get', await anonymous.request(`/performance/me/suggestions?period=${month}`), 401);
+record('/management/projection', 'get', await seller.request(`/management/projection?period=${month}`), 403);
+record('/analytics/margin-alerts', 'get', await seller.request(`/analytics/margin-alerts?month=${month}`), 403);
+record('/management/projection', 'get', await manager.request('/management/projection?period=2026-13'), 400);
+record('/analytics/margin-alerts', 'get', await manager.request('/analytics/margin-alerts?month=abc'), 400);
+record('/performance/me/suggestions', 'get', await seller.request('/performance/me/suggestions?period=2026-13'), 400);
+
+// Conferencias que o schema nao faz, porque sao de conteudo e nao de forma.
+if (projecao.period !== month) findings.push(`GET /management/projection: period ${projecao.period} != ${month}`);
+if (projecao.elapsedDays + projecao.remainingDays !== projecao.daysInMonth) {
+  findings.push(`GET /management/projection: ${projecao.elapsedDays} + ${projecao.remainingDays} != ${projecao.daysInMonth}`);
+}
+if (projecao.elapsedDays >= projecao.daysInMonth && projecao.projected.amount !== projecao.realized.amount) {
+  findings.push('GET /management/projection: mes fechado com projetado diferente do realizado');
+}
+if (alerta.month !== month) findings.push(`GET /analytics/margin-alerts: month ${alerta.month} != ${month}`);
+if (alerta.storeMarginPercent !== null
+    && alerta.pressured.some(linha => linha.marginPercent >= alerta.storeMarginPercent)) {
+  findings.push('GET /analytics/margin-alerts: produto listado com margem igual ou acima da margem da loja');
+}
+if (alerta.pressured.length > 1 && alerta.pressured.some((linha, i, todas) =>
+    i > 0 && linha.marginPercent < todas[i - 1].marginPercent)) {
+  findings.push('GET /analytics/margin-alerts: a lista nao vem da pior margem para a melhor');
+}
+// Escopo por usuario: cada um recebe o SEU historico, e nenhum recebe o do outro.
+const ids1 = sugestao1.suggestions.map(s => s.productId);
+const ids2 = sugestao2.suggestions.map(s => s.productId);
+if (sugestao1.seller.id !== sellerId) findings.push(`GET /performance/me/suggestions: seller ${sugestao1.seller.id} != ${sellerId}`);
+if (sugestao2.seller.id !== vendedor2Id) findings.push(`GET /performance/me/suggestions: seller ${sugestao2.seller.id} != ${vendedor2Id}`);
+if (!ids1.includes(product.id)) findings.push(`GET /performance/me/suggestions: vendedor 1 sem o proprio produto (${ids1})`);
+if (ids1.includes(produtoB.id)) findings.push('GET /performance/me/suggestions: vendedor 1 recebeu o produto do vendedor 2');
+if (!ids2.includes(produtoB.id)) findings.push(`GET /performance/me/suggestions: vendedor 2 sem o proprio produto (${ids2})`);
+if (ids2.includes(product.id)) findings.push('GET /performance/me/suggestions: vendedor 2 recebeu o produto do vendedor 1');
+if (sugestao2.suggestions.some(s => s.unitsSoldByMe !== 2)) {
+  findings.push('GET /performance/me/suggestions: unidades do vendedor 2 diferentes das 2 que ele vendeu');
+}
+if (sugestao2.suggestions.some(s => s.available <= 0)) {
+  findings.push('GET /performance/me/suggestions: produto sem saldo na lista');
+}
 record('/promotions/{id}/close', 'post', await manager.request(`/promotions/${promotion.id}/close`, 'POST'), 200);
 
 // Painel executivo e meta anual (contrato v6, D-EVO-45): somente CEO; o GERENTE recebe 403.
@@ -273,15 +355,21 @@ record('/auth/password', 'put', await fresh.request('/auth/password', 'PUT', { c
 record('/auth/password', 'put', await fresh.request('/auth/password', 'PUT', { currentPassword: `Outra-${stamp}`, newPassword: `Definitiva-${stamp}` }), 204);
 record('/auth/logout', 'post', await seller.request('/auth/logout', 'POST'), 204);
 
+const implementadas = operations(v4).filter(({ operation }) => operation['x-status'] === 'implemented');
 for (const { path, method, operation } of operations(v4)) {
   const name = `${method.toUpperCase()} ${path}`;
   if (operation['x-status'] === 'implemented' && !exercised.has(name)) findings.push(`${name}: implemented but not exercised`);
 }
+// Guarda explicita da cobertura: nao basta cada operacao ter sido vista, a CONTAGEM tem de fechar. Assim
+// a verificacao falha tambem se alguem exercitar um caminho que nao esta no contrato e achar que cobriu.
+if (exercised.size !== implementadas.length) {
+  findings.push(`coverage: exercised ${exercised.size} of ${implementadas.length} implemented operations`);
+}
 
 const directory = new URL('../target/contrato/', import.meta.url);
 mkdirSync(directory, { recursive: true });
-const report = { scope: 'live OpenAPI and responses versus target v6', timestamp: new Date().toISOString(),
-  contract: 'target-loja-gestao-openapi-2026-10-24-v6.json', operations: operations(v4).length,
+const report = { scope: 'live OpenAPI and responses versus target v7', timestamp: new Date().toISOString(),
+  contract: 'target-loja-gestao-openapi-2026-11-20-v7.json', operations: operations(v4).length,
   exercised: Object.fromEntries([...exercised].sort()), divergences: findings,
   limits: ['Structural check covers path, method, parameters, request body presence and success status codes; schema bodies are checked on real responses.'] };
 writeFileSync(new URL('live-contract.json', directory), JSON.stringify(report, null, 2) + '\n');

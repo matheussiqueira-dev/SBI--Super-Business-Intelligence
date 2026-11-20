@@ -88,7 +88,11 @@ export function ExecutiveView({ model, year, years, onYear, loading = false, err
 
   const scope = model.scope(filters);
   const { current, previous, label: compareLabel } = model.comparison(filters);
-  const now = model.measures(filters, current);
+  // O indicador mostra o recorte inteiro; a comparacao usa o TRECHO EQUIVALENTE, que no ano comeca no
+  // primeiro mes que o ano anterior consegue sustentar. Com os dois no mesmo numero, o acumulado do ano
+  // era comparado com um ano anterior que a massa nao cobre e a variacao saia em "centenas de vezes".
+  const now = model.measures(filters, scope);
+  const nowComparable = model.measures(filters, current);
   const before = model.measures(filters, previous);
   const chips = filterChips(model, filters);
   const productScoped = model.productScoped(filters);
@@ -110,17 +114,17 @@ export function ExecutiveView({ model, year, years, onYear, loading = false, err
   const kpis = (
     <section className="kpis kpis-3" aria-label="Indicadores do recorte">
       <Kpi label="Faturamento confirmado" value={<MoneyValue value={now.net} />} note={`Vendas ${money(now.sales)} · estornos ${money(now.refunds)}`}>
-        <Delta value={variation(now.net, before.net)} label={compareLabel} />
+        <Delta value={variation(nowComparable.net, before.net)} label={compareLabel} />
       </Kpi>
       <Kpi label="Lucro bruto" value={<MoneyValue value={now.profit} />}
            note={now.profit === null ? 'Há itens vendidos sem custo informado.' : `Margem ${formatPercent(now.margin)}`}>
-        {now.profit !== null && before.profit !== null ? <Delta value={variation(now.profit, before.profit)} label={compareLabel} /> : null}
+        {nowComparable.profit !== null && before.profit !== null ? <Delta value={variation(nowComparable.profit, before.profit)} label={compareLabel} /> : null}
       </Kpi>
       <Kpi label="Preço de compra (custo)" value={<MoneyValue value={now.cost} />}
            note={`${now.sales > 0 ? `${formatPercent((now.cost * 100) / now.sales)} das vendas` : 'Sem vendas no recorte'}${
              now.itemsWithoutCost > 0 ? ` · ${now.itemsWithoutCost} ${now.itemsWithoutCost === 1 ? 'item' : 'itens'} sem custo` : ''}`} />
       <Kpi label="Pedidos pagos" value={<span className="value">{now.orders}</span>} note={`Ticket médio ${money(now.averageTicket)}`}>
-        <Delta value={variation(now.orders, before.orders)} label={compareLabel} />
+        <Delta value={variation(nowComparable.orders, before.orders)} label={compareLabel} />
       </Kpi>
       <Kpi label="Unidades vendidas" value={<span className="value">{now.units}</span>}
            note={`${now.orders > 0 ? `${(now.units / now.orders).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} por pedido` : 'Sem pedidos'} · ${now.customers} clientes`} />

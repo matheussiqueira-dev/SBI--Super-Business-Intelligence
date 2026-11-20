@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { GetMyPerformanceResponse, ListSalesOrdersResponse } from '../../../lib/api/generated/sbi.zod.ts';
+import { GetMyPerformanceResponse, GetMySuggestionsResponse, ListSalesOrdersResponse } from '../../../lib/api/generated/sbi.zod.ts';
 import { api } from '../../../lib/api/http.ts';
 import { formatDay, formatMonth, formatPercent, label, money, ORDER_STATUS, plural, sentence, statusPill } from '../../../lib/format.ts';
 import { ErrorNotice, Loading } from '../../../components/feedback.tsx';
@@ -105,9 +105,69 @@ export default function MyPerformance({ manager = false }: { manager?: boolean }
             );
           })()}
         </section>
+        {valid && <Suggestions month={month} />}
         {!manager && <RecentSales />}
       </>}
     </div>
+  );
+}
+
+/**
+ * Sugestao de reposicao da carteira: produto que ESTE vendedor ja vendeu e que tem saldo agora, do mais
+ * vendido por ele para o menos. Historico e estoque vem do servidor (GET /performance/me/suggestions);
+ * nada e inferido aqui, para a sugestao ser a mesma que o banco explica.
+ */
+function Suggestions({ month }: { month: string }) {
+  const query = useQuery({
+    queryKey: ['performance-suggestions', month],
+    queryFn: ({ signal }) => api.request(`/performance/me/suggestions?period=${month}`,
+      { signal, schema: GetMySuggestionsResponse }),
+    placeholderData: keepPreviousData,
+  });
+  if (query.isPending) return <Loading label="Carregando as sugestões…" />;
+  if (query.error) return <ErrorNotice error={query.error} />;
+  const itens = query.data?.suggestions ?? [];
+  return (
+    <section className="card stack-md" aria-labelledby="sugestoes-titulo">
+      <div className="stack-xs">
+        <h2 id="sugestoes-titulo">O que você já vende e tem em estoque</h2>
+        <p className="card-sub">
+          Do seu histórico de vendas pagas, cruzado com o saldo disponível agora. Não é previsão: é o que
+          você já vendeu e ainda dá para vender hoje.
+        </p>
+      </div>
+      {itens.length === 0
+        ? <EmptyState icon="estoque" title="Nada a sugerir ainda">
+            Quando você tiver vendas pagas de produtos que ainda estão em estoque, elas aparecem aqui.
+          </EmptyState>
+        : <TableWrap label="Produtos do seu histórico com saldo disponível">
+            <table>
+              <caption className="sr-only">Produtos do seu histórico com saldo disponível</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Produto</th>
+                  <th scope="col">Categoria</th>
+                  <th scope="col" className="right">Preço</th>
+                  <th scope="col" className="right">Você vendeu</th>
+                  <th scope="col" className="right">Em estoque</th>
+                  <th scope="col">Sua última venda</th>
+                </tr>
+              </thead>
+              <tbody>
+                {itens.map(item => (
+                  <tr key={item.productId}>
+                    <th scope="row">{item.name}<span className="muted block">{item.sku}</span></th>
+                    <td>{item.category ?? '—'}</td>
+                    <td className="num right">{money(item.price)}</td>
+                    <td className="num right">{item.unitsSoldByMe} {plural(item.unitsSoldByMe, 'unidade', 'unidades')}</td>
+                    <td className="num right">{item.available}</td>
+                    <td>{item.lastSoldByMe ? formatDay(item.lastSoldByMe) : '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableWrap>}
+    </section>
   );
 }
 

@@ -5,6 +5,7 @@ import com.swee.ordermanagementspring.api.common.DbSessionContext;
 import com.swee.ordermanagementspring.api.common.MoneyDto;
 import com.swee.ordermanagementspring.api.common.Refs.UserRef;
 import com.swee.ordermanagementspring.api.management.ManagementDtos.*;
+import com.swee.ordermanagementspring.entities.StoreTime;
 import com.swee.ordermanagementspring.exceptions.ApiException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -51,6 +52,96 @@ public class GoalsService {
                  WHERE data >= :month AND data < CAST(:month AS date) + interval '1 month'
                    AND (CAST(:seller AS bigint) IS NULL OR seller_id = :seller)""")
                 .param("month", month).param("seller", sellerId).query(BigDecimal.class).single();
+    }
+
+    /** Dias corridos minimos para a media diaria do mes valer sozinha; abaixo disso ela e ancorada. */
+    static final int MIN_DIAS_RITMO = 7;
+
+    /**
+     * Projecao do fechamento do mes. A media diaria do mes corrente vale sozinha a partir de MIN_DIAS_RITMO
+     * dias corridos; abaixo disso ela entra ponderada com a media diaria do mes anterior (peso =
+     * corridos/MIN_DIAS_RITMO), que e um mes fechado. Com um ou dois dias corridos, a media crua
+     * multiplicada por trinta projetaria o mes a partir de quase nenhum dado. O peso chega a 1 exatamente
+     * em MIN_DIAS_RITMO, entao nao ha salto. E a mesma regra da carga do cenario de apresentacao.
+     */
+    @PreAuthorize("hasRole('GERENTE')")
+    @Transactional(readOnly = true)
+    public MonthProjection projection(String period) {
+        LocalDate month = month(period);
+        YearMonth ym = YearMonth.from(month);
+        int diasNoMes = ym.lengthOfMonth();
+        LocalDate hoje = StoreTime.today();
+        // Mes passado: o mes inteiro ja correu. Mes futuro: nada correu.
+        int corridos = hoje.isAfter(ym.atEndOfMonth()) ? diasNoMes
+                : hoje.isBefore(month) ? 0 : hoje.getDayOfMonth();
+        BigDecimal goal = jdbc.sql("SELECT amount FROM monthly_goal WHERE period = :month").param("month", month)
+                .query(BigDecimal.class).optional().orElse(BigDecimal.ZERO);
+        BigDecimal realized = realized(month, null);
+
+        BigDecimal mediaDiaria;
+        boolean ancorado = false;
+        if (corridos == 0) {
+            mediaDiaria = BigDecimal.ZERO;
+        } else if (corridos >= MIN_DIAS_RITMO) {
+            mediaDiaria = realized.divide(BigDecimal.valueOf(corridos), 2, RoundingMode.HALF_UP);
+        } else {
+            LocalDate anterior = month.minusMonths(1);
+            int diasAnterior = YearMonth.from(anterior).lengthOfMonth();
+            BigDecimal mediaAnterior = realized(anterior, null)
+                    .divide(BigDecimal.valueOf(diasAnterior), 2, RoundingMode.HALF_UP);
+            BigDecimal peso = BigDecimal.valueOf(corridos).divide(BigDecimal.valueOf(MIN_DIAS_RITMO), 4, RoundingMode.HALF_UP);
+            BigDecimal mediaCorrente = realized.divide(BigDecimal.valueOf(corridos), 2, RoundingMode.HALF_UP);
+            mediaDiaria = mediaCorrente.multiply(peso)
+                    .add(mediaAnterior.multiply(BigDecimal.ONE.subtract(peso)))
+                    .setScale(2, RoundingMode.HALF_UP);
+            ancorado = mediaAnterior.signum() != 0;
+        }
+        // Mes fechado nao se projeta: o projetado E o realizado. Sem isto, media diaria vezes dias devolvia
+        // um centavo de diferenca contra o proprio realizado (medido: 44.445,01 contra 44.445,00).
+        BigDecimal projetado = corridos >= diasNoMes ? realized
+                : mediaDiaria.multiply(BigDecimal.valueOf(diasNoMes)).setScale(2, RoundingMode.HALF_UP);
+        // Projetado nunca abaixo do que ja entrou: o mes nao desfaz venda confirmada.
+        projetado = projetado.max(realized);
+        int restantes = Math.max(diasNoMes - corridos, 0);
+        BigDecimal falta = goal.subtract(realized).max(BigDecimal.ZERO);
+        BigDecimal porDiaRestante = restantes == 0 ? BigDecimal.ZERO
+                : falta.divide(BigDecimal.valueOf(restantes), 2, RoundingMode.HALF_UP);
+        return new MonthProjection(period, MoneyDto.of(goal), MoneyDto.of(realized), MoneyDto.of(projetado),
+                MoneyDto.of(projetado.subtract(goal)), achievement(goal, projetado), MoneyDto.of(mediaDiaria),
+                MoneyDto.of(porDiaRestante), corridos, diasNoMes, restantes, ancorado, state(goal, projetado));
+    }
+
+    /**
+     * Sugestao de produto para o PROPRIO vendedor: o que ele ja vendeu com pagamento aprovado e que tem saldo
+     * disponivel agora, do mais vendido por ele para o menos. Historico do proprio vendedor (nao da loja) e
+     * estoque, os dois lidos do PostgreSQL; nada e inferido no navegador.
+     */
+    @PreAuthorize("hasRole('VENDEDOR')")
+    @Transactional(readOnly = true)
+    public SellerSuggestions suggestions(CurrentUser user, String period) {
+        session.apply(user.id(), null);
+        List<ProductSuggestion> lista = jdbc.sql("""
+                WITH meu AS (
+                  SELECT oi.product_id, sum(oi.quantity) AS unidades, max(p.payment_date)::date AS ultima
+                    FROM orders o
+                    JOIN order_item oi ON oi.order_id = o.id
+                    JOIN payment p ON p.order_id = o.id AND p.status = 'APPROVED'
+                   WHERE o.seller_id = :seller
+                   GROUP BY oi.product_id
+                )
+                SELECT c.product_id, c.sku, c.produto, c.categoria, c.preco, c.disponivel,
+                       m.unidades, m.ultima
+                  FROM v_catalogo_vendedor c
+                  JOIN meu m ON m.product_id = c.product_id
+                 WHERE c.disponivel > 0
+                 ORDER BY m.unidades DESC, c.disponivel DESC, c.product_id
+                 LIMIT 5""")
+                .param("seller", user.id())
+                .query((rs, n) -> new ProductSuggestion(rs.getLong("product_id"), rs.getString("sku"),
+                        rs.getString("produto"), rs.getString("categoria"), MoneyDto.of(rs.getBigDecimal("preco")),
+                        rs.getLong("disponivel"), rs.getLong("unidades"), rs.getObject("ultima", LocalDate.class)))
+                .list();
+        return new SellerSuggestions(period, new UserRef(user.id(), user.name()), lista);
     }
 
     // ---------------- metas ----------------

@@ -327,6 +327,9 @@ DECLARE
     v_allan bigint; v_francisco bigint; v_ceo bigint;
     m record; v_goal bigint; v_plano numeric(12,2); v_a numeric(12,2); v_f numeric(12,2);
     v_real_a numeric; v_real_f numeric; v_real_loja numeric; v_fator numeric;
+    -- Ancoragem da projecao nos primeiros dias do mes (ver o bloco do mes de referencia abaixo).
+    v_min_corridos int := 7; v_peso numeric;
+    v_mes_ant date; v_dias_ant int; v_real_a_ant numeric := 0; v_real_f_ant numeric := 0;
     -- Pisos usados so quando nao ha realizado nenhum em que se apoiar (mes sem venda).
     v_piso_vendedor numeric(12,2) := 20000.00; v_piso_loja numeric(12,2) := 50000.00;
     v_plano_ref numeric(12,2); v_anual numeric(12,2) := 0;
@@ -336,6 +339,9 @@ BEGIN
     v_mes_ini := date_trunc('month', v_ref)::date;
     v_dias := extract(day FROM (v_mes_ini + interval '1 month - 1 day'))::int;
     v_corridos := greatest(extract(day FROM v_ref)::int, 1);
+    -- Mes anterior ao de referencia: base fechada para ancorar a projecao nos primeiros dias.
+    v_mes_ant := (v_mes_ini - interval '1 month')::date;
+    v_dias_ant := extract(day FROM (v_mes_ant + interval '1 month - 1 day'))::int;
     SELECT id INTO v_allan     FROM app_users WHERE db_role = 'vendedor_allan';
     SELECT id INTO v_francisco FROM app_users WHERE db_role = 'vendedor_francisco';
     SELECT id INTO v_ceo       FROM app_users WHERE db_role = 'ceo_paulo';
@@ -355,8 +361,33 @@ BEGIN
             -- Mes de referencia: a meta de CADA VENDEDOR sai da projecao do seu proprio ritmo ja corrido,
             -- 15% abaixo para um (fica acima do ritmo) e 25% acima para o outro (fica abaixo). E isto que
             -- da a banca um caso de cada lado, em qualquer data de referencia.
-            v_a := CASE WHEN v_real_a > 0 THEN round(v_real_a * v_dias / v_corridos * 0.85, 2) ELSE v_piso_vendedor END;
-            v_f := CASE WHEN v_real_f > 0 THEN round(v_real_f * v_dias / v_corridos * 1.25, 2) ELSE v_piso_vendedor END;
+            -- Nos primeiros dias do mes a projecao crua nao se sustenta: multiplicar a media de um
+            -- ou dois dias pelos trinta do mes projeta o mes inteiro a partir de quase nenhum dado
+            -- (medido: ref no dia 1 levava a meta anual a R$ 4,4 milhoes, contra R$ 986 mil no dia 18).
+            -- Abaixo de v_min_corridos dias a media diaria passa a ser a media ponderada entre o ritmo
+            -- do mes (peso = corridos / v_min_corridos) e a media diaria do mes anterior, que e um mes
+            -- fechado. O peso chega a 1 exatamente em v_corridos = v_min_corridos, entao nao ha salto:
+            -- de v_min_corridos dias em diante o calculo e o de antes, expressao por expressao, e o
+            -- estado canonico de ref=2026-11-18 continua identico.
+            IF v_corridos >= v_min_corridos THEN
+                v_a := CASE WHEN v_real_a > 0 THEN round(v_real_a * v_dias / v_corridos * 0.85, 2) ELSE v_piso_vendedor END;
+                v_f := CASE WHEN v_real_f > 0 THEN round(v_real_f * v_dias / v_corridos * 1.25, 2) ELSE v_piso_vendedor END;
+            ELSE
+                SELECT coalesce(sum(CASE WHEN l.seller_id = v_allan     THEN l.valor END), 0),
+                       coalesce(sum(CASE WHEN l.seller_id = v_francisco THEN l.valor END), 0)
+                  INTO v_real_a_ant, v_real_f_ant
+                  FROM v_lancamento_realizado l
+                 WHERE l.data >= v_mes_ant AND l.data < v_mes_ini;
+                v_peso := v_corridos::numeric / v_min_corridos;
+                v_a := CASE WHEN v_real_a > 0 OR v_real_a_ant > 0
+                            THEN round((v_peso * v_real_a / v_corridos
+                                        + (1 - v_peso) * v_real_a_ant / v_dias_ant) * v_dias * 0.85, 2)
+                            ELSE v_piso_vendedor END;
+                v_f := CASE WHEN v_real_f > 0 OR v_real_f_ant > 0
+                            THEN round((v_peso * v_real_f / v_corridos
+                                        + (1 - v_peso) * v_real_f_ant / v_dias_ant) * v_dias * 1.25, 2)
+                            ELSE v_piso_vendedor END;
+            END IF;
             v_plano := v_a + v_f;
             v_plano_ref := v_plano;
         ELSIF m.periodo < v_mes_ini THEN
@@ -461,7 +492,17 @@ BEGIN
         RAISE EXCEPTION 'cenario de apresentacao: % pagamento(s) com data no futuro', v_pag_futuro;
     END IF;
     IF v_desc > 0 THEN RAISE EXCEPTION 'cenario de apresentacao: % mes(es) com distribuicao fora do plano da loja', v_desc; END IF;
-    IF v_acima < 1 OR v_abaixo < 1 THEN
+    -- O 7 abaixo e o mesmo v_min_corridos do bloco das metas (projecao ancorada nos primeiros dias).
+    -- Com o mes recem-comecado a meta deixa de sair da projecao crua do ritmo de cada vendedor, entao
+    -- ficar acima ou abaixo do ritmo volta a ser um fato do dado e nao uma construcao da carga: ela nao
+    -- consegue mais garantir um vendedor de cada lado. A carga avisa, em vez de parar, e a mensagem diz
+    -- o que fazer para a banca. De 7 dias corridos em diante a exigencia continua valendo como antes.
+    IF extract(day FROM v_ref)::int < 7 THEN
+        IF v_acima < 1 OR v_abaixo < 1 THEN
+            RAISE NOTICE 'cenario de apresentacao: referencia no dia % do mes, com a projecao ancorada - nao ha um vendedor de cada lado do ritmo (acima=%, abaixo=%). Para a banca, use uma referencia com 7 dias corridos ou mais.',
+                         extract(day FROM v_ref)::int, v_acima, v_abaixo;
+        END IF;
+    ELSIF v_acima < 1 OR v_abaixo < 1 THEN
         RAISE EXCEPTION 'cenario de apresentacao: o mes de referencia precisa de um vendedor acima e um abaixo do ritmo (acima=%, abaixo=%)', v_acima, v_abaixo;
     END IF;
     IF v_prod_pendente = 0 OR v_reserva <> v_prod_pendente THEN

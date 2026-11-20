@@ -6,6 +6,7 @@ export const targetPath = new URL('../config/openapi/target-loja-gestao-openapi-
 export const v4Path = new URL('../config/openapi/target-loja-gestao-openapi-2026-10-14-v4.json', import.meta.url);
 export const v5Path = new URL('../config/openapi/target-loja-gestao-openapi-2026-10-14-v5.json', import.meta.url);
 export const v6Path = new URL('../config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json', import.meta.url);
+export const v7Path = new URL('../config/openapi/target-loja-gestao-openapi-2026-11-20-v7.json', import.meta.url);
 export const matrixPath = new URL('../src/test/resources/security/access-matrix.csv', import.meta.url);
 // Contract marker -> accepted per-operation x-status values. v2/v3 stay planning-only documents.
 export const contractMarkers = {
@@ -13,10 +14,14 @@ export const contractMarkers = {
   'target-v4': ['planned', 'implemented'],
   'target-v5': ['planned', 'implemented'],
   'target-v6': ['planned', 'implemented'],
+  'target-v7': ['planned', 'implemented'],
 };
-// v4 and v5 describe two roles; v6 adds the CEO above the GERENTE (D-EVO-42). x-roles lists every role with access.
-const v4Markers = ['target-v4', 'target-v5', 'target-v6'];
-export const rolesFor = (document) => document['x-contract-status'] === 'target-v6' ? ['CEO', 'GERENTE', 'VENDEDOR'] : ['GERENTE', 'VENDEDOR'];
+// v4 and v5 describe two roles; v6 adds the CEO above the GERENTE (D-EVO-42) and v7 keeps the same three
+// (it only adds the decision-support operations). x-roles lists every role with access.
+const v4Markers = ['target-v4', 'target-v5', 'target-v6', 'target-v7'];
+const threeRoleMarkers = ['target-v6', 'target-v7'];
+export const rolesFor = (document) =>
+  threeRoleMarkers.includes(document['x-contract-status']) ? ['CEO', 'GERENTE', 'VENDEDOR'] : ['GERENTE', 'VENDEDOR'];
 const granted = new Set(['PERMIT', 'OWN']);
 export function parseMatrix(text) {
   const [header, ...lines] = text.split(/\r?\n/).filter(line => line.trim() !== '');

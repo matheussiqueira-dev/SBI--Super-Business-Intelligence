@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { auditContract, parseMatrix, targetPath, v4Path, v5Path, v6Path, matrixPath } from './audit-contract.mjs';
+import { auditContract, parseMatrix, targetPath, v4Path, v5Path, v6Path, v7Path, matrixPath } from './audit-contract.mjs';
 const target = JSON.parse(readFileSync(targetPath, 'utf8'));
 test('planned target has references and profile policies', () => {
   const result = auditContract(target);
@@ -175,6 +175,38 @@ test('v6 executive area cannot admit a manager and manager routes must admit the
   const managerOnly = structuredClone(v6);
   managerOnly.paths['/management/summary'].get['x-roles'] = ['GERENTE'];
   assert.ok(auditContract(managerOnly).errors.some(e => e.includes('Missing manager policy')));
+});
+const v7 = JSON.parse(readFileSync(v7Path, 'utf8'));
+test('v7 keeps every v6 operation with the same roles and adds the three decision-support ones', () => {
+  const result = auditContract(v7, { matrix });
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.operations.length, 65);
+  const v7Operations = new Map(result.operations.map(o => [`${o.method} ${o.path}`, o.roles]));
+  // Compatibilidade: as 62 do v6 seguem presentes, no mesmo caminho e com os mesmos papeis.
+  const v6Operations = auditContract(v6, { matrix }).operations;
+  assert.equal(v6Operations.length, 62);
+  for (const o of v6Operations) {
+    const key = `${o.method} ${o.path}`;
+    assert.ok(v7Operations.has(key), key);
+    assert.deepEqual(v7Operations.get(key), o.roles, key);
+  }
+  assert.deepEqual(v7Operations.get('GET /management/projection'), ['CEO', 'GERENTE']);
+  assert.deepEqual(v7Operations.get('GET /analytics/margin-alerts'), ['CEO', 'GERENTE']);
+  assert.deepEqual(v7Operations.get('GET /performance/me/suggestions'), ['CEO', 'GERENTE', 'VENDEDOR']);
+});
+test('v7 keeps the seller projection closed and free of cost, margin, profit and team', () => {
+  const aberto = structuredClone(v7);
+  delete aberto.components.schemas.ProductSuggestion.additionalProperties;
+  assert.ok(auditContract(aberto).errors.some(e => e.includes('Open seller projection')));
+  const sensivel = structuredClone(v7);
+  sensivel.components.schemas.ProductSuggestion.properties.averageCost = { type: 'number' };
+  assert.ok(auditContract(sensivel).errors.some(e => e.includes('Sensitive field in seller projection')));
+});
+test('v7 managerial operations cannot admit a seller', () => {
+  const rows = structuredClone(matrix);
+  rows.find(r => r.method === 'GET' && r.path === '/management/projection').vendedor = 'PERMIT';
+  assert.ok(auditContract(v7, { matrix: rows }).errors.some(e =>
+    e.includes('x-roles differ') && e.includes('/management/projection')));
 });
 test('access matrix keeps accepting the two-role header of the archived contracts', () => {
   assert.deepEqual(parseMatrix(['method,path,anonymous,vendedor,gerente', 'GET,/x,401,403,PERMIT'].join('\n')),

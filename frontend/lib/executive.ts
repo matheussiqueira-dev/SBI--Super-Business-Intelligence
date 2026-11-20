@@ -80,6 +80,8 @@ export class Model {
   readonly people: ReadonlyMap<number, Person>;
   readonly products: ReadonlyMap<number, Product>;
   readonly categories: ReadonlyMap<number, string>;
+  /** Memo da cobertura do ano anterior: os fatos nao mudam depois do construtor. */
+  private previousMonthsMemo: Set<number> | null = null;
 
   constructor(overview: Overview) {
     this.overview = overview;
@@ -183,6 +185,33 @@ export class Model {
     return measuresOf(this.sales(filters, range, except), this.refunds(filters, range, except));
   }
 
+  /**
+   * Meses do ano anterior que tem fato (venda ou estorno). O recorte da massa cobre os ultimos 365 dias,
+   * entao o ano anterior costuma ter so os meses finais: comparar o ano corrente inteiro com um ano
+   * anterior quase vazio nao e comparacao, e desenhar o ano anterior em zero nos meses sem dado nenhum
+   * inventa uma queda que nao houve. Daqui saem as duas correcoes: o trecho equivalente e a marca ausente.
+   */
+  private previousYearMonths(): Set<number> {
+    if (this.previousMonthsMemo === null) {
+      const prefix = `${this.year - 1}-`;
+      const meses = new Set<number>();
+      for (const fato of this.overview.sales) {
+        if (fato.date.startsWith(prefix)) meses.add(Number(fato.date.slice(5, 7)));
+      }
+      for (const fato of this.overview.refunds) {
+        if (fato.date.startsWith(prefix)) meses.add(Number(fato.date.slice(5, 7)));
+      }
+      this.previousMonthsMemo = meses;
+    }
+    return this.previousMonthsMemo;
+  }
+
+  /** Primeiro mes do ano anterior com dado, ou null se o ano anterior nao tem fato nenhum. */
+  previousYearFirstMonth(): number | null {
+    const meses = this.previousYearMonths();
+    return meses.size === 0 ? null : Math.min(...meses);
+  }
+
   /** Recorte e periodo de comparacao: ano contra o mesmo trecho do ano anterior, mes contra o mesmo trecho do mes anterior. */
   comparison(filters: Filters): { current: Range; previous: Range; label: string } {
     const today = this.today;
@@ -200,8 +229,20 @@ export class Model {
     }
     const end = today.startsWith(`${this.year}-`) ? today : iso(this.year, 12, 31);
     const previousEnd = `${this.year - 1}${end.slice(4)}`.replace(`${this.year - 1}-02-29`, `${this.year - 1}-02-28`);
-    return { current: { from: iso(this.year, 1, 1), to: end }, previous: { from: iso(this.year - 1, 1, 1), to: previousEnd },
-      label: end.endsWith('-12-31') ? String(this.year - 1) : `${this.year - 1} até ${end.slice(8, 10)}/${end.slice(5, 7)}` };
+    // Periodos EQUIVALENTES: os dois lados comecam no primeiro mes que o ano anterior consegue sustentar.
+    // Sem isso, o ano corrente inteiro era comparado com um ano anterior que a massa nao cobre, e a variacao
+    // saia em "centenas de vezes" em vez de medir algo.
+    const first = this.previousYearFirstMonth();
+    if (first === null) {
+      return { current: { from: iso(this.year, 1, 1), to: end },
+        previous: { from: iso(this.year - 1, 1, 1), to: previousEnd }, label: `${this.year - 1} (sem dado)` };
+    }
+    const mesmoTrecho = first === 1;
+    return { current: { from: iso(this.year, first, 1), to: end },
+      previous: { from: iso(this.year - 1, first, 1), to: previousEnd },
+      label: mesmoTrecho
+        ? (end.endsWith('-12-31') ? String(this.year - 1) : `${this.year - 1} até ${end.slice(8, 10)}/${end.slice(5, 7)}`)
+        : `${MONTH_NAMES[first - 1]!.toLowerCase()} a ${end.slice(8, 10)}/${end.slice(5, 7)} de ${this.year - 1}` };
   }
 
   // ---------------- series e rankings ----------------
@@ -211,12 +252,15 @@ export class Model {
     const sales = this.sales(filters, null, 'time');
     const refunds = this.refunds(filters, null, 'time');
     if (filters.month === null) {
+      const cobertos = this.previousYearMonths();
       return MONTHS.map((label, index) => {
         const month = index + 1;
         const current = monthRange(this.year, month);
         const previous = monthRange(this.year - 1, month);
         return { key: month, label, ...measuresOf(sales.filter(s => inRange(s.date, current)), refunds.filter(r => inRange(r.date, current))),
-          previousNet: measuresOf(sales.filter(s => inRange(s.date, previous)), refunds.filter(r => inRange(r.date, previous))).net,
+          previousNet: cobertos.has(month)
+            ? measuresOf(sales.filter(s => inRange(s.date, previous)), refunds.filter(r => inRange(r.date, previous))).net
+            : null,
           goal: this.goalFor(filters, month) };
       });
     }
