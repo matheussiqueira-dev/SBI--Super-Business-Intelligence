@@ -11,9 +11,13 @@ const BY_SKU = new Map(PRODUCT_PHOTOS.flatMap(photo => photo.skus.map(sku => [sk
 // O resumo do cliente traz so o nome do produto, sem SKU.
 const BY_NAME = new Map(PRODUCT_PHOTOS.flatMap(photo => photo.names.map(name => [name, photo.file] as const)));
 
+// O catalogo academico nomeia por linha de produto; o catalogo proprio da edicao comercial nomeia pelo tipo do
+// aparelho. Os dois caem nos mesmos icones de linha, que sao ativos do projeto.
 const LINES: ReadonlyArray<readonly [RegExp, string]> = [
   [/^iphone/i, 'iphone'], [/^ipad/i, 'ipad'], [/^(macbook|imac|mac mini)/i, 'mac'], [/^airpods/i, 'airpods'],
   [/^apple watch/i, 'watch'], [/^(homepod|apple tv)/i, 'casa'],
+  [/^smartphone/i, 'iphone'], [/^tablet/i, 'ipad'], [/^(notebook|mini computador|computador)/i, 'mac'],
+  [/^fone/i, 'airpods'], [/^rel[oó]gio/i, 'watch'], [/^(caixa de som|receptor de tv)/i, 'casa'],
 ];
 
 export function productLine(name: string): string {

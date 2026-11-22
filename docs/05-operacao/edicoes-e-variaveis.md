@@ -108,16 +108,35 @@ Git; em produção, no cofre de variáveis do provedor.
 
 ```powershell
 cd frontend
-$env:NEXT_PUBLIC_SBI_EDICAO = 'comercial'; npm run build; npm start   # oferta pública em http://127.0.0.1:3000
-Remove-Item Env:NEXT_PUBLIC_SBI_EDICAO; npm run build; npm start      # edição acadêmica, comportamento original
+$env:NEXT_PUBLIC_SBI_EDICAO = 'comercial'; $env:SBI_COTACAO_MODO = 'memoria'; npm run build; npm start
+Remove-Item Env:NEXT_PUBLIC_SBI_EDICAO, Env:SBI_COTACAO_MODO; npm run build; npm start   # edição acadêmica
 ```
 
+As duas variáveis entram no HTML no build: sem `SBI_COTACAO_MODO`, o build de produção publica a landing com o
+aviso de captação indisponível em vez do formulário, que é o padrão seguro descrito acima.
+
 A landing, a cotação, o aviso de privacidade e o suporte funcionam **sem a API Java no ar** — é justamente o que
-os testes de aceite provam:
+os testes de aceite provam. Um comando só, que faz o próprio build comercial antes de subir:
 
 ```powershell
 cd frontend; npm run test:e2e:comercial
 ```
+
+## A demonstração também muda de edição
+
+`/demo` é a mesma tela nas duas edições, com catálogo e identificação próprios em cada uma
+([`lib/demo/catalog.ts`](../../frontend/lib/demo/catalog.ts)):
+
+| | Acadêmica | Comercial |
+| --- | --- | --- |
+| Catálogo | recorte Olist (CC BY-NC-SA 4.0, **uso não comercial**) | catálogo próprio do SBI, produtos inventados |
+| Loja | Unidade do Shopping Recife | Loja Modelo SBI, Fortaleza |
+| Equipe | os autores do trabalho | nomes inventados, nos mesmos papéis |
+| Miniaturas | fotos de licença livre, creditadas na própria tela | ícones de linha do projeto |
+
+Os identificadores, os pesos e o mês de referência são os mesmos nas duas, então o roteiro guiado e a
+reconciliação do cenário valem igual. É por isso que o botão “Explorar demonstração” da página comercial pode ser
+mostrado a um cliente: ele não abre a massa acadêmica.
 
 ## Limites conhecidos
 

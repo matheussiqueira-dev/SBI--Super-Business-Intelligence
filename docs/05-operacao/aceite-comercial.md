@@ -31,7 +31,9 @@ verificado em **revisão local**.
 | Movimento reduzido e ausência do script mostram o estado final | Implementado e verificado | CT-COM-122, CT-COM-123 |
 | Sem deslocamento de layout por causa do motion | Implementado e verificado | CT-COM-120 |
 | Teclado, foco visível e axe sem violação | Implementado e verificado | CT-COM-103, CT-COM-104, CT-COM-105, CT-COM-113, CT-COM-124 |
-| Demonstração comercial com catálogo próprio | **Depende de operação externa** | O recorte Olist tem licença não comercial (CC BY-NC-SA 4.0). A demonstração atual é a acadêmica, com catálogo Apple. Próximo passo: catálogo sintético próprio ou ativos licenciados para uso comercial, antes de usar `/demo` como prova comercial |
+| Demonstração comercial com catálogo próprio | Implementado e verificado | CT-COM-130 a CT-COM-135. `/demo` troca de catálogo, loja e equipe por edição ([catalog.ts](../../frontend/lib/demo/catalog.ts)): na comercial, produtos inventados do SBI, Loja Modelo SBI e nomes de equipe inventados, com os ícones de linha do projeto no lugar das fotos de licença livre. O recorte Olist (CC BY-NC-SA 4.0) fica só na edição acadêmica |
+| Capturas de prova geradas da demonstração comercial | Implementado e verificado | `scripts/comercial-capturas.mjs` rodado contra o build comercial; as três provas em `frontend/public/comercial/` mostram a Loja Modelo SBI |
+| Tabela de preços própria da demonstração comercial | **Depende de operação externa** | A faixa de preço por posição ainda espelha a do catálogo acadêmico, para o simulador e o mês de referência fecharem sem recalcular o cenário. Próximo passo: tabela desenhada pela área comercial, com o mês de referência recalculado |
 | Domínio público e URL canônica | **Depende de operação externa** | Configurar `NEXT_PUBLIC_SBI_SITE_URL`; sem ele a indexação fica desligada de propósito |
 
 ## 2 · Cotação, fila e privacidade
@@ -73,7 +75,11 @@ verificado em **revisão local**.
 | Fallback quando a mídia está indisponível | Implementado e verificado | 404 na mídia ausente; `ProductThumb` desce para o mapa local e depois para o ícone |
 | Fallback dos produtos existentes preservado | Implementado e verificado | `lib/product-photos.ts` intacto; CT-WEB do mapa local segue passando |
 | Contrato e clientes gerados atualizados | Implementado e verificado | Contrato validado sem achados, auditoria sem erros, `npm run api:generate` |
-| Tela do gerente para enviar, substituir e remover | Implementado, verificação pendente | `PhotoForm` em Produtos. Falta exercitar o envio real pela tela: o E2E do backoffice exige a bateria com banco descartável e API no ar |
+| Tela do gerente para enviar, substituir e remover | Implementado e verificado | CT-WEB-150 e CT-WEB-151, pela tela, com Next, API Spring e PostgreSQL descartável no ar: a miniatura aparece carregada (`naturalWidth > 0`) **sem recarregar a página**, muda na troca, cai no ícone na remoção e volta com URL inédita; envio inválido explica o motivo e não derruba a foto publicada |
+| Miniatura atualiza na lista logo depois do envio | Implementado e verificado | CT-WEB-150. O estado da queda passou a guardar o índice na cadeia de candidatos, não o degrau com nome: era o nome, escolhido quando o produto ainda não tinha foto, que prendia a lista no ícone até alguém recarregar |
+| Revisão inédita por publicação, sem colisão de URL e de validador | Implementado e verificado | V14 (sequência) e CT-FOTO-120 a CT-FOTO-123. Antes, remover e enviar outra foto voltava para a revisão 1: duas imagens diferentes com a mesma URL (`?v=1`), o mesmo `ETag` (`"v1"`) e 30 dias de cache |
+| Cache coerente com o conteúdo entregue | Implementado e verificado | CT-FOTO-120, CT-FOTO-121, CT-FOTO-123. `?rev=` atual é `immutable` por 30 dias; sem `rev` ou com revisão vencida é `no-cache` com o validador do conteúdo servido; `304` só depois da autorização e de confirmar a mídia |
+| Troca e remoção concorrentes no mesmo produto | Implementado, verificação pendente | As duas seguram a linha do produto (`FOR UPDATE`) antes de ler a chave que vão substituir, então nenhuma remove mídia que a outra acabou de publicar. Falta um teste de concorrência de verdade, com duas transações simultâneas |
 | Adaptador de objeto em nuvem | **Depende de operação externa** | Bucket privado, credencial e ciclo de vida; interface pronta |
 | Backup das mídias junto com o banco | **Depende de operação externa** | Restauração conjunta a testar |
 
@@ -97,34 +103,46 @@ verificado em **revisão local**.
 ## Como reproduzir a verificação
 
 ```powershell
-# Frontend: unitários, tipos e build nas duas edições
+# Frontend: unitários, tipos e cliente gerado
 cd frontend
 npm run typecheck
 npm test
 npm run api:check
-$env:NEXT_PUBLIC_SBI_EDICAO = 'comercial'; npm run build
-npm run test:e2e:comercial          # aceite da edição comercial, sem a API no ar
-Remove-Item Env:NEXT_PUBLIC_SBI_EDICAO; npm run build
 
-# Backend: bateria completa com PostgreSQL descartável
+# Aceite da edição comercial, sem a API no ar. Um comando: a configuração faz o próprio build comercial.
+npm run test:e2e:comercial
+
+# Backend: bateria completa com PostgreSQL descartável (inclui CT-FOTO-120 a 126)
 cd ..
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\test.ps1 -Mode Integration
 
-# Contrato
+# Contrato: auditoria dos preservados e validação do ativo
 npm run contract
 node scripts\audit-contract.mjs config\openapi\target-loja-gestao-openapi-2026-11-20-v7.json
+node scripts\validate-contract.mjs config\openapi\target-loja-gestao-openapi-2026-11-20-v7.json
 ```
+
+O fluxo da foto pela tela (CT-WEB-150 e CT-WEB-151) roda junto com o restante do E2E, que exige Next, API Spring
+e o PostgreSQL descartável no ar ao mesmo tempo — é o que a CI monta no job `frontend`.
 
 As capturas de evidência (landing desktop e celular, cotação, login desktop e celular, privacidade e suporte)
 ficam em [`reports/comercial/`](../../reports/comercial/) e são regeradas por:
 
 ```powershell
-cd frontend; node scripts/comercial-capturas.mjs --base http://127.0.0.1:3000
+cd frontend
+$env:NEXT_PUBLIC_SBI_EDICAO = 'comercial'; $env:SBI_COTACAO_MODO = 'memoria'; npm run build; npm start
+node scripts/comercial-capturas.mjs --base http://127.0.0.1:3000
 ```
+
+O servidor precisa ser o da **edição comercial**: as provas dos módulos saem de `/demo`, e é a edição que decide
+se a demonstração abre o catálogo próprio do SBI ou o recorte Olist.
 
 ## Liberação por etapa
 
-A página de interesse pode ir ao ar depois de testar a captação, o aviso de privacidade e a rotina comercial.
+A página de interesse pode ir ao ar depois de testar a captação, o aviso de privacidade e a rotina comercial. A
+demonstração já pode ser mostrada a um cliente: a edição comercial abre catálogo, loja e equipe próprios, sem a
+massa acadêmica e sem pessoa real na tela.
+
 Para **vender implantação e suporte com dados reais** ainda faltam: ambiente isolado por empresa, armazenamento de
 objetos em nuvem para as fotos, restauração validada, escala de plantão testada, canais externos contratados e o
 aceite de uma loja piloto.

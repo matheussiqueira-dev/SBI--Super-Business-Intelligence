@@ -361,6 +361,10 @@ jobs:
           cd ..
           node scripts/ci-evidence.mjs
 
+      - name: Commercial edition acceptance (axe, no API)
+        working-directory: frontend
+        run: npm run test:e2e:comercial
+
       - name: Preserve frontend reports
         if: always()
         uses: actions/upload-artifact@v4

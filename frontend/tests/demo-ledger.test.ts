@@ -4,7 +4,7 @@ import { GetExecutiveOverviewResponse } from '../lib/api/generated/sbi.zod.ts';
 import { Model, NO_FILTERS, monthRange, type Filters } from '../lib/executive.ts';
 import { generateLedger, orderGross, orderNet, toOverview, type DemoLedger } from '../lib/demo/ledger.ts';
 import { operatingDaysIn, isOperating, lastCompletePeriod, periodsUntil, commercialWeek } from '../lib/demo/calendar.ts';
-import { APPLE_PRODUCTS } from '../lib/demo/apple-catalog.ts';
+import { DEMO_PRODUCTS } from '../lib/demo/catalog.ts';
 import { CATEGORIES, REFERENCE_MONTH, SELLER_IDS, PEOPLE_BY_ROLE, LOW_STOCK_SKUS } from '../lib/demo/scenario.ts';
 import { shareOut } from '../lib/demo/random.ts';
 
@@ -163,7 +163,7 @@ test('[CT-DEMO-116] os 42 SKUs usam nome, categoria, preço e custo do catálogo
   assert.equal(new Set(ledger.products.map(product => product.categoryId)).size, 7);
   assert.deepEqual(ledger.products.map(product => [
     product.sku, product.name, CATEGORIES.find(category => category.id === product.categoryId)?.source, product.price, product.cost,
-  ]), APPLE_PRODUCTS);
+  ]), DEMO_PRODUCTS);
   assert.equal(ledger.products.find(product => product.sku === 'OL-IP18P-256')?.price, 1_079_900);
   assert.equal(ledger.products.find(product => product.sku === 'OL-AIRPODS-PRO3')?.price, 199_900);
   assert.equal(ledger.products.find(product => product.sku === 'OL-MBP14-M5')?.price, 2_159_900);
