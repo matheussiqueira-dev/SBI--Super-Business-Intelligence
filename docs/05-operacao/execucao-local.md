@@ -203,3 +203,130 @@ Entrando como Allan (`allanbarros@sbi.tech`) na API nativa: `POST /sales/orders`
 Na tela `Meu desempenho` da porta 3001: Realizado R$ 66.424,30, Meta R$ 86.465,53, Falta R$ 20.041,23 e "R$ 1.670,10 por dia nos 12 dias restantes do mês", com o pedido **#568 · Beatriz Nunes · 19/11/2026 · R$ 1.999,00 · Pago** no topo de *Minhas últimas vendas*.
 
 A exportação do gerente fecha com os dois: o `.xlsx` traz 42 pedidos pagos e **R$ 176.680,30** de faturamento confirmado no Resumo, as 61 linhas de detalhe da aba Vendas somam exatamente esse valor, a aba Metas repete plano R$ 236.289,87 e Allan R$ 86.465,53 / R$ 66.424,30, e o recorte só de Allan soma **R$ 66.424,30** em 19 linhas. O `.xls` saiu em OLE2 com tipos de célula de texto, número e data; o CSV, com BOM e vírgula decimal. Período invertido e janela acima de 732 dias continuam devolvendo 400 com a mensagem correta.
+
+---
+
+## 5. Ambiente da banca, conferido em 22/11/2026: banco em contêiner, API na 8081 e frontend na 3001
+
+A seção 4 cita o ambiente da banca de passagem; esta o registra. O [roteiro de Banco de Dados](roteiro-banco-de-dados.md) avisa que **nada no repositório cria** o par `sbi-apresentacao-db` / `sbi_apresentacao` — ele foi feito à mão. Aqui ficam o que esse par é, como trazê-lo de volta quando a máquina reinicia e o que fazer se ele se perder. As portas são as desta conferência: API na **8081** e frontend na **3001**, com o banco na **5435**.
+
+| Peça | Valor medido |
+| --- | --- |
+| Contêiner | `sbi-apresentacao-db`, imagem `postgres:18`, criado em 19/11/2026 00:37 UTC, `RestartPolicy=no` |
+| Servidor | **PostgreSQL 18.6** (Debian 18.6-1.pgdg13+2), `PGDATA=/var/lib/postgresql/18/docker`, `TimeZone=Etc/UTC` |
+| Publicação | `127.0.0.1:5435->5432/tcp` — só esta máquina |
+| Banco e papel | banco `sbi_apresentacao`, usuário `sbi`, senha igual à `SBI_DB_PASSWORD` do `.env.local` (fora do git) |
+| Persistência | volume **anônimo** `d234d3c88818977c58c948d2f66976bab5d9d2ae379b348c65b1cec2ca344ee7` em `/var/lib/postgresql`. Não é `tmpfs`: o banco sobrevive a parar e subir o contêiner |
+| Esquema | Flyway na **12.2**, 18 migrações, todas `success` |
+| JDK e Node | Temurin **25.0.4.1+1** em `E:\Programação\A3\tmp\tools\jdk-25\jdk-25.0.4.1+1` e Node **24.19.0** |
+| API | porta **8081**, perfil `demo`, jar `target/order-management-spring-0.0.1-SNAPSHOT.jar` |
+| Frontend | porta **3001**, Next **16.4.5**, build de produção com `BACKEND_ORIGIN=http://127.0.0.1:8081` |
+
+O `flyway_schema_history` marca 18/11 23:43 UTC, **antes** de o volume existir: os carimbos vieram junto com os dados, então não servem para datar este contêiner. O cenário da apresentação foi gravado depois, em 19/11 02:43 UTC, com `ref=2026-11-18`.
+
+### Trazer de volta o que já existe
+
+Depois de um reinício da máquina as três peças ficam paradas e o daemon do Docker costuma estar parado junto. Abra o Docker Desktop e espere o daemon subir; o contêiner costuma voltar sozinho, porque o Docker Desktop restaura o que estava rodando quando parou. Se não voltar, `docker start sbi-apresentacao-db` o traz de volta com os dados — ele está parado, não perdido. **Não use `docker run` nem `docker compose` para "recriar" este banco**: um contêiner novo nasce com um volume novo e vazio. Confira que ele voltou:
+
+```powershell
+docker ps --filter name=sbi-apresentacao-db --format "{{.Names}} | {{.Status}} | {{.Ports}}"
+docker exec sbi-apresentacao-db pg_isready -U sbi -d sbi_apresentacao
+```
+
+Com o banco respondendo, suba a API. O jar já construído serve; se faltar, use o `.\mvnw.cmd -q -DskipTests package` da seção 1. O `JAVA_HOME` tem a mesma pegadinha da seção 4: ele aponta para `...\jdk-25\jdk-25.0.4.1+1`, não para a pasta que a contém.
+
+```powershell
+$env:SPRING_PROFILES_ACTIVE = 'demo'
+$env:SPRING_DATASOURCE_URL = 'jdbc:postgresql://127.0.0.1:5435/sbi_apresentacao'
+$env:SPRING_DATASOURCE_USERNAME = 'sbi'
+$env:SPRING_DATASOURCE_PASSWORD = Read-Host 'SBI_DB_PASSWORD do .env.local' -MaskInput
+$env:SESSION_COOKIE_SECURE = 'false'
+java -jar target/order-management-spring-0.0.1-SNAPSHOT.jar --server.address=127.0.0.1 --server.port=8081
+```
+
+As variáveis `SBI_DEMO_PASSWORD*` **não** são necessárias aqui: elas só são lidas durante a migração que cria as contas, e ela já rodou neste banco. As senhas que funcionam hoje são as que estavam no ambiente naquele dia — as do `.env.local`.
+
+Depois a interface, em outro terminal. A porta do backend entra **no build**, não só no start: o `rewrites()` do `next.config.mjs` é resolvido por `next build` e gravado em `.next/routes-manifest.json`. Um `.next` construído para a 8080 continua mandando o proxy para a 8080 por mais que a variável mude no start, então trocar a porta da API **obriga** a reconstruir.
+
+```powershell
+cd frontend
+$env:BACKEND_ORIGIN = 'http://127.0.0.1:8081'
+npm.cmd run build
+npm.cmd run start -- --hostname 127.0.0.1 --port 3001
+```
+
+Para conferir qual porta está gravada no build atual, sem reconstruir:
+
+```powershell
+node -e "require('./.next/routes-manifest.json').rewrites.afterFiles.forEach(r=>console.log(r.source,'->',r.destination))"
+```
+
+Abra [Entrar no SBI na 3001](http://127.0.0.1:3001/entrar). O proxy responde HTTP 200 em `http://127.0.0.1:3001/api/backend/auth/csrf`, e a [demonstração pública](http://127.0.0.1:3001/demo) funciona só com o frontend.
+
+### Subir a API num banco já carregado não apaga nada
+
+Medido antes de encostar no banco da banca: o dump foi restaurado num banco descartável, a API subiu contra ele e as contagens foram comparadas linha a linha. O Flyway não migrou nada e nenhuma tabela mudou.
+
+```
+Successfully validated 18 migrations
+Current version of schema "public": 12.2
+Schema "public" is up to date. No migration necessary.
+```
+
+Isso casa com o código: o perfil `demo` só acrescenta `classpath:db/demo` às `locations` do Flyway, `clean-disabled` é o padrão `true`, não há `data.sql`, callback, `FlywayMigrationStrategy` nem bean de seed, e o único `TRUNCATE` do projeto pertence ao perfil `contract`, que exige a URL descartável da porta 15432. As mesmas contagens foram conferidas de novo depois de a API subir contra `sbi_apresentacao`, e continuaram idênticas.
+
+### Estado do banco em `ref=2026-11-18`
+
+As datas da massa Olist são relativas ao dia da carga, então estes números são só deste banco. Eles **não** são os da seção 4, que usou `ref=2026-11-19`.
+
+| Indicador | Banco da banca (`ref=2026-11-18`) |
+| --- | --- |
+| Pedidos pagos de 01/11 a 18/11 | 38 |
+| Vendas confirmadas | R$ 151.586,00 |
+| Estornado | −R$ 4.859,70 |
+| Faturamento confirmado | R$ 146.726,30 |
+| Ticket médio por pedido | R$ 3.989,11 |
+| Plano da loja de novembro | R$ 198.576,84 |
+| Meta anual de 2026 | R$ 986.051,48 |
+| Allan — meta e realizado de novembro | R$ 75.545,59 · R$ 53.326,30 (70,6 %) |
+| Francisco — meta e realizado de novembro | R$ 123.031,25 · R$ 59.055,00 (48,0 %) |
+| Massa | 315 pedidos, 376 itens, 315 pagamentos, 66 clientes, 49 produtos (42 SKUs `OL-*`), 7 contas, 1 estorno |
+
+O último lançamento do banco é de 18/11/2026, então o recorte de 01/11 a 18/11 pega novembro inteiro. Na interface, o catálogo Apple aparece em *Vender* com preços, estoque e promoções, e *Gestão → Usuários* mostra as sete contas com Allan na equipe de Matheus e Francisco na de Gabriel.
+
+### A exportação de 01/11 a 18/11/2026
+
+`GET /analytics/export` com `from`, `to` e `format` (`XLSX` padrão, `XLS`, `CSV`), mais os filtros `seller`, `category` e `payment`. É `GET`: pede o cookie de sessão, não o header CSRF. A regra de URL é `hasRole(GERENTE)`, e o CEO herda.
+
+A bateria rodou duas vezes, direto na API da 8081 e pelo proxy da 3001, com **10 PASS e 0 FAIL** nas duas:
+
+- os três formatos em HTTP 200, anexados como `sbi-analises-2026-11-01-a-2026-11-18.<ext>`;
+- o `.xlsx` com as abas **Resumo**, **Vendas** e **Metas**;
+- **54 linhas de detalhe** na aba Vendas — 53 vendas e 1 estorno — somando exatamente os **R$ 146.726,30** do Resumo, o mesmo valor que o SQL devolve;
+- o CSV com BOM, `;` como separador e vírgula decimal;
+- o recorte só de Allan (`seller=2`) saindo menor, como esperado;
+- período invertido e janela acima de 732 dias devolvendo 400 com a mensagem certa, e a chamada sem sessão devolvendo 401.
+
+Pela tela, em *Gestão → Análises*, ajustar o período e clicar no formato dispara exatamente `GET /api/backend/analytics/export?from=2026-11-01&to=2026-11-18&format=XLSX`, que respondeu 200.
+
+### O que torna este ambiente frágil, e o seguro contra isso
+
+O volume é **anônimo** e o contêiner tem `RestartPolicy=no`. Parar e subir preserva tudo, e nenhum `docker compose down -v` de outro projeto o alcança, porque ele não pertence a projeto nenhum. O que o apaga é `docker rm -v sbi-apresentacao-db`, que leva o volume junto, e remover o contêiner sem o `-v`, que deixa o volume órfão para o próximo `docker volume prune` recolher — um volume anônimo não tem nome que o identifique depois. "Clean / Purge data" do Docker Desktop apaga tudo de uma vez. Como **nada no repositório reconstrói este banco**, tire um dump antes de mexer no Docker:
+
+```powershell
+docker exec sbi-apresentacao-db pg_dump -U sbi -d sbi_apresentacao -Fc > sbi_apresentacao.dump
+```
+
+Para voltar de um dump, crie o banco vazio e restaure — num contêiner novo, com um volume **nomeado**, que não some num `prune`:
+
+```powershell
+$env:SBI_DB_PASSWORD = Read-Host 'SBI_DB_PASSWORD do .env.local' -MaskInput
+docker run -d --name sbi-apresentacao-db -p 127.0.0.1:5435:5432 `
+  -e POSTGRES_DB=sbi_apresentacao -e POSTGRES_USER=sbi -e POSTGRES_PASSWORD=$env:SBI_DB_PASSWORD `
+  -v sbi-apresentacao-data:/var/lib/postgresql postgres:18
+docker exec -i sbi-apresentacao-db pg_restore -U sbi -d sbi_apresentacao --no-owner < sbi_apresentacao.dump
+```
+
+Tem de ser a mesma senha de antes: o `pg_restore` recria as tabelas, não o papel `sbi`, e a API usa essa senha no JDBC. O `POSTGRES_DB` já cria o banco vazio, então o `pg_restore` cai nele direto.
+
+Sem dump, o caminho é refazer o banco do zero pela bateria na ordem — `run_bd.sh`, `run_olist_bd.sh` e `run_apresentacao.sh` —, como descreve o [guia de preparação](../03-banco-de-dados/preparar-apresentacao.md). Com `REF=2026-11-18` os números acima voltam; sem ela a referência é hoje, e o recorte muda.
