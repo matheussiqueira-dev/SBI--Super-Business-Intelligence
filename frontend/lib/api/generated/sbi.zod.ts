@@ -2060,6 +2060,7 @@ export const ListProductsQueryParams = zod.strictObject({
 export const listProductsResponseContentItemPriceAmountMin = 0;
 export const listProductsResponseContentItemPriceAmountMax = 9999999999.99;
 
+
 export const listProductsResponsePageMin = 0;
 
 export const listProductsResponseSizeMax = 100;
@@ -2087,6 +2088,7 @@ export const ListProductsResponse = zod.strictObject({
   "active": zod.boolean(),
   "weightKg": zod.number().nullable(),
   "downloadLink": zod.string().nullable(),
+  "photoVersion": zod.int().min(1).nullable().describe('Versao da foto do produto, ou null quando nao ha foto. Muda a cada troca e entra na URL da miniatura.'),
   "updatedAt": zod.iso.datetime({"offset":true})
 })),
   "page": zod.int().min(listProductsResponsePageMin),
@@ -2179,6 +2181,7 @@ export const createProductResponsePriceAmountMax = 9999999999.99;
 
 
 
+
 export const CreateProductResponse = zod.strictObject({
   "id": zod.int(),
   "type": zod.enum(['PHYSICAL', 'DIGITAL']),
@@ -2197,6 +2200,7 @@ export const CreateProductResponse = zod.strictObject({
   "active": zod.boolean(),
   "weightKg": zod.number().nullable(),
   "downloadLink": zod.string().nullable(),
+  "photoVersion": zod.int().min(1).nullable().describe('Versao da foto do produto, ou null quando nao ha foto. Muda a cada troca e entra na URL da miniatura.'),
   "updatedAt": zod.iso.datetime({"offset":true})
 })
 
@@ -2213,6 +2217,7 @@ export const GetProductParams = zod.strictObject({
 
 export const getProductResponsePriceAmountMin = 0;
 export const getProductResponsePriceAmountMax = 9999999999.99;
+
 
 
 
@@ -2234,6 +2239,7 @@ export const GetProductResponse = zod.strictObject({
   "active": zod.boolean(),
   "weightKg": zod.number().nullable(),
   "downloadLink": zod.string().nullable(),
+  "photoVersion": zod.int().min(1).nullable().describe('Versao da foto do produto, ou null quando nao ha foto. Muda a cada troca e entra na URL da miniatura.'),
   "updatedAt": zod.iso.datetime({"offset":true})
 })
 
@@ -2288,6 +2294,7 @@ export const updateProductResponsePriceAmountMax = 9999999999.99;
 
 
 
+
 export const UpdateProductResponse = zod.strictObject({
   "id": zod.int(),
   "type": zod.enum(['PHYSICAL', 'DIGITAL']),
@@ -2306,6 +2313,7 @@ export const UpdateProductResponse = zod.strictObject({
   "active": zod.boolean(),
   "weightKg": zod.number().nullable(),
   "downloadLink": zod.string().nullable(),
+  "photoVersion": zod.int().min(1).nullable().describe('Versao da foto do produto, ou null quando nao ha foto. Muda a cada troca e entra na URL da miniatura.'),
   "updatedAt": zod.iso.datetime({"offset":true})
 })
 
@@ -2368,6 +2376,7 @@ export const changeProductPriceResponsePriceAmountMax = 9999999999.99;
 
 
 
+
 export const ChangeProductPriceResponse = zod.strictObject({
   "id": zod.int(),
   "type": zod.enum(['PHYSICAL', 'DIGITAL']),
@@ -2386,6 +2395,7 @@ export const ChangeProductPriceResponse = zod.strictObject({
   "active": zod.boolean(),
   "weightKg": zod.number().nullable(),
   "downloadLink": zod.string().nullable(),
+  "photoVersion": zod.int().min(1).nullable().describe('Versao da foto do produto, ou null quando nao ha foto. Muda a cada troca e entra na URL da miniatura.'),
   "updatedAt": zod.iso.datetime({"offset":true})
 })
 
@@ -2416,6 +2426,7 @@ export const changeProductStatusResponsePriceAmountMax = 9999999999.99;
 
 
 
+
 export const ChangeProductStatusResponse = zod.strictObject({
   "id": zod.int(),
   "type": zod.enum(['PHYSICAL', 'DIGITAL']),
@@ -2434,6 +2445,7 @@ export const ChangeProductStatusResponse = zod.strictObject({
   "active": zod.boolean(),
   "weightKg": zod.number().nullable(),
   "downloadLink": zod.string().nullable(),
+  "photoVersion": zod.int().min(1).nullable().describe('Versao da foto do produto, ou null quando nao ha foto. Muda a cada troca e entra na URL da miniatura.'),
   "updatedAt": zod.iso.datetime({"offset":true})
 })
 
@@ -2497,6 +2509,120 @@ export const ListPriceHistoryResponse = zod.strictObject({
   "size": zod.int().min(1).max(listPriceHistoryResponseSizeMax),
   "totalElements": zod.int().min(listPriceHistoryResponseTotalElementsMin)
 }).describe('Pagina de PriceChange; page comeca em 0.')
+
+
+/**
+ * @summary Dados da foto do produto
+ */
+
+
+
+export const GetProductPhotoParams = zod.strictObject({
+  "id": zod.int().min(1)
+})
+
+
+
+
+
+
+
+export const GetProductPhotoResponse = zod.strictObject({
+  "productId": zod.int(),
+  "contentType": zod.enum(['image/jpeg', 'image/png']),
+  "byteSize": zod.int().min(1),
+  "width": zod.int().min(1),
+  "height": zod.int().min(1),
+  "version": zod.int().min(1),
+  "uploadedAt": zod.iso.datetime({"offset":true})
+}).describe('Foto do produto mantida pela loja. A imagem fica em /products/{id}/photo/file e a miniatura em /products/{id}/photo/thumb; version muda a cada troca e invalida o cache do navegador.')
+
+
+/**
+ * Multipart com o campo file. Aceita JPEG e PNG conferidos pelo conteudo, nao pelo tipo declarado. A foto anterior responde ate a troca terminar.
+ * @summary Envia ou substitui a foto do produto
+ */
+
+
+
+export const UploadProductPhotoParams = zod.strictObject({
+  "id": zod.int().min(1)
+})
+
+
+
+
+export const UploadProductPhotoHeader = zod.strictObject({
+  "X-CSRF-TOKEN": zod.string().min(1).describe('Obter em GET /auth/csrf antes do login e renovar apos login/logout.')
+})
+
+export const UploadProductPhotoBody = zod.strictObject({
+  "file": zod.instanceof(Blob)
+})
+
+
+
+
+
+
+
+export const UploadProductPhotoResponse = zod.strictObject({
+  "productId": zod.int(),
+  "contentType": zod.enum(['image/jpeg', 'image/png']),
+  "byteSize": zod.int().min(1),
+  "width": zod.int().min(1),
+  "height": zod.int().min(1),
+  "version": zod.int().min(1),
+  "uploadedAt": zod.iso.datetime({"offset":true})
+}).describe('Foto do produto mantida pela loja. A imagem fica em /products/{id}/photo/file e a miniatura em /products/{id}/photo/thumb; version muda a cada troca e invalida o cache do navegador.')
+
+
+/**
+ * @summary Remove a foto do produto
+ */
+
+
+
+export const DeleteProductPhotoParams = zod.strictObject({
+  "id": zod.int().min(1)
+})
+
+
+
+
+export const DeleteProductPhotoHeader = zod.strictObject({
+  "X-CSRF-TOKEN": zod.string().min(1).describe('Obter em GET /auth/csrf antes do login e renovar apos login/logout.')
+})
+
+export const DeleteProductPhotoResponse = zod.void()
+
+
+/**
+ * Bytes da imagem. 404 tambem quando a midia nao esta no armazenamento: a tela mostra o recurso de queda em vez de falhar.
+ * @summary Imagem original da foto do produto
+ */
+
+
+
+export const GetProductPhotoFileParams = zod.strictObject({
+  "id": zod.int().min(1)
+})
+
+export const GetProductPhotoFileResponse = zod.unknown()
+
+
+/**
+ * Bytes da imagem. 404 tambem quando a midia nao esta no armazenamento: a tela mostra o recurso de queda em vez de falhar.
+ * @summary Miniatura da foto do produto
+ */
+
+
+
+export const GetProductPhotoThumbParams = zod.strictObject({
+  "id": zod.int().min(1)
+})
+
+export const GetProductPhotoThumbResponse = zod.unknown()
 
 
 /**

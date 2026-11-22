@@ -1944,6 +1944,257 @@
         }
       }
     },
+    "/products/{id}/photo": {
+      "get": {
+        "summary": "Dados da foto do produto",
+        "operationId": "getProductPhoto",
+        "x-rf": [
+          "RF-22"
+        ],
+        "x-status": "implemented",
+        "x-roles": [
+          "CEO",
+          "GERENTE",
+          "VENDEDOR"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Foto do produto",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductPhoto"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "summary": "Envia ou substitui a foto do produto",
+        "description": "Multipart com o campo file. Aceita JPEG e PNG conferidos pelo conteudo, nao pelo tipo declarado. A foto anterior responde ate a troca terminar.",
+        "operationId": "uploadProductPhoto",
+        "x-rf": [
+          "RF-22"
+        ],
+        "x-status": "implemented",
+        "x-roles": [
+          "CEO",
+          "GERENTE"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          },
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Imagem JPEG ou PNG, de 64 a 4096 pixels de lado."
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Foto gravada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductPhoto"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove a foto do produto",
+        "operationId": "deleteProductPhoto",
+        "x-rf": [
+          "RF-22"
+        ],
+        "x-status": "implemented",
+        "x-roles": [
+          "CEO",
+          "GERENTE"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          },
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Foto removida"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/products/{id}/photo/file": {
+      "get": {
+        "summary": "Imagem original da foto do produto",
+        "description": "Bytes da imagem. 404 tambem quando a midia nao esta no armazenamento: a tela mostra o recurso de queda em vez de falhar.",
+        "operationId": "getProductPhotoFile",
+        "x-rf": [
+          "RF-22"
+        ],
+        "x-status": "implemented",
+        "x-roles": [
+          "CEO",
+          "GERENTE",
+          "VENDEDOR"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Imagem",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/products/{id}/photo/thumb": {
+      "get": {
+        "summary": "Miniatura da foto do produto",
+        "description": "Bytes da imagem. 404 tambem quando a midia nao esta no armazenamento: a tela mostra o recurso de queda em vez de falhar.",
+        "operationId": "getProductPhotoThumb",
+        "x-rf": [
+          "RF-22"
+        ],
+        "x-status": "implemented",
+        "x-roles": [
+          "CEO",
+          "GERENTE",
+          "VENDEDOR"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Imagem",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/categories": {
       "get": {
         "summary": "Lista categorias",
@@ -5913,6 +6164,7 @@
           "active",
           "weightKg",
           "downloadLink",
+          "photoVersion",
           "updatedAt"
         ],
         "properties": {
@@ -5966,7 +6218,67 @@
               "null"
             ]
           },
+          "photoVersion": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "minimum": 1,
+            "description": "Versao da foto do produto, ou null quando nao ha foto. Muda a cada troca e entra na URL da miniatura."
+          },
           "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProductPhoto": {
+        "type": "object",
+        "description": "Foto do produto mantida pela loja. A imagem fica em /products/{id}/photo/file e a miniatura em /products/{id}/photo/thumb; version muda a cada troca e invalida o cache do navegador.",
+        "required": [
+          "productId",
+          "contentType",
+          "byteSize",
+          "width",
+          "height",
+          "version",
+          "uploadedAt"
+        ],
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "contentType": {
+            "type": "string",
+            "enum": [
+              "image/jpeg",
+              "image/png"
+            ]
+          },
+          "byteSize": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "width": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "height": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "uploadedAt": {
             "type": "string",
             "format": "date-time"
           }

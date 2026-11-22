@@ -75,12 +75,20 @@ public final class BackofficeDtos {
 
     public record ProductStatusRequest(@NotNull Boolean active) { }
 
+    /** photoVersion e null quando o produto nao tem foto; com valor, a tela monta a URL da miniatura com ?v=. */
     public record Product(long id, String type, String sku, String name, String description, CategoryRef category,
                           MoneyDto price, boolean sellable, boolean active, BigDecimal weightKg, String downloadLink,
-                          OffsetDateTime updatedAt) { }
+                          Integer photoVersion, OffsetDateTime updatedAt) { }
 
     public record PriceChange(long id, MoneyDto oldPrice, MoneyDto newPrice, String reason, UserRef changedBy,
                               OffsetDateTime changedAt) { }
+
+    /**
+     * Foto do produto mantida pela loja (V13). Nao traz a URL: a imagem e lida em /products/{id}/photo/file e
+     * /products/{id}/photo/thumb, e version muda a cada troca para o cache do navegador buscar a nova.
+     */
+    public record ProductPhoto(long productId, String contentType, int byteSize, int width, int height,
+                               int version, OffsetDateTime uploadedAt) { }
 
     // ---------------- categorias ----------------
 

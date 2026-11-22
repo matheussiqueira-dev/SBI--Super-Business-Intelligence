@@ -103,6 +103,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/sales/orders/{id}/discount-approval").hasRole(GERENTE)
                         .requestMatchers(HttpMethod.DELETE, "/customers/{id}").hasRole(GERENTE)
                         .requestMatchers(HttpMethod.POST, "/customers/{id}/address", "/payment/{id}/refund").hasRole(GERENTE)
+                        // Foto do produto: a leitura serve o balcao (VENDEDOR), o envio e a remocao sao do GERENTE
+                        // pela regra geral de /products/** logo abaixo. Vem antes para nao ser engolida por ela.
+                        .requestMatchers(HttpMethod.GET, "/products/{id}/photo", "/products/{id}/photo/file",
+                                "/products/{id}/photo/thumb").hasRole(VENDEDOR)
                         .requestMatchers("/products", "/products/**", "/categories", "/categories/**", "/stock/**",
                                 "/promotions", "/promotions/**", "/goals/**", "/management/**", "/analytics/**",
                                 "/orders", "/orders/**", "/payment", "/payment/**", "/address", "/address/**",

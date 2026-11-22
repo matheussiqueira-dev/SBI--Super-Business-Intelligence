@@ -120,6 +120,49 @@ export function createClient({ fetcher = (input, init) => fetch(input, init), on
   }
 
   /**
+   * Envia um arquivo em multipart (foto de produto). Mesmo tratamento de CSRF, erro e contrato do request; o
+   * Content-Type nao e definido aqui de proposito, para o navegador escrever o boundary do multipart.
+   */
+  async function upload<T = unknown>(path: string, field: string, file: File, options: { schema?: ZodType<T>; signal?: AbortSignal } = {}): Promise<T> {
+    const send = async (token: CsrfToken) => {
+      const body = new FormData();
+      body.append(field, file);
+      return raw(path, {
+        method: 'PUT',
+        headers: { Accept: 'application/json', [token.headerName]: token.token },
+        body,
+        ...(options.signal ? { signal: options.signal } : {}),
+      });
+    };
+    let response = await send(csrf ?? await refreshCsrf(options.signal));
+    let failure: unknown;
+    if (response.status === 403) {
+      failure = await response.json().catch(() => null);
+      const code = errorDetails(failure).code;
+      if (code === undefined || code === 'FORBIDDEN') {
+        failure = undefined;
+        response = await send(await refreshCsrf(options.signal));
+      }
+    }
+    if (!response.ok) {
+      const body: unknown = failure !== undefined ? failure : await response.json().catch(() => null);
+      const { code, details } = errorDetails(body);
+      if (response.status === 401) onUnauthorized?.(code);
+      // Regra de conteudo (formato, tamanho, dimensao) traz uma explicacao escrita para quem usa: essa passa adiante.
+      const fromServer = typeof (body as { message?: unknown })?.message === 'string' ? (body as { message: string }).message : '';
+      const useServerMessage = response.status === 400 && fromServer.length > 0 && fromServer.length <= 300;
+      throw new ApiError(response.status, code, useServerMessage ? fromServer : messageFor(code, response.status), details);
+    }
+    const data: unknown = await response.json();
+    if (options.schema && shouldValidate) {
+      const parsed = options.schema.safeParse(data);
+      if (!parsed.success) throw new ContractError(path, parsed.error.message);
+      return parsed.data;
+    }
+    return data as T;
+  }
+
+  /**
    * Baixa um arquivo da API (exportacao). Passa pelo mesmo tratamento de erro do request: codigo do
    * contrato traduzido para pt-BR e 401 levando ao login. A tela nunca mostra a mensagem interna do
    * servidor nem o numero do status.
@@ -142,6 +185,7 @@ export function createClient({ fetcher = (input, init) => fetch(input, init), on
 
   return {
     request,
+    upload,
     download,
     refreshCsrf,
     /** Depois de login e logout o token anterior deixa de valer. */

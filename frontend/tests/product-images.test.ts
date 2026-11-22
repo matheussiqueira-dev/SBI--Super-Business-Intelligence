@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { productImage, productLine } from '../lib/product-images.ts';
+import { productImage, productLine, photoThumbUrl } from '../lib/product-images.ts';
 import { PRODUCT_PHOTOS } from '../lib/product-photos.ts';
 
 test('miniatura pelo SKU, pelo nome (resumo do cliente) ou icone da linha', () => {
@@ -24,4 +24,13 @@ test('toda foto do manifesto existe em public/produtos e tem autor e licenca', (
   for (const line of ['iphone', 'ipad', 'mac', 'airpods', 'watch', 'casa', 'acessorio']) {
     assert.ok(existsSync(join(process.cwd(), 'public', 'produtos', 'linhas', `${line}.svg`)), line);
   }
+});
+
+test('[CT-FOTO-110] a foto enviada pela loja tem URL propria, versionada e de mesma origem', () => {
+  const url = photoThumbUrl(42, 3);
+  assert.equal(url, '/api/backend/products/42/photo/thumb?v=3');
+  // Mesma origem: a imagem passa pelo proxy do Next e leva o cookie de sessao, como o resto da API.
+  assert.ok(url.startsWith('/api/backend/'), 'a miniatura nao pode sair para outro host');
+  // A versao muda a URL: depois de uma troca o navegador nao serve a foto antiga do cache.
+  assert.notEqual(photoThumbUrl(42, 4), url);
 });

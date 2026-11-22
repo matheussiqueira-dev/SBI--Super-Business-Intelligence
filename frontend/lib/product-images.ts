@@ -1,6 +1,9 @@
-// Miniatura do produto pelo SKU que a API ja devolve (D-PUB-13): foto de licenca livre em public/produtos/ ou, sem
-// foto (acessorio sem imagem livre, produto criado pela tela), o icone da linha deduzido do nome.
+// De onde vem a imagem de um produto, em ordem de preferencia:
+//   1. foto enviada pela loja (V13), quando o produto tem photoVersion -- URL montada por photoThumbUrl;
+//   2. foto de licenca livre em public/produtos/, pelo SKU que a API devolve ou pelo nome (D-PUB-13);
+//   3. icone da linha deduzido do nome (acessorio sem imagem livre, produto criado pela tela).
 import { PRODUCT_PHOTOS } from './product-photos.ts';
+import { API_PREFIX } from './api/http.ts';
 
 export interface ProductImage { src: string; photo: boolean }
 
@@ -20,4 +23,13 @@ export function productLine(name: string): string {
 export function productImage(sku: string | undefined, name: string): ProductImage {
   const file = (sku ? BY_SKU.get(sku.toUpperCase()) : undefined) ?? BY_NAME.get(name);
   return file ? { src: `/produtos/${file}`, photo: true } : { src: `/produtos/linhas/${productLine(name)}.svg`, photo: false };
+}
+
+/**
+ * Miniatura enviada pela loja. A versao entra na consulta para o navegador buscar a imagem nova depois de uma
+ * troca em vez de servir a antiga do cache; a resposta da API e Cache-Control private, entao nenhuma CDN
+ * compartilhada guarda a foto de uma loja.
+ */
+export function photoThumbUrl(productId: number, version: number): string {
+  return `${API_PREFIX}/products/${productId}/photo/thumb?v=${version}`;
 }

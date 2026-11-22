@@ -7,6 +7,7 @@ import type { z } from 'zod';
 import {
   ChangeProductPriceResponse, ChangeProductStatusResponse, CreateCategoryResponse, CreateProductBody, CreateProductResponse,
   ListCategoriesResponse, ListPriceHistoryResponse, ListProductsResponse, UpdateCategoryResponse, UpdateProductBody, UpdateProductResponse,
+  UploadProductPhotoResponse,
 } from '../../../../lib/api/generated/sbi.zod.ts';
 import { api } from '../../../../lib/api/http.ts';
 import { formatDateTime, money, parseDecimal as decimal } from '../../../../lib/format.ts';
@@ -19,12 +20,12 @@ import EmptyState from '../../../../components/empty-state.tsx';
 import PageHeader from '../../../../components/page-header.tsx';
 import Pager from '../../../../components/pager.tsx';
 import { Icon } from '../../../../components/brand/icons.tsx';
-import ProductThumb from '../../../../components/product-thumb.tsx';
+import ProductThumb, { photoThumbUrl } from '../../../../components/product-thumb.tsx';
 import { StatusMessage, useStatusMessage } from '../../../../components/status-message.tsx';
 import TableWrap from '../../../../components/table-wrap.tsx';
 
 type Product = z.infer<typeof ListProductsResponse>['content'][number];
-type Panel = { kind: 'new' } | { kind: 'edit' | 'price' | 'history'; product: Product } | { kind: 'categories' } | null;
+type Panel = { kind: 'new' } | { kind: 'edit' | 'price' | 'history' | 'photo'; product: Product } | { kind: 'categories' } | null;
 
 /** Rotulos da tela para os campos do corpo (CreateProductBody/UpdateProductBody). */
 const PRODUCT_FIELDS: Readonly<Record<string, string>> = {
@@ -56,7 +57,8 @@ export default function Products() {
   const done = (text: string) => { void client.invalidateQueries({ queryKey: ['products'] }); message.show(text); setPanel(null); };
   const data = list.data;
   const title = panel === null ? '' : panel.kind === 'new' ? 'Novo produto' : panel.kind === 'categories' ? 'Categorias'
-    : `${panel.kind === 'edit' ? 'Editar' : panel.kind === 'price' ? 'Alterar preço' : 'Histórico de preço'} · ${panel.product.name}`;
+    : `${panel.kind === 'edit' ? 'Editar' : panel.kind === 'price' ? 'Alterar preço'
+        : panel.kind === 'photo' ? 'Foto' : 'Histórico de preço'} · ${panel.product.name}`;
 
   return (
     <div className="stack">
@@ -85,7 +87,7 @@ export default function Products() {
                 <th scope="col">Situação</th><th scope="col"><span className="sr-only">Ações</span></th></tr></thead>
               <tbody>{data.content.map(p => (
                 <tr key={p.id}>
-                  <td><div className="product-cell"><ProductThumb sku={p.sku} name={p.name} />
+                  <td><div className="product-cell"><ProductThumb sku={p.sku} name={p.name} productId={p.id} photoVersion={p.photoVersion} />
                     <span>{p.name}<span className="cell-sub"><span className="id">{p.sku}</span> · {p.type === 'DIGITAL' ? 'Digital' : 'Físico'}</span></span></div></td>
                   <td>{p.category?.name ?? '—'}</td>
                   <td className="num right">{money(p.price)}</td>
@@ -93,6 +95,7 @@ export default function Products() {
                   <td><div className="actions">
                     <button type="button" className="btn btn-sm" onClick={() => setPanel({ kind: 'edit', product: p })}>Editar</button>
                     <button type="button" className="btn btn-sm" onClick={() => setPanel({ kind: 'price', product: p })}>Preço</button>
+                    <button type="button" className="btn btn-sm" onClick={() => setPanel({ kind: 'photo', product: p })}>Foto</button>
                     <button type="button" className="btn btn-sm btn-ghost" onClick={() => setPanel({ kind: 'history', product: p })}>Histórico</button>
                     <button type="button" className="btn btn-sm btn-ghost" disabled={status.isPending}
                             onClick={() => (p.active ? setDeactivating(p) : status.mutate(p))}>{p.active ? 'Inativar' : 'Ativar'}</button>
@@ -107,6 +110,8 @@ export default function Products() {
         {panel?.kind === 'edit' && <ProductForm product={panel.product} onDone={name => done(`Dados de ${name} salvos.`)} />}
         {panel?.kind === 'price' && <PriceForm product={panel.product}
                                                onDone={price => done(`Preço de ${panel.product.name} alterado para ${price}. Vendas já feitas mantêm o preço antigo.`)} />}
+        {panel?.kind === 'photo' && <PhotoForm product={panel.product}
+                                               onDone={text => done(`${panel.product.name}: ${text}`)} />}
         {panel?.kind === 'history' && <PriceHistory product={panel.product} />}
         {panel?.kind === 'categories' && <Categories />}
       </Drawer>
@@ -253,5 +258,84 @@ function Categories() {
         </li>
       ))}</ul>
     </div>
+  );
+}
+
+/**
+ * Foto do produto (V13, plano comercial secao 05). A loja envia JPEG ou PNG; o servidor confere o conteudo de
+ * verdade, gera a miniatura e troca a imagem so quando a gravacao termina -- ate la a foto anterior continua
+ * aparecendo. A responsabilidade pelo direito de uso da imagem e da loja, e a tela diz isso.
+ */
+function PhotoForm({ product, onDone }: { product: Product; onDone: (text: string) => void }) {
+  const client = useQueryClient();
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [removing, setRemoving] = useState(false);
+
+  const refresh = () => client.invalidateQueries({ queryKey: ['products'] });
+
+  const send = useMutation({
+    mutationFn: (chosen: File) => api.upload(`/products/${product.id}/photo`, 'file', chosen, { schema: UploadProductPhotoResponse }),
+    onSuccess: async () => { await refresh(); onDone('foto atualizada.'); },
+  });
+  const remove = useMutation({
+    mutationFn: () => api.request(`/products/${product.id}/photo`, { method: 'DELETE' }),
+    onSuccess: async () => { await refresh(); onDone('foto removida.'); },
+  });
+
+  function choose(chosen: File | null) {
+    setFile(chosen);
+    setPreview(previous => {
+      if (previous) URL.revokeObjectURL(previous);
+      return chosen ? URL.createObjectURL(chosen) : null;
+    });
+  }
+
+  const busy = send.isPending || remove.isPending;
+  const current = product.photoVersion != null ? photoThumbUrl(product.id, product.photoVersion) : null;
+
+  return (
+    <form className="stack-md" onSubmit={event => { event.preventDefault(); if (file) send.mutate(file); }} aria-busy={busy}>
+      <ErrorNotice error={send.error ?? remove.error} />
+
+      <div className="field">
+        <span className="label">Foto atual</span>
+        {current
+          ? <img className="thumb thumb-lg" src={current} alt={`Foto cadastrada de ${product.name}`} width={160} height={160} />
+          : <p className="muted">Sem foto própria. A tela usa a imagem do catálogo base ou o ícone da linha.</p>}
+      </div>
+
+      <div className="field">
+        <label htmlFor="foto-produto">Nova foto</label>
+        <input id="foto-produto" className="input" type="file" accept="image/jpeg,image/png" disabled={busy}
+               aria-describedby="foto-produto-dica"
+               onChange={event => choose(event.target.files?.[0] ?? null)} />
+        <p className="hint" id="foto-produto-dica">JPEG ou PNG, de 64 a 4096 pixels de lado, até 3 MB. A miniatura é gerada pelo sistema.</p>
+      </div>
+
+      {preview && (
+        <div className="field">
+          <span className="label">Prévia do envio</span>
+          <img className="thumb thumb-lg" src={preview} alt="" width={160} height={160} />
+        </div>
+      )}
+
+      <p className="notice">A loja responde pela exatidão da imagem e pelo direito de uso dela.</p>
+
+      <div className="actions">
+        <button type="submit" className="btn btn-primary" disabled={!file || busy}>
+          {send.isPending ? 'Enviando…' : current ? 'Substituir foto' : 'Enviar foto'}
+        </button>
+        {current && (
+          <button type="button" className="btn btn-danger" disabled={busy} onClick={() => setRemoving(true)}>Remover foto</button>
+        )}
+      </div>
+
+      <ConfirmDialog open={removing} title={`Remover a foto de ${product.name}?`} confirmLabel="Remover foto"
+                     cancelLabel="Manter foto" onCancel={() => setRemoving(false)}
+                     onConfirm={() => { setRemoving(false); remove.mutate(); }}>
+        <p>A tela volta a usar a imagem do catálogo base ou o ícone da linha. O produto e o histórico não mudam.</p>
+      </ConfirmDialog>
+    </form>
   );
 }

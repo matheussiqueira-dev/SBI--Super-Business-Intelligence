@@ -280,6 +280,8 @@ td .actions { flex-wrap: nowrap; justify-content: flex-end; }
 .product-cell > span { min-width: 0; }
 .thumb { flex: none; width: 40px; height: 40px; border-radius: var(--sbi-radius-md); border: 1px solid var(--sbi-border-subtle); background: var(--sbi-media-bg); object-fit: contain; }
 .thumb-icon { padding: 6px; background: var(--sbi-bg-subtle); }
+/* Prévia da foto do produto no painel de gestão (V13): mesma caixa da miniatura, em tamanho de conferência. */
+.thumb-lg { width: 160px; height: 160px; }
 
 /* ---------- avatar: iniciais de 36 px (28 em listas); Tinta para gestão, Petróleo para venda ---------- */
 .avatar {
