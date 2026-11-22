@@ -48,7 +48,7 @@ Execute o bloco **PASSO 1** de `11_prova_banco.sql`.
 **O que apontar na tela, em ordem:**
 
 1. **Conexão e versão** (1.1): nome do banco, usuário conectado, `PostgreSQL 18.x`, e a hora da loja em `America/Fortaleza`. Diga: *"é um PostgreSQL 18 de verdade, não um arquivo nem um mock"*.
-2. **Tabelas com a contagem real** (1.2): as 20 tabelas do modelo com o número de linhas de cada uma, contado por `COUNT(*)` (a consulta deixa de fora `flyway_schema_history`, que é controle do Flyway, não dado da loja). Aponte `orders`, `order_item`, `payment`, `customer` e `product`. Diga: *"estes são os dados armazenados"*.
+2. **Tabelas com a contagem real** (1.2): as 21 tabelas do modelo com o número de linhas de cada uma, contado por `COUNT(*)` (a consulta deixa de fora `flyway_schema_history`, que é controle do Flyway, não dado da loja). Aponte `orders`, `order_item`, `payment`, `customer` e `product`. Diga: *"estes são os dados armazenados"*. Duas das 21 nascem vazias e isso é esperado: `product_photo` (a loja ainda não enviou foto) e `product_price_history` (só ganha linha quando um preço muda).
 3. **Chaves e relações** (1.4 e 1.5): a chave primária de cada tabela e **toda** chave estrangeira, com a coluna, a tabela-pai e o que acontece ao excluir o pai. Os quatro grupos que o enunciado pede aparecem aqui:
    - cliente ↔ endereço: `customer.address_id → address.id`
    - pedido ↔ itens ↔ pagamento: `order_item.order_id → orders.id` e `payment.order_id → orders.id`
@@ -57,9 +57,9 @@ Execute o bloco **PASSO 1** de `11_prova_banco.sql`.
 4. **Restrições** (1.6): mostre `ck_customer_document_type` (pessoa física exige CPF, jurídica exige CNPJ), `ck_customer_cpf` (onze dígitos) e `payment_order_id_key` (um pagamento por pedido). Diga: *"o banco recusa dado inválido; não é a tela que decide"*.
 5. **Gatilhos** (1.7): `annual_goal_only_ceo`, `monthly_goal_sum` e `seller_goal_sum` (adiados para o `COMMIT`), `product_price_history`, `stock_entry_apply`. Os nomes com prefixo `trg_` na coluna vizinha são as funções que esses gatilhos executam.
 
-**Saída esperada:** 20 tabelas, nenhuma com zero linhas nas cinco principais; a última migração do Flyway é a `12.2`.
+**Saída esperada:** 21 tabelas, nenhuma com zero linhas nas cinco principais; a última migração do Flyway é a `14`.
 
-> O diagrama está em [modelo ERP/PDV](../03-banco-de-dados/modelo-erp-pdv.md) — tenha-o aberto numa aba, para a pergunta "mostre o modelo". O [dicionário de dados](../03-banco-de-dados/dicionario-dados.md) é o **mínimo** de 04/10/2026: descreve sete tabelas de `V1`/`V2` e ainda chama de `client` a tabela que a `V3` renomeou para `customer`. Não há dicionário escrito das 20 tabelas de hoje; o que a banca vê é o próprio banco — 1.2 lista as 20 com a contagem, e 1.8 dá as colunas dos quatro grupos, que são oito tabelas.
+> O diagrama está em [modelo ERP/PDV](../03-banco-de-dados/modelo-erp-pdv.md) — tenha-o aberto numa aba, para a pergunta "mostre o modelo". O [dicionário de dados](../03-banco-de-dados/dicionario-dados.md) é o **mínimo** de 04/10/2026: descreve sete tabelas de `V1`/`V2` e ainda chama de `client` a tabela que a `V3` renomeou para `customer`. Não há dicionário escrito das 21 tabelas de hoje; o que a banca vê é o próprio banco — 1.2 lista as 21 com a contagem, e 1.8 dá as colunas dos quatro grupos, que são oito tabelas.
 
 ---
 

@@ -6,7 +6,18 @@ O que foi entregue às disciplinas de Garantia da Qualidade de Software e Banco 
 | --- | --- |
 | [relatorio-final.md](relatorio-final.md) | Relatório final do SBI, com os números reais de testes, defeitos e cobertura |
 | [relatorio-academico-2026-10-24/](relatorio-academico-2026-10-24/) | Relatório acadêmico completo em [DOCX](relatorio-academico-2026-10-24/SBI_RELATORIO_ACADEMICO_COMPLETO_2026.docx) e [PDF](relatorio-academico-2026-10-24/SBI_RELATORIO_ACADEMICO_COMPLETO_2026.pdf) (com o Apêndice M de 25/10), [documentação técnica](relatorio-academico-2026-10-24/SBI_DOCUMENTACAO_TECNICA.md), [checklist de encerramento](relatorio-academico-2026-10-24/SBI_CHECKLIST_E_ENCERRAMENTO.md), planilhas do dicionário de dados e do plano de testes, diagramas (com as fontes Mermaid em `diagramas/fonte/`), evidências das execuções, correções propostas e passos de reprodução |
-| [pacote-sql-loja-gestao.zip](pacote-sql-loja-gestao.zip) | Pacote SQL como foi entregue à disciplina de Banco de Dados. A versão viva, que o CI executa, está em [03-banco-de-dados/pacote-sql/](../03-banco-de-dados/pacote-sql/) |
+| [pacote-sql-loja-gestao.zip](pacote-sql-loja-gestao.zip) | Pacote SQL **histórico**, como foi entregue em 12/10/2026 (10 arquivos, até o `06c`). Não contém a prova de banco. A versão viva, que o CI executa, está em [03-banco-de-dados/pacote-sql/](../03-banco-de-dados/pacote-sql/) |
+| [pacote-sql-apresentacao-2026-11-22.zip](pacote-sql-apresentacao-2026-11-22.zip) | Pacote SQL **atual**, gerado de `6647d64`: os 16 arquivos de `03-banco-de-dados/pacote-sql/` com os quatro runners, a massa Olist e os scripts `10_carga_apresentacao.sql`, `11_prova_banco.sql` e `12_testes_apresentacao.sql`, mais as 18 migrações de `db/migration` e `db/demo`. É o material que a banca de Banco de Dados avalia |
+
+## Pacote de entrega de 22/11/2026
+
+O ZIP de 03/11/2026 (`SBI-A3-Siqueira-Vasconcelos-Barros-Ferreira.zip`, preservado) é anterior à preparação da
+apresentação de Banco de Dados e à foto de produto: ele não traz `10_carga_apresentacao.sql`,
+`11_prova_banco.sql`, `12_testes_apresentacao.sql`, `run_apresentacao.sh` nem as migrações `V12_2`, `V13` e `V14`.
+
+O pacote de 22/11/2026 é gerado do commit `6647d644eee117fda661c0d8609892df1be8d53d` (`main`) e inclui, além do
+código daquele commit, as correções de documentação de 22/11 listadas no `LEIA-ME.txt` do próprio pacote. O
+esquema que ele produz tem **21 tabelas** de aplicação e termina na migração **V14**.
 
 O relatório acadêmico cita os documentos pelos caminhos de antes da organização de 25/10/2026; a tabela "Onde estava cada documento" do [índice da documentação](../README.md) mostra onde cada um está agora.
 

@@ -216,7 +216,7 @@ Executados na branch `feat/business-endpoints` com `scripts/test.ps1 -Mode Integ
 | CT-CRM-104 | Verde | `CustomersApiTest.updateUsesVersionAndKeepsDocument` (versao desatualizada responde 409; edicao em paralelo real nao e simulada) |
 | CT-CRM-105 | Verde | `CustomersApiTest.deleteRules` |
 | CT-CONTRACT-101 | Verde (nivel API) | `CustomersApiTest` (CPF/CNPJ), `SalesApiTest.deliveryRequiresAddress`, `cardStoresOnlyLastFourDigits` |
-| CT-CONTRACT-102 | Verde | `scripts/live-contract.mjs` (contrato v6, 62 operacoes, 0 divergencias, escopo em D-EXEC-07). O relatorio versionado `reports/contrato/live-v6/live-contract.json` e da execucao de 24/10 e cobre as 61 operacoes de entao; a 62a, `GET /analytics/export`, entrou com D-EVO-55 e e exercitada pelo job `contract` da CI, que grava o relatorio de cada execucao em `target/contrato/` |
+| CT-CONTRACT-102 | Verde | `scripts/live-contract.mjs` roda hoje contra o contrato ATIVO, o **v7**, com **70 operacoes** (62 do v6, 3 de apoio a decisao da D-EVO-63 e 5 da foto de produto da V13/V14), 0 divergencias; escopo em D-EXEC-07. O relatorio versionado `reports/contrato/live-v6/live-contract.json` e historico: e da execucao de 24/10 e cobre as 61 operacoes de entao, contra o v6. A execucao valida de cada push fica no job `contract` da CI, que grava o relatorio em `target/contrato/` |
 | CT-SEC-110 | Verde | `SalesApiTest.unknownPropertiesAreRejected` |
 | CT-SEC-111 | Verde | Corpo com `sellerId` responde 400; header e parametro forjados sao ignorados (`SalesApiTest.sellerComesOnlyFromSession`) |
 | CT-SEC-112 | Verde | `SalesApiTest.ownershipOnPaymentAndCancel`, `sellersSeeOnlyTheirOwnOrders` |

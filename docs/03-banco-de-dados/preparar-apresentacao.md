@@ -12,7 +12,7 @@ Três camadas, nesta ordem de dependência:
 
 | Camada | O que é | Quem monta |
 | --- | --- | --- |
-| Esquema | 20 tabelas do modelo (mais `flyway_schema_history`), 20 views, 17 funções e 11 gatilhos | Flyway, perfil `demo` (`V1` a `V12_2`) |
+| Esquema | 21 tabelas do modelo (mais `flyway_schema_history`), 20 views, 18 funções e 12 gatilhos | Flyway, perfil `demo` (`V1` a `V14`) |
 | Massa | catálogo Apple de 42 SKUs, 60 clientes e 219 pedidos pagos do último ano | `07_carga_olist.sql` |
 | Cenário | metas do ano, operação em andamento, dias fortes e fracos | `10_carga_apresentacao.sql` |
 

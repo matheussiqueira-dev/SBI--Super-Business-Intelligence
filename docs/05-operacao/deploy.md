@@ -72,7 +72,7 @@ Variáveis de ambiente (os valores reais ficam só no painel do Render):
 2. Se o usuário precisar de nova credencial, use **Redefinir senha** e entregue a senha provisória por um canal privado. Para redefinir uma conta de CEO, use outra conta de CEO.
 3. A pessoa entra com a senha provisória e define a própria senha. Confira a área inicial após a troca. A redefinição limpa bloqueio e tentativas anteriores, revoga sessões existentes e registra `PASSWORD_RESET` na auditoria.
 
-No primeiro deploy, o log do Render deve mostrar o Flyway aplicando V1 a V12 e as migrações `db/demo`. Conferência: `https://sbi-api-puk8.onrender.com/auth/csrf` responde 200 com o token. Cada chamada a `/auth/csrf` abre uma sessão de até 30 minutos (o token CSRF fica na sessão), então o health check mantém algumas centenas de sessões pequenas em memória, o que cabe na instância.
+No primeiro deploy, o log do Render deve mostrar o Flyway aplicando V1 a V14 e as migrações `db/demo`. Conferência: `https://sbi-api-puk8.onrender.com/auth/csrf` responde 200 com o token. Cada chamada a `/auth/csrf` abre uma sessão de até 30 minutos (o token CSRF fica na sessão), então o health check mantém algumas centenas de sessões pequenas em memória, o que cabe na instância.
 
 ## 3. Carga Olist no Neon
 

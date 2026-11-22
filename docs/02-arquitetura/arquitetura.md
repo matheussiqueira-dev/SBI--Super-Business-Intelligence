@@ -19,7 +19,7 @@ flowchart LR
     REPO["Repositórios JdbcClient<br/>(JPA só no legado)"]
     ERR["GlobalExceptionHandler<br/>ErrorResponse com code"]
   end
-  DB[("PostgreSQL 18<br/>Flyway V1–V12, CHECKs, gatilhos, views V6 e V9")]
+  DB[("PostgreSQL 18<br/>Flyway V1–V14, CHECKs, gatilhos, views V6 e V9")]
   UI --> PX --> SSR
   UI --> RW --> SEC --> CTL --> SVC --> REPO --> DB
   CTL -.-> ERR
@@ -28,8 +28,8 @@ flowchart LR
 
 - O frontend segue o manual de identidade visual SBI v2.0: tokens com nome do papel (`--sbi-*`, temas claro e escuro) em `frontend/app/tokens.css`, componentes em `frontend/app/globals.css`, símbolo, logotipo e ícones em `frontend/components/brand/`, menu em seções GESTÃO, ATENDIMENTO e MEU ESPAÇO (D-EVO-32 a D-EVO-37, D-MAR-01 a D-MAR-15).
 - O frontend fala com a API sempre pela mesma origem (`/api/backend/*`, rewrite do Next). O cookie de sessão é HttpOnly e o token CSRF vai num cabeçalho em toda mutação (`frontend/lib/api/http.ts`).
-- Os schemas Zod do frontend são gerados do contrato **v7** (`config/openapi/target-loja-gestao-openapi-2026-11-20-v7.json`) pelo orval (`frontend/lib/api/generated/`). A CI falha se a geração produzir diff. O v7 é o v6 mais as três operações de apoio à decisão (projeção do mês, alerta de margem e sugestão de produto); os 62 caminhos e os 124 schemas do v6 seguem idênticos nele, e o v6 continua auditado e validado como contrato histórico (D-EVO-63).
-- A API valida a entrada com Bean Validation, responde todo erro como `ErrorResponse` com `code` e documenta as operações no Springdoc. O `scripts/live-contract.mjs` compara o OpenAPI ao vivo com o **v7** (**65 operações**; cada execução grava o seu relatório em `target/contrato/`, e os do v6 ficam em `reports/contrato/live-v6/`). Ele exercita cada operação implementada contra a API isolada e **falha se a contagem de exercitadas não fechar** com a de implementadas — não basta cada caminho ter sido visto.
+- Os schemas Zod do frontend são gerados do contrato **v7** (`config/openapi/target-loja-gestao-openapi-2026-11-20-v7.json`) pelo orval (`frontend/lib/api/generated/`). A CI falha se a geração produzir diff. O v7 tem **56 caminhos, 70 operações e 131 schemas**, e nasce do v6 (50 caminhos, 62 operações, 124 schemas) em duas rodadas: as **três operações de apoio à decisão** da D-EVO-63 (projeção do mês, alerta de margem e sugestão de produto) e as **cinco operações da foto de produto** da V13/V14 (`GET`, `PUT` e `DELETE` de `/products/{id}/photo`, mais `GET` do arquivo e da miniatura). Os sete schemas novos são `MonthProjection`, `MarginAlert`, `MarginAlertRow`, `MarginLevel`, `SellerSuggestions`, `ProductSuggestion` e `ProductPhoto`. Dos 124 schemas do v6, **o único alterado é `Product`**, que ganhou `photoVersion` (inteiro anulável, nulo quando não há foto): assim a listagem já diz quem tem foto, sem uma requisição por linha. Os 50 caminhos do v6 seguem idênticos no v7, e o v6 continua auditado e validado como contrato **histórico** (D-EVO-63).
+- A API valida a entrada com Bean Validation, responde todo erro como `ErrorResponse` com `code` e documenta as operações no Springdoc. O `scripts/live-contract.mjs` compara o OpenAPI ao vivo com o **v7** (**70 operações**: 62 do v6, 3 de apoio a decisão e 5 da foto de produto; cada execução grava o seu relatório em `target/contrato/`, e os do v6 ficam em `reports/contrato/live-v6/`). Ele exercita cada operação implementada contra a API isolada e **falha se a contagem de exercitadas não fechar** com a de implementadas — não basta cada caminho ter sido visto.
 
 ## Camadas da API (módulos novos em `api/<módulo>/`)
 
@@ -148,7 +148,7 @@ flowchart LR
     P[("branches preview/pr-N<br/>uma por pull request")]
   end
   RW -->|"HTTPS"| A
-  A -->|"JDBC + TLS, host sem pooler<br/>Flyway V1 a V12 + db/demo"| D
+  A -->|"JDBC + TLS, host sem pooler<br/>Flyway V1 a V14 + db/demo"| D
   G["GitHub · main"] -->|"push: deploy automático"| A
   G -->|"push: build automático"| V
   G -->|"pull request: workflow neon-preview"| P
