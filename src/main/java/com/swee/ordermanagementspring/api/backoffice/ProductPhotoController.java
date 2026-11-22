@@ -25,8 +25,8 @@ import java.io.IOException;
  * <p>Envio e remocao sao do GERENTE; a leitura e do VENDEDOR, que precisa da imagem no balcao. O arquivo vai em
  * multipart no campo "file" -- e o unico corpo nao-JSON da API, por isso fica em controlador proprio.
  *
- * <p>A resposta da imagem e privada e versionada: Cache-Control private com ETag da versao, para o navegador
- * reaproveitar a foto sem que uma CDN compartilhada guarde conteudo de loja.
+ * <p>A resposta da imagem e sempre privada, para nenhuma CDN compartilhada guardar conteudo de loja, e leva o
+ * validador da revisao entregue. Guardar por 30 dias vale so quando a URL fixa a revisao atual em `?rev=`.
  */
 @RestController
 public class ProductPhotoController {
@@ -72,20 +72,57 @@ public class ProductPhotoController {
     }
 
     @GetMapping("/products/{id}/photo/file")
-    public ResponseEntity<byte[]> original(@PathVariable @Positive long id) {
-        return media(service.media(id, false));
+    public ResponseEntity<byte[]> original(@PathVariable @Positive long id,
+                                           @RequestParam(name = "rev", required = false) Integer rev,
+                                           @RequestHeader(name = "If-None-Match", required = false) String ifNoneMatch) {
+        return media(service.media(id, false), 'o', rev, ifNoneMatch);
     }
 
     @GetMapping("/products/{id}/photo/thumb")
-    public ResponseEntity<byte[]> thumbnail(@PathVariable @Positive long id) {
-        return media(service.media(id, true));
+    public ResponseEntity<byte[]> thumbnail(@PathVariable @Positive long id,
+                                            @RequestParam(name = "rev", required = false) Integer rev,
+                                            @RequestHeader(name = "If-None-Match", required = false) String ifNoneMatch) {
+        return media(service.media(id, true), 't', rev, ifNoneMatch);
     }
 
-    private static ResponseEntity<byte[]> media(ProductPhotoService.Media media) {
+    /**
+     * Resposta da imagem, sempre privada e com validador da revisao servida.
+     *
+     * <p>O servico ja decidiu o papel e a existencia da midia antes de chegar aqui: nenhum 304 sai sem que a
+     * autorizacao tenha passado e sem que o objeto exista de verdade no armazenamento.
+     *
+     * <p>Com `?rev=` igual a revisao atual, a resposta pode ser guardada por 30 dias e marcada immutable: a
+     * revisao e inedita na instalacao (V14), entao aquela URL nunca vai responder outro conteudo. Sem `rev`, ou
+     * com uma revisao que nao e mais a atual -- o caso de uma URL antiga que o navegador guardou --, a resposta
+     * e no-cache com o validador do conteudo que esta sendo entregue: o navegador revalida e recebe a foto de
+     * agora em vez de servir a de antes. O validador leva a variante (miniatura ou original), que sao dois
+     * conteudos diferentes na mesma revisao.
+     */
+    private static ResponseEntity<byte[]> media(ProductPhotoService.Media media, char variant, Integer rev,
+                                                String ifNoneMatch) {
+        String etag = "\"r%d-%c\"".formatted(media.version(), variant);
+        boolean pinned = rev != null && rev == media.version();
+        CacheControl cache = pinned
+                ? CacheControl.maxAge(java.time.Duration.ofDays(30)).cachePrivate().immutable()
+                : CacheControl.noCache().cachePrivate();
+        if (matches(ifNoneMatch, etag)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).cacheControl(cache).eTag(etag).build();
+        }
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(media.contentType()))
-                .cacheControl(CacheControl.maxAge(java.time.Duration.ofDays(30)).cachePrivate())
-                .eTag("v" + media.version())
+                .cacheControl(cache)
+                .eTag(etag)
                 .body(media.content());
+    }
+
+    /** If-None-Match aceita lista e prefixo W/; "*" vale porque aqui a midia existe. */
+    private static boolean matches(String ifNoneMatch, String etag) {
+        if (ifNoneMatch == null) return false;
+        for (String candidate : ifNoneMatch.split(",")) {
+            String tag = candidate.trim();
+            if (tag.startsWith("W/")) tag = tag.substring(2);
+            if ("*".equals(tag) || tag.equals(etag)) return true;
+        }
+        return false;
     }
 }

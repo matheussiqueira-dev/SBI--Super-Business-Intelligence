@@ -26,6 +26,14 @@ import java.util.Optional;
  * entre a gravacao e a atualizacao deixa, no pior caso, um objeto orfao -- nunca um produto apontando para um
  * objeto que nao existe.
  *
+ * <p>Envio e remocao seguram a linha do produto (SELECT ... FOR UPDATE, como em CatalogAdminService): duas
+ * operacoes no mesmo produto entram em fila, entao cada uma ve a chave que de fato substituiu e remove essa --
+ * nunca uma midia que a outra acabou de publicar.
+ *
+ * <p>A revisao vem da sequencia da V14, nao de um contador por produto: nenhuma publicacao reaproveita um
+ * numero, nem depois de uma remocao, e por isso a URL e o validador de uma foto nova nunca colidem com os de
+ * uma foto antiga que o navegador ainda tenha em cache.
+ *
  * <p>A leitura e liberada para o VENDEDOR, que precisa da foto no balcao; a escrita exige GERENTE na URL
  * (SecurityConfig), no servico (@PreAuthorize) e no banco (gatilho da V13).
  */
@@ -59,6 +67,17 @@ public class ProductPhotoService {
     private void requireProduct(long productId) {
         Integer found = jdbc.sql("SELECT 1 FROM product WHERE id = :id").param("id", productId)
                 .query(Integer.class).optional().orElse(null);
+        if (found == null) throw ApiException.notFound("Product not found, id: " + productId);
+    }
+
+    /**
+     * Mesma conferencia do requireProduct, segurando a linha do produto ate o commit. As escritas da foto
+     * passam por aqui: a fila por produto vale tambem para o primeiro envio, quando ainda nao existe linha em
+     * product_photo para travar.
+     */
+    private void lockProduct(long productId) {
+        Long found = jdbc.sql("SELECT id FROM product WHERE id = :id FOR UPDATE").param("id", productId)
+                .query(Long.class).optional().orElse(null);
         if (found == null) throw ApiException.notFound("Product not found, id: " + productId);
     }
 
@@ -108,7 +127,7 @@ public class ProductPhotoService {
     @Transactional
     @PreAuthorize("hasRole('GERENTE')")
     public ProductPhoto save(CurrentUser user, long productId, byte[] content) {
-        requireProduct(productId);
+        lockProduct(productId);
         ProductPhotoImage.Checked checked;
         try {
             checked = ProductPhotoImage.check(content, maxBytes);
@@ -123,6 +142,10 @@ public class ProductPhotoService {
                 .query((rs, row) -> new Old(rs.getString("storage_key"), rs.getString("thumb_key")))
                 .optional().orElse(null);
 
+        // Revisao inedita (V14). A sequencia nao volta atras num rollback, e e exatamente isso que se quer: um
+        // numero queimado nunca reaparece numa URL com conteudo diferente.
+        int revision = jdbc.sql("SELECT nextval('product_photo_version_seq')").query(Integer.class).single();
+
         String storageKey = storage.put(checked.original(), checked.contentType());
         String thumbKey = storage.put(checked.thumbnail(), checked.contentType());
         // A transacao pode falhar depois daqui (gatilho do banco, conexao): os objetos novos sairiam orfaos.
@@ -134,16 +157,16 @@ public class ProductPhotoService {
         jdbc.sql("""
                 INSERT INTO product_photo (product_id, storage_key, thumb_key, content_type, byte_size, width, height,
                                            version, uploaded_by, uploaded_at)
-                VALUES (:id, :key, :thumb, :type, :size, :width, :height, 1, :user, now())
+                VALUES (:id, :key, :thumb, :type, :size, :width, :height, :revision, :user, now())
                 ON CONFLICT (product_id) DO UPDATE SET
                     storage_key = EXCLUDED.storage_key, thumb_key = EXCLUDED.thumb_key,
                     content_type = EXCLUDED.content_type, byte_size = EXCLUDED.byte_size,
                     width = EXCLUDED.width, height = EXCLUDED.height,
-                    version = product_photo.version + 1, uploaded_by = EXCLUDED.uploaded_by, uploaded_at = now()""")
+                    version = EXCLUDED.version, uploaded_by = EXCLUDED.uploaded_by, uploaded_at = now()""")
                 .param("id", productId).param("key", storageKey).param("thumb", thumbKey)
                 .param("type", checked.contentType()).param("size", checked.original().length)
                 .param("width", checked.width()).param("height", checked.height())
-                .param("user", user.id())
+                .param("revision", revision).param("user", user.id())
                 .update();
 
         // A foto antiga so sai depois do commit: ate la ela continua respondendo a quem esta com a tela aberta.
@@ -163,7 +186,7 @@ public class ProductPhotoService {
     @Transactional
     @PreAuthorize("hasRole('GERENTE')")
     public void delete(CurrentUser user, long productId) {
-        requireProduct(productId);
+        lockProduct(productId);
         record Keys(String storageKey, String thumbKey) { }
         Keys keys = jdbc.sql("SELECT storage_key, thumb_key FROM product_photo WHERE product_id = :id")
                 .param("id", productId)

@@ -28,9 +28,12 @@ test('toda foto do manifesto existe em public/produtos e tem autor e licenca', (
 
 test('[CT-FOTO-110] a foto enviada pela loja tem URL propria, versionada e de mesma origem', () => {
   const url = photoThumbUrl(42, 3);
-  assert.equal(url, '/api/backend/products/42/photo/thumb?v=3');
+  assert.equal(url, '/api/backend/products/42/photo/thumb?rev=3');
   // Mesma origem: a imagem passa pelo proxy do Next e leva o cookie de sessao, como o resto da API.
   assert.ok(url.startsWith('/api/backend/'), 'a miniatura nao pode sair para outro host');
-  // A versao muda a URL: depois de uma troca o navegador nao serve a foto antiga do cache.
+  // A revisao muda a URL: depois de uma troca o navegador nao serve a foto antiga do cache.
   assert.notEqual(photoThumbUrl(42, 4), url);
+  // Namespace novo: `?v=` ficou guardado por 30 dias em navegadores quando a revisao reiniciava em 1 depois de
+  // uma remocao, entao nenhuma URL nova pode reaproveitar aquele nome.
+  assert.ok(!url.includes('?v='), 'a URL nova nao pode cair no cache das URLs ?v= antigas');
 });

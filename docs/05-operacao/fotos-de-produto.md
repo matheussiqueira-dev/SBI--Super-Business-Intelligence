@@ -26,23 +26,51 @@ compatível com os registros existentes: tabela nova, nenhuma coluna alterada, n
 
 - `product_photo.product_id` é a chave primária, com `ON DELETE CASCADE`: uma foto por produto.
 - `storage_key` e `thumb_key` são sorteadas (UUID), não derivadas do SKU — o nome do objeto não revela o catálogo.
-- `version` sobe a cada troca e entra na URL da imagem, para o navegador buscar a nova em vez de servir a antiga.
+- `version` é a **revisão da publicação**, e entra na URL e no validador da imagem.
 - Gatilho `product_photo_only_manager`: terceira barreira, como nas demais tabelas de backoffice. A API já exige
   GERENTE na URL e no serviço; o banco recusa de qualquer forma.
 - A trilha ganhou `PRODUCT_PHOTO_CHANGED` e `PRODUCT_PHOTO_REMOVED`.
+
+### Revisão inédita por publicação (V14)
+
+Na V13 a revisão era um contador por produto: começava em 1 e somava 1 na troca. Remover a foto apagava a linha,
+e a próxima publicação voltava para 1 — duas fotos diferentes do mesmo produto ficavam com a **mesma URL**
+(`?v=1`) e o **mesmo validador** (`"v1"`), com 30 dias de cache. O navegador podia continuar mostrando a antiga.
+
+A [`V14__product_photo_revision.sql`](../../src/main/resources/db/migration/V14__product_photo_revision.sql)
+troca o contador por uma sequência: nenhum número se repete na instalação, nem depois de uma remoção. É aditiva —
+cria a sequência, ajusta o `DEFAULT` da coluna e começa acima da maior revisão já gravada, então base nova e base
+com fotos existentes continuam válidas. Um envio que falha queima o número, e é isso que se quer: número queimado
+nunca reaparece com outro conteúdo.
+
+O endereço mudou junto: a miniatura agora é pedida em `?rev=<revisão>`, não `?v=`. URLs `?v=1` guardadas por 30
+dias em navegadores que já visitaram a tela continuariam sendo servidas do cache sem nem perguntar ao servidor;
+com o nome novo, nenhuma delas é reaproveitada.
 
 ## API
 
 | Operação | Perfil | Observação |
 | --- | --- | --- |
 | `GET /products/{id}/photo` | VENDEDOR | Metadados (tipo, bytes, dimensões, versão) |
-| `GET /products/{id}/photo/file` | VENDEDOR | Imagem original |
-| `GET /products/{id}/photo/thumb` | VENDEDOR | Miniatura, até 320 px no lado maior |
+| `GET /products/{id}/photo/file` | VENDEDOR | Imagem original; aceita `?rev=` |
+| `GET /products/{id}/photo/thumb` | VENDEDOR | Miniatura, até 320 px no lado maior; aceita `?rev=` |
 | `PUT /products/{id}/photo` | GERENTE | Multipart, campo `file` |
 | `DELETE /products/{id}/photo` | GERENTE | Remove a foto |
 
-A leitura é liberada ao VENDEDOR porque a foto serve o balcão. A resposta da imagem é `Cache-Control: private`
-com `ETag` da versão: o navegador reaproveita, nenhuma CDN compartilhada guarda conteúdo de loja.
+A leitura é liberada ao VENDEDOR porque a foto serve o balcão. A resposta da imagem é sempre `private` — nenhuma
+CDN compartilhada guarda conteúdo de loja — e leva o `ETag` da revisão **que está sendo entregue**, com a variante
+(`"r12-t"` para a miniatura, `"r12-o"` para a original: são dois conteúdos na mesma revisão).
+
+O quanto pode ser guardado depende do endereço:
+
+| Pedido | Resposta |
+| --- | --- |
+| `?rev=` igual à revisão atual | `private, max-age=2592000, immutable` — aquela URL nunca vai responder outro conteúdo |
+| sem `rev`, ou `rev` que não é mais a atual | `private, no-cache` — o navegador revalida e recebe a foto de agora |
+| `If-None-Match` com o validador atual | `304`, depois da autorização e de confirmar que a mídia existe |
+
+A regra do meio é o que conserta a URL antiga: quem está com `?rev=1` aberto recebe o conteúdo de agora, com o
+validador de agora, e sem permissão para guardar. A resposta nunca mente sobre o que entregou.
 
 O contrato está em
 [`config/openapi/target-loja-gestao-openapi-2026-11-20-v7.json`](../../config/openapi/target-loja-gestao-openapi-2026-11-20-v7.json)
@@ -72,10 +100,15 @@ existe para o adaptador de produção entrar sem mexer no serviço. O adaptador 
 (`SBI_PRODUCT_PHOTOS_DIR`), com escrita atômica: grava ao lado e move, para nenhuma leitura concorrente pegar
 arquivo pela metade.
 
+Envio e remoção começam segurando a linha do produto (`SELECT id FROM product ... FOR UPDATE`, como em
+`CatalogAdminService`): duas operações no mesmo produto entram em fila, então cada uma enxerga a chave que de
+fato substituiu e remove **essa** — nunca uma mídia que a outra acabou de publicar. A trava é na linha do
+produto, não na da foto, porque no primeiro envio ainda não existe linha de foto para travar.
+
 Na troca, a ordem é:
 
 1. grava o objeto novo;
-2. atualiza a linha, somando 1 em `version`;
+2. atualiza a linha, com a revisão nova da sequência;
 3. **depois do commit**, remove o objeto antigo.
 
 Assim a foto antiga continua respondendo até a troca terminar, e uma falha no meio deixa, no pior caso, um objeto
@@ -100,6 +133,14 @@ temporário (o padrão) serve só para desenvolvimento: some ao reiniciar a máq
 - [`ProductPhotoImageTest`](../../src/test/java/com/swee/ordermanagementspring/api/backoffice/ProductPhotoImageTest.java)
   (CT-FOTO-101 a 107): tipo pelos bytes, JPEG e PNG válidos, arquivo que não é imagem, cabeçalho com corpo
   truncado, limites de bytes e de pixels, miniatura sem ampliação.
+- [`ProductPhotoApiTest`](../../src/test/java/com/swee/ordermanagementspring/api/backoffice/ProductPhotoApiTest.java)
+  (CT-FOTO-120 a 126), com PostgreSQL de verdade: publicação e cache fixado, troca invalidando a URL antiga,
+  revisão que não se repete depois da remoção, `304` por validador, envio inválido que preserva a foto publicada,
+  mídia ausente respondendo 404 e o vendedor que lê mas não publica.
+- [CT-WEB-150 e CT-WEB-151](../../frontend/e2e/photo.spec.ts), pela tela do gerente com a API no ar: a miniatura
+  aparece carregada (`naturalWidth > 0`) **sem recarregar a página** depois do envio, muda na troca, volta ao
+  ícone na remoção e reaparece com URL e validador diferentes dos da primeira foto; envio inválido explica o
+  motivo e não derruba a foto publicada.
 - [`access-matrix.csv`](../../src/test/resources/security/access-matrix.csv): leitura liberada ao VENDEDOR, envio
   e remoção só do GERENTE, anônimo em 401.
 - [CT-FOTO-110](../../frontend/tests/product-images.test.ts): a URL da miniatura é de mesma origem e versionada.

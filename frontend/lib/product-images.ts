@@ -26,10 +26,15 @@ export function productImage(sku: string | undefined, name: string): ProductImag
 }
 
 /**
- * Miniatura enviada pela loja. A versao entra na consulta para o navegador buscar a imagem nova depois de uma
+ * Miniatura enviada pela loja. A revisao entra na consulta para o navegador buscar a imagem nova depois de uma
  * troca em vez de servir a antiga do cache; a resposta da API e Cache-Control private, entao nenhuma CDN
  * compartilhada guarda a foto de uma loja.
+ *
+ * O nome do parametro e `rev`, nao `v`: enquanto a revisao reiniciava em 1 depois de uma remocao, URLs `?v=1`
+ * de fotos antigas ficaram guardadas por 30 dias em navegadores que ja visitaram a tela. Revisao inedita por
+ * publicacao (V14) resolve a geracao de agora; o nome novo garante que nenhuma dessas URLs antigas seja
+ * reaproveitada para um conteudo diferente.
  */
 export function photoThumbUrl(productId: number, version: number): string {
-  return `${API_PREFIX}/products/${productId}/photo/thumb?v=${version}`;
+  return `${API_PREFIX}/products/${productId}/photo/thumb?rev=${version}`;
 }
