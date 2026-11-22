@@ -206,62 +206,92 @@ A exportação do gerente fecha com os dois: o `.xlsx` traz 42 pedidos pagos e *
 
 ---
 
-## 5. Ambiente da banca, conferido em 22/11/2026: banco em contêiner, API na 8081 e frontend na 3001
+## 5. Ambiente da banca de 23/11/2026: banco em contêiner, API na 8082 e frontend na 3002
 
-A seção 4 cita o ambiente da banca de passagem; esta o registra. O [roteiro de Banco de Dados](roteiro-banco-de-dados.md) avisa que **nada no repositório cria** o par `sbi-apresentacao-db` / `sbi_apresentacao` — ele foi feito à mão. Aqui ficam o que esse par é, como trazê-lo de volta quando a máquina reinicia e o que fazer se ele se perder. As portas são as desta conferência: API na **8081** e frontend na **3001**, com o banco na **5435**.
+A banca usa a **versão corrigida**, que não está no checkout principal. Ela mora no worktree `E:\Programação\A3\worktrees\pendencias-escopo`, na branch `fix/desempenho-loja-recife`, e sobe na API **8082** com o frontend **3002**. É essa que tem o *Desempenho da loja* para o gerente e a identificação da unidade no rodapé.
 
-| Peça | Valor medido |
+O par **8081 e 3001**, servido pelo checkout principal `E:\Programação\A3\order-management-api`, é a versão anterior. Ele continua funcionando e compartilha o mesmo banco, mas **não é o que vai à banca**: nele o gerente não vê o painel da loja e o rodapé não identifica a unidade. Deixar os dois no ar ao mesmo tempo é possível, porque as portas não colidem; a confusão é só humana, então abra a 3002.
+
+As duas versões apontam para o **mesmo banco canônico**, e nenhuma delas o recria.
+
+| Peça | Valor medido em 22/11/2026 |
 | --- | --- |
-| Contêiner | `sbi-apresentacao-db`, imagem `postgres:18`, criado em 19/11/2026 00:37 UTC, `RestartPolicy=no` |
+| Contêiner | `sbi-apresentacao-db`, imagem `postgres:18`, `RestartPolicy=no` |
 | Servidor | **PostgreSQL 18.6** (Debian 18.6-1.pgdg13+2), `PGDATA=/var/lib/postgresql/18/docker`, `TimeZone=Etc/UTC` |
 | Publicação | `127.0.0.1:5435->5432/tcp` — só esta máquina |
-| Banco e papel | banco `sbi_apresentacao`, usuário `sbi`, senha igual à `SBI_DB_PASSWORD` do `.env.local` (fora do git) |
+| Banco e papel | banco `sbi_apresentacao`, usuário `sbi`, senha igual à `SBI_DB_PASSWORD` do `.env.local` do checkout principal (fora do git) |
 | Persistência | volume **anônimo** `d234d3c88818977c58c948d2f66976bab5d9d2ae379b348c65b1cec2ca344ee7` em `/var/lib/postgresql`. Não é `tmpfs`: o banco sobrevive a parar e subir o contêiner |
 | Esquema | Flyway na **12.2**, 18 migrações, todas `success` |
+| Papéis de RLS no cluster | `loja_gerente` e `loja_vendedor` sem login; `gerente_matheus`, `gerente_gabriel`, `vendedor_allan` e `vendedor_francisco` com login |
 | JDK e Node | Temurin **25.0.4.1+1** em `E:\Programação\A3\tmp\tools\jdk-25\jdk-25.0.4.1+1` e Node **24.19.0** |
-| API | porta **8081**, perfil `demo`, jar `target/order-management-spring-0.0.1-SNAPSHOT.jar` |
-| Frontend | porta **3001**, Next **16.4.5**, build de produção com `BACKEND_ORIGIN=http://127.0.0.1:8081` |
 
-O `flyway_schema_history` marca 18/11 23:43 UTC, **antes** de o volume existir: os carimbos vieram junto com os dados, então não servem para datar este contêiner. O cenário da apresentação foi gravado depois, em 19/11 02:43 UTC, com `ref=2026-11-18`.
+O `flyway_schema_history` marca 18/11 23:43 UTC, antes de o volume existir: os carimbos vieram junto com os dados, então não servem para datar este contêiner.
 
-### Trazer de volta o que já existe
+### Antes de tudo: a correção ainda não está commitada
 
-Depois de um reinício da máquina as três peças ficam paradas e o daemon do Docker costuma estar parado junto. Abra o Docker Desktop e espere o daemon subir; o contêiner costuma voltar sozinho, porque o Docker Desktop restaura o que estava rodando quando parou. Se não voltar, `docker start sbi-apresentacao-db` o traz de volta com os dados — ele está parado, não perdido. **Não use `docker run` nem `docker compose` para "recriar" este banco**: um contêiner novo nasce com um volume novo e vazio. Confira que ele voltou:
+No worktree, o que diferencia a versão da banca está **na árvore de trabalho**, não em commit. O `git status` de `fix/desempenho-loja-recife` mostra `frontend/app/(app)/layout.tsx`, `frontend/app/(app)/meu-desempenho/page.tsx`, `frontend/app/(app)/meu-desempenho/my-performance.tsx`, `frontend/app/demo/demo-app.tsx`, `frontend/lib/demo/scenario.ts`, `frontend/e2e/demo.spec.ts` e `docs/01-produto/demonstracao-publica.md` modificados, mais `frontend/lib/store.ts` **não rastreado** — é ele que define `Unidade do Shopping Recife`.
+
+Um `git stash`, um `git checkout .` ou um `git clean -fd` nesse worktree desfaz a versão da banca, e o `clean` apaga o `store.ts` sem deixar cópia. Não rode nenhum dos três ali antes da apresentação.
+
+### Retomar a versão corrigida depois de reiniciar
+
+O banco primeiro. Abra o Docker Desktop e espere o daemon subir; o contêiner costuma voltar sozinho. Se não voltar, `docker start sbi-apresentacao-db` o traz de volta com os dados — ele está parado, não perdido. **Não use `docker run` nem `docker compose` para "recriar" este banco**: um contêiner novo nasce com um volume novo e vazio.
 
 ```powershell
 docker ps --filter name=sbi-apresentacao-db --format "{{.Names}} | {{.Status}} | {{.Ports}}"
 docker exec sbi-apresentacao-db pg_isready -U sbi -d sbi_apresentacao
 ```
 
-Com o banco respondendo, suba a API. O jar já construído serve; se faltar, use o `.\mvnw.cmd -q -DskipTests package` da seção 1. O `JAVA_HOME` tem a mesma pegadinha da seção 4: ele aponta para `...\jdk-25\jdk-25.0.4.1+1`, não para a pasta que a contém.
+Depois a API, **a partir do worktree**. Nesta máquina o JDK é portátil e **não está no `PATH`**: um PowerShell novo não resolve `java`, e `$env:JAVA_HOME` vem vazio. As duas primeiras linhas abaixo resolvem isso, com a mesma pegadinha da seção 4 — o caminho termina em `jdk-25.0.4.1+1`, não na pasta `jdk-25` que a contém. O jar do worktree já contém os endpoints `/performance/me`, `/performance/me/suggestions` e `/management/projection`, que alimentam o painel da loja; se precisar refazê-lo, use `.\mvnw.cmd -q -DskipTests package` nesse mesmo diretório.
 
 ```powershell
+cd E:\Programação\A3\worktrees\pendencias-escopo
+$env:JAVA_HOME = 'E:\Programação\A3\tmp\tools\jdk-25\jdk-25.0.4.1+1'
+$env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
 $env:SPRING_PROFILES_ACTIVE = 'demo'
 $env:SPRING_DATASOURCE_URL = 'jdbc:postgresql://127.0.0.1:5435/sbi_apresentacao'
 $env:SPRING_DATASOURCE_USERNAME = 'sbi'
 $env:SPRING_DATASOURCE_PASSWORD = Read-Host 'SBI_DB_PASSWORD do .env.local' -MaskInput
 $env:SESSION_COOKIE_SECURE = 'false'
-java -jar target/order-management-spring-0.0.1-SNAPSHOT.jar --server.address=127.0.0.1 --server.port=8081
+java -jar target/order-management-spring-0.0.1-SNAPSHOT.jar --server.address=127.0.0.1 --server.port=8082
 ```
 
-As variáveis `SBI_DEMO_PASSWORD*` **não** são necessárias aqui: elas só são lidas durante a migração que cria as contas, e ela já rodou neste banco. As senhas que funcionam hoje são as que estavam no ambiente naquele dia — as do `.env.local`.
+As variáveis `SBI_DEMO_PASSWORD*` **não** são necessárias: elas só são lidas durante a migração que cria as contas, e ela já rodou neste banco. As senhas que funcionam são as que estavam no ambiente naquele dia — as do `.env.local` do checkout principal, que o worktree não tem.
 
-Depois a interface, em outro terminal. A porta do backend entra **no build**, não só no start: o `rewrites()` do `next.config.mjs` é resolvido por `next build` e gravado em `.next/routes-manifest.json`. Um `.next` construído para a 8080 continua mandando o proxy para a 8080 por mais que a variável mude no start, então trocar a porta da API **obriga** a reconstruir.
+Por fim a interface, em outro terminal. A porta do backend entra **no build**, não só no start: o `rewrites()` do `next.config.mjs` é resolvido por `next build` e gravado em `.next/routes-manifest.json`. Por isso a mesma `BACKEND_ORIGIN` vai nos dois.
 
 ```powershell
-cd frontend
-$env:BACKEND_ORIGIN = 'http://127.0.0.1:8081'
+cd E:\Programação\A3\worktrees\pendencias-escopo\frontend
+$env:BACKEND_ORIGIN = 'http://127.0.0.1:8082'
 npm.cmd run build
-npm.cmd run start -- --hostname 127.0.0.1 --port 3001
+npm.cmd run start -- --hostname 127.0.0.1 --port 3002
 ```
 
-Para conferir qual porta está gravada no build atual, sem reconstruir:
+O `npm.cmd run build` só é necessário se o `.next` do worktree for anterior à última alteração em `frontend/`. Para ver qual porta está gravada no build atual, sem reconstruir:
 
 ```powershell
 node -e "require('./.next/routes-manifest.json').rewrites.afterFiles.forEach(r=>console.log(r.source,'->',r.destination))"
 ```
 
-Abra [Entrar no SBI na 3001](http://127.0.0.1:3001/entrar). O proxy responde HTTP 200 em `http://127.0.0.1:3001/api/backend/auth/csrf`, e a [demonstração pública](http://127.0.0.1:3001/demo) funciona só com o frontend.
+Abra [Entrar no SBI na 3002](http://127.0.0.1:3002/entrar). O proxy responde HTTP 200 em `http://127.0.0.1:3002/api/backend/auth/csrf`.
+
+### O que foi efetivamente iniciado e verificado em 22/11/2026
+
+| Peça | Estado encontrado | Ação |
+| --- | --- | --- |
+| `sbi-apresentacao-db` na 5435 | já no ar e `healthy` | nada — preservado |
+| API na 8082 (worktree) | já no ar, respondendo `/auth/csrf` | nada — conferida, não reiniciada |
+| Frontend na 3002 (worktree) | parado | **iniciado** com `BACKEND_ORIGIN=http://127.0.0.1:8082` |
+| API 8081 e frontend 3001 (checkout principal) | no ar, da versão anterior | deixados como estavam |
+
+Conferido no navegador, na 3002:
+
+- **Matheus** (`matheussiqueira@sbi.tech`, gerente) abre *Meu desempenho* no escopo **Loja**, intitulado **Desempenho da loja**: Realizado da loja **R$ 146.726,30**, Meta da loja **R$ 198.576,84**, Atingimento **73,9 %** e Falta **R$ 51.850,54**, em novembro de 2026.
+- **Allan** (`allanbarros@sbi.tech`, vendedor) abre *Meu desempenho* com a sua meta individual: Realizado **R$ 53.326,30**, Meta **R$ 75.545,59** com a legenda "Definida pelo gerente", Atingimento **70,6 %** e Falta **R$ 22.219,29**. Suas últimas vendas param em 18/11/2026.
+- O rodapé das duas contas identifica **Unidade do Shopping Recife · Recife, Pernambuco**.
+- O catálogo Apple aparece em *Vender* com preços, estoque e promoções.
+
+Os valores da tela batem com o `GET /goals/monthly?period=2026-11` da própria API, que devolve `storeGoal` 198576.84, Allan 75545.59 e Francisco 123031.25.
 
 ### Subir a API num banco já carregado não apaga nada
 
@@ -273,7 +303,7 @@ Current version of schema "public": 12.2
 Schema "public" is up to date. No migration necessary.
 ```
 
-Isso casa com o código: o perfil `demo` só acrescenta `classpath:db/demo` às `locations` do Flyway, `clean-disabled` é o padrão `true`, não há `data.sql`, callback, `FlywayMigrationStrategy` nem bean de seed, e o único `TRUNCATE` do projeto pertence ao perfil `contract`, que exige a URL descartável da porta 15432. As mesmas contagens foram conferidas de novo depois de a API subir contra `sbi_apresentacao`, e continuaram idênticas.
+Isso casa com o código: o perfil `demo` só acrescenta `classpath:db/demo` às `locations` do Flyway, `clean-disabled` é o padrão `true`, não há `data.sql`, callback, `FlywayMigrationStrategy` nem bean de seed, e o único `TRUNCATE` do projeto pertence ao perfil `contract`, que exige a URL descartável da porta 15432.
 
 ### Estado do banco em `ref=2026-11-18`
 
@@ -290,15 +320,15 @@ As datas da massa Olist são relativas ao dia da carga, então estes números s�
 | Meta anual de 2026 | R$ 986.051,48 |
 | Allan — meta e realizado de novembro | R$ 75.545,59 · R$ 53.326,30 (70,6 %) |
 | Francisco — meta e realizado de novembro | R$ 123.031,25 · R$ 59.055,00 (48,0 %) |
-| Massa | 315 pedidos, 376 itens, 315 pagamentos, 66 clientes, 49 produtos (42 SKUs `OL-*`), 7 contas, 1 estorno |
+| Massa | 315 pedidos, 376 itens, 315 pagamentos, 66 clientes, 49 produtos (42 SKUs `OL-*`), 7 contas, 1 estorno, 426 movimentos de estoque |
 
-O último lançamento do banco é de 18/11/2026, então o recorte de 01/11 a 18/11 pega novembro inteiro. Na interface, o catálogo Apple aparece em *Vender* com preços, estoque e promoções, e *Gestão → Usuários* mostra as sete contas com Allan na equipe de Matheus e Francisco na de Gabriel.
+O último lançamento do banco é de 18/11/2026, então o recorte de 01/11 a 18/11 pega novembro inteiro.
 
 ### A exportação de 01/11 a 18/11/2026
 
 `GET /analytics/export` com `from`, `to` e `format` (`XLSX` padrão, `XLS`, `CSV`), mais os filtros `seller`, `category` e `payment`. É `GET`: pede o cookie de sessão, não o header CSRF. A regra de URL é `hasRole(GERENTE)`, e o CEO herda.
 
-A bateria rodou duas vezes, direto na API da 8081 e pelo proxy da 3001, com **10 PASS e 0 FAIL** nas duas:
+A bateria rodou duas vezes no ambiente da banca, direto na API da 8082 e pelo proxy da 3002, com **10 PASS e 0 FAIL** nas duas:
 
 - os três formatos em HTTP 200, anexados como `sbi-analises-2026-11-01-a-2026-11-18.<ext>`;
 - o `.xlsx` com as abas **Resumo**, **Vendas** e **Metas**;
@@ -307,26 +337,65 @@ A bateria rodou duas vezes, direto na API da 8081 e pelo proxy da 3001, com **10
 - o recorte só de Allan (`seller=2`) saindo menor, como esperado;
 - período invertido e janela acima de 732 dias devolvendo 400 com a mensagem certa, e a chamada sem sessão devolvendo 401.
 
-Pela tela, em *Gestão → Análises*, ajustar o período e clicar no formato dispara exatamente `GET /api/backend/analytics/export?from=2026-11-01&to=2026-11-18&format=XLSX`, que respondeu 200.
+Pela tela, em *Gestão → Análises*, ajustar o período e clicar no formato dispara `GET /api/backend/analytics/export?from=2026-11-01&to=2026-11-18&format=XLSX`.
 
-### O que torna este ambiente frágil, e o seguro contra isso
+### O que torna este ambiente frágil
 
-O volume é **anônimo** e o contêiner tem `RestartPolicy=no`. Parar e subir preserva tudo, e nenhum `docker compose down -v` de outro projeto o alcança, porque ele não pertence a projeto nenhum. O que o apaga é `docker rm -v sbi-apresentacao-db`, que leva o volume junto, e remover o contêiner sem o `-v`, que deixa o volume órfão para o próximo `docker volume prune` recolher — um volume anônimo não tem nome que o identifique depois. "Clean / Purge data" do Docker Desktop apaga tudo de uma vez. Como **nada no repositório reconstrói este banco**, tire um dump antes de mexer no Docker:
+O volume é **anônimo** e o contêiner tem `RestartPolicy=no`. Parar e subir preserva tudo, e nenhum `docker compose down -v` de outro projeto o alcança, porque ele não pertence a projeto nenhum. O que o apaga é `docker rm -v sbi-apresentacao-db`, que leva o volume junto, e remover o contêiner sem o `-v`, que deixa o volume órfão para o próximo `docker volume prune` recolher — um volume anônimo não tem nome que o identifique depois. "Clean / Purge data" do Docker Desktop apaga tudo de uma vez.
+
+### Backup e restauração, conferidos no PowerShell 7
+
+O dump sai **de dentro do contêiner** e vem para o host com `docker cp`. Não use `>` nem `<` com o `docker exec`: o PowerShell não implementa redirecionamento de entrada, e `pg_restore ... < arquivo.dump` falha antes de tocar no banco. Guarde o arquivo **fora do repositório** — o `.gitignore` cobre `.env*`, não `*.dump`.
 
 ```powershell
-docker exec sbi-apresentacao-db pg_dump -U sbi -d sbi_apresentacao -Fc > sbi_apresentacao.dump
+docker exec sbi-apresentacao-db pg_dump -U sbi -d sbi_apresentacao -Fc -f /tmp/sbi_apresentacao.dump
+docker cp sbi-apresentacao-db:/tmp/sbi_apresentacao.dump E:\Programação\A3\tmp\backup-banca\sbi_apresentacao-2026-11-22.dump
+docker exec sbi-apresentacao-db rm -f /tmp/sbi_apresentacao.dump
 ```
 
-Para voltar de um dump, crie o banco vazio e restaure — num contêiner novo, com um volume **nomeado**, que não some num `prune`:
+Para provar o dump sem arriscar a banca, restaure num contêiner **descartável**, com nome, volume e porta próprios — nada compartilhado com o `sbi-apresentacao-db`:
 
 ```powershell
 $env:SBI_DB_PASSWORD = Read-Host 'SBI_DB_PASSWORD do .env.local' -MaskInput
-docker run -d --name sbi-apresentacao-db -p 127.0.0.1:5435:5432 `
-  -e POSTGRES_DB=sbi_apresentacao -e POSTGRES_USER=sbi -e POSTGRES_PASSWORD=$env:SBI_DB_PASSWORD `
-  -v sbi-apresentacao-data:/var/lib/postgresql postgres:18
-docker exec -i sbi-apresentacao-db pg_restore -U sbi -d sbi_apresentacao --no-owner < sbi_apresentacao.dump
+docker run -d --name sbi-restauracao-teste -p 127.0.0.1:5437:5432 `
+  -e POSTGRES_DB=sbi_restaurado -e POSTGRES_USER=sbi -e POSTGRES_PASSWORD=$env:SBI_DB_PASSWORD `
+  -v sbi-restauracao-teste-data:/var/lib/postgresql postgres:18
 ```
 
-Tem de ser a mesma senha de antes: o `pg_restore` recria as tabelas, não o papel `sbi`, e a API usa essa senha no JDBC. O `POSTGRES_DB` já cria o banco vazio, então o `pg_restore` cai nele direto.
+Os papéis vêm **antes** da restauração. Um `pg_dump` de banco não carrega papéis, que são do cluster, e as políticas de RLS do dump citam `loja_gerente` e `loja_vendedor` pelo nome. Sem eles, o `pg_restore --exit-on-error` para na primeira política — medido: `ERROR: role "loja_gerente" does not exist`, em `CREATE POLICY items_gerente ON public.order_item FOR SELECT TO loja_gerente`. São os mesmos seis papéis da `03_rbac.sql`:
 
-Sem dump, o caminho é refazer o banco do zero pela bateria na ordem — `run_bd.sh`, `run_olist_bd.sh` e `run_apresentacao.sh` —, como descreve o [guia de preparação](../03-banco-de-dados/preparar-apresentacao.md). Com `REF=2026-11-18` os números acima voltam; sem ela a referência é hoje, e o recorte muda.
+```powershell
+docker exec sbi-restauracao-teste psql -X -q -U sbi -d postgres -v ON_ERROR_STOP=1 `
+  -c "CREATE ROLE loja_gerente NOLOGIN" `
+  -c "CREATE ROLE loja_vendedor NOLOGIN" `
+  -c "CREATE ROLE gerente_matheus LOGIN IN ROLE loja_gerente" `
+  -c "CREATE ROLE gerente_gabriel LOGIN IN ROLE loja_gerente" `
+  -c "CREATE ROLE vendedor_allan LOGIN IN ROLE loja_vendedor" `
+  -c "CREATE ROLE vendedor_francisco LOGIN IN ROLE loja_vendedor"
+```
+
+Então o arquivo entra no contêiner e o `pg_restore` usa o caminho **de dentro dele**:
+
+```powershell
+docker cp E:\Programação\A3\tmp\backup-banca\sbi_apresentacao-2026-11-22.dump sbi-restauracao-teste:/tmp/sbi.dump
+docker exec sbi-restauracao-teste pg_restore --exit-on-error -U sbi -d sbi_restaurado /tmp/sbi.dump
+```
+
+Conferido em 22/11/2026: o `pg_restore --exit-on-error` terminou com código **0**, sem uma linha de saída. A fotografia restaurada saiu **idêntica** à original nas contagens — 315 pedidos, 376 itens, 315 pagamentos, 66 clientes, 49 produtos, 7 contas, 12 metas mensais, 24 metas de vendedor, 1 estorno, 426 movimentos de estoque — e nos R$ 146.726,30 de 01/11 a 18/11. A consulta por papel também bate: `SET ROLE gerente_matheus` vê **315** pedidos e `vendedor_allan`, com `app.user_id` apontando para Allan, vê **95**.
+
+No fim, apague só o descartável. O contêiner e o volume da banca ficam:
+
+```powershell
+docker rm -f -v sbi-restauracao-teste
+docker volume rm sbi-restauracao-teste-data
+```
+
+No Git Bash, e só nele, estes comandos precisam de `MSYS_NO_PATHCONV=1` antes do `docker`, senão `/tmp/sbi.dump` vira um caminho do Windows — é a mesma conversão descrita na seção 4. No PowerShell não há essa conversão.
+
+### O que `REF=2026-11-18` reproduz, e o que não
+
+`REF` chega à `10_carga_apresentacao.sql`, que a lê em `:'ref'` e, sem ela, usa hoje em `America/Fortaleza`. Ela fixa a referência **do cenário**: as metas do ano, a operação em andamento e os dias fortes e fracos.
+
+A `07_carga_olist.sql` **não tem** esse parâmetro. Ela data a massa a partir de `now()` no momento em que roda. Então refazer o banco pela bateria — `run_bd.sh`, `run_olist_bd.sh` e `run_apresentacao.sh`, como descreve o [guia de preparação](../03-banco-de-dados/preparar-apresentacao.md) — produz um cenário **coerente e reproduzível para as condições daquela carga**, com o mesmo formato e as mesmas regras, mas **não** os números desta tabela: o recorte Olist terá se deslocado junto com o dia.
+
+Para recuperar a **fotografia exata** do ensaio — os 38 pedidos pagos, os R$ 146.726,30, as metas de Allan e Francisco —, o caminho é o dump validado acima. A reconstrução por SQL é o plano para quando o dump também se perder.
