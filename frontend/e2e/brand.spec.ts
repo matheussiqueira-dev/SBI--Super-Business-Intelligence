@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { overflowing, PASSWORD } from './support.ts';
+import { overflowing, PASSWORD, settled } from './support.ts';
 import { STUDENTS, WORK_TITLE } from '../lib/credits.ts';
 
 const BRAND = 'SBI — Super Business Intelligence';
@@ -67,6 +67,7 @@ test('[CT-WEB-121] favicon, icones e manifesto servidos; tela de login com a ass
   await expect(page.getByRole('img', { name: BRAND })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Entrar no SBI', level: 1 })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Entrar', exact: true })).toBeVisible();
+  await settled(page);
   const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
   expect(result.violations.map(v => v.id)).toEqual([]);
   await page.setViewportSize({ width: 320, height: 720 });

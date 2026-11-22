@@ -177,10 +177,11 @@ test('v6 executive area cannot admit a manager and manager routes must admit the
   assert.ok(auditContract(managerOnly).errors.some(e => e.includes('Missing manager policy')));
 });
 const v7 = JSON.parse(readFileSync(v7Path, 'utf8'));
-test('v7 keeps every v6 operation with the same roles and adds the three decision-support ones', () => {
+test('v7 keeps every v6 operation with the same roles e soma apoio a decisao e foto de produto', () => {
   const result = auditContract(v7, { matrix });
   assert.deepEqual(result.errors, []);
-  assert.equal(result.operations.length, 65);
+  // 62 do v6 + 3 de apoio a decisao + 5 da foto de produto mantida pela loja.
+  assert.equal(result.operations.length, 70);
   const v7Operations = new Map(result.operations.map(o => [`${o.method} ${o.path}`, o.roles]));
   // Compatibilidade: as 62 do v6 seguem presentes, no mesmo caminho e com os mesmos papeis.
   const v6Operations = auditContract(v6, { matrix }).operations;
@@ -193,6 +194,12 @@ test('v7 keeps every v6 operation with the same roles and adds the three decisio
   assert.deepEqual(v7Operations.get('GET /management/projection'), ['CEO', 'GERENTE']);
   assert.deepEqual(v7Operations.get('GET /analytics/margin-alerts'), ['CEO', 'GERENTE']);
   assert.deepEqual(v7Operations.get('GET /performance/me/suggestions'), ['CEO', 'GERENTE', 'VENDEDOR']);
+  // Foto de produto: a leitura serve o balcao, entao vai ate o VENDEDOR; publicar e remover ficam no GERENTE.
+  for (const path of ['/products/{id}/photo', '/products/{id}/photo/file', '/products/{id}/photo/thumb']) {
+    assert.deepEqual(v7Operations.get(`GET ${path}`), ['CEO', 'GERENTE', 'VENDEDOR'], path);
+  }
+  assert.deepEqual(v7Operations.get('PUT /products/{id}/photo'), ['CEO', 'GERENTE']);
+  assert.deepEqual(v7Operations.get('DELETE /products/{id}/photo'), ['CEO', 'GERENTE']);
 });
 test('v7 keeps the seller projection closed and free of cost, margin, profit and team', () => {
   const aberto = structuredClone(v7);
