@@ -19,7 +19,7 @@ Trabalho A3 · SBI — Super Business Intelligence, feito pelos alunos Allan Gab
 | Camada | Tecnologia |
 | --- | --- |
 | API | Java 25, Spring Boot 4.1, Spring Security 7, `JdbcClient` nos módulos novos e JPA no legado, Springdoc |
-| Banco | PostgreSQL 18, Flyway V1–V13 (única fonte do esquema, Hibernate em `validate`), views do V6, do V9 e do V12 para os painéis, o resumo do cliente e o painel executivo |
+| Banco | PostgreSQL 18, Flyway V1–V14 (única fonte do esquema, Hibernate em `validate`), views do V6, do V9 e do V12 para os painéis, o resumo do cliente e o painel executivo |
 | Frontend | Next.js 16, React 19, TypeScript estrito, Zod 4 gerado do contrato (orval), TanStack Query, identidade visual SBI v2.0 (temas claro e escuro) |
 | Testes | JUnit 5, MockMvc, PostgreSQL 18 descartável via Docker Compose (`docker-compose.test.yml`, porta 15432), Playwright + axe, Ajv para o contrato, pacote SQL por `psql` |
 
