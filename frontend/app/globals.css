@@ -427,6 +427,36 @@ td .actions { flex-wrap: nowrap; justify-content: flex-end; }
 .login-tools { display: flex; justify-content: center; }
 .login-single { grid-template-columns: minmax(0, 1fr); }
 .login-single .login-box > .sbi-logo { justify-self: start; margin-bottom: 4px; }
+.login-panel .login-footer a { color: var(--sbi-petroleo-300); }
+
+/* Revelação decorativa do painel (~600 ms; plano comercial, seção 07). Fora de data-sbi-reveal="on" tudo já está no
+   estado final: sem o script (JavaScript desligado, bloqueado ou com falha) a tela aparece pronta, e a aba que já
+   viu a revelação ("off") entra direto, inclusive depois de um erro de login. O logotipo oficial e o formulário não
+   entram na sequência: estão na primeira pintura e utilizáveis desde ela.
+
+   0–180 ms    bloco do símbolo
+   150–360 ms  ponto, revelado na posição final (só opacidade: a geometria do Encaixe não se move)
+   300–520 ms  texto de marca e elementos de apoio, com deslocamento curto
+   520–600 ms  composição estabilizada
+
+   O .login-mark tem position: absolute e z-index: -1, e o texto animado desloca 6 px dentro do próprio fluxo:
+   nada aqui muda o tamanho de nenhuma caixa, então a sequência não desloca o layout. */
+:root[data-sbi-reveal="on"] .login-panel .login-mark-block { animation: login-reveal-part 180ms var(--sbi-easing-standard) both; }
+:root[data-sbi-reveal="on"] .login-panel .login-mark-dot { animation: login-reveal-part 210ms var(--sbi-easing-standard) 150ms both; }
+:root[data-sbi-reveal="on"] .login-panel > .stack-sm,
+:root[data-sbi-reveal="on"] .login-panel > .login-footer { animation: login-reveal-text 220ms var(--sbi-easing-standard) 300ms both; }
+
+@keyframes login-reveal-part { from { opacity: 0; } to { opacity: 1; } }
+@keyframes login-reveal-text { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* Sem :where() aqui: ele não soma especificidade, e a regra ficaria mais fraca que a que liga a animação --
+   com movimento reduzido a sequência continuaria rodando. Cada seletor repete o da regra que ele desliga. */
+@media (prefers-reduced-motion: reduce) {
+  :root[data-sbi-reveal="on"] .login-panel .login-mark-block,
+  :root[data-sbi-reveal="on"] .login-panel .login-mark-dot,
+  :root[data-sbi-reveal="on"] .login-panel > .stack-sm,
+  :root[data-sbi-reveal="on"] .login-panel > .login-footer { animation: none; }
+}
 
 /* ---------- PDV: etapas, busca, carrinho e resumo com o total ao lado de "Criar pedido" ---------- */
 .stepper { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
