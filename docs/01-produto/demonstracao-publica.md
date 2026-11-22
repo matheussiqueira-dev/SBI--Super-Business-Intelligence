@@ -27,7 +27,7 @@ Consequências:
 
 | Item | Valor |
 | --- | --- |
-| Empresa | Loja Modelo SBI, varejo de produtos Apple e acessórios em Fortaleza (CE) |
+| Empresa | Unidade do Shopping Recife, varejo de produtos Apple e acessórios em Recife, Pernambuco |
 | Gerente 1 | Matheus Siqueira, equipe de Allan Barros |
 | Gerente 2 | Gabriel Sousa, equipe de Francisco Ferreira |
 | CEO | Paulo Thiago Gomes Da Silva, Christian Felix Gbedande Azonyetin e Bruno Marciano De Amorim Josino |

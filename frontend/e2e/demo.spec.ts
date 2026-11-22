@@ -38,7 +38,8 @@ test('[CT-DEMO-201] /demo abre sem sessao, identifica o ambiente e nao chama a A
   await expect(page).toHaveURL(/\/demo$/);
   await expect(page.getByText('Ambiente de Demonstração — Dados Simulados').first()).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Visualizar como' })).toBeVisible();
-  await expect(page.getByText('Loja Modelo SBI', { exact: true })).toBeVisible();
+  await expect(page.getByText('Unidade do Shopping Recife', { exact: true })).toBeVisible();
+  await expect(page.getByText(/Recife, Pernambuco/)).toBeVisible();
   // Nenhuma chamada a API: a demonstracao nao le dado real nem cria sessao.
   expect(backend).toEqual([]);
   expect((await page.context().cookies()).map(cookie => cookie.name)).not.toContain('JSESSIONID');

@@ -81,7 +81,7 @@ export default function DemoApp() {
         <div className="demo-store">
           <span className="caption">Empresa simulada</span>
           <strong>{STORE.name}</strong>
-          <span className="caption">{STORE.segment} · {STORE.units} loja · {STORE.city}</span>
+          <span className="caption">{STORE.segment} · {STORE.units} loja · {STORE.city}, {STORE.state}</span>
           <span className="caption">Dia da loja: {formatDate(today)}</span>
         </div>
         <div className="account-tools">
