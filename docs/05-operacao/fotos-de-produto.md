@@ -45,7 +45,7 @@ A leitura é liberada ao VENDEDOR porque a foto serve o balcão. A resposta da i
 com `ETag` da versão: o navegador reaproveita, nenhuma CDN compartilhada guarda conteúdo de loja.
 
 O contrato está em
-[`config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json`](../../config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json)
+[`config/openapi/target-loja-gestao-openapi-2026-11-20-v7.json`](../../config/openapi/target-loja-gestao-openapi-2026-11-20-v7.json)
 e os schemas Zod são regerados por `npm run api:generate`. O campo `photoVersion` entrou em `Product` — nulo
 quando não há foto.
 

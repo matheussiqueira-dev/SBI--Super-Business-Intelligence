@@ -104,4 +104,45 @@ public final class ManagementDtos {
 
     public record StockAnalytics(OffsetDateTime generatedAt, long products, long units, MoneyDto valueAtCost,
                                  MoneyDto valueAtPrice, long productsWithoutCost, List<StockProduct> belowMin) { }
+
+    // ---------------- projecao, alerta de margem e sugestao de produto ----------------
+    // Tres recursos NOVOS, em caminhos proprios. Os schemas de SellerPerformance, ManagementSummary,
+    // SalesAnalytics e ProductMargin do contrato alvo v6 declaram additionalProperties: false, entao
+    // acrescentar campo nas respostas existentes quebraria a verificacao ao vivo do contrato. Caminho
+    // novo nao quebra: a conferencia vai do contrato para a API, nao da API para o contrato.
+
+    /**
+     * Projecao do fechamento do mes a partir do ritmo corrido. Nos primeiros dias a media diaria nao se
+     * sustenta (um ou dois dias multiplicados por trinta), entao abaixo de MIN_DIAS_RITMO ela e ancorada
+     * na media diaria do mes anterior, que e um mes fechado. E a mesma regra da carga do cenario.
+     */
+    public record MonthProjection(String period, MoneyDto storeGoal, MoneyDto realized, MoneyDto projected,
+                                  MoneyDto gapToGoal, BigDecimal projectedAchievementPercent, MoneyDto dailyAverage,
+                                  MoneyDto neededPerRemainingDay, int elapsedDays, int daysInMonth, int remainingDays,
+                                  boolean anchoredOnPreviousMonth, GoalState projectedState) { }
+
+    /** Nivel do alerta de margem, na escala de estado em graficos do manual v2.1 (secao 29). */
+    public enum MarginLevel { BOM, ATENCAO, SERIO, CRITICO }
+
+    public record MarginAlertRow(long productId, String name, long units, MoneyDto netRevenue, MoneyDto grossMargin,
+                                 BigDecimal marginPercent, BigDecimal pointsBelowStore, MarginLevel level,
+                                 long itemsWithoutCost) { }
+
+    /**
+     * Produtos com margem pressionada no mes. O limiar e a margem da propria loja no periodo, nao um numero
+     * inventado: ATENCAO abaixo dela, SERIO abaixo de dois tercos dela e CRITICO abaixo de um terco ou negativa.
+     * Produto sem custo informado nao vira margem zero: ele fica fora da conta e e contado em productsWithoutCost.
+     */
+    public record MarginAlert(String month, BigDecimal storeMarginPercent, MoneyDto storeNetRevenue,
+                              MoneyDto storeGrossMargin, long productsConsidered, long productsWithoutCost,
+                              List<MarginAlertRow> pressured) { }
+
+    /**
+     * Sugestao de reposicao de carteira para o proprio vendedor: produto que ELE ja vendeu (pagamento
+     * aprovado) e que tem saldo disponivel agora. Historico autorizado e estoque, os dois do PostgreSQL.
+     */
+    public record ProductSuggestion(long productId, String sku, String name, String category, MoneyDto price,
+                                    long available, long unitsSoldByMe, LocalDate lastSoldByMe) { }
+
+    public record SellerSuggestions(String period, UserRef seller, List<ProductSuggestion> suggestions) { }
 }

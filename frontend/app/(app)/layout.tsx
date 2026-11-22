@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { menuFor, menuGroups, PASSWORD_PATH, roleLabel } from '../../lib/areas.ts';
+import { STORE_LOCATION } from '../../lib/store.ts';
 import { currentUser } from '../../lib/server/session.ts';
 import NavLinks from '../../components/nav-links.tsx';
 import LogoutButton from '../../components/logout-button.tsx';
@@ -38,7 +39,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         <div className="content">
           {children}
           <footer className="app-footer">
-            <p>Dados de demonstração · valores fictícios · Projeto A3 · UNIFG 2026</p>
+            <p>{STORE_LOCATION.name} · {STORE_LOCATION.city}, {STORE_LOCATION.state} · Dados de demonstração · valores fictícios · Projeto A3 · UNIFG 2026</p>
             <p><Link href="/creditos">Créditos das imagens</Link></p>
             <AcademicCredits />
           </footer>

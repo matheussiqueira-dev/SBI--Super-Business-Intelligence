@@ -208,11 +208,9 @@ A exportação do gerente fecha com os dois: o `.xlsx` traz 42 pedidos pagos e *
 
 ## 5. Ambiente da banca de 23/11/2026: banco em contêiner, API na 8082 e frontend na 3002
 
-A banca usa a **versão corrigida**, que não está no checkout principal. Ela mora no worktree `E:\Programação\A3\worktrees\pendencias-escopo`, na branch `fix/desempenho-loja-recife`, e sobe na API **8082** com o frontend **3002**. É essa que tem o *Desempenho da loja* para o gerente e a identificação da unidade no rodapé.
+A banca usa a versão com **Desempenho da loja** para a gestão e a identificação **Unidade do Shopping Recife · Recife, Pernambuco**. No ensaio, o worktree `E:\Programação\A3\worktrees\pendencias-escopo` serviu essa versão com API na **8082** e frontend na **3002**. Use os caminhos abaixo como referência e ajuste-os à pasta do seu checkout.
 
-O par **8081 e 3001**, servido pelo checkout principal `E:\Programação\A3\order-management-api`, é a versão anterior. Ele continua funcionando e compartilha o mesmo banco, mas **não é o que vai à banca**: nele o gerente não vê o painel da loja e o rodapé não identifica a unidade. Deixar os dois no ar ao mesmo tempo é possível, porque as portas não colidem; a confusão é só humana, então abra a 3002.
-
-As duas versões apontam para o **mesmo banco canônico**, e nenhuma delas o recria.
+O par **8081 e 3001** corresponde ao ensaio anterior no checkout `E:\Programação\A3\order-management-api`. Os dois pares apontam para o mesmo banco canônico. Abra a **3002** para ver a revisão do Recife e seguir o roteiro abaixo.
 
 | Peça | Valor medido em 22/11/2026 |
 | --- | --- |
@@ -220,18 +218,16 @@ As duas versões apontam para o **mesmo banco canônico**, e nenhuma delas o rec
 | Servidor | **PostgreSQL 18.6** (Debian 18.6-1.pgdg13+2), `PGDATA=/var/lib/postgresql/18/docker`, `TimeZone=Etc/UTC` |
 | Publicação | `127.0.0.1:5435->5432/tcp` — só esta máquina |
 | Banco e papel | banco `sbi_apresentacao`, usuário `sbi`, senha igual à `SBI_DB_PASSWORD` do `.env.local` do checkout principal (fora do git) |
-| Persistência | volume **anônimo** `d234d3c88818977c58c948d2f66976bab5d9d2ae379b348c65b1cec2ca344ee7` em `/var/lib/postgresql`. Não é `tmpfs`: o banco sobrevive a parar e subir o contêiner |
+| Persistência | volume **anônimo** em `/var/lib/postgresql`, consultável com `docker inspect sbi-apresentacao-db`. O banco sobrevive a parar e subir o contêiner |
 | Esquema | Flyway na **12.2**, 18 migrações, todas `success` |
 | Papéis de RLS no cluster | `loja_gerente` e `loja_vendedor` sem login; `gerente_matheus`, `gerente_gabriel`, `vendedor_allan` e `vendedor_francisco` com login |
 | JDK e Node | Temurin **25.0.4.1+1** em `E:\Programação\A3\tmp\tools\jdk-25\jdk-25.0.4.1+1` e Node **24.19.0** |
 
 O `flyway_schema_history` marca 18/11 23:43 UTC, antes de o volume existir: os carimbos vieram junto com os dados, então não servem para datar este contêiner.
 
-### Antes de tudo: a correção ainda não está commitada
+### Conferir a versão do checkout
 
-No worktree, o que diferencia a versão da banca está **na árvore de trabalho**, não em commit. O `git status` de `fix/desempenho-loja-recife` mostra `frontend/app/(app)/layout.tsx`, `frontend/app/(app)/meu-desempenho/page.tsx`, `frontend/app/(app)/meu-desempenho/my-performance.tsx`, `frontend/app/demo/demo-app.tsx`, `frontend/lib/demo/scenario.ts`, `frontend/e2e/demo.spec.ts` e `docs/01-produto/demonstracao-publica.md` modificados, mais `frontend/lib/store.ts` **não rastreado** — é ele que define `Unidade do Shopping Recife`.
-
-Um `git stash`, um `git checkout .` ou um `git clean -fd` nesse worktree desfaz a versão da banca, e o `clean` apaga o `store.ts` sem deixar cópia. Não rode nenhum dos três ali antes da apresentação.
+A correção foi registrada em `e9de040`. Confira a versão com `git log -1` e verifique se `frontend/lib/store.ts` define a Unidade do Shopping Recife e se a tela de desempenho da gestão consulta `GET /management/summary`.
 
 ### Retomar a versão corrigida depois de reiniciar
 
@@ -242,7 +238,7 @@ docker ps --filter name=sbi-apresentacao-db --format "{{.Names}} | {{.Status}} |
 docker exec sbi-apresentacao-db pg_isready -U sbi -d sbi_apresentacao
 ```
 
-Depois a API, **a partir do worktree**. Nesta máquina o JDK é portátil e **não está no `PATH`**: um PowerShell novo não resolve `java`, e `$env:JAVA_HOME` vem vazio. As duas primeiras linhas abaixo resolvem isso, com a mesma pegadinha da seção 4 — o caminho termina em `jdk-25.0.4.1+1`, não na pasta `jdk-25` que a contém. O jar do worktree já contém os endpoints `/performance/me`, `/performance/me/suggestions` e `/management/projection`, que alimentam o painel da loja; se precisar refazê-lo, use `.\mvnw.cmd -q -DskipTests package` nesse mesmo diretório.
+Depois a API, a partir do checkout da revisão. No ensaio, o JDK portátil precisou ser adicionado ao `PATH` do processo. Aponte `JAVA_HOME` para a pasta que contém `bin\java.exe`, conforme a seção 4. Para gerar o jar desta revisão, use `.\mvnw.cmd -q -DskipTests package` no mesmo diretório. A tela consulta `GET /management/summary` para o escopo Loja e `GET /performance/me` para o escopo pessoal.
 
 ```powershell
 cd E:\Programação\A3\worktrees\pendencias-escopo
@@ -348,6 +344,7 @@ O volume é **anônimo** e o contêiner tem `RestartPolicy=no`. Parar e subir pr
 O dump sai **de dentro do contêiner** e vem para o host com `docker cp`. Não use `>` nem `<` com o `docker exec`: o PowerShell não implementa redirecionamento de entrada, e `pg_restore ... < arquivo.dump` falha antes de tocar no banco. Guarde o arquivo **fora do repositório** — o `.gitignore` cobre `.env*`, não `*.dump`.
 
 ```powershell
+New-Item -ItemType Directory -Path 'E:\Programação\A3\tmp\backup-banca' -Force | Out-Null
 docker exec sbi-apresentacao-db pg_dump -U sbi -d sbi_apresentacao -Fc -f /tmp/sbi_apresentacao.dump
 docker cp sbi-apresentacao-db:/tmp/sbi_apresentacao.dump E:\Programação\A3\tmp\backup-banca\sbi_apresentacao-2026-11-22.dump
 docker exec sbi-apresentacao-db rm -f /tmp/sbi_apresentacao.dump

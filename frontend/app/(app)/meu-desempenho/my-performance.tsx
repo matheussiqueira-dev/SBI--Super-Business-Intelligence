@@ -1,10 +1,10 @@
 'use client';
-// Meu desempenho (WP-3.11, DEC-ERP-01; manual v2.0, figuras 47 e 48): so os dados da sessao. Meta zero = "Sem meta", sem
-// percentual (DOM-08). Realizado, meta, atingimento e falta, o medidor com o ritmo do mes e as ultimas vendas de quem vende.
+// A equipe de gestão abre com os indicadores da loja e pode consultar as próprias vendas.
+// Cada vendedor abre com os dados da sessão. Meta zero fica sem percentual (DOM-08).
 import { useState } from 'react';
 import Link from 'next/link';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { GetMyPerformanceResponse, ListSalesOrdersResponse } from '../../../lib/api/generated/sbi.zod.ts';
+import { GetManagementSummaryResponse, GetMyPerformanceResponse, GetMySuggestionsResponse, ListSalesOrdersResponse } from '../../../lib/api/generated/sbi.zod.ts';
 import { api } from '../../../lib/api/http.ts';
 import { formatDay, formatMonth, formatPercent, label, money, ORDER_STATUS, plural, sentence, statusPill } from '../../../lib/format.ts';
 import { ErrorNotice, Loading } from '../../../components/feedback.tsx';
@@ -22,43 +22,63 @@ const STATE_PILL: Readonly<Record<string, string>> = { SEM_META: 'pill', EM_ANDA
 const RECENT = 5;
 
 /** Titulo que diz a conclusao: quanto falta, meta batida ou mes sem meta. */
-function conclusion(state: string, remaining: string): string {
-  if (state === 'META_ATINGIDA') return 'Você bateu a sua meta do mês.';
+function conclusion(state: string, remaining: string, storeView: boolean): string {
+  if (state === 'META_ATINGIDA') return storeView ? 'A loja bateu a meta do mês.' : 'Você bateu a sua meta do mês.';
   if (state === 'SEM_META') return 'Sem meta definida para este mês.';
-  return `Faltam ${remaining} para a sua meta.`;
+  return `Faltam ${remaining} para ${storeView ? 'a meta da loja' : 'a sua meta'}.`;
 }
 
 function thisMonth(): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Fortaleza', year: 'numeric', month: '2-digit' }).format(new Date());
 }
 
-export default function MyPerformance({ manager = false }: { manager?: boolean }) {
+export default function MyPerformance({ canViewStore }: { canViewStore: boolean }) {
   const [month, setMonth] = useState(thisMonth());
+  const [shopScope, setShopScope] = useState(true);
+  const storeView = canViewStore && shopScope;
   const valid = /^\d{4}-\d{2}$/.test(month);
   const query = useQuery({
-    queryKey: ['performance', month],
-    queryFn: ({ signal }) => api.request(`/performance/me?period=${month}`, { signal, schema: GetMyPerformanceResponse }),
+    queryKey: ['performance', month, storeView],
+    queryFn: async ({ signal }) => {
+      if (!storeView) {
+        return api.request(`/performance/me?period=${month}`, { signal, schema: GetMyPerformanceResponse });
+      }
+      const summary = await api.request(`/management/summary?period=${month}`, { signal, schema: GetManagementSummaryResponse });
+      return {
+        goal: summary.storeGoal,
+        realized: summary.storeRealized,
+        remaining: summary.remaining,
+        achievementPercent: summary.achievementPercent,
+        state: summary.state,
+      };
+    },
     enabled: valid,
   });
   const data = query.data;
   const noGoal = data?.state === 'SEM_META';
   return (
     <div className="stack">
-      <PageHeader section="Meu espaço" title="Meu desempenho"
-        description={`${valid ? sentence(formatMonth(month)) : 'Mês'} · suas vendas pagas, descontados os estornos`}
+      <PageHeader section={storeView ? 'Gestão' : 'Meu espaço'} title={storeView ? 'Desempenho da loja' : 'Meu desempenho'}
+        description={`${valid ? sentence(formatMonth(month)) : 'Mês'} · ${storeView ? 'vendas pagas da loja' : 'suas vendas pagas'}, descontados os estornos`}
         actions={<>
           <div className="field"><label htmlFor="mes">Mês</label>
             <input id="mes" className="input" type="month" value={month} onChange={event => setMonth(event.target.value)} /></div>
-          <Link className="btn" href="/vendas">{manager ? 'Ver as vendas da loja' : 'Ver minhas vendas'}</Link>
+          {canViewStore && <div className="field"><label htmlFor="desempenho-escopo">Escopo</label>
+            <select id="desempenho-escopo" className="input" value={shopScope ? 'loja' : 'pessoal'}
+                    onChange={event => setShopScope(event.target.value === 'loja')}>
+              <option value="loja">Loja</option><option value="pessoal">Minhas vendas</option>
+            </select>
+          </div>}
+          <Link className="btn" href="/vendas">{canViewStore ? 'Ver as vendas da loja' : 'Ver minhas vendas'}</Link>
           <Link className="btn btn-primary" href="/vender"><Icon name="mais" />Nova venda</Link>
         </>} />
       <ErrorNotice error={query.error} />
       {query.isLoading && <Loading />}
       {data && <>
-        <section className="kpis" aria-label="Seus indicadores do mês">
-          <Kpi label="Realizado" value={<MoneyValue value={data.realized} />} note="Vendas pagas menos estornos" />
-          <Kpi label="Meta" value={noGoal ? <span className="value text">Sem meta</span> : <MoneyValue value={data.goal} />}
-               note={noGoal ? 'O gerente define a meta do mês' : 'Definida pelo gerente'} />
+        <section className="kpis" aria-label={storeView ? 'Indicadores da loja no mês' : 'Seus indicadores do mês'}>
+          <Kpi label={storeView ? 'Realizado da loja' : 'Realizado'} value={<MoneyValue value={data.realized} />} note="Vendas pagas menos estornos" />
+          <Kpi label={storeView ? 'Meta da loja' : 'Meta'} value={noGoal ? <span className="value text">Sem meta</span> : <MoneyValue value={data.goal} />}
+               note={storeView ? 'Plano mensal da loja' : canViewStore ? 'Metas individuais são definidas para vendedores' : noGoal ? 'O gerente define a meta do mês' : 'Definida pelo gerente'} />
           <Kpi label="Atingimento" value={<span className={noGoal ? 'value text' : 'value'}>{noGoal ? 'Sem meta' : formatPercent(data.achievementPercent)}</span>}
                note="Realizado ÷ meta" />
           <Kpi label="Falta" value={noGoal ? <span className="value text">Sem meta</span> : <MoneyValue value={data.remaining} />}
@@ -67,7 +87,7 @@ export default function MyPerformance({ manager = false }: { manager?: boolean }
         <section className="card stack-md" aria-labelledby="meta-titulo">
           <div className="card-head">
             <div>
-              <h2 id="meta-titulo">{conclusion(data.state, money(data.remaining))}</h2>
+              <h2 id="meta-titulo">{conclusion(data.state, money(data.remaining), storeView)}</h2>
               <p className="card-sub">{sentence(formatMonth(month))}</p>
             </div>
             <span className={STATE_PILL[data.state] ?? 'pill pill-info'}>{STATE[data.state] ?? data.state}</span>
@@ -105,9 +125,69 @@ export default function MyPerformance({ manager = false }: { manager?: boolean }
             );
           })()}
         </section>
-        {!manager && <RecentSales />}
+        {valid && !storeView && <Suggestions month={month} />}
+        {!canViewStore && <RecentSales />}
       </>}
     </div>
+  );
+}
+
+/**
+ * Sugestao de reposicao da carteira: produto que ESTE vendedor ja vendeu e que tem saldo agora, do mais
+ * vendido por ele para o menos. Historico e estoque vem do servidor (GET /performance/me/suggestions);
+ * nada e inferido aqui, para a sugestao ser a mesma que o banco explica.
+ */
+function Suggestions({ month }: { month: string }) {
+  const query = useQuery({
+    queryKey: ['performance-suggestions', month],
+    queryFn: ({ signal }) => api.request(`/performance/me/suggestions?period=${month}`,
+      { signal, schema: GetMySuggestionsResponse }),
+    placeholderData: keepPreviousData,
+  });
+  if (query.isPending) return <Loading label="Carregando as sugestões…" />;
+  if (query.error) return <ErrorNotice error={query.error} />;
+  const itens = query.data?.suggestions ?? [];
+  return (
+    <section className="card stack-md" aria-labelledby="sugestoes-titulo">
+      <div className="stack-xs">
+        <h2 id="sugestoes-titulo">O que você já vende e tem em estoque</h2>
+        <p className="card-sub">
+          Do seu histórico de vendas pagas, cruzado com o saldo disponível agora. Não é previsão: é o que
+          você já vendeu e ainda dá para vender hoje.
+        </p>
+      </div>
+      {itens.length === 0
+        ? <EmptyState icon="estoque" title="Nada a sugerir ainda">
+            Quando você tiver vendas pagas de produtos que ainda estão em estoque, elas aparecem aqui.
+          </EmptyState>
+        : <TableWrap label="Produtos do seu histórico com saldo disponível">
+            <table>
+              <caption className="sr-only">Produtos do seu histórico com saldo disponível</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Produto</th>
+                  <th scope="col">Categoria</th>
+                  <th scope="col" className="right">Preço</th>
+                  <th scope="col" className="right">Você vendeu</th>
+                  <th scope="col" className="right">Em estoque</th>
+                  <th scope="col">Sua última venda</th>
+                </tr>
+              </thead>
+              <tbody>
+                {itens.map(item => (
+                  <tr key={item.productId}>
+                    <th scope="row">{item.name}<span className="muted block">{item.sku}</span></th>
+                    <td>{item.category ?? '—'}</td>
+                    <td className="num right">{money(item.price)}</td>
+                    <td className="num right">{item.unitsSoldByMe} {plural(item.unitsSoldByMe, 'unidade', 'unidades')}</td>
+                    <td className="num right">{item.available}</td>
+                    <td>{item.lastSoldByMe ? formatDay(item.lastSoldByMe) : '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableWrap>}
+    </section>
   );
 }
 

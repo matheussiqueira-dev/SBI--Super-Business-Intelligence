@@ -27,6 +27,7 @@ GET,/customers/{id}/orders,401,PERMIT,PERMIT,PERMIT
 GET,/customers/{id}/summary,401,PERMIT,PERMIT,PERMIT
 POST,/customers/{id}/address,401,403,PERMIT,PERMIT
 GET,/performance/me,401,PERMIT,PERMIT,PERMIT
+GET,/performance/me/suggestions,401,PERMIT,PERMIT,PERMIT
 GET,/promotions/active,401,PERMIT,PERMIT,PERMIT
 GET,/promotions,401,403,PERMIT,PERMIT
 POST,/promotions,401,403,PERMIT,PERMIT
@@ -55,8 +56,10 @@ GET,/stock/movements,401,403,PERMIT,PERMIT
 GET,/goals/monthly,401,403,PERMIT,PERMIT
 PUT,/goals/monthly,401,403,PERMIT,PERMIT
 GET,/management/summary,401,403,PERMIT,PERMIT
+GET,/management/projection,401,403,PERMIT,PERMIT
 GET,/management/revenue,401,403,PERMIT,PERMIT
 GET,/analytics/sales,401,403,PERMIT,PERMIT
+GET,/analytics/margin-alerts,401,403,PERMIT,PERMIT
 GET,/analytics/stock,401,403,PERMIT,PERMIT
 GET,/analytics/export,401,403,PERMIT,PERMIT
 POST,/payment/{id}/refund,401,403,PERMIT,PERMIT

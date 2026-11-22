@@ -151,6 +151,27 @@ strong, b { font-weight: 600; }
 .pill-info { --pill-icon: var(--sbi-icon-info); background: var(--sbi-info-bg); color: var(--sbi-info-text); }
 .pill-promo { --pill-icon: var(--sbi-icon-promocao); background: var(--sbi-success-bg); color: var(--sbi-success-text); }
 
+/* Niveis do alerta de margem. A cor de estado do manual (secao 29) e cor de MARCA DE DADO: como texto
+   sobre superficie clara o ambar nao alcanca o contraste de texto da WCAG. Entao ela entra como ponto,
+   e o nivel vem sempre escrito ao lado - que e a propria regra do manual para ambar e ceu ("exigem
+   rotulo"). Fundo e texto seguem os pares de feedback, que ja passam no contraste nos dois temas. */
+.pill-margem-bom, .pill-margem-atencao, .pill-margem-serio, .pill-margem-critico {
+  padding-left: 6px; display: inline-flex; align-items: center; gap: 6px;
+}
+.pill-margem-bom::before, .pill-margem-atencao::before, .pill-margem-serio::before, .pill-margem-critico::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--pill-dot); flex: none;
+  /* O contraste do ponto esta no CONTORNO, nao no preenchimento, como na marca do ano anterior do grafico
+     (.colchart-compare). Medido: o ambar e o laranja da escala de estado ficam em 1,96:1 e 2,81:1 contra a
+     superficie clara, abaixo dos 3:1 da WCAG 2.2 para objeto grafico; o contorno em text-secondary da
+     7,63:1 no claro e 8,86:1 no escuro contra o fundo da pilula. O nivel segue escrito ao lado, entao a
+     cor nunca carrega a informacao sozinha. */
+  border: 1px solid var(--sbi-text-secondary);
+}
+.pill-margem-bom { --pill-dot: var(--sbi-data-state-good); background: var(--sbi-success-bg); color: var(--sbi-success-text); }
+.pill-margem-atencao { --pill-dot: var(--sbi-data-state-warn); background: var(--sbi-warning-bg); color: var(--sbi-warning-text); }
+.pill-margem-serio { --pill-dot: var(--sbi-data-state-severe); background: var(--sbi-warning-bg); color: var(--sbi-warning-text); }
+.pill-margem-critico { --pill-dot: var(--sbi-data-state-critical); background: var(--sbi-danger-bg); color: var(--sbi-danger-text); }
+
 /* ---------- avisos: ícone, borda e fundo do estado; o que houve + o que fazer ---------- */
 .notice {
   --notice-icon: var(--sbi-icon-info); --notice-tone: var(--sbi-info-text);

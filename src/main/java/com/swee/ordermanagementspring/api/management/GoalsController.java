@@ -34,4 +34,17 @@ public class GoalsController {
                                   @RequestParam @Pattern(regexp = ManagementDtos.MONTH) String period) {
         return service.mine(CurrentUser.of(principal), period);
     }
+
+    /** Sugestao de produto para o proprio vendedor: historico dele cruzado com o saldo de agora. */
+    @GetMapping("/performance/me/suggestions")
+    public ManagementDtos.SellerSuggestions suggestions(@AuthenticationPrincipal AppPrincipal principal,
+                                                        @RequestParam @Pattern(regexp = ManagementDtos.MONTH) String period) {
+        return service.suggestions(CurrentUser.of(principal), period);
+    }
+
+    /** Projecao do fechamento do mes para o GERENTE. */
+    @GetMapping("/management/projection")
+    public ManagementDtos.MonthProjection projection(@RequestParam @Pattern(regexp = ManagementDtos.MONTH) String period) {
+        return service.projection(period);
+    }
 }

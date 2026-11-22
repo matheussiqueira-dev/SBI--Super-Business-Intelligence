@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 /** Analises do GERENTE sobre as views do V6 (B-09): evolucao semanal, formas de pagamento, margem, promocoes e estoque. */
 @Service
@@ -23,6 +25,63 @@ public class AnalyticsService {
     public AnalyticsService(JdbcClient jdbc, BackofficeRepository backoffice) {
         this.jdbc = jdbc;
         this.backoffice = backoffice;
+    }
+
+    /**
+     * Produtos com margem pressionada no mes. O limiar e a margem da PROPRIA LOJA no periodo, e nao um
+     * numero escolhido a mao: ATENCAO abaixo dela, SERIO abaixo de dois tercos dela, CRITICO abaixo de um
+     * terco ou com margem negativa. Assim o alerta acompanha o mes em vez de disparar sempre que a loja
+     * inteira trabalha com margem menor.
+     *
+     * Produto sem custo informado nao entra na conta nem vira margem zero (a regra de sempre: o sistema diz
+     * que nao sabe); ele e contado em productsWithoutCost.
+     */
+    @Transactional(readOnly = true)
+    public MarginAlert marginAlerts(String period) {
+        LocalDate month = GoalsService.month(period);
+        record Linha(long productId, String name, long units, BigDecimal netRevenue, BigDecimal cost,
+                     BigDecimal grossMargin, BigDecimal marginPercent, long itemsWithoutCost) { }
+        var linhas = jdbc.sql("""
+                SELECT product_id, produto, unidades, receita_liquida, custo, margem_bruta, margem_pct, itens_sem_custo
+                  FROM v_margem_produto WHERE periodo = :month ORDER BY receita_liquida DESC, product_id""")
+                .param("month", month)
+                .query((rs, n) -> new Linha(rs.getLong("product_id"), rs.getString("produto"), rs.getLong("unidades"),
+                        rs.getBigDecimal("receita_liquida"), rs.getBigDecimal("custo"), rs.getBigDecimal("margem_bruta"),
+                        rs.getBigDecimal("margem_pct"), rs.getLong("itens_sem_custo")))
+                .list();
+
+        // Margem da loja no periodo: soma das margens sobre a soma das receitas, so dos produtos com custo.
+        BigDecimal receitaLoja = BigDecimal.ZERO;
+        BigDecimal margemLoja = BigDecimal.ZERO;
+        long semCusto = 0;
+        long consideradas = 0;
+        for (Linha l : linhas) {
+            if (l.marginPercent() == null) { semCusto++; continue; }
+            consideradas++;
+            receitaLoja = receitaLoja.add(l.netRevenue() == null ? BigDecimal.ZERO : l.netRevenue());
+            margemLoja = margemLoja.add(l.grossMargin() == null ? BigDecimal.ZERO : l.grossMargin());
+        }
+        BigDecimal pctLoja = receitaLoja.signum() == 0 ? null
+                : margemLoja.multiply(BigDecimal.valueOf(100)).divide(receitaLoja, 1, RoundingMode.HALF_UP);
+
+        var pressionados = new java.util.ArrayList<MarginAlertRow>();
+        if (pctLoja != null) {
+            BigDecimal doisTercos = pctLoja.multiply(BigDecimal.valueOf(2)).divide(BigDecimal.valueOf(3), 2, RoundingMode.HALF_UP);
+            BigDecimal umTerco = pctLoja.divide(BigDecimal.valueOf(3), 2, RoundingMode.HALF_UP);
+            for (Linha l : linhas) {
+                BigDecimal pct = l.marginPercent();
+                if (pct == null || pct.compareTo(pctLoja) >= 0) continue;
+                MarginLevel nivel = pct.signum() < 0 || pct.compareTo(umTerco) < 0 ? MarginLevel.CRITICO
+                        : pct.compareTo(doisTercos) < 0 ? MarginLevel.SERIO : MarginLevel.ATENCAO;
+                pressionados.add(new MarginAlertRow(l.productId(), l.name(), l.units(),
+                        MoneyDto.of(l.netRevenue()), MoneyDto.of(l.grossMargin()), pct,
+                        pctLoja.subtract(pct).setScale(1, RoundingMode.HALF_UP), nivel, l.itemsWithoutCost()));
+            }
+            // Pior margem primeiro: e a linha que pede acao.
+            pressionados.sort((a, b) -> a.marginPercent().compareTo(b.marginPercent()));
+        }
+        return new MarginAlert(period, pctLoja, MoneyDto.of(receitaLoja), MoneyDto.of(margemLoja),
+                consideradas, semCusto, List.copyOf(pressionados));
     }
 
     @Transactional(readOnly = true)

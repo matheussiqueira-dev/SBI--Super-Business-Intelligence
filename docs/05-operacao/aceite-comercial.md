@@ -112,7 +112,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\test.ps1 -Mode Integ
 
 # Contrato
 npm run contract
-node scripts\audit-contract.mjs config\openapi\target-loja-gestao-openapi-2026-10-24-v6.json
+node scripts\audit-contract.mjs config\openapi\target-loja-gestao-openapi-2026-11-20-v7.json
 ```
 
 As capturas de evidência (landing desktop e celular, cotação, login desktop e celular, privacidade e suporte)
