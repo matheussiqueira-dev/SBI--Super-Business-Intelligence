@@ -1,4 +1,5 @@
 // Cenário de demonstração da loja. Vendas, metas e estoque são simulados a partir do catálogo Apple da massa Olist.
+import { STORE_LOCATION } from '../store.ts';
 
 /** Semente da base: a mesma loja em toda apresentacao e em todo teste. */
 export const DEMO_SEED = 20_261_204;
@@ -7,11 +8,10 @@ export const DEMO_SEED = 20_261_204;
 export const HISTORY_MONTHS = 24;
 
 export const STORE = {
-  name: 'Loja Modelo SBI',
+  ...STORE_LOCATION,
   segment: 'Produtos Apple e acessórios',
   size: 'Pequena empresa varejista',
   units: 1,
-  city: 'Fortaleza (CE)',
   openWeekdays: 'segunda a sábado',
 } as const;
 
