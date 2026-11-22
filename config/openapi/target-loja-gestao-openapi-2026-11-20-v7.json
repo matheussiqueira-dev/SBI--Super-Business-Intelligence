@@ -3,7 +3,7 @@
   "info": {
     "title": "Loja Gestao - contrato alvo",
     "version": "2026-11-20-target-v7",
-    "description": "Contrato alvo v7: copia do v6 (preservado sem edicao) com as tres operacoes de apoio a decisao que o escopo original pedia e que ja estao implementadas - a projecao do fechamento do mes para o GERENTE, o alerta de margem pressionada e a sugestao de produto do proprio vendedor. As 62 operacoes do v6 seguem identicas, nas mesmas URLs; o v7 soma 3 e fecha em 65. Nenhuma resposta existente mudou de forma: as operacoes novas entram em caminhos proprios, porque os schemas de SellerPerformance, ManagementSummary, SalesAnalytics e ProductMargin declaram additionalProperties: false e acrescentar campo neles quebraria a conferencia ao vivo. Operacao nova entra como planned e vira implemented no commit que traz a rota (C-02)."
+    "description": "Contrato alvo v7: copia do v6 (preservado sem edicao) com as tres operacoes de apoio a decisao que o escopo original pedia e que ja estao implementadas - a projecao do fechamento do mes para o GERENTE, o alerta de margem pressionada e a sugestao de produto do proprio vendedor. As 62 operacoes do v6 seguem identicas, nas mesmas URLs; o v7 soma 3 e, com as cinco operacoes da foto de produto que a loja mantem, fecha em 70. Nenhuma resposta existente mudou de forma: as operacoes novas entram em caminhos proprios, porque os schemas de SellerPerformance, ManagementSummary, SalesAnalytics e ProductMargin declaram additionalProperties: false e acrescentar campo neles quebraria a conferencia ao vivo. O campo photoVersion entra em Product porque o schema fecha com additionalProperties: false e a listagem passou a devolve-lo; nulo quando o produto nao tem foto propria, e com valor igual a revisao da publicacao (V14), que nao se repete na instalacao. Operacao nova entra como planned e vira implemented no commit que traz a rota (C-02)."
   },
   "servers": [
     {
@@ -1928,6 +1928,303 @@
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/products/{id}/photo": {
+      "get": {
+        "summary": "Dados da foto do produto",
+        "operationId": "getProductPhoto",
+        "x-rf": [
+          "RF-22"
+        ],
+        "x-status": "implemented",
+        "x-roles": [
+          "CEO",
+          "GERENTE",
+          "VENDEDOR"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Foto do produto",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductPhoto"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "summary": "Envia ou substitui a foto do produto",
+        "description": "Multipart com o campo file. Aceita JPEG e PNG conferidos pelo conteudo, nao pelo tipo declarado. A foto anterior responde ate a troca terminar.",
+        "operationId": "uploadProductPhoto",
+        "x-rf": [
+          "RF-22"
+        ],
+        "x-status": "implemented",
+        "x-roles": [
+          "CEO",
+          "GERENTE"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          },
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Imagem JPEG ou PNG, de 64 a 4096 pixels de lado."
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Foto gravada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductPhoto"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove a foto do produto",
+        "operationId": "deleteProductPhoto",
+        "x-rf": [
+          "RF-22"
+        ],
+        "x-status": "implemented",
+        "x-roles": [
+          "CEO",
+          "GERENTE"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          },
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Foto removida"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/products/{id}/photo/file": {
+      "get": {
+        "summary": "Imagem original da foto do produto",
+        "description": "Bytes da imagem. 404 tambem quando a midia nao esta no armazenamento: a tela mostra o recurso de queda em vez de falhar. A resposta e sempre privada e leva o validador da revisao servida, com a variante da imagem.",
+        "operationId": "getProductPhotoFile",
+        "x-rf": [
+          "RF-22"
+        ],
+        "x-status": "implemented",
+        "x-roles": [
+          "CEO",
+          "GERENTE",
+          "VENDEDOR"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          },
+          {
+            "name": "rev",
+            "in": "query",
+            "required": false,
+            "description": "Revisao da foto. Com a revisao atual, a resposta pode ser guardada por 30 dias (private, immutable); sem ela, ou com uma revisao que nao e mais a atual, a resposta e no-cache com o validador do conteudo entregue.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "required": false,
+            "description": "Validador que o navegador ja tem. Igual ao da revisao servida, a resposta e 304 -- depois da autorizacao e de confirmar que a midia existe.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Imagem",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Imagem nao modificada: o validador enviado e o da revisao servida"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/products/{id}/photo/thumb": {
+      "get": {
+        "summary": "Miniatura da foto do produto",
+        "description": "Bytes da imagem. 404 tambem quando a midia nao esta no armazenamento: a tela mostra o recurso de queda em vez de falhar. A resposta e sempre privada e leva o validador da revisao servida, com a variante da imagem.",
+        "operationId": "getProductPhotoThumb",
+        "x-rf": [
+          "RF-22"
+        ],
+        "x-status": "implemented",
+        "x-roles": [
+          "CEO",
+          "GERENTE",
+          "VENDEDOR"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          },
+          {
+            "name": "rev",
+            "in": "query",
+            "required": false,
+            "description": "Revisao da foto. Com a revisao atual, a resposta pode ser guardada por 30 dias (private, immutable); sem ela, ou com uma revisao que nao e mais a atual, a resposta e no-cache com o validador do conteudo entregue.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "required": false,
+            "description": "Validador que o navegador ja tem. Igual ao da revisao servida, a resposta e 304 -- depois da autorizacao e de confirmar que a midia existe.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Imagem",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Imagem nao modificada: o validador enviado e o da revisao servida"
           },
           "400": {
             "$ref": "#/components/responses/BadRequest"
@@ -6045,6 +6342,7 @@
           "active",
           "weightKg",
           "downloadLink",
+          "photoVersion",
           "updatedAt"
         ],
         "properties": {
@@ -6098,7 +6396,67 @@
               "null"
             ]
           },
+          "photoVersion": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "minimum": 1,
+            "description": "Versao da foto do produto, ou null quando nao ha foto. Muda a cada troca e entra na URL da miniatura."
+          },
           "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProductPhoto": {
+        "type": "object",
+        "description": "Foto do produto mantida pela loja. A imagem fica em /products/{id}/photo/file e a miniatura em /products/{id}/photo/thumb; version e a revisao da publicacao, inedita na instalacao, que entra na consulta (?rev=) e no validador da imagem -- nao se repete nem depois de remover a foto e enviar outra.",
+        "required": [
+          "productId",
+          "contentType",
+          "byteSize",
+          "width",
+          "height",
+          "version",
+          "uploadedAt"
+        ],
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "contentType": {
+            "type": "string",
+            "enum": [
+              "image/jpeg",
+              "image/png"
+            ]
+          },
+          "byteSize": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "width": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "height": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "uploadedAt": {
             "type": "string",
             "format": "date-time"
           }

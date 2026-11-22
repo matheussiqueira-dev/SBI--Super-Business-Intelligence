@@ -46,3 +46,10 @@ docs/03-banco-de-dados/pacote-sql/resultado_bd.txt
 docs/03-banco-de-dados/pacote-sql/resultado_olist.txt
 docs/03-banco-de-dados/pacote-sql/resultado_apresentacao.txt
 docs/03-banco-de-dados/pacote-sql/resultado_prova_banco.txt
+
+# Dados descartaveis da fila comercial em desenvolvimento (cotacoes e caixa de saida local).
+.sbi/
+
+# Relatorios e resultados do Playwright da edicao comercial
+playwright-report-comercial/
+test-results-comercial/

@@ -46,31 +46,35 @@ await run('Live OpenAPI documents 400/404 error schemas and validates with offic
   writeFileSync(new URL('openapi-runtime-errors.json', directory), JSON.stringify(liveContract, null, 2) + '\n');
 });
 // ETAPA 2C: /products passou para o contrato v4 (paginado, Money, tipo em oneOf); o baseline continua valendo para os erros.
-const v4 = JSON.parse(readFileSync(new URL('../config/openapi/target-loja-gestao-openapi-2026-10-14-v4.json', import.meta.url), 'utf8'));
-function validateV4(path, method, response) {
-  const result = checkResponse(v4, path, method, response);
+// A resposta real e conferida contra o contrato ATIVO, o mesmo que gera o cliente do frontend e que a auditoria
+// estatica cobre -- nao contra um contrato historico. Os historicos (v3 a v6) ficam preservados e continuam
+// auditados pela estrutura; prender a conferencia ao vivo num deles faria qualquer campo novo de uma resposta
+// existente reprovar aqui, mesmo depois de entrar no contrato ativo e no cliente gerado.
+const active = JSON.parse(readFileSync(new URL('../config/openapi/target-loja-gestao-openapi-2026-11-20-v7.json', import.meta.url), 'utf8'));
+function validateActive(path, method, response) {
+  const result = checkResponse(active, path, method, response);
   assert.ok(result.valid, JSON.stringify(result.errors));
 }
-await run('GET products matches v4 response schema', async () => {
+await run('GET products matches the active contract response schema', async () => {
   const login = await client.login('manager@example.test', process.env.A3_TEST_PASSWORD);
   assert.equal(login.status, 200);
   const response = await request('/products'); assert.equal(response.status, 200);
-  validateV4('/products', 'get', response);
+  validateActive('/products', 'get', response);
 });
-await run('Synthetic product creation and retrieval match v4', async () => {
+await run('Synthetic product creation and retrieval match the active contract', async () => {
   const response = await request('/products', 'POST', { type: 'PHYSICAL', sku: `http-${Date.now()}`, name: 'HTTP contract synthetic product',
     sellable: true, price: { amount: 4500, currency: 'BRL' }, weightKg: 1 });
-  assert.equal(response.status, 201); validateV4('/products', 'post', response);
+  assert.equal(response.status, 201); validateActive('/products', 'post', response);
   assert.ok(Number.isSafeInteger(response.body.id));
   const found = await request(`/products/${response.body.id}`);
-  assert.equal(found.status, 200); validateV4('/products/{id}', 'get', found);
+  assert.equal(found.status, 200); validateActive('/products/{id}', 'get', found);
   assert.equal(found.body.price.amount, 4500);
 });
 await run('Invalid product returns 400 validation error', async () => {
   const response = await request('/products', 'POST', { type: 'PHYSICAL' });
   assert.equal(response.status, 400); assert.equal(response.body.status, 400);
   validateResponse('/products', 'post', response);
-  validateV4('/products', 'post', response);
+  validateActive('/products', 'post', response);
   const live = checkResponse(liveContract, '/products', 'post', response);
   assert.ok(live.valid, JSON.stringify(live.errors));
   assert.ok(Array.isArray(response.body.details) && response.body.details.length > 0);
@@ -79,12 +83,13 @@ await run('Missing product returns 404', async () => {
   const response = await request('/products/9223372036854775807');
   assert.equal(response.status, 404); assert.equal(response.body.status, 404);
   validateResponse('/products/{id}', 'get', response);
-  validateV4('/products/{id}', 'get', response);
+  validateActive('/products/{id}', 'get', response);
   const live = checkResponse(liveContract, '/products/{id}', 'get', response);
   assert.ok(live.valid, JSON.stringify(live.errors));
 });
 const report = { scope: 'baseline-http-isolated-database', timestamp: new Date().toISOString(), results,
   contract: 'baseline-errors-openapi-2026-10-14.json',
+  activeContract: 'target-loja-gestao-openapi-2026-11-20-v7.json',
   contractGaps: ['Error documentation scope: POST /products 400 and GET /products/{id} 404 only.'],
   excluded: ['Seller projections, sales, inventory and goals require the dedicated domain endpoints.'],
   authentication: 'Manager session; CSRF token on mutations.' };

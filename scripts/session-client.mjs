@@ -4,11 +4,13 @@ export function sessionClient(origin) {
   let csrf;
   let lastSetCookies = [];
   async function request(path, method = 'GET', body, { sendCsrf = true, headers: extra = {}, raw = false } = {}) {
-    const headers = { 'Content-Type': 'application/json', ...extra };
+    // Corpo multipart (foto de produto): quem define o Content-Type e o fetch, que precisa escrever o boundary.
+    const form = typeof FormData !== 'undefined' && body instanceof FormData;
+    const headers = { ...(form ? {} : { 'Content-Type': 'application/json' }), ...extra };
     if (cookies.size) headers.Cookie = [...cookies].map(([key, value]) => `${key}=${value}`).join('; ');
     if (sendCsrf && csrf && !['GET', 'HEAD'].includes(method)) headers[csrf.headerName] = csrf.token;
     const response = await fetch(origin + path, { method, headers, redirect: 'error', signal: AbortSignal.timeout(10000),
-      ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
+      ...(body === undefined ? {} : { body: form ? body : JSON.stringify(body) }) });
     lastSetCookies = response.headers.getSetCookie();
     for (const cookie of lastSetCookies) {
       const [name, ...parts] = cookie.split(';')[0].split('=');
@@ -20,6 +22,7 @@ export function sessionClient(origin) {
     if (raw) {
       return { status: response.status, location: response.headers.get('location'),
         contentType: response.headers.get('content-type'), disposition: response.headers.get('content-disposition'),
+        etag: response.headers.get('etag'), cacheControl: response.headers.get('cache-control'),
         bytes: new Uint8Array(await response.arrayBuffer()), body: null };
     }
     return { status: response.status, location: response.headers.get('location'),

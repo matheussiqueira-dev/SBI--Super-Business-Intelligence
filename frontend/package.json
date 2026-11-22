@@ -21,7 +21,8 @@
     "test:e2e": "playwright test",
     "test:e2e:demo": "playwright test -c playwright.demo.config.mjs",
     "api:generate": "orval --config orval.config.mjs",
-    "api:check": "npm run api:generate && git diff --exit-code -- lib/api/generated"
+    "api:check": "npm run api:generate && git diff --exit-code -- lib/api/generated",
+    "test:e2e:comercial": "playwright test -c playwright.comercial.config.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "5.104.2",

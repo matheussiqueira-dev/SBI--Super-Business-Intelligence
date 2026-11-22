@@ -19,11 +19,25 @@ Trabalho A3 · SBI — Super Business Intelligence, feito pelos alunos Allan Gab
 | Camada | Tecnologia |
 | --- | --- |
 | API | Java 25, Spring Boot 4.1, Spring Security 7, `JdbcClient` nos módulos novos e JPA no legado, Springdoc |
-| Banco | PostgreSQL 18, Flyway V1–V12 (única fonte do esquema, Hibernate em `validate`), views do V6, do V9 e do V12 para os painéis, o resumo do cliente e o painel executivo |
+| Banco | PostgreSQL 18, Flyway V1–V13 (única fonte do esquema, Hibernate em `validate`), views do V6, do V9 e do V12 para os painéis, o resumo do cliente e o painel executivo |
 | Frontend | Next.js 16, React 19, TypeScript estrito, Zod 4 gerado do contrato (orval), TanStack Query, identidade visual SBI v2.0 (temas claro e escuro) |
 | Testes | JUnit 5, MockMvc, PostgreSQL 18 descartável via Docker Compose (`docker-compose.test.yml`, porta 15432), Playwright + axe, Ajv para o contrato, pacote SQL por `psql` |
 
 Detalhes em [docs/02-arquitetura/arquitetura.md](docs/02-arquitetura/arquitetura.md) e versões em [docs/06-decisoes/stack.md](docs/06-decisoes/stack.md).
+
+## Duas edições
+
+A mesma base serve o trabalho acadêmico e a oferta comercial, pela variável `NEXT_PUBLIC_SBI_EDICAO`:
+
+- **acadêmica** (padrão): `/` leva cada perfil para a sua área e manda quem não tem sessão para o login. É o
+  comportamento descrito no restante deste README.
+- **comercial**: `/` é a página pública da oferta, que renderiza sem sessão e sem chamar a API do PDV, com
+  `/privacidade`, `/suporte` e a captação de cotações em `/api/cotacao`, independente do banco do PDV.
+
+O guia das edições e de todas as variáveis está em
+[docs/05-operacao/edicoes-e-variaveis.md](docs/05-operacao/edicoes-e-variaveis.md); o estado de cada frente, com
+o que já foi verificado e o que depende de operação externa, em
+[docs/05-operacao/aceite-comercial.md](docs/05-operacao/aceite-comercial.md).
 
 ## Ambiente publicado
 
@@ -113,7 +127,7 @@ Execute no PowerShell, na raiz do repositório, com JDK 25 em `JAVA_HOME` e Dock
 .\mvnw.cmd -q verify                                                                        # unitários (233)
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\test.ps1 -Mode Integration     # integração (649), JaCoCo, PMD, CPD, SpotBugs
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\test-contract.ps1 -HttpOnly -Frontend  # contrato ao vivo + E2E e axe
-npm test; node scripts\audit-contract.mjs config\openapi\target-loja-gestao-openapi-2026-10-24-v6.json  # auditoria estática do contrato v6
+npm test; node scripts\audit-contract.mjs config\openapi\target-loja-gestao-openapi-2026-11-20-v7.json  # auditoria estática do contrato ativo
 cd frontend; npm run typecheck; npm run api:check; npm test; npm run build
 node scripts\quality-metrics.mjs                                                           # métricas de target/ em reports\metricas\ultima (fora do Git)
 ```
@@ -121,7 +135,7 @@ node scripts\quality-metrics.mjs                                                
 A CI (`.github/workflows/ci.yml`) roda quatro jobs de teste, cada um com seus relatórios como artefato, e, nos pull requests, o job `hygiene`, que barra rodapé de coautoria, link de sessão e endereço antigo do site nas mensagens de commit e nos arquivos versionados:
 - `test (backend)`;
 - `bd`: Flyway, seed demo e pacote SQL com 61 PASS, mais 11 PASS da massa Olist e 17 PASS do cenário da apresentação (`run_apresentacao.sh`);
-- `contract`: auditoria estática e verificação ao vivo das operações do contrato v6;
+- `contract`: auditoria estática dos contratos preservados e verificação ao vivo contra o contrato ativo (v7);
 - `frontend`: typecheck, schemas sem diff, testes unitários, build, E2E e axe.
 
 ## Documentação
@@ -137,6 +151,7 @@ A CI (`.github/workflows/ci.yml`) roda quatro jobs de teste, cada um com seus re
 | Modelo de dados e pacote SQL | [docs/03-banco-de-dados/modelo-erp-pdv.md](docs/03-banco-de-dados/modelo-erp-pdv.md), [docs/03-banco-de-dados/pacote-sql/](docs/03-banco-de-dados/pacote-sql/) |
 | Decisões | [docs/06-decisoes/](docs/06-decisoes/) (ERP/PDV, evolução D-EVO, matriz de acesso, autenticação, dinheiro, stack) |
 | Histórico | [docs/10-historico/](docs/10-historico/README.md) (Trello e planejamento, sessão de 04/10, rodadas de 03 a 09/10, contratos ao vivo v4 e v5) |
+| Edição comercial | [Edições e variáveis](docs/05-operacao/edicoes-e-variaveis.md), [cotação e fila](docs/05-operacao/cotacao-e-fila.md), [implantação e catálogo](docs/05-operacao/implantacao-e-catalogo.md), [fotos de produto](docs/05-operacao/fotos-de-produto.md), [operação de suporte](docs/05-operacao/suporte-24-7.md), [disponibilidade e recuperação](docs/05-operacao/disponibilidade-e-recuperacao.md) e [aceite comercial](docs/05-operacao/aceite-comercial.md) |
 | Identidade visual | Manual, design system, logotipos e mockups da v2 em [docs/07-marca/](docs/07-marca/LEIA-ME.md), aplicados nas telas (decisões D-MAR-01 a D-MAR-15); [reports/marca/](reports/marca/) guarda as capturas da marca v1.0, nos dois papéis anteriores ao perfil CEO |
-| Contrato | [config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json](config/openapi/target-loja-gestao-openapi-2026-10-24-v6.json) e Swagger em `/swagger-ui/index.html` |
+| Contrato | [config/openapi/target-loja-gestao-openapi-2026-11-20-v7.json](config/openapi/target-loja-gestao-openapi-2026-11-20-v7.json) e Swagger em `/swagger-ui/index.html` |
 | Rotas legadas (`/orders`, `/payment`, `/address`) | [docs/02-arquitetura/api-legada.md](docs/02-arquitetura/api-legada.md) |

@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { overflowing, PASSWORD, seed } from './support.ts';
+import { settled } from './settle.ts';
 
 const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
@@ -8,6 +9,7 @@ const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 test.use({ colorScheme: 'dark' });
 
 async function violations(page: Page, path: string): Promise<string[]> {
+  await settled(page);
   const result = await new AxeBuilder({ page }).withTags(AXE_TAGS).analyze();
   return result.violations.map(v => `${path}: ${v.id} ${v.nodes.map(n => n.target.join(' ')).join(' | ')}`);
 }

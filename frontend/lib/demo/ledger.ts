@@ -1,7 +1,7 @@
 // Base sintetica da demonstracao (secao 4 do plano de evolucao). Um registro de pedidos e a unica fonte: os fatos do
 // painel (itens vendidos e estornos) sao derivados dele, entao vendedor, gerente e CEO leem sempre a mesma transacao.
 // Dinheiro circula em centavos inteiros e so vira reais na saida, para a soma das partes fechar com o total.
-import { APPLE_PRODUCTS } from './apple-catalog.ts';
+import { DEMO_PRODUCTS } from './catalog.ts';
 import {
   ADD_ON_CATEGORY_ID, ADD_ON_CHANCE, ANNUAL_GOAL, CATEGORIES, CONVERSION_RANGE, CUSTOMER_COUNT,
   CUSTOMER_FIRST_NAMES, CUSTOMER_LAST_NAMES, DEMO_SEED, HISTORY_MONTHS, LOW_STOCK_SKUS,
@@ -110,7 +110,7 @@ export const orderUnits = (order: DemoOrder): number => order.items.reduce((sum,
 // ---------------------------------------------------------------- cadastros
 
 function buildProducts(): DemoProduct[] {
-  return APPLE_PRODUCTS.map(([sku, name, source, price, cost], index) => {
+  return DEMO_PRODUCTS.map(([sku, name, source, price, cost], index) => {
     const category = CATEGORIES.find(item => item.source === source);
     if (!category) throw new Error(`Categoria Olist sem configuração: ${source}`);
     const low = LOW_STOCK_SKUS.includes(sku);

@@ -39,10 +39,13 @@ public class BackofficeRepository {
 
     // ---------------- produtos ----------------
 
+    // A foto entra por LEFT JOIN: produto sem foto continua respondendo, com photo_version nulo, e a tela cai no
+    // mapa local e depois no icone da linha. Uma consulta so, sem uma requisicao por linha para descobrir quem tem foto.
     private static final String PRODUCT_COLUMNS = """
             SELECT p.id, p.product_type, p.sku, p.name, p.description, p.category_id, c.name AS category_name, p.price,
-                   p.sellable, p.active, p.weight, p.download_link, p.updated_at
-              FROM product p LEFT JOIN category c ON c.id = p.category_id""";
+                   p.sellable, p.active, p.weight, p.download_link, f.version AS photo_version, p.updated_at
+              FROM product p LEFT JOIN category c ON c.id = p.category_id
+                             LEFT JOIN product_photo f ON f.product_id = p.id""";
 
     private static Product product(ResultSet rs, int n) throws SQLException {
         Long category = rs.getObject("category_id", Long.class);
@@ -52,7 +55,8 @@ public class BackofficeRepository {
                 rs.getString("description"), category == null ? null : new CategoryRef(category, rs.getString("category_name")),
                 MoneyDto.of(rs.getBigDecimal("price")), rs.getBoolean("sellable"), rs.getBoolean("active"),
                 physical && weight != null ? BigDecimal.valueOf(weight) : null,
-                physical ? null : rs.getString("download_link"), instant(rs, "updated_at"));
+                physical ? null : rs.getString("download_link"), rs.getObject("photo_version", Integer.class),
+                instant(rs, "updated_at"));
     }
 
     public Optional<Product> product(long id) {

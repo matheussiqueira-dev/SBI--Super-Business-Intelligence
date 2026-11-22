@@ -3,6 +3,7 @@
 // `npx playwright test -c playwright.demo.config.mjs`, sem banco e sem backend no ar.
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { settled } from './settle.ts';
 
 const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 /** iPhone 18 Pro, capa e carregador MagSafe. */
@@ -11,6 +12,7 @@ const SALE = 11_706;
 const brl = (value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 async function axe(page: Page, label: string) {
+  await settled(page);
   const result = await new AxeBuilder({ page }).withTags(AXE_TAGS).analyze();
   expect(result.violations.map(violation => `${label}: ${violation.id} (${violation.nodes.length})`)).toEqual([]);
 }

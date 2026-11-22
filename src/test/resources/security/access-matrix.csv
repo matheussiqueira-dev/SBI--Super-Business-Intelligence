@@ -40,6 +40,11 @@ DELETE,/products/{id},401,403,PERMIT,PERMIT
 PATCH,/products/{id}/price,401,403,PERMIT,PERMIT
 PATCH,/products/{id}/status,401,403,PERMIT,PERMIT
 GET,/products/{id}/price-history,401,403,PERMIT,PERMIT
+GET,/products/{id}/photo,401,PERMIT,PERMIT,PERMIT
+GET,/products/{id}/photo/file,401,PERMIT,PERMIT,PERMIT
+GET,/products/{id}/photo/thumb,401,PERMIT,PERMIT,PERMIT
+PUT,/products/{id}/photo,401,403,PERMIT,PERMIT
+DELETE,/products/{id}/photo,401,403,PERMIT,PERMIT
 GET,/categories,401,403,PERMIT,PERMIT
 POST,/categories,401,403,PERMIT,PERMIT
 PUT,/categories/{id},401,403,PERMIT,PERMIT

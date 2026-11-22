@@ -7,6 +7,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { sessionClient } from './session-client.mjs';
 import { checkResponse } from './response-contract.mjs';
+import { png } from './png.mjs';
 
 if (process.env.A3_CONTRACT_ISOLATED !== '1' || !process.env.A3_TEST_PASSWORD) {
   throw new Error('Run scripts/test-contract.ps1: live checks require the disposable database runner.');
@@ -109,6 +110,55 @@ record('/stock/products/{id}/adjustments', 'post', await manager.request(`/stock
 record('/stock/products/{id}/min-level', 'patch', await manager.request(`/stock/products/${product.id}/min-level`, 'PATCH', { minLevel: 2 }), 200);
 record('/stock/products', 'get', await manager.request('/stock/products'), 200);
 record('/stock/movements', 'get', await manager.request(`/stock/movements?productId=${product.id}`), 200);
+
+// Foto do produto (V13 e V14): multipart no envio, corpo binario na leitura, revisao inedita por publicacao e
+// cache coerente com o que foi entregue. O corpo da imagem nao e JSON, entao a conferencia e a que o contrato
+// declara: tipo entre os do 200 e assinatura do formato.
+function recordImage(path, response, { expectEtag, pinned } = {}) {
+  const name = `GET ${path}`;
+  if (response.status !== 200) {
+    findings.push(`${name}: expected 200, got ${response.status}`);
+    return response;
+  }
+  const declared = Object.keys(v4.paths[path].get.responses['200'].content ?? {});
+  const served = (response.contentType ?? '').split(';')[0].trim();
+  if (!declared.includes(served)) findings.push(`${name}: ${served} is not in the contract (${declared.join(', ')})`);
+  const magic = [0x89, 0x50, 0x4e, 0x47];
+  const head = [...response.bytes.slice(0, magic.length)];
+  if (head.join(',') !== magic.join(',')) findings.push(`${name}: signature ${head.join(',')} is not PNG`);
+  if (expectEtag && response.etag !== expectEtag) findings.push(`${name}: etag ${response.etag}, expected ${expectEtag}`);
+  const cache = response.cacheControl ?? '';
+  if (!cache.includes('private')) findings.push(`${name}: media must be private, got ${cache}`);
+  if (pinned === true && !cache.includes('immutable')) findings.push(`${name}: pinned revision should be immutable, got ${cache}`);
+  if (pinned === false && !cache.includes('no-cache')) findings.push(`${name}: unpinned revision must revalidate, got ${cache}`);
+  exercised.set(name, [...(exercised.get(name) ?? []), response.status]);
+  return response;
+}
+const image = new FormData();
+image.append('file', new Blob([png(120, [10, 40, 200])], { type: 'image/png' }), 'foto.png');
+const photo = record('/products/{id}/photo', 'put',
+  await manager.request(`/products/${product.id}/photo`, 'PUT', image), 200).body;
+record('/products/{id}/photo', 'get', await manager.request(`/products/${product.id}/photo`), 200);
+const rev = photo?.version;
+recordImage('/products/{id}/photo/file',
+  await manager.request(`/products/${product.id}/photo/file?rev=${rev}`, 'GET', undefined, { raw: true }),
+  { expectEtag: `"r${rev}-o"`, pinned: true });
+recordImage('/products/{id}/photo/thumb',
+  await manager.request(`/products/${product.id}/photo/thumb?rev=${rev}`, 'GET', undefined, { raw: true }),
+  { expectEtag: `"r${rev}-t"`, pinned: true });
+// Revisao vencida: a resposta entrega o conteudo de agora, com o validador de agora e sem permissao para guardar.
+recordImage('/products/{id}/photo/thumb',
+  await manager.request(`/products/${product.id}/photo/thumb?rev=1`, 'GET', undefined, { raw: true }),
+  { expectEtag: `"r${rev}-t"`, pinned: rev === 1 ? undefined : false });
+// Leitura e do VENDEDOR (o balcao precisa da foto); envio e remocao, nao.
+recordImage('/products/{id}/photo/thumb',
+  await seller.request(`/products/${product.id}/photo/thumb?rev=${rev}`, 'GET', undefined, { raw: true }), {});
+const refused = new FormData();
+refused.append('file', new Blob([png(120, [220, 30, 30])], { type: 'image/png' }), 'foto.png');
+record('/products/{id}/photo', 'put', await seller.request(`/products/${product.id}/photo`, 'PUT', refused), 403);
+record('/products/{id}/photo', 'delete', await manager.request(`/products/${product.id}/photo`, 'DELETE'), 204);
+record('/products/{id}/photo', 'get', await manager.request(`/products/${product.id}/photo`), 404);
+
 record('/products', 'get', await seller.request('/products'), 403);
 
 // Promocoes
