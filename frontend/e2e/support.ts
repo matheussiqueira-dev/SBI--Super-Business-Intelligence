@@ -73,20 +73,6 @@ export async function paidSale(data: Seed, quantity = 1): Promise<number> {
 }
 
 /** Elementos que passam da largura da janela (vazio = sem rolagem horizontal). */
-/**
- * Espera as animacoes finitas da tela terminarem.
- *
- * A revelacao do login (~600 ms, plano comercial secao 07) faz o texto do painel entrar por opacidade. Medir
- * contraste no meio dela acusa uma violacao que a tela parada nao tem: o axe le a cor ja misturada com o fundo.
- * Numa maquina rapida o axe comeca depois dos 600 ms e passa; numa mais lenta, nao -- e o teste reprovava por
- * tempo, nao por acessibilidade. Animacao infinita (indicador de carga) fica de fora para nao travar a espera.
- */
-export async function settled(page: Page): Promise<void> {
-  await page.evaluate(() => Promise.all(document.getAnimations()
-    .filter(animation => (animation.effect?.getComputedTiming().iterations ?? 1) !== Infinity)
-    .map(animation => animation.finished.catch(() => undefined))).then(() => undefined));
-}
-
 export async function overflowing(page: Page): Promise<string[]> {
   return page.evaluate(() => {
     if (document.documentElement.scrollWidth <= window.innerWidth) return [];

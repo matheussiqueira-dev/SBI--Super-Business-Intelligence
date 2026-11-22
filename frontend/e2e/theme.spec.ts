@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { overflowing, PASSWORD, seed, settled } from './support.ts';
+import { overflowing, PASSWORD, seed } from './support.ts';
+import { settled } from './settle.ts';
 
 const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 

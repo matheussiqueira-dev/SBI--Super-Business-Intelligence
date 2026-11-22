@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { overflowing, PASSWORD, settled } from './support.ts';
+import { overflowing, PASSWORD } from './support.ts';
+import { settled } from './settle.ts';
 import { STUDENTS, WORK_TITLE } from '../lib/credits.ts';
 
 const BRAND = 'SBI — Super Business Intelligence';
